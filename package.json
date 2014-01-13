@@ -1,0 +1,20 @@
+{
+  "name": "webfolder.io",
+  "version": "0.0.1",
+  "description": "Share your files to the web instantly and securely",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timkendrick/webfolder.io"
+  },
+  "author": {
+    "name": "Tim Kendrick",
+    "email": "timkendrick@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/timkendrick/webfolder.io/issues"
+  },
+  "devDependencies": {
+    "express": "3.x"
+  }
+}

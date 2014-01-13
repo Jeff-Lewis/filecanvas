@@ -1,0 +1,35 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				".gitmodules",
+				"*.sublime-project"
+			],
+			"folder_exclude_patterns":
+			[
+				"node_modules"
+			],
+			"follow_symlinks": true,
+			"path": "."
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "Grunt (tradeweb-uscc)",
+			"cmd": ["grunt", "--no-color"],
+			"selector": "source.js, text.html"
+		},
+		{
+			"name": "Grunt Sass (tradeweb-uscc)",
+			"cmd": ["grunt", "sass:dev", "--no-color"],
+			"selector": "source.sass, source.scss"
+		}
+	],
+	"settings": {
+		"build_on_save": 1,
+		"filename_filter": "\\.(sass|less|scss)$"
+	}
+}
