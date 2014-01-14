@@ -15,6 +15,7 @@
     "url": "https://github.com/timkendrick/webfolder.io/issues"
   },
   "devDependencies": {
-    "express": "3.x"
+    "express": "3.x",
+    "dropbox": "~0.10.2"
   }
 }
