@@ -1,0 +1,40 @@
+.lead-small {
+	margin-bottom: 75px;
+}
+
+.project-wrp .profile-icon {
+	/*color: #8bc53e;*/
+}
+
+.profile-photo {
+	padding-bottom: 63%;
+	background-image: url('filetypes/_.jpg');
+}
+
+.profile-photo[data-extension="ai"] {
+	background-image: url('filetypes/ai.jpg');
+}
+
+.profile-photo[data-extension="graffle"] {
+	background-image: url('filetypes/graffle.jpg');
+}
+
+.profile-photo[data-extension="html"] {
+	background-image: url('filetypes/html.jpg');
+}
+
+.profile-photo[data-extension="jpg"] {
+	background-image: url('filetypes/jpg.jpg');
+}
+
+.profile-photo[data-extension="pdf"] {
+	background-image: url('filetypes/pdf.jpg');
+}
+
+.profile-photo[data-extension="psd"] {
+	background-image: url('filetypes/psd.jpg');
+}
+
+.profile-photo[data-extension="zip"] {
+	background-image: url('filetypes/zip.jpg');
+}

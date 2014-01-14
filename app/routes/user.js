@@ -11,7 +11,7 @@ module.exports = (function() {
 		var username = req.params.username;
 		var folder = req.params.folder;
 
-		var templateName = 'default';
+		var templateName = 'fathom';
 		var title = username + '’s folder | webfolder.io';
 		var depth = 2;
 

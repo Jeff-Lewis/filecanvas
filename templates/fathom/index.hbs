@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+
+	<title>{{title}}</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<meta name="HandheldFriendly" content="true">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+
+	<!-- Import CSS -->
+	<link rel="stylesheet" href="{{{templateRoot}}}css/base.css">
+	<!--[if lt IE 10]>
+		<link href= "css/ie.css" rel= "stylesheet" media= "all" />
+	<![endif]-->
+
+	<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+</head>
+
+<body>
+
+
+	<!-- Start Homepage -->
+	<header id="home">
+		<div class="header-bg"></div>
+		<div class="pattern"></div>
+		<div class="container">
+			<div class="row">
+				<div class="span4">
+					<a href="http://www.fathomlondon.com/" class="logo"><img src="{{{templateRoot}}}img/FathomLogoSmall.png" alt=""></a>
+				</div>
+				<!-- Navigation -->
+				<nav id="topnav" class="span8">
+					<ul id="fixed-nav" class="visible-desktop">
+						<li><a class="scroll-link" href="#home">Home</a></li>
+						{{#each directories}}
+						<li><a class="scroll-link" href="#{{alias}}">{{label}}</a></li>
+						{{/each}}
+					</ul>
+				</nav>
+				<!-- End Navigation -->
+			</div>
+			<div class="row">
+				<div class="span12">
+					<div id="slidecaption"><span class="color-text">Fathom</span> are a passionate London-based user experience agency who create <span class="color-text">beautiful</span>, <span class="color-text">innovative</span>, digital product design.</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<div class="wrapper">
+
+		<!-- Start Sticky Navigation -->
+		<nav id="mainnav">
+			<div class="container">
+				<div class="row">
+					<div class="span4">
+						<a href="index.html" class="logo"><img src="{{{templateRoot}}}img/FathomLogoTiny.png" alt=""></a>
+					</div>
+					<div class="span8">
+						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
+							<li><a class="scroll-link" href="#home">Home</a></li>
+							{{#each directories}}
+							<li><a class="scroll-link" href="#{{alias}}">{{label}}</a></li>
+							{{/each}}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<!-- End Sticky Navigation -->
+
+
+		{{#each directories}}
+		<section id="{{alias}}" class="page">
+			<div class="container">
+				<div class="row">
+					<div class="span12">
+						<div class="title">{{label}}</div>
+						<hr>
+						<div class="lead-small section-content"></div>
+
+						{{#if directories}}
+						<!-- Start Filters -->
+						<ul class="option-set" data-option-key="filter">
+							<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
+							{{#each directories}}
+							<li><a href="#filter" data-option-value=".filter-{{alias}}"><span></span>{{label}}</a></li>
+							{{/each}}
+						</ul>
+						<!-- End Filters -->
+						{{/if}}
+
+						<div class="posts row isotope ">
+							{{#each assets}}
+							<div class="post item span4 isotope-item">
+								<a href="{{{url}}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
+										<div class="profile-photo" data-extension="{{extension}}">
+											<div class="profile-icon">&#0109;</div>
+										</div>
+										<div class="project-client">Tradeweb</div>
+										<div class="project-name">{{label}}</div>
+										<hr class="mini">
+										<div class="project-date">{{humanDate}} – {{humanSize}}</div>
+								</a>
+							</div>
+							{{/each}}
+							{{#each directories}}
+							{{#each assets}}
+							<div class="post item span4 isotope-item filter-{{../alias}}">
+								<a href="{{{url}}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
+										<div class="profile-photo" data-extension="{{extension}}">
+											<div class="profile-icon">&#0109;</div>
+										</div>
+										<div class="project-client">Tradeweb</div>
+										<div class="project-name">{{label}}</div>
+										<hr class="mini">
+										<div class="project-date">{{humanDate}} – {{humanSize}}</div>
+								</a>
+							</div>
+							{{/each}}
+							{{/each}}
+						</div>
+					</div><!-- End of span 12 -->
+				</div><!-- End of row -->
+			</div><!-- End of container -->
+		</section>
+		{{/each}}
+
+
+		<!-- Start Sidebar -->
+		<section id="sidebar">
+			<div class="container">
+				<div class="row">
+					<div class="span4">
+						<h5>Contact Us</h5>
+						<p><strong>E-mail:</strong> <a href="mailto:hello@fathomlondon.com" class="white-text">hello@fathomlondon.com</a><br />
+						<!-- <strong>Phone:</strong> <span class="white-text">+44 (0)203 544 4896</span><br /> -->
+						<strong>Lacation:</strong> <span class="white-text">80 Coleman Street, London, EC3M 7AT</span></p>
+					</div>
+
+
+					<div class="span4">
+
+					</div>
+
+
+					<div class="span4">
+						<h5>Your Extranet</h5>
+						<p>Providing private access to the latest resources from Fathom London.</p>
+					</div>
+
+
+				</div>
+			</div>
+		</section>
+		<!-- End Sidebar -->
+
+		<section id="copyright">
+			&copy; 2013 Fathom london Ltd.
+		</section>
+
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+	<script>
+		$(document).ready(function() {
+			var sectionContent = {
+				"01-definition": "Smart thinking is what we do best. But smart thinking is diminished in potency without clear and accurate communication. We need to explain what our solution looks like and how it behaves for customers, and we need to do this quickly, in ways that mean you and your stakeholders can understand what we're proposing fully and unambiguously. This is the purpose of Definition. During Definition, our focus is on the creation of bespoke solutions and the timely, efficient communication of that solution to stakeholders.",
+				"02-discovery": "During Discovery, our focus is on analysis of issues, synthesis of insights and modelling of the people at the heart of the matter, the users.",
+				"03-origination": "Origination is the most obviously creative phase of our methodology and, as you'd expect, the hardest part to describe. Experience of interface aesthetics, usability best practice and software interactivity plays a huge part in this inherently creative process. During Origination, our focus is on synthesis of ideas and creation of solutions.",
+				"04-other-documents": null
+			};
+
+			for (var sectionName in sectionContent) {
+				var sectionText = sectionContent[sectionName];
+				var element = $('#' + sectionName + ' .section-content');
+				if (sectionText) { element.html(sectionText); } else { element.remove(); }
+			}
+		});
+
+	</script>
+	<script src="{{{templateRoot}}}js/main.js"></script> <!-- Fathom Code -->
+	<script src="{{{templateRoot}}}js/jquery.easing.min.js"></script>
+	<script src="{{{templateRoot}}}js/jquery.sticky.js"></script><!-- Sticky Navigation -->
+	<script src="{{{templateRoot}}}js/jquery.scrollTo.js"></script><!-- Smooth Scrolling -->
+	<script src="{{{templateRoot}}}js/jquery.nav.js"></script><!-- One Page Navigation -->
+	<script src="{{{templateRoot}}}js/selectnav.min.js"></script><!-- Mobile Navigation -->
+	<script src="{{{templateRoot}}}js/jquery.flexslider.js"></script><!-- FlexSlider 2 -->
+	<script src="{{{templateRoot}}}js/jquery.parallax-1.1.3.js"></script><!-- Parallax -->
+	<script src="{{{templateRoot}}}js/jquery.isotope.min.js"></script><!-- Isotope Portfolio -->
+	<script src="{{{templateRoot}}}js/mql.js"></script><!-- Isotope Fix -->
+	<script src="{{{templateRoot}}}js/shortcodes.js"></script> <!-- Shortcodes -->
+	<script src="{{{templateRoot}}}js/jquery.fancybox.pack.js"></script><!-- Fancybox -->
+	<script src="{{{templateRoot}}}js/jquery.fancybox-media.js"></script><!-- Fancybox Media Helper -->
+	<script src="{{{templateRoot}}}js/jflickrfeed.js"></script><!-- Flickr Feed -->
+	<script src="{{{templateRoot}}}js/settings.js"></script> <!-- JS Options -->
+
+</body>
+
+</html>
