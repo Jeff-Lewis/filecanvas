@@ -7,13 +7,13 @@ var DropboxClient = require('./src/dropbox');
 
 var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
 
-var dropboxClient = new DropboxClient({
+var dropboxClient = new DropboxClient();
+
+dropboxClient.connect({
 	appKey: config.dropbox.appKey,
 	appSecret: config.dropbox.appSecret,
 	appToken: config.dropbox.appToken
-});
-
-dropboxClient.connect(function(error, oauth) {
+}, function(error, oauth) {
 	if (error) {
 		console.warn('Dropbox API connection error');
 		throw error;

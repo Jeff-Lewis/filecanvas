@@ -2,49 +2,62 @@
 
 var Dropbox = require('dropbox');
 
-function DropboxClient(config) {
-	this.appKey = config.appKey;
-	this.appSecret = config.appSecret;
-	this.appToken = config.appToken;
+function DropboxClient() {
 }
 
-DropboxClient.prototype.appKey = null;
-DropboxClient.prototype.appSecret = null;
 DropboxClient.prototype.client = null;
-DropboxClient.prototype.connected = false;
+DropboxClient.prototype.connecting = false;
 
-DropboxClient.prototype.connect = function(callback) {
-	if (this.client) {
-		throw new Error(this.connected ? 'Already connected' : 'Connection attempt already in progress');
-	}
+DropboxClient.prototype.generateAppToken = function(config, callback) {
+	var client = new Dropbox.Client({
+		key: config.appKey,
+		secret: config.appSecret,
+		sandbox: false
+	});
 
-	this.client = new Dropbox.Client({
-		key: this.appKey,
-		secret: this.appSecret,
-		token: this.appToken,
+	client.authDriver(new Dropbox.AuthDriver.NodeServer(8191));
+
+	client.authenticate(function(error, client) {
+		if (error) {
+			if (callback) { callback(error); }
+			return;
+		}
+		if (callback) { callback(null, client._oauth._token); }
+	});
+};
+
+DropboxClient.prototype.connect = function(config, callback) {
+	if (this.connecting) { throw new Error('Connection attempt already in progress'); }
+	if (this.client) { throw new Error('Already connected'); }
+	
+	this.connecting = true;
+
+	var client = new Dropbox.Client({
+		key: config.appKey,
+		secret: config.appSecret,
+		token: config.appToken,
 		sandbox: false
 	});
 
 	var self = this;
 
-	this.client.onError.addListener(function(error) {
+	client.onError.addListener(function(error) {
 		console.warn('Dropbox API error: ' + self.getErrorType(error));
 	});
 	
-	this.client.authenticate(function(error, client) {
+	client.authenticate(function(error, client) {
+		self.connecting = false;
 		if (error) {
-			self.connected = false;
-			self.client = null;
 			if (callback) { callback(error); }
 			return;
 		}
-		self.connected = true;
+		self.client = client;
 		if (callback) { callback(null); }
 	});
 };
 
 DropboxClient.prototype.loadUserDetails = function(callback) {
-	if (!this.connected) { throw new Error('Not connected'); }
+	if (!this.client) { throw new Error('Not connected'); }
 	this.client.getAccountInfo(callback);
 };
 
