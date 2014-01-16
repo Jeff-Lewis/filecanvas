@@ -6,9 +6,19 @@
 
 	var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
 
-	initDropbox(config, function(error, client) {
+	var dropboxLoaded = false;
+	var mongodbLoaded = false;
+
+	initDropbox(config, function(error) {
 		if (error) { throw error; }
-		initServer(port);
+		dropboxLoaded = true;
+		if (mongodbLoaded) { initServer(port); }
+	});
+
+	initMongodb(config, function(error) {
+		if (error) { throw error; }
+		mongodbLoaded = true;
+		if (dropboxLoaded) { initServer(port); }
 	});
 
 
@@ -32,6 +42,22 @@
 				if (callback) { callback(null, DropboxService.client); }
 			});
 
+		});
+	}
+
+	function initMongodb(config, callback) {
+		var DataService = require('./app/services/DataService');
+
+		DataService.connect({
+			uri: config.mongodb.uri
+		}, function(error, db) {
+			if (error) {
+				console.warn('Mongodb connection error');
+				if (callback) { return callback(error); }
+				throw error;
+			}
+			console.info('Mongodb connected');
+			if (callback) { callback(null, db); }
 		});
 	}
 

@@ -40,7 +40,7 @@
 				<nav id="topnav" class="span8">
 					<ul id="fixed-nav" class="visible-desktop">
 						<li><a class="scroll-link" href="#home">Home</a></li>
-						{{#each directories}}
+						{{#each folders}}
 						<li><a class="scroll-link" href="#{{alias}}">{{label}}</a></li>
 						{{/each}}
 					</ul>
@@ -68,7 +68,7 @@
 					<div class="span8">
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
 							<li><a class="scroll-link" href="#home">Home</a></li>
-							{{#each directories}}
+							{{#each folders}}
 							<li><a class="scroll-link" href="#{{alias}}">{{label}}</a></li>
 							{{/each}}
 						</ul>
@@ -79,7 +79,7 @@
 		<!-- End Sticky Navigation -->
 
 
-		{{#each directories}}
+		{{#each folders}}
 		<section id="{{alias}}" class="page">
 			<div class="container">
 				<div class="row">
@@ -88,11 +88,11 @@
 						<hr>
 						<div class="lead-small section-content"></div>
 
-						{{#if directories}}
+						{{#if folders}}
 						<!-- Start Filters -->
 						<ul class="option-set" data-option-key="filter">
 							<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
-							{{#each directories}}
+							{{#each folders}}
 							<li><a href="#filter" data-option-value=".filter-{{alias}}"><span></span>{{label}}</a></li>
 							{{/each}}
 						</ul>
@@ -100,7 +100,7 @@
 						{{/if}}
 
 						<div class="posts row isotope ">
-							{{#each assets}}
+							{{#each files}}
 							<div class="post item span4 isotope-item">
 								<a href="{{{url}}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
 										<div class="profile-photo" data-extension="{{extension}}">
@@ -113,8 +113,8 @@
 								</a>
 							</div>
 							{{/each}}
-							{{#each directories}}
-							{{#each assets}}
+							{{#each folders}}
+							{{#each files}}
 							<div class="post item span4 isotope-item filter-{{../alias}}">
 								<a href="{{{url}}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
 										<div class="profile-photo" data-extension="{{extension}}">

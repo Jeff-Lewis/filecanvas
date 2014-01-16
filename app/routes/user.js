@@ -4,84 +4,124 @@ module.exports = (function() {
 	var express = require('express');
 	var templates = require('../templates');
 	var DropboxService = require('../services/DropboxService');
+	var DataService = require('../services/DataService');
 
 	var app = express();
 
-	app.get('/:username/:folder', function(req, res, next) {
+	app.get('/:username/:app', function(req, res, next) {
 		var username = req.params.username;
-		var folder = req.params.folder;
+		var appName = req.params.app;
 
-		var templateName = 'fathom';
-		var title = username + '’s folder | webfolder.io';
-		var depth = 2;
+		var includeCache = false;
+		DataService.retrieveApp(username, appName, includeCache, _handleAppModelLoaded);
 
-		loadFolderListing(username, folder, depth, function(error, stat) {
+
+		function _handleAppModelLoaded(error, appModel) {
 			if (error) { return next(error); }
-			var template = templates[templateName];
-			var html = template({
-				title: title,
-				templateRoot: '/templates/' + templateName + '/',
-				contents: stat.contents,
-				directories: stat.directories,
-				assets: stat.assets
-			});
-			res.send(html);
-		});
+			appModel = appModel;
+
+			var templateName = appModel.template;
+			console.log(JSON.stringify(appModel, null, '\t'));
+			var title = appModel.title;
+			var depth = appModel.depth;
+
+			var userPathPrefix = '/.dropkick/users/' + username + '/';
+			var appFolderPath = userPathPrefix + appName;
+
+			loadFolderListing(appFolderPath, depth, _handleFolderListingLoaded);
+
+			function _handleFolderListingLoaded(error, statModel) {
+				if (error) { return next(error); }
+
+				var templateData = getTemplateData(statModel, userPathPrefix, '/downloads/');
+
+				var template = templates[templateName];
+				var html = template({
+					title: title,
+					templateRoot: '/templates/' + templateName + '/',
+					contents: templateData.contents,
+					folders: templateData.folders,
+					files: templateData.files
+				});
+				res.send(html);
+			}
+		}
+
+
 	});
 
 	return app;
 
+	function getTemplateData(statModel, pathPrefix, urlPrefix) {
+		var templateData = {};
 
-	function loadFolderListing(user, folder, depth, callback) {
-		var pathPrefix = '/.dropkick/users/' + user + '/';
-		var path = pathPrefix + folder;
+		for (var property in statModel) {
+			if (!statModel.hasOwnProperty(property)) { continue; }
+			if (property.charAt(0) === '_') { continue; }
+			if (property === 'contents') {
+				templateData.contents = statModel.contents.map(function(statModel) {
+					return getTemplateData(statModel, pathPrefix, urlPrefix);
+				});
+				continue;
+			}
+			templateData[property] = statModel[property];
+		}
+
+		templateData.alias = templateData.name.toLowerCase().replace(/[^a-z0-9_]+/g, '-');
+		templateData.label = templateData.name.replace(/^[0-9]+[ \.\-\|]*/, '');
+		if (templateData.isFile) {
+			templateData.extension = templateData.label.split('.').pop();
+			templateData.label = templateData.label.substr(0, templateData.label.lastIndexOf('.'));
+		}
+		templateData.url = templateData.path.replace(pathPrefix, urlPrefix);
+		templateData.humanDate = formatDate(templateData.modifiedAt);
+
+		if (templateData.contents) {
+			templateData.folders = templateData.contents.filter(function(fileModel) { return fileModel.isFolder; });
+			templateData.files = templateData.contents.filter(function(fileModel) { return fileModel.isFile; });
+		} else {
+			templateData.contents = null;
+			templateData.folders = null;
+			templateData.files = null;
+		}
+
+		return templateData;
+	}
+
+
+	function loadFolderListing(path, depth, callback) {
 		var options = { readDir: true };
 		DropboxService.client.stat(path, options, _handleFolderStatLoaded);
 
-		function _handleFolderStatLoaded(error, stat, contents) {
+		function _handleFolderStatLoaded(error, statModel, contents) {
 			if (error) { return callback(error); }
 
-			stat.contents = contents;
-			stat.directories = contents.filter(function(fileStat) { return fileStat.isFolder; });
-			stat.assets = contents.filter(function(fileStat) { return fileStat.isFile; });
-
-			contents.forEach(function(fileStat) {
-				fileStat.alias = fileStat.name.toLowerCase().replace(/[^a-z0-9_]+/g, '-');
-				fileStat.label = fileStat.name.replace(/^[0-9]+[ \.\-\|]*/, '');
-				if (fileStat.isFile) {
-					fileStat.extension = fileStat.label.split('.').pop();
-					fileStat.label = fileStat.label.substr(0, fileStat.label.lastIndexOf('.'));
-				}
-				fileStat.url = '/download/' + fileStat.path.replace(pathPrefix, '');
-				fileStat.humanDate = formatDate(fileStat.modifiedAt);
-			});
+			statModel.contents = contents;
 
 			var remainingChildren = 0;
 			if (depth > 0) { _recurseFolderContents(contents, depth); }
 			if (remainingChildren > 0) { return; }
 
-			callback(null, stat);
+			callback(null, statModel);
 
 
 			function _recurseFolderContents(contents, depth) {
-				var childFolders = contents.filter(function(childStat) { return childStat.isFolder; });
-				remainingChildren++
+				var childFolders = contents.filter(function(childStatModel) { return childStatModel.isFolder; });
+				remainingChildren++;
 				childFolders.forEach(_loadChildFolderStat);
 				remainingChildren--;
 			}
 
-			function _loadChildFolderStat(childStat) {
+			function _loadChildFolderStat(childStatModel) {
 				remainingChildren++;
-				var childFolderName = folder + '/' + childStat.name;
-				return loadFolderListing(user, childFolderName, depth - 1, _handleChildFolderStatLoaded);
+				var childFolderName = path + '/' + childStatModel.name;
+				return loadFolderListing(childFolderName, depth - 1, _handleChildFolderStatLoaded);
 
-				function _handleChildFolderStatLoaded(error, populatedChildStat) {
+				function _handleChildFolderStatLoaded(error, populatedChildStatModel) {
 					if (error) { return callback(error); }
-					childStat.contents = populatedChildStat.contents;
-					childStat.directories = populatedChildStat.directories;
-					childStat.assets = populatedChildStat.assets;
+					childStatModel.contents = populatedChildStatModel.contents;
 					if (--remainingChildren === 0) {
-						callback(null, stat);
+						callback(null, statModel);
 					}
 				}
 			}
