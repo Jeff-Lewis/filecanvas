@@ -1,0 +1,19 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				".gitmodules",
+				"*.sublime-project"
+			],
+			"folder_exclude_patterns":
+			[
+				"node_modules",
+				".mongodb/data"
+			],
+			"follow_symlinks": true,
+			"path": "."
+		}
+	]
+}

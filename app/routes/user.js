@@ -33,7 +33,7 @@ module.exports = (function() {
 
 
 	function loadFolderListing(user, folder, depth, callback) {
-		var pathPrefix = '/.webfolder/users/' + user + '/';
+		var pathPrefix = '/.dropkick/users/' + user + '/';
 		var path = pathPrefix + folder;
 		var options = { readDir: true };
 		DropboxService.client.stat(path, options, _handleFolderStatLoaded);
