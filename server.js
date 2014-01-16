@@ -27,9 +27,9 @@
 			}
 			console.info('Dropbox API connected');
 
-			DropboxService.loadUserDetails(function(error, accountInfo) {
-				console.log('Logged in as ' + accountInfo.name);
-				if (callback) { callback(null, client); }
+			DropboxService.client.getAccountInfo(function(error, accountInfo) {
+				console.log('Dropbox logged in as ' + accountInfo.name);
+				if (callback) { callback(null, DropboxService.client); }
 			});
 
 		});

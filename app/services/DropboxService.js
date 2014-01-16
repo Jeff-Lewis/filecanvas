@@ -52,11 +52,6 @@ module.exports = (function() {
 		});
 	};
 
-	DropboxService.prototype.loadUserDetails = function(callback) {
-		if (!this.client) { return callback(new Error('Not connected')); }
-		this.client.getAccountInfo(callback);
-	};
-
 	DropboxService.prototype.getErrorType = function(error) {
 		switch (error.status) {
 		case Dropbox.ApiError.INVALID_TOKEN:
