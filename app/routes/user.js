@@ -6,51 +6,143 @@ module.exports = (function() {
 	var DropboxService = require('../services/DropboxService');
 	var DataService = require('../services/DataService');
 
+	var SECONDS = 1000;
+	var MINUTES = SECONDS * 60;
+	var DROPBOX_DELTA_CACHE_EXPIRY = 5 * MINUTES;
+
 	var app = express();
 
 	app.get('/:username/:app', function(req, res, next) {
 		var username = req.params.username;
 		var appName = req.params.app;
 
-		var includeCache = false;
+		var userPathPrefix = '/.dropkick/users/' + username + '/';
+
+		var includeCache = true;
 		DataService.retrieveApp(username, appName, includeCache, _handleAppModelLoaded);
 
 
 		function _handleAppModelLoaded(error, appModel) {
 			if (error) { return next(error); }
-			appModel = appModel;
 
-			var templateName = appModel.template;
-			console.log(JSON.stringify(appModel, null, '\t'));
-			var title = appModel.title;
-			var depth = appModel.depth;
+			loadAppFolder(username, appName, appModel, userPathPrefix, _handleAppFolderLoaded);
 
-			var userPathPrefix = '/.dropkick/users/' + username + '/';
-			var appFolderPath = userPathPrefix + appName;
 
-			loadFolderListing(appFolderPath, depth, _handleFolderListingLoaded);
-
-			function _handleFolderListingLoaded(error, statModel) {
+			function _handleAppFolderLoaded(error, appCache) {
 				if (error) { return next(error); }
 
-				var templateData = getTemplateData(statModel, userPathPrefix, '/downloads/');
-
-				var template = templates[templateName];
-				var html = template({
-					title: title,
-					templateRoot: '/templates/' + templateName + '/',
-					contents: templateData.contents,
-					folders: templateData.folders,
-					files: templateData.files
-				});
+				var html = getAppHtml(appModel, appCache.data, userPathPrefix);
 				res.send(html);
+
+				cacheAppFolder(appCache, username, appName);
 			}
 		}
-
-
 	});
 
 	return app;
+
+
+	function getAppHtml(appModel, statModel, userPathPrefix) {
+		var templateName = appModel.template;
+		var title = appModel.title;
+		return renderTemplate(templateName, title, statModel, userPathPrefix);
+	}
+
+	function loadAppFolder(username, appName, appModel, userPathPrefix, callback) {
+		var appFolderPath = userPathPrefix + appName;
+		var appCache = appModel.cache;
+
+		var cacheCursor = (appCache && appCache.cursor) || null;
+		var cacheRoot = (appCache && appCache.data) || null;
+		var cacheUpdated = (appCache && appCache.updated) || 0;
+
+		var timeSinceLastUpdate = (new Date() - cacheUpdated);
+		if (timeSinceLastUpdate < DROPBOX_DELTA_CACHE_EXPIRY) {
+			console.log('Retrieved ' + appFolderPath + ' from cache');
+			return callback && callback(null, appCache);
+		}
+
+		DropboxService.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
+
+
+		function _handleDeltaLoaded(error, pulledChanges) {
+			if (error) { return callback && callback(error); }
+
+			cacheCursor = pulledChanges.cursorTag;
+
+			var cachePathLookupTable;
+			if (pulledChanges.blankSlate) {
+				cacheRoot = null;
+				cachePathLookupTable = {};
+			} else {
+				cachePathLookupTable = _getCacheDictionary({}, cacheRoot);
+			}
+
+			pulledChanges.changes.forEach(function(changeModel) {
+				var changePath = changeModel.path;
+
+				var parentPath = changePath.substr(0, changePath.lastIndexOf('/'));
+				var parentFolder = cachePathLookupTable[parentPath] || null;
+
+				if (changeModel.wasRemoved) {
+					if (changePath === appFolderPath) { cacheRoot = null; }
+					parentFolder.contents = parentFolder.contents.reduce(function(siblingFolder) {
+						return siblingFolder.path !== changePath;
+					});
+				} else {
+					var fileModel = changeModel.stat.toJSON();
+					if (fileModel.is_dir) { fileModel.contents = []; }
+					if (changePath === appFolderPath) {
+						cacheRoot = fileModel;
+					} else {
+						parentFolder.contents.push(fileModel);
+					}
+					cachePathLookupTable[changePath] = fileModel;
+				}
+			});
+
+			if (pulledChanges.shouldPullAgain) {
+				DropboxService.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
+			} else {
+				var updatedCache = {
+					updated: new Date(),
+					cursor: cacheCursor,
+					data: cacheRoot
+				};
+				console.log('Retrieved ' + appFolderPath + ' from Dropbox');
+				console.log(JSON.stringify(updatedCache.data, null, '\t'));
+				return callback && callback(null, updatedCache);
+			}
+
+
+			function _getCacheDictionary(cachePathLookupTable, cacheItem) {
+				cachePathLookupTable[cacheItem.path] = cacheItem;
+				if (cacheItem.contents) {
+					cachePathLookupTable = cacheItem.contents.reduce(_getCacheDictionary, cachePathLookupTable);
+				}
+				return cachePathLookupTable;
+			}
+		}
+	}
+
+	function cacheAppFolder(appCache, username, appName, callback) {
+		DataService.updateAppCache(username, appName, appCache, callback);
+	}
+
+	function renderTemplate(templateName, title, statModel, userPathPrefix) {
+		var template = templates[templateName];
+		var templateData = getTemplateData(statModel, userPathPrefix, '/downloads');
+		var templateRoot = '/templates/' + templateName + '/';
+
+
+		return template({
+			title: title,
+			templateRoot: templateRoot,
+			contents: templateData.contents,
+			folders: templateData.folders,
+			files: templateData.files
+		});
+	}
 
 	function getTemplateData(statModel, pathPrefix, urlPrefix) {
 		var templateData = {};
@@ -67,18 +159,19 @@ module.exports = (function() {
 			templateData[property] = statModel[property];
 		}
 
+		templateData.name = templateData.path.split('/').pop();
 		templateData.alias = templateData.name.toLowerCase().replace(/[^a-z0-9_]+/g, '-');
 		templateData.label = templateData.name.replace(/^[0-9]+[ \.\-\|]*/, '');
-		if (templateData.isFile) {
+		if (!templateData.is_dir) {
 			templateData.extension = templateData.label.split('.').pop();
 			templateData.label = templateData.label.substr(0, templateData.label.lastIndexOf('.'));
 		}
 		templateData.url = templateData.path.replace(pathPrefix, urlPrefix);
-		templateData.humanDate = formatDate(templateData.modifiedAt);
+		templateData.date = formatDate(new Date(templateData.modified));
 
 		if (templateData.contents) {
-			templateData.folders = templateData.contents.filter(function(fileModel) { return fileModel.isFolder; });
-			templateData.files = templateData.contents.filter(function(fileModel) { return fileModel.isFile; });
+			templateData.folders = templateData.contents.filter(function(fileModel) { return fileModel.is_dir; });
+			templateData.files = templateData.contents.filter(function(fileModel) { return !fileModel.is_dir; });
 		} else {
 			templateData.contents = null;
 			templateData.folders = null;
@@ -86,46 +179,6 @@ module.exports = (function() {
 		}
 
 		return templateData;
-	}
-
-
-	function loadFolderListing(path, depth, callback) {
-		var options = { readDir: true };
-		DropboxService.client.stat(path, options, _handleFolderStatLoaded);
-
-		function _handleFolderStatLoaded(error, statModel, contents) {
-			if (error) { return callback(error); }
-
-			statModel.contents = contents;
-
-			var remainingChildren = 0;
-			if (depth > 0) { _recurseFolderContents(contents, depth); }
-			if (remainingChildren > 0) { return; }
-
-			callback(null, statModel);
-
-
-			function _recurseFolderContents(contents, depth) {
-				var childFolders = contents.filter(function(childStatModel) { return childStatModel.isFolder; });
-				remainingChildren++;
-				childFolders.forEach(_loadChildFolderStat);
-				remainingChildren--;
-			}
-
-			function _loadChildFolderStat(childStatModel) {
-				remainingChildren++;
-				var childFolderName = path + '/' + childStatModel.name;
-				return loadFolderListing(childFolderName, depth - 1, _handleChildFolderStatLoaded);
-
-				function _handleChildFolderStatLoaded(error, populatedChildStatModel) {
-					if (error) { return callback(error); }
-					childStatModel.contents = populatedChildStatModel.contents;
-					if (--remainingChildren === 0) {
-						callback(null, statModel);
-					}
-				}
-			}
-		}
 	}
 
 	function formatDate(date) {

@@ -9,6 +9,7 @@
 .profile-photo {
 	padding-bottom: 63%;
 	background-image: url('filetypes/_.jpg');
+	background-size: cover;
 }
 
 .profile-photo[data-extension="ai"] {

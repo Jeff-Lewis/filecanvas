@@ -19,7 +19,7 @@ module.exports = (function() {
 		var self = this;
 		MongoClient.connect(config.uri, function(error, db) {
 			self.connecting = false;
-			if (error) { return callback(error); }
+			if (error) { return callback && callback(error); }
 			self.db = db;
 			if (callback) { callback(null, db); }
 		});
@@ -30,8 +30,8 @@ module.exports = (function() {
 
 		this.db.collection('users').findOne(query,
 			function(error, userModel) {
-				if (error) { return callback(error); }
-				return callback(null, userModel);
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, userModel);
 			}
 		);
 	};
@@ -42,8 +42,8 @@ module.exports = (function() {
 
 		this.db.collection('apps').findOne(query, projection,
 			function(error, appModel) {
-				if (error) { callback(error); }
-				return callback(null, appModel);
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, appModel);
 			}
 		);
 	};
@@ -54,8 +54,8 @@ module.exports = (function() {
 		
 		this.db.collection('apps').findOne(query, projection,
 			function(error, appModel) {
-				if (error) { callback(error); }
-				return callback(null, appModel.cache);
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, appModel.cache);
 			}
 		);
 	};
@@ -69,8 +69,8 @@ module.exports = (function() {
 		
 		this.db.collection('apps').update(query, update, options,
 			function(error, result) {
-				if (error) { callback(error); }
-				return callback(null, result);
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, result);
 			}
 		);
 	};

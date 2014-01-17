@@ -41,6 +41,7 @@ module.exports = (function() {
 		var self = this;
 
 		client.onError.addListener(function(error) {
+			if (error.status === 304) { return; }
 			console.warn('Dropbox API error: ' + self.getErrorType(error));
 		});
 
