@@ -58,7 +58,6 @@ module.exports = (function() {
 
 		var timeSinceLastUpdate = (new Date() - cacheUpdated);
 		if (timeSinceLastUpdate < DROPBOX_DELTA_CACHE_EXPIRY) {
-			console.log('Retrieved ' + appFolderPath + ' from cache');
 			return callback && callback(null, appCache);
 		}
 
@@ -79,20 +78,21 @@ module.exports = (function() {
 			}
 
 			pulledChanges.changes.forEach(function(changeModel) {
-				var changePath = changeModel.path;
+				var changePath = changeModel.path.toLowerCase();
 
-				var parentPath = changePath.substr(0, changePath.lastIndexOf('/'));
+				var parentPath = changePath.substr(0, changePath.lastIndexOf('/')).toLowerCase();
 				var parentFolder = cachePathLookupTable[parentPath] || null;
+				var isAppFolder = (changePath === appFolderPath.toLowerCase());
 
 				if (changeModel.wasRemoved) {
-					if (changePath === appFolderPath) { cacheRoot = null; }
-					parentFolder.contents = parentFolder.contents.reduce(function(siblingFolder) {
-						return siblingFolder.path !== changePath;
+					if (isAppFolder) { cacheRoot = null; }
+					parentFolder.contents = parentFolder.contents.filter(function(siblingFolder) {
+						return siblingFolder.path.toLowerCase() !== changePath;
 					});
 				} else {
 					var fileModel = changeModel.stat.toJSON();
 					if (fileModel.is_dir) { fileModel.contents = []; }
-					if (changePath === appFolderPath) {
+					if (isAppFolder) {
 						cacheRoot = fileModel;
 					} else {
 						parentFolder.contents.push(fileModel);
@@ -109,14 +109,12 @@ module.exports = (function() {
 					cursor: cacheCursor,
 					data: cacheRoot
 				};
-				console.log('Retrieved ' + appFolderPath + ' from Dropbox');
-				console.log(JSON.stringify(updatedCache.data, null, '\t'));
 				return callback && callback(null, updatedCache);
 			}
 
 
 			function _getCacheDictionary(cachePathLookupTable, cacheItem) {
-				cachePathLookupTable[cacheItem.path] = cacheItem;
+				cachePathLookupTable[cacheItem.path.toLowerCase()] = cacheItem;
 				if (cacheItem.contents) {
 					cachePathLookupTable = cacheItem.contents.reduce(_getCacheDictionary, cachePathLookupTable);
 				}
