@@ -94,6 +94,6 @@ module.exports = (function() {
 		}
 	};
 
-	return new DropboxService();
+	return DropboxService;
 
 })();

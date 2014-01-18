@@ -2,9 +2,13 @@ module.exports = (function() {
 	'use strict';
 
 	var express = require('express');
+
 	var templates = require('../templates');
-	var DropboxService = require('../services/DropboxService');
-	var DataService = require('../services/DataService');
+	var dropbox = require('../globals').dropbox;
+	var db = require('../globals').db;
+
+	var AppService = require('../services/AppService');
+	var AuthenticationService = require('../services/AuthenticationService');
 
 	var SECONDS = 1000;
 	var MINUTES = SECONDS * 60;
@@ -12,20 +16,49 @@ module.exports = (function() {
 
 	var app = express();
 
-	app.get('/:username/:app', function(req, res, next) {
-		var username = req.params.username;
+	app.get('/:username/:app', auth, route);
+
+	return app;
+
+
+	function auth(req, res, next) {
+		var appUser = req.params.username;
 		var appName = req.params.app;
 
-		var userPathPrefix = '/.dropkick/users/' + username + '/';
+		var appService = new AppService(db, appUser, appName);
+
+		appService.getAuthenticationDetails(function(error, authentication, callback) {
+			if (error) { return next(error); }
+
+			var isPublic = authentication['public'];
+			if (isPublic) { return next(); }
+
+			express.basicAuth(function(username, password) {
+				var validUsers = authentication.users;
+				var authenticationService = new AuthenticationService();
+				return authenticationService.authenticate(username, password, validUsers);
+			})(req, res, next);
+		});
+
+	}
+
+	function route(req, res, next) {
+		var appUser = req.params.username;
+		var appName = req.params.app;
+
+		var userPathPrefix = '/.dropkick/users/' + appUser + '/';
+		var appFolderPath = userPathPrefix + appName;
+
+		var appService = new AppService(db, appUser, appName);
 
 		var includeCache = true;
-		DataService.retrieveApp(username, appName, includeCache, _handleAppModelLoaded);
+		appService.retrieveApp(includeCache, _handleAppModelLoaded);
 
 
 		function _handleAppModelLoaded(error, appModel) {
 			if (error) { return next(error); }
 
-			loadAppFolder(username, appName, appModel, userPathPrefix, _handleAppFolderLoaded);
+			loadAppFolder(appFolderPath, appModel, _handleAppFolderLoaded);
 
 
 			function _handleAppFolderLoaded(error, appCache) {
@@ -34,12 +67,10 @@ module.exports = (function() {
 				var html = getAppHtml(appModel, appCache.data, userPathPrefix);
 				res.send(html);
 
-				cacheAppFolder(appCache, username, appName);
+				appService.updateAppCache(appCache);
 			}
 		}
-	});
-
-	return app;
+	}
 
 
 	function getAppHtml(appModel, statModel, userPathPrefix) {
@@ -48,8 +79,7 @@ module.exports = (function() {
 		return renderTemplate(templateName, title, statModel, userPathPrefix);
 	}
 
-	function loadAppFolder(username, appName, appModel, userPathPrefix, callback) {
-		var appFolderPath = userPathPrefix + appName;
+	function loadAppFolder(appFolderPath, appModel, callback) {
 		var appCache = appModel.cache;
 
 		var cacheCursor = (appCache && appCache.cursor) || null;
@@ -61,7 +91,7 @@ module.exports = (function() {
 			return callback && callback(null, appCache);
 		}
 
-		DropboxService.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
+		dropbox.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
 
 
 		function _handleDeltaLoaded(error, pulledChanges) {
@@ -102,7 +132,7 @@ module.exports = (function() {
 			});
 
 			if (pulledChanges.shouldPullAgain) {
-				DropboxService.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
+				dropbox.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
 			} else {
 				var updatedCache = {
 					updated: new Date(),
@@ -121,10 +151,6 @@ module.exports = (function() {
 				return cachePathLookupTable;
 			}
 		}
-	}
-
-	function cacheAppFolder(appCache, username, appName, callback) {
-		DataService.updateAppCache(username, appName, appCache, callback);
 	}
 
 	function renderTemplate(templateName, title, statModel, userPathPrefix) {
