@@ -1,0 +1,15 @@
+fieldset {
+	margin-bottom: 40px;
+}
+
+legend {
+	padding-bottom: 4px;
+}
+
+.main {
+	margin-top: 70px;
+}
+
+.users-table {
+	margin-bottom: 0;
+}

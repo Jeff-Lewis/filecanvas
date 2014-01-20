@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="shortcut icon" href="assets/favicon.ico">
+		<title>Dropkick Admin Area</title>
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+		<link href="assets/css/dropkick-admin.css" rel="stylesheet">
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="//dropkick.it/">Dropkick</a>
+				</div>
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Your sites <b class="caret"></b></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">Tradeweb</a></li>
+								<li class="divider"></li>
+								<li><a href="#">Create a new site...</a></li>
+							</ul>
+						</li>
+						<li><a href="#faq">FAQ</a></li>
+						<li><a href="#support">Support</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Tim Kendrick <b class="caret"></b></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">Account settings</a></li>
+								<li><a href="#">Upgrade package...</a></li>
+								<li class="divider"></li>
+								<li><a href="#">Log out</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</header>
+
+		<section class="container main">
+			<div class="row">
+				<div class="col-sm-12 col-lg-offset-1 col-lg-11">
+					<h2>Edit Site: Tradeweb</h2>
+					<p class="lead">Use the fields below to make changes to this Dropkick site.</p>
+					<hr/>
+					<form class="form-horizontal" role="form">
+						<fieldset>
+							<div class="form-group">
+								<label for="input-sites-name" class="col-sm-3 col-lg-2 control-label">Site name</label>
+								<div class="col-sm-6 col-lg-4">
+									<input type="text" name="name" class="form-control" id="input-sites-name" placeholder="sitename" value="Tradeweb" data-role="site-name" title="This determines the site’s web address, and helps you identify it in the Dropkick admin area" data-trigger="focus"/>
+									<p class="help-block">https://fathom.dropkick.it/<strong data-value="site-alias">tradeweb</strong></p>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="input-sites-title" class="col-sm-3 col-lg-2 control-label">Title</label>
+								<div class="col-sm-6 col-lg-4">
+									<input type="text" name="title" class="form-control" id="input-sites-title" placeholder="Site title" value="Tradeweb Extranet | Fathom London" title="This determines what is shown in the title of the user’s browser window" data-trigger="focus"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="input-sites-header" class="col-sm-3 col-lg-2 control-label">Page header</label>
+								<div class="col-sm-6 col-lg-4">
+									<input type="text" name="header" class="form-control" id="input-sites-header" placeholder="Page header" value="Tradeweb Extranet" title="This determines the header text at the top of the site’s main page" data-trigger="focus"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend>Dropbox sync</legend>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
+								<div class="col-sm-9">
+									<p class="form-control-static">Tradeweb Extranet (<a href="#change" title="Change the Dropbox folder that this site currently syncs from">change</a>)</p>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">File listing</label>
+								<div class="col-sm-9">
+									<p class="form-control-static"><a href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder.">Scan Dropbox folder for newly-added files</a></p>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend>Display options</legend>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Newly added</label>
+								<div class="col-sm-9">
+									<div class="checkbox">
+										<label title="Include a section at the top of the Dropkick site containing the most recently-updated files">
+											<input type="checkbox" name="newly-added" value="true"/> Include ‘Newly Added’ section
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Numbered items</label>
+								<div class="col-sm-9">
+									<div class="checkbox">
+										<label title="You can choose to keep your Dropbox files in order by preceding their filenames with numbers (e.g. ‘01 - Latest Designs’). Use this checkbox if you don’t want your users to see these numbers in the Dropkick site (i.e. display this as ‘Latest Designs’)">
+											<input type="checkbox" name="numbered-items" value="true" checked="checked"/> Hide numbers at the start of filenames
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">File extensions</label>
+								<div class="col-sm-9">
+									<div class="checkbox">
+										<label title="By default, Dropkick will hide all file extensions (e.g. ‘.pdf’). Use this checkbox if you want your users to see these file extensions in the Dropkick site.">
+											<input type="checkbox" name="show-extensions" value="true"/> Show file extensions
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend>Branding</legend>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Site logo</label>
+								<div class="col-sm-9">
+									<img width="200" height="100" class="img-thumbnail"/><br/>
+									<button type="button" class="btn btn-default" title="Upload your own custom logo image to display in the Dropkick site header">Upload a new image...</button>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend>Password protection</legend>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Site access</label>
+								<div class="col-sm-9">
+									<div class="checkbox">
+										<label title="Only allow users with a valid username and password to see the Dropkick site">
+											<input type="checkbox" name="private" value="true"/> Password protect this site
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Add new user</label>
+								<div class="col-sm-9 col-lg-6">
+									<div class="row">
+										<div class="col-sm-4">
+											<input type="text" class="form-control" placeholder="username" title="Enter a username which your users can use to log into your Dropkick site" data-trigger="focus"/>
+										</div>
+										<div class="col-sm-4">
+											<input type="password" class="form-control" placeholder="password" title="Enter a password to go with this username" data-trigger="focus"/>
+										</div>
+										<div class="col-sm-4">
+											<button class="btn btn-default" title="Add this user to the list of users who are allowed to see your Dropkick site"><span class="glyphicon glyphicon-plus"></span> Add user</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
+								<div class="col-sm-6 col-lg-4">
+									<p class="help-block" title="Password protection is enabled, but you have not yet added any user passwords">Nobody is allowed to access this site</p>
+									<input type="hidden" value="[&quot;user&quot;,&quot;user2&quot;]"/>
+									<table class="table table-bordered table-condensed users-table">
+										<tbody>
+											<tr>
+												<td>user <button class="pull-right btn btn-default btn-xs" title="Revoke access for this user"><span class="glyphicon glyphicon-remove"></span> Remove user</button></td>
+											</tr>
+											<tr>
+												<td>user2 <button class="pull-right btn btn-default btn-xs" title="Revoke access for this user"><span class="glyphicon glyphicon-remove"></span> Remove user</button></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend>Custom domain names</legend>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Domain names<br/><h6>This requires that you <a href="#faq">point your DNS to Dropkick</a></h6></label>
+								<div class="col-sm-6 col-lg-4">
+									<textarea class="form-control" rows="3" placeholder="my-domain.com" title="Enter all the domain names which you want to point to this Dropkick site (e.g. ‘my-extranet.com’ or ‘extranet.my-domain.com’). If entering multiple domain names, enter one per line. You must already own these domain names for this to work."></textarea>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+								</div>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend>Delete site</legend>
+							<div class="form-group">
+								<ul>
+									<li>Deleting this site will permanently remove the Dropkick site located at <strong>https://fathom.dropkick.it/tradeweb</strong></li>
+									<li>Deleting this site will unlink the site’s Dropbox folder from the Dropkick service.</li>
+									<li>Deleting this site will <b>not</b> delete the contents of your Dropbox folder.</li>
+								</ul>
+								<label class="col-sm-3 col-lg-2 control-label">Are you sure?</label>
+								<div class="col-sm-9">
+									<div class="checkbox">
+										<label>
+											<input type="checkbox"/> I want to permanently delete this Dropkick site
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+									<button type="button" class="btn btn-danger" disabled="disabled">Delete this site</button>
+								</div>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+		</section>
+
+		<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+		<script>$('.main [title]').tooltip();</script>
+
+	</body>
+</html>
