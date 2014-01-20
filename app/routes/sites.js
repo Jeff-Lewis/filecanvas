@@ -7,7 +7,7 @@ module.exports = (function() {
 	var dropbox = require('../globals').dropbox;
 	var db = require('../globals').db;
 
-	var AppService = require('../services/AppService');
+	var SiteService = require('../services/SiteService');
 	var AuthenticationService = require('../services/AuthenticationService');
 
 	var SECONDS = 1000;
@@ -16,18 +16,18 @@ module.exports = (function() {
 
 	var app = express();
 
-	app.get('/:username/:app', auth, route);
+	app.get('/:username/:site', auth, route);
 
 	return app;
 
 
 	function auth(req, res, next) {
-		var appUser = req.params.username;
-		var appName = req.params.app;
+		var siteOwner = req.params.username;
+		var siteName = req.params.site;
 
-		var appService = new AppService(db, appUser, appName);
+		var siteService = new SiteService(db, siteOwner, siteName);
 
-		appService.getAuthenticationDetails(function(error, authentication, callback) {
+		siteService.getAuthenticationDetails(function(error, authentication, callback) {
 			if (error) { return next(error); }
 
 			var isPublic = authentication['public'];
@@ -43,55 +43,57 @@ module.exports = (function() {
 	}
 
 	function route(req, res, next) {
-		var appUser = req.params.username;
-		var appName = req.params.app;
+		var siteOwner = req.params.username;
+		var siteName = req.params.site;
 
-		var userPathPrefix = '/.dropkick/users/' + appUser + '/';
-		var appFolderPath = userPathPrefix + appName;
+		var userDropboxPathPrefix = '/.dropkick/sites/' + siteOwner + '/';
+		var siteFolderPath = userDropboxPathPrefix + siteName;
+		var host = req.get('host').split('.').slice(req.subdomains.length).join('.');
+		var templatesRoot = '//templates.' + host + '/';
 
-		var appService = new AppService(db, appUser, appName);
+		var siteService = new SiteService(db, siteOwner, siteName);
 
 		var includeCache = true;
-		appService.retrieveApp(includeCache, _handleAppModelLoaded);
+		siteService.retrieveSite(includeCache, _handleSiteModelLoaded);
 
 
-		function _handleAppModelLoaded(error, appModel) {
+		function _handleSiteModelLoaded(error, siteModel) {
 			if (error) { return next(error); }
 
-			loadAppFolder(appFolderPath, appModel, _handleAppFolderLoaded);
+			loadSiteFolder(siteFolderPath, siteModel, _handleSiteFolderLoaded);
 
 
-			function _handleAppFolderLoaded(error, appCache) {
+			function _handleSiteFolderLoaded(error, siteCache) {
 				if (error) { return next(error); }
 
-				var html = getAppHtml(appModel, appCache.data, userPathPrefix);
+				var html = getSiteHtml(siteModel, siteCache.data, userDropboxPathPrefix, templatesRoot);
 				res.send(html);
 
-				appService.updateAppCache(appCache);
+				siteService.updateSiteCache(siteCache);
 			}
 		}
 	}
 
 
-	function getAppHtml(appModel, statModel, userPathPrefix) {
-		var templateName = appModel.template;
-		var title = appModel.title;
-		return renderTemplate(templateName, title, statModel, userPathPrefix);
+	function getSiteHtml(siteModel, statModel, userDropboxPathPrefix, templatesRoot) {
+		var templateName = siteModel.template;
+		var title = siteModel.title;
+		return renderTemplate(templateName, title, statModel, userDropboxPathPrefix, templatesRoot);
 	}
 
-	function loadAppFolder(appFolderPath, appModel, callback) {
-		var appCache = appModel.cache;
+	function loadSiteFolder(siteFolderPath, siteModel, callback) {
+		var siteCache = siteModel.cache;
 
-		var cacheCursor = (appCache && appCache.cursor) || null;
-		var cacheRoot = (appCache && appCache.data) || null;
-		var cacheUpdated = (appCache && appCache.updated) || 0;
+		var cacheCursor = (siteCache && siteCache.cursor) || null;
+		var cacheRoot = (siteCache && siteCache.data) || null;
+		var cacheUpdated = (siteCache && siteCache.updated) || 0;
 
 		var timeSinceLastUpdate = (new Date() - cacheUpdated);
 		if (timeSinceLastUpdate < DROPBOX_DELTA_CACHE_EXPIRY) {
-			return callback && callback(null, appCache);
+			return callback && callback(null, siteCache);
 		}
 
-		dropbox.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
+		dropbox.client.delta(cacheCursor, siteFolderPath, _handleDeltaLoaded);
 
 
 		function _handleDeltaLoaded(error, pulledChanges) {
@@ -112,17 +114,17 @@ module.exports = (function() {
 
 				var parentPath = changePath.substr(0, changePath.lastIndexOf('/')).toLowerCase();
 				var parentFolder = cachePathLookupTable[parentPath] || null;
-				var isAppFolder = (changePath === appFolderPath.toLowerCase());
+				var isSiteFolder = (changePath === siteFolderPath.toLowerCase());
 
 				if (changeModel.wasRemoved) {
-					if (isAppFolder) { cacheRoot = null; }
+					if (isSiteFolder) { cacheRoot = null; }
 					parentFolder.contents = parentFolder.contents.filter(function(siblingFolder) {
 						return siblingFolder.path.toLowerCase() !== changePath;
 					});
 				} else {
 					var fileModel = changeModel.stat.toJSON();
 					if (fileModel.is_dir) { fileModel.contents = []; }
-					if (isAppFolder) {
+					if (isSiteFolder) {
 						cacheRoot = fileModel;
 					} else {
 						parentFolder.contents.push(fileModel);
@@ -132,7 +134,7 @@ module.exports = (function() {
 			});
 
 			if (pulledChanges.shouldPullAgain) {
-				dropbox.client.delta(cacheCursor, appFolderPath, _handleDeltaLoaded);
+				dropbox.client.delta(cacheCursor, siteFolderPath, _handleDeltaLoaded);
 			} else {
 				var updatedCache = {
 					updated: new Date(),
@@ -153,10 +155,10 @@ module.exports = (function() {
 		}
 	}
 
-	function renderTemplate(templateName, title, statModel, userPathPrefix) {
+	function renderTemplate(templateName, title, statModel, userDropboxPathPrefix, templatesRoot) {
 		var template = templates[templateName];
-		var templateData = getTemplateData(statModel, userPathPrefix, '/downloads');
-		var templateRoot = '/templates/' + templateName + '/';
+		var templateData = getTemplateData(statModel, userDropboxPathPrefix, '/downloads');
+		var templateRoot = templatesRoot + templateName + '/';
 
 
 		return template({

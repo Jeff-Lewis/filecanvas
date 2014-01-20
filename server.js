@@ -6,6 +6,8 @@
 	var config = require('./config');
 	var globals = require('./app/globals');
 
+	var subdomain = require('./app/middleware/subdomain');
+
 	var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
 
 	initServices(function(error) {
@@ -80,9 +82,33 @@
 
 		app.use(express.compress());
 
-		app.use('/templates/', require('./app/routes/templates'));
-		app.use('/user', require('./app/routes/user'));
+		var subdomainMappings = [
+			{
+				subdomain: 'www',
+				path: ''
+			},
+			{
+				subdomain: 'templates',
+				path: '/templates'
+			},
+			{
+				subdomain: /([a-z0-9_\-]+)/,
+				path: '/sites/$0'
+			}
+		];
+
+		app.use('/', subdomain({ mappings: subdomainMappings }));
+		app.use('/templates', require('./app/routes/templates'));
+		app.use('/sites', require('./app/routes/sites'));
 		app.use('/', require('./app/routes/index'));
+
+		app.use(function(req, res, next) {
+			res.send(404);
+		});
+
+		app.use(function(err, req, res, next) {
+			res.send(err.status || 500);
+		});
 
 		app.listen(port);
 
