@@ -9,10 +9,11 @@
 	var subdomain = require('./app/middleware/subdomain');
 
 	var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
+	var baseUrl = process.env.BASE_URL || null;
 
 	initServices(function(error) {
 		if (error) { throw error; }
-		initServer(port);
+		initServer(port, baseUrl);
 	});
 
 
@@ -77,7 +78,7 @@
 	}
 
 
-	function initServer(port) {
+	function initServer(port, baseUrl) {
 		var app = express();
 
 		app.use(express.compress());
@@ -96,6 +97,10 @@
 				path: '/sites/$0'
 			}
 		];
+
+		if (baseUrl) {
+			app.set('subdomain offset', baseUrl.split('.').length);
+		}
 
 		app.use('/', subdomain({ mappings: subdomainMappings }));
 		app.use('/templates', require('./app/routes/templates'));
