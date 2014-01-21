@@ -1,7 +1,7 @@
 module.exports = (function() {
 	'use strict';
 
-	var Dropbox = require('dropbox');
+	var Dropbox = require('../../lib/dropbox');
 
 
 	function DropboxService() {
