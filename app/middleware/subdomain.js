@@ -20,7 +20,7 @@ module.exports = (function() {
 				return (mapping.subdomain instanceof RegExp ? mapping.subdomain.test(subdomain) : mapping.subdomain === subdomain);
 			})[0];
 
-			if (!matchedMapping) { next(); }
+			if (!matchedMapping) { return next(); }
 
 			var pathPrefix = '';
 
