@@ -122,7 +122,7 @@ module.exports = (function() {
 						return siblingFolder.path.toLowerCase() !== changePath;
 					});
 				} else {
-					var fileModel = changeModel.stat.toJSON();
+					var fileModel = changeModel.stat.json();
 					if (fileModel.is_dir) { fileModel.contents = []; }
 					if (isSiteFolder) {
 						cacheRoot = fileModel;
