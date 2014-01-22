@@ -9,6 +9,7 @@ module.exports = (function() {
 
 	var UserService = require('../services/UserService');
 	var SiteService = require('../services/SiteService');
+	var DownloadService = require('../services/DownloadService');
 	var AuthenticationService = require('../services/AuthenticationService');
 
 	var SECONDS = 1000;
@@ -19,9 +20,9 @@ module.exports = (function() {
 
 	app.get('/:username', defaultRoute);
 	app.get('/:username/:site', auth, route);
+	app.get('/:username/:site/download/*', auth, downloadRoute);
 
 	return app;
-
 
 	function defaultRoute(req, res, next) {
 		var siteOwner = req.params.username;
@@ -39,6 +40,26 @@ module.exports = (function() {
 			next();
 		});
 
+	}
+
+	function downloadRoute(req, res, next) {
+		var siteOwner = req.params.username;
+		var siteName = req.params.site;
+		var downloadPath = req.params[0];
+
+		var downloadService = new DownloadService(dropbox);
+		var dropboxFilePath = '/.dropkick/sites/' + siteOwner + '/' + siteName + '/' + downloadPath;
+
+		console.log('Downloading path ' + dropboxFilePath + '...');
+		downloadService.retrieveDownloadLink(dropboxFilePath, _handleDownloadLinkRetrieved);
+
+
+		function _handleDownloadLinkRetrieved(error, downloadUrl) {
+			if (error) { return next(error); }
+
+			console.log('Redirecting to url: ', downloadUrl);
+			res.redirect(downloadUrl);
+		}
 	}
 
 	function auth(req, res, next) {
@@ -66,8 +87,9 @@ module.exports = (function() {
 		var siteOwner = req.params.username;
 		var siteName = req.params.site;
 
-		var userDropboxPathPrefix = '/.dropkick/sites/' + siteOwner + '/';
-		var siteFolderPath = userDropboxPathPrefix + siteName;
+		var siteFolderPath = '/.dropkick/sites/' + siteOwner + '/' + siteName;
+		var downloadUrlPrefix = 'download';
+
 		var host = req.get('host').split('.').slice(req.subdomains.length).join('.');
 		var templatesRoot = '//templates.' + host + '/';
 
@@ -86,7 +108,7 @@ module.exports = (function() {
 			function _handleSiteFolderLoaded(error, siteCache) {
 				if (error) { return next(error); }
 
-				var html = getSiteHtml(siteModel, siteCache.data, userDropboxPathPrefix, templatesRoot);
+				var html = getSiteHtml(siteModel, siteCache.data, siteFolderPath, downloadUrlPrefix, templatesRoot);
 				res.send(html);
 
 				siteService.updateSiteCache(siteCache);
@@ -95,10 +117,10 @@ module.exports = (function() {
 	}
 
 
-	function getSiteHtml(siteModel, statModel, userDropboxPathPrefix, templatesRoot) {
+	function getSiteHtml(siteModel, statModel, siteFolderPath, downloadUrlPrefix, templatesRoot) {
 		var templateName = siteModel.template;
 		var title = siteModel.title;
-		return renderTemplate(templateName, title, statModel, userDropboxPathPrefix, templatesRoot);
+		return renderTemplate(templateName, title, statModel, siteFolderPath, downloadUrlPrefix, templatesRoot);
 	}
 
 	function loadSiteFolder(siteFolderPath, siteModel, callback) {
@@ -175,9 +197,9 @@ module.exports = (function() {
 		}
 	}
 
-	function renderTemplate(templateName, title, statModel, userDropboxPathPrefix, templatesRoot) {
+	function renderTemplate(templateName, title, statModel, siteFolderPath, downloadUrlPrefix, templatesRoot) {
 		var template = templates[templateName];
-		var templateData = getTemplateData(statModel, userDropboxPathPrefix, '/downloads');
+		var templateData = getTemplateData(statModel, siteFolderPath, downloadUrlPrefix);
 		var templateRoot = templatesRoot + templateName + '/';
 
 
@@ -190,7 +212,7 @@ module.exports = (function() {
 		});
 	}
 
-	function getTemplateData(statModel, pathPrefix, urlPrefix) {
+	function getTemplateData(statModel, siteFolderPath, downloadUrlPrefix) {
 		var templateData = {};
 
 		for (var property in statModel) {
@@ -198,7 +220,7 @@ module.exports = (function() {
 			if (property.charAt(0) === '_') { continue; }
 			if (property === 'contents') {
 				templateData.contents = statModel.contents.map(function(statModel) {
-					return getTemplateData(statModel, pathPrefix, urlPrefix);
+					return getTemplateData(statModel, siteFolderPath, downloadUrlPrefix);
 				});
 				continue;
 			}
@@ -212,7 +234,7 @@ module.exports = (function() {
 			templateData.extension = templateData.label.split('.').pop();
 			templateData.label = templateData.label.substr(0, templateData.label.lastIndexOf('.'));
 		}
-		templateData.url = templateData.path.replace(pathPrefix, urlPrefix);
+		templateData.url = templateData.path.replace(siteFolderPath, downloadUrlPrefix);
 		templateData.date = formatDate(new Date(templateData.modified));
 
 		if (templateData.contents) {
