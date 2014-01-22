@@ -101,7 +101,7 @@
 						<div class="posts row isotope ">
 							{{#each files}}
 							<div class="post item span4 isotope-item">
-								<a href="{{{url}}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
+								<a href="{{{url}}}" download="{{label}}.{{extension}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
 										<div class="profile-photo" data-extension="{{extension}}">
 											<div class="profile-icon">&#0109;</div>
 										</div>
@@ -115,7 +115,7 @@
 							{{#each folders}}
 							{{#each files}}
 							<div class="post item span4 isotope-item filter-{{../alias}}">
-								<a href="{{{url}}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
+								<a href="{{{url}}}" download="{{label}}.{{extension}}" title="{{label}}" target="_blank" class="project-wrp fancybox-media" rel="">
 										<div class="profile-photo" data-extension="{{extension}}">
 											<div class="profile-icon">&#0109;</div>
 										</div>

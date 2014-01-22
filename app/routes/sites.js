@@ -19,10 +19,12 @@ module.exports = (function() {
 	var app = express();
 
 	app.get('/:username', defaultRoute);
+	app.get('/:username/download/*', defaultDownloadRoute);
 	app.get('/:username/:site', auth, route);
 	app.get('/:username/:site/download/*', auth, downloadRoute);
 
 	return app;
+
 
 	function defaultRoute(req, res, next) {
 		var siteOwner = req.params.username;
@@ -39,7 +41,24 @@ module.exports = (function() {
 			req.url += '/' + siteName;
 			next();
 		});
+	}
 
+	function defaultDownloadRoute(req, res, next) {
+		var siteOwner = req.params.username;
+		var userService = new UserService(db);
+		var downloadPath = req.params[0];
+
+		userService.retrieveDefaultSiteName(siteOwner, function(error, siteName) {
+			if (error) { return next(error); }
+			if (!siteName) {
+				error = new Error();
+				error.status = 404;
+				return next(error);
+			}
+
+			req.url = '/' + siteOwner + '/' + siteName + '/download/' + downloadPath;
+			next();
+		});
 	}
 
 	function downloadRoute(req, res, next) {
@@ -50,14 +69,12 @@ module.exports = (function() {
 		var downloadService = new DownloadService(dropbox);
 		var dropboxFilePath = '/.dropkick/sites/' + siteOwner + '/' + siteName + '/' + downloadPath;
 
-		console.log('Downloading path ' + dropboxFilePath + '...');
 		downloadService.retrieveDownloadLink(dropboxFilePath, _handleDownloadLinkRetrieved);
 
 
 		function _handleDownloadLinkRetrieved(error, downloadUrl) {
 			if (error) { return next(error); }
 
-			console.log('Redirecting to url: ', downloadUrl);
 			res.redirect(downloadUrl);
 		}
 	}
