@@ -31,7 +31,17 @@ module.exports = (function() {
 				pathPrefix = matchedMapping.path;
 			}
 
-			req.url = pathPrefix + req.url;
+			pathPrefix = pathPrefix || '';
+			if (pathPrefix.charAt(0) !== '/') { pathPrefix = '/' + pathPrefix; }
+
+			var requestedPath = req.url;
+
+			if (pathPrefix === '/') { pathPrefix = ''; }
+			if (requestedPath === '/') { requestedPath = ''; }
+
+			var updatedUrl = (pathPrefix + requestedPath) || '/';
+
+			req.url = updatedUrl;
 			next();
 		};
 	};

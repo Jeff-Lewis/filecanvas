@@ -7,6 +7,7 @@ module.exports = (function() {
 	var dropbox = require('../globals').dropbox;
 	var db = require('../globals').db;
 
+	var UserService = require('../services/UserService');
 	var SiteService = require('../services/SiteService');
 	var AuthenticationService = require('../services/AuthenticationService');
 
@@ -16,10 +17,29 @@ module.exports = (function() {
 
 	var app = express();
 
+	app.get('/:username', defaultRoute);
 	app.get('/:username/:site', auth, route);
 
 	return app;
 
+
+	function defaultRoute(req, res, next) {
+		var siteOwner = req.params.username;
+		var userService = new UserService(db);
+
+		userService.retrieveDefaultSiteName(siteOwner, function(error, siteName) {
+			if (error) { return next(error); }
+			if (!siteName) {
+				error = new Error();
+				error.status = 404;
+				return next(error);
+			}
+
+			req.url += '/' + siteName;
+			next();
+		});
+
+	}
 
 	function auth(req, res, next) {
 		var siteOwner = req.params.username;

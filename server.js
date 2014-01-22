@@ -90,7 +90,7 @@
 		var subdomainMappings = [
 			{
 				subdomain: 'www',
-				path: ''
+				path: '/'
 			},
 			{
 				subdomain: 'templates',
