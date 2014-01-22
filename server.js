@@ -114,13 +114,16 @@
 		app.use('/sites', require('./app/routes/sites'));
 		app.use('/', require('./app/routes/index'));
 
-		app.use(function(req, res, next) {
-			res.send(404);
-		});
+		if (!process.env.DEBUG) {
 
-		app.use(function(err, req, res, next) {
-			res.send(err.status || 500);
-		});
+			app.use(function(req, res, next) {
+				res.send(404);
+			});
+
+			app.use(function(err, req, res, next) {
+				res.send(err.status || 500);
+			});
+		}
 
 		app.listen(port);
 
