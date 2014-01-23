@@ -110,6 +110,7 @@
 		app.use('/', stripTrailingSlash);
 		app.use('/', subdomain({ mappings: subdomainMappings }));
 
+		app.use('/ping', require('./app/routes/ping'));
 		app.use('/templates', require('./app/routes/templates'));
 		app.use('/sites', require('./app/routes/sites'));
 		app.use('/', require('./app/routes/index'));
