@@ -97,7 +97,7 @@ module.exports = (function() {
 
 		var timeSinceLastUpdate = (new Date() - cacheUpdated);
 		if (timeSinceLastUpdate < DROPBOX_DELTA_CACHE_EXPIRY) {
-			var folderCacheContents = this._getFolderCacheContents(folderCache);
+			var folderCacheContents = this._getFolderCacheContents(folderCache, folderPath, downloadUrlPrefix);
 			return callback && callback(null, folderCacheContents, folderCache);
 		}
 
@@ -194,14 +194,17 @@ module.exports = (function() {
 			fileMetadata.url = fileMetadata.path.replace(rootFolderPath, downloadUrlPrefix);
 			fileMetadata.date = formatDate(new Date(fileMetadata.modified));
 
-			if (fileMetadata.contents) {
-				fileMetadata.folders = fileMetadata.contents.filter(function(fileModel) { return fileModel.is_dir; });
-				fileMetadata.files = fileMetadata.contents.filter(function(fileModel) { return !fileModel.is_dir; });
-			} else {
-				fileMetadata.contents = null;
-				fileMetadata.folders = null;
-				fileMetadata.files = null;
-			}
+			Object.defineProperty(fileMetadata, 'folders', {
+				'get': function() {
+					return (this.contents ? this.contents.filter(function(fileModel) { return fileModel.is_dir; }) : null);
+				}
+			});
+
+			Object.defineProperty(fileMetadata, 'files', {
+				'get': function() {
+					return (this.contents ? this.contents.filter(function(fileModel) { return !fileModel.is_dir; }) : null);
+				}
+			});
 
 			return fileMetadata;
 		}
