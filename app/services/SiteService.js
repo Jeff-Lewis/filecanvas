@@ -2,12 +2,13 @@ module.exports = (function() {
 	'use strict';
 
 	var DownloadService = require('../services/DownloadService');
+	var UserService = require('../services/UserService');
 
 	var SECONDS = 1000;
 	var MINUTES = SECONDS * 60;
 	var DROPBOX_DELTA_CACHE_EXPIRY = 5 * MINUTES;
 
-	var SITE_FOLDER_PATH_FORMAT = '/.dropkick/sites/${SITE_OWNER}/${SITE_NAME}';
+	var SITE_FOLDER_PATH_FORMAT = '${USER_FOLDER}/${SITE_NAME}';
 	var SITE_CONTENTS_DOWNLOAD_URL_PREFIX = 'download';
 
 	var DB_COLLECTION_SITES = 'sites';
@@ -25,8 +26,11 @@ module.exports = (function() {
 	SiteService.prototype.siteName = null;
 
 	SiteService.prototype.getFolderPath = function() {
+		// TODO: Store dropbox folder independently of site name
+		var userService = new UserService(this.dataService);
+		var userFolderPath = userService.getDropboxFolderPath(this.siteUser);
 		return SITE_FOLDER_PATH_FORMAT
-			.replace(/\$\{SITE_OWNER\}/g, this.siteUser)
+			.replace(/\$\{USER_FOLDER\}/g, userFolderPath)
 			.replace(/\$\{SITE_NAME\}/g, this.siteName);
 	};
 

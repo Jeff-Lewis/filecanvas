@@ -4,12 +4,18 @@ module.exports = (function() {
 	var DB_COLLECTION_USERS = 'users';
 	var DB_COLLECTION_DROPBOX_USERS = 'dropboxUsers';
 
+	var DROPBOX_FOLDER_PATH_FORMAT = '/.dropkick/sites/${USERNAME}';
+
 
 	function UserService(dataService) {
 		this.dataService = dataService;
 	}
 
 	UserService.prototype.dataService = null;
+
+	UserService.prototype.getDropboxFolderPath = function(username) {
+		return DROPBOX_FOLDER_PATH_FORMAT.replace(/\$\{USERNAME\}/, username);
+	};
 
 	UserService.prototype.retrieveUser = function(username, callback) {
 		var query = { 'username': username };
