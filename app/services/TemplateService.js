@@ -1,6 +1,6 @@
 module.exports = (function() {
 	'use strict';
-	
+
 	var templates = require('../templates');
 
 	var TEMPLATES_ROOT_URL = '//templates.${HOST}/';
@@ -29,17 +29,6 @@ module.exports = (function() {
 
 	TemplateService.prototype.templatesRoot = null;
 	TemplateService.prototype.templatesRoot = null;
-
-	TemplateService.prototype.retrieveDownloadLink = function(path, callback) {
-		var generateTemporaryUrl = true;
-		this.dropbox.client.makeUrl(path, { download: generateTemporaryUrl }, _handleDownloadLinkRetrieved);
-
-
-		function _handleDownloadLinkRetrieved(error, shareUrlModel) {
-			if (error) { return error && callback(error); }
-			return callback && callback(null, shareUrlModel.url);
-		}
-	};
 
 	return TemplateService;
 })();
