@@ -50,5 +50,22 @@ module.exports = (function() {
 		);
 	};
 
+	UserService.prototype.retrieveDropboxAccountUsername = function(dropboxEmail, callback) {
+		var query = { 'email': dropboxEmail };
+		var projection = { 'username': 1 };
+
+		this.dataService.db.collection(DB_COLLECTION_DROPBOX_USERS).findOne(query, projection,
+			function(error, dropboxUserModel) {
+				if (error) { return callback && callback(error); }
+				if (!dropboxUserModel) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
+				return callback && callback(null, dropboxUserModel.username);
+			}
+		);
+	};
+
 	return UserService;
 })();
