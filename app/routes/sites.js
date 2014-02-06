@@ -3,8 +3,8 @@ module.exports = (function() {
 
 	var express = require('express');
 
-	var dropbox = require('../globals').dropbox;
-	var db = require('../globals').db;
+	var dropboxService = require('../globals').dropboxService;
+	var dataService = require('../globals').dataService;
 
 	var UserService = require('../services/UserService');
 	var SiteService = require('../services/SiteService');
@@ -26,7 +26,7 @@ module.exports = (function() {
 		var siteOwner = req.params.username;
 		var siteName = req.params.site;
 
-		var siteService = new SiteService(db, dropbox, siteOwner, siteName);
+		var siteService = new SiteService(dataService, dropboxService, siteOwner, siteName);
 
 		siteService.getAuthenticationDetails(function(error, authentication, callback) {
 			if (error) { return next(error); }
@@ -44,7 +44,7 @@ module.exports = (function() {
 
 	function defaultRoute(req, res, next) {
 		var siteOwner = req.params.username;
-		var userService = new UserService(db);
+		var userService = new UserService(dataService);
 
 		userService.retrieveDefaultSiteName(siteOwner, function(error, siteName) {
 			if (error) { return next(error); }
@@ -61,7 +61,7 @@ module.exports = (function() {
 
 	function defaultDownloadRoute(req, res, next) {
 		var siteOwner = req.params.username;
-		var userService = new UserService(db);
+		var userService = new UserService(dataService);
 		var downloadPath = req.params[0];
 
 		userService.retrieveDefaultSiteName(siteOwner, function(error, siteName) {
@@ -82,7 +82,7 @@ module.exports = (function() {
 		var siteName = req.params.site;
 		var downloadPath = req.params[0];
 
-		var siteService = new SiteService(db, dropbox, siteOwner, siteName);
+		var siteService = new SiteService(dataService, dropboxService, siteOwner, siteName);
 
 		siteService.retrieveDownloadLink(downloadPath, _handleDownloadLinkRetrieved);
 
@@ -105,7 +105,7 @@ module.exports = (function() {
 		var siteOwner = req.params.username;
 		var siteName = req.params.site;
 
-		var siteService = new SiteService(db, dropbox, siteOwner, siteName);
+		var siteService = new SiteService(dataService, dropboxService, siteOwner, siteName);
 
 		var includeContents = true;
 		siteService.retrieveSite(includeContents, _handleSiteModelLoaded);

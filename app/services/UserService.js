@@ -1,16 +1,20 @@
 module.exports = (function() {
 	'use strict';
 
-	function UserService(db) {
-		this.db = db;
+	var DB_COLLECTION_USERS = 'users';
+	var DB_COLLECTION_DROPBOX_USERS = 'dropboxUsers';
+
+
+	function UserService(dataService) {
+		this.dataService = dataService;
 	}
 
-	UserService.prototype.db = null;
+	UserService.prototype.dataService = null;
 
 	UserService.prototype.retrieveUser = function(username, callback) {
 		var query = { 'username': username };
 
-		this.db.collection('users').findOne(query,
+		this.dataService.db.collection(DB_COLLECTION_USERS).findOne(query,
 			function(error, userModel) {
 				if (error) { return callback && callback(error); }
 				if (!userModel) {
@@ -27,7 +31,7 @@ module.exports = (function() {
 		var query = { 'username': username };
 		var projection = { 'default': 1 };
 
-		this.db.collection('users').findOne(query, projection,
+		this.dataService.db.collection(DB_COLLECTION_USERS).findOne(query, projection,
 			function(error, userModel) {
 				if (error) { return callback && callback(error); }
 				if (!userModel) {

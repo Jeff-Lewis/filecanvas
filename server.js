@@ -26,15 +26,17 @@
 		var dropboxLoaded = false;
 		var mongodbLoaded = false;
 
-		initDropbox(config, function(error) {
+		initDropbox(config, function(error, dropboxService) {
 			if (error) { return callback && callback(error); }
 			dropboxLoaded = true;
+			globals.dropboxService = dropboxService;
 			if (mongodbLoaded) { return callback && callback(null); }
 		});
 
-		initMongodb(config, function(error) {
+		initMongodb(config, function(error, dataService) {
 			if (error) { return callback && callback(error); }
 			mongodbLoaded = true;
+			globals.dataService = dataService;
 			if (dropboxLoaded) { return callback && callback(null); }
 		});
 
@@ -42,7 +44,9 @@
 		function initDropbox(config, callback) {
 			var DropboxService = require('./app/services/DropboxService');
 
-			new DropboxService().connect({
+			var dropboxService = new DropboxService();
+
+			dropboxService.connect({
 				appKey: config.dropbox.appKey,
 				appSecret: config.dropbox.appSecret,
 				appToken: config.dropbox.appToken
@@ -53,11 +57,9 @@
 				}
 				console.info('Dropbox API connected');
 
-				globals.dropbox = { client: client };
-
 				client.getAccountInfo(function(error, accountInfo) {
 					console.log('Dropbox logged in as ' + accountInfo.name);
-					if (callback) { callback(null, DropboxService.client); }
+					if (callback) { callback(null, dropboxService); }
 				});
 
 			});
@@ -66,7 +68,9 @@
 		function initMongodb(config, callback) {
 			var DataService = require('./app/services/DataService');
 
-			new DataService().connect({
+			var dataService = new DataService();
+
+			dataService.connect({
 				uri: config.mongodb.uri
 			}, function(error, db) {
 				if (error) {
@@ -75,9 +79,7 @@
 				}
 				console.info('Mongodb connected');
 
-				globals.db = db;
-
-				if (callback) { callback(null, db); }
+				if (callback) { callback(null, dataService); }
 			});
 		}
 	}
@@ -129,5 +131,7 @@
 		app.listen(port);
 
 		console.log('Server listening on port ' + port);
+
+		return app;
 	}
 })();

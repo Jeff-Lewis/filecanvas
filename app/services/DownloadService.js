@@ -1,15 +1,15 @@
 module.exports = (function() {
 	'use strict';
 
-	function DownloadService(dropbox) {
-		this.dropbox = dropbox;
+	function DownloadService(dropboxService) {
+		this.dropboxService = dropboxService;
 	}
 
-	DownloadService.prototype.dropbox = null;
+	DownloadService.prototype.dropboxService = null;
 
 	DownloadService.prototype.retrieveDownloadLink = function(path, callback) {
 		var generateTemporaryUrl = true;
-		this.dropbox.client.makeUrl(path, { download: generateTemporaryUrl }, _handleDownloadLinkRetrieved);
+		this.dropboxService.client.makeUrl(path, { download: generateTemporaryUrl }, _handleDownloadLinkRetrieved);
 
 
 		function _handleDownloadLinkRetrieved(error, shareUrlModel) {

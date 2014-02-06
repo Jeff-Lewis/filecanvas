@@ -10,15 +10,17 @@ module.exports = (function() {
 	var SITE_FOLDER_PATH_FORMAT = '/.dropkick/sites/${SITE_OWNER}/${SITE_NAME}';
 	var SITE_CONTENTS_DOWNLOAD_URL_PREFIX = 'download';
 
-	function SiteService(db, dropbox, siteUser, siteName) {
-		this.db = db;
-		this.dropbox = dropbox;
+	var DB_COLLECTION_SITES = 'sites';
+
+	function SiteService(dataService, dropboxService, siteUser, siteName) {
+		this.dataService = dataService;
+		this.dropboxService = dropboxService;
 		this.siteUser = siteUser;
 		this.siteName = siteName;
 	}
 
-	SiteService.prototype.db = null;
-	SiteService.prototype.dropbox = null;
+	SiteService.prototype.dataService = null;
+	SiteService.prototype.dropboxService = null;
 	SiteService.prototype.siteUser = null;
 	SiteService.prototype.siteName = null;
 
@@ -43,7 +45,7 @@ module.exports = (function() {
 		var query = { 'username': this.siteUser, 'site': this.siteName };
 		var projection = { 'public': 1, 'users': 1 };
 
-		this.db.collection('sites').findOne(query, projection,
+		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
 			function(error, siteModel) {
 				if (error) { return callback && callback(error); }
 				if (!siteModel) {
@@ -68,7 +70,7 @@ module.exports = (function() {
 		if (!includeContents) { projection['cache'] = 0; }
 
 		var self = this;
-		this.db.collection('sites').findOne(query, projection,
+		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
 			function(error, siteModel) {
 				if (error) { return callback && callback(error); }
 				if (!includeContents) { return callback && callback(null, siteModel); }
@@ -102,7 +104,7 @@ module.exports = (function() {
 		}
 
 		var self = this;
-		this.dropbox.client.delta(cacheCursor, folderPath, _handleDeltaLoaded);
+		this.dropboxService.client.delta(cacheCursor, folderPath, _handleDeltaLoaded);
 
 
 		function _handleDeltaLoaded(error, pulledChanges) {
@@ -143,7 +145,7 @@ module.exports = (function() {
 			});
 
 			if (pulledChanges.shouldPullAgain) {
-				self.dropbox.client.delta(cacheCursor, folderPath, _handleDeltaLoaded);
+				self.dropboxService.client.delta(cacheCursor, folderPath, _handleDeltaLoaded);
 			} else {
 				var updatedFolderCache = {
 					updated: new Date(),
@@ -220,7 +222,7 @@ module.exports = (function() {
 		var query = { 'username': this.siteUser, 'site': this.siteName };
 		var projection = { 'cache': 1 };
 
-		this.db.collection('sites').findOne(query, projection,
+		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
 			function(error, siteModel) {
 				if (error) { return callback && callback(error); }
 				return callback && callback(null, siteModel.cache);
@@ -235,7 +237,7 @@ module.exports = (function() {
 		var update = { $set: { 'cache': cache } };
 		var options = { w: 1 };
 
-		this.db.collection('sites').update(query, update, options,
+		this.dataService.db.collection(DB_COLLECTION_SITES).update(query, update, options,
 			function(error, result) {
 				if (error) { return callback && callback(error); }
 				return callback && callback(null, result);
