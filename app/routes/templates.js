@@ -6,5 +6,5 @@ module.exports = (function() {
 
 	var templatesRoot = path.resolve(path.dirname(require.main.filename), 'templates');
 
-	return express.static(templatesRoot);
+	return express['static'](templatesRoot);
 })();
