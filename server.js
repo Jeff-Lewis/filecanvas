@@ -118,7 +118,13 @@
 		app.use('/sites', require('./app/routes/sites'));
 		app.use('/', require('./app/routes/index'));
 
-		if (!debugMode) {
+		if (debugMode) {
+
+			app.use(function(err, req, res, next) {
+				throw err;
+			});
+
+		} else {
 
 			app.use(function(req, res, next) {
 				res.send(404);
