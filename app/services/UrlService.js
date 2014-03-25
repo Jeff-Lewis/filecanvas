@@ -3,7 +3,6 @@ module.exports = (function() {
 
 
 	function UrlService(req) {
-		console.log('Subdomains: ' + req.subdomains);
 		this.subdomains = req.subdomains;
 
 		var protocol = req.protocol;

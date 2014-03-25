@@ -15,17 +15,13 @@ module.exports = (function() {
 	function SiteService(dataService, dropboxService, organizationAlias, siteAlias) {
 		this.dataService = dataService;
 		this.dropboxService = dropboxService;
-		this.organizationAlias = organizationAlias;
-		this.siteAlias = siteAlias;
 	}
 
 	SiteService.prototype.dataService = null;
 	SiteService.prototype.dropboxService = null;
-	SiteService.prototype.organizationAlias = null;
-	SiteService.prototype.siteAlias = null;
 
-	SiteService.prototype.retrieveFolderPath = function(callback) {
-		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
+	SiteService.prototype.retrieveFolderPath = function(organizationAlias, siteAlias, callback) {
+		var query = { 'organization': organizationAlias, 'site': siteAlias };
 		var projection = { '_id': 0, 'public': 0, 'users': 0 };
 
 		var self = this;
@@ -33,7 +29,7 @@ module.exports = (function() {
 			function(error, siteModel) {
 				if (error) { return callback && callback(error); }
 
-				var siteFolderPath = _getSiteFolderPath(self.organizationAlias, siteModel, self.dataService);
+				var siteFolderPath = _getSiteFolderPath(organizationAlias, siteModel, self.dataService);
 
 				return callback && callback(null, siteFolderPath);
 
@@ -48,9 +44,9 @@ module.exports = (function() {
 		);
 	};
 
-	SiteService.prototype.retrieveDownloadLink = function(downloadPath, callback) {
-		var downloadService = new DownloadService(this.dropbox);
-		this.retrieveFolderPath(_handleFolderPathRetrieved);
+	SiteService.prototype.retrieveDownloadLink = function(organizationAlias, siteAlias, downloadPath, callback) {
+		var downloadService = new DownloadService(this.dropboxService);
+		this.retrieveFolderPath(organizationAlias, siteAlias, _handleFolderPathRetrieved);
 
 
 		function _handleFolderPathRetrieved(error, folderPath) {
@@ -66,8 +62,8 @@ module.exports = (function() {
 		}
 	};
 
-	SiteService.prototype.getAuthenticationDetails = function(callback) {
-		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
+	SiteService.prototype.retrieveAuthenticationDetails = function(organizationAlias, siteAlias, callback) {
+		var query = { 'organization': organizationAlias, 'site': siteAlias };
 		var projection = { 'public': 1, 'users': 1 };
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -89,8 +85,8 @@ module.exports = (function() {
 		);
 	};
 
-	SiteService.prototype.retrieveSite = function(includeContents, callback) {
-		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
+	SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, callback) {
+		var query = { 'organization': organizationAlias, 'site': siteAlias };
 		var projection = { '_id': 0, 'public': 0, 'users': 0 };
 		if (!includeContents) { projection['cache'] = 0; }
 
@@ -100,7 +96,7 @@ module.exports = (function() {
 				if (error) { return callback && callback(error); }
 				if (!includeContents) { return callback && callback(null, siteModel); }
 
-				var siteFolderPath = _getSiteFolderPath(self.organizationAlias, siteModel, self.dataService);
+				var siteFolderPath = _getSiteFolderPath(organizationAlias, siteModel, self.dataService);
 				var downloadUrlPrefix = SITE_CONTENTS_DOWNLOAD_URL_PREFIX;
 
 				self._loadFolderContents(siteFolderPath, siteModel.cache, downloadUrlPrefix, _handleSiteContentsLoaded);
@@ -117,9 +113,36 @@ module.exports = (function() {
 					if (error) { return callback && callback(error); }
 					siteModel.contents = siteContents;
 					delete siteModel.cache;
-					self.updateSiteCache(siteCache);
+					self.updateSiteCache(organizationAlias, siteAlias, siteCache);
 					return callback && callback(null, siteModel);
 				}
+			}
+		);
+	};
+
+	SiteService.prototype.retrieveSiteCache = function(organizationAlias, siteAlias, callback) {
+		var query = { 'organization': organizationAlias, 'site': siteAlias };
+		var projection = { 'cache': 1 };
+
+		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
+			function(error, siteModel) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, siteModel.cache);
+			}
+		);
+	};
+
+	SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, cache, callback) {
+		cache = cache || null;
+
+		var query = { 'organization': organizationAlias, 'site': siteAlias };
+		var update = { $set: { 'cache': cache } };
+		var options = { w: 1 };
+
+		this.dataService.db.collection(DB_COLLECTION_SITES).update(query, update, options,
+			function(error, result) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, result);
 			}
 		);
 	};
@@ -288,33 +311,6 @@ module.exports = (function() {
 			var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dev'];
 			return DAYS[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear();
 		}
-	};
-
-	SiteService.prototype.retrieveSiteCache = function(callback) {
-		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
-		var projection = { 'cache': 1 };
-
-		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
-			function(error, siteModel) {
-				if (error) { return callback && callback(error); }
-				return callback && callback(null, siteModel.cache);
-			}
-		);
-	};
-
-	SiteService.prototype.updateSiteCache = function(cache, callback) {
-		cache = cache || null;
-
-		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
-		var update = { $set: { 'cache': cache } };
-		var options = { w: 1 };
-
-		this.dataService.db.collection(DB_COLLECTION_SITES).update(query, update, options,
-			function(error, result) {
-				if (error) { return callback && callback(error); }
-				return callback && callback(null, result);
-			}
-		);
 	};
 
 	return SiteService;

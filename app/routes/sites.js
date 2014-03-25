@@ -26,9 +26,9 @@ module.exports = (function() {
 		var organizationAlias = req.params.organization;
 		var siteAlias = req.params.site;
 
-		var siteService = new SiteService(dataService, dropboxService, organizationAlias, siteAlias);
+		var siteService = new SiteService(dataService, dropboxService);
 
-		siteService.getAuthenticationDetails(function(error, authenticationDetails, callback) {
+		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias, function(error, authenticationDetails, callback) {
 			if (error) { return next(error); }
 
 			var isPublic = authenticationDetails['public'];
@@ -82,9 +82,9 @@ module.exports = (function() {
 		var siteAlias = req.params.site;
 		var downloadPath = req.params[0];
 
-		var siteService = new SiteService(dataService, dropboxService, organizationAlias, siteAlias);
+		var siteService = new SiteService(dataService, dropboxService);
 
-		siteService.retrieveDownloadLink(downloadPath, _handleDownloadLinkRetrieved);
+		siteService.retrieveDownloadLink(organizationAlias, siteAlias, downloadPath, _handleDownloadLinkRetrieved);
 
 
 		function _handleDownloadLinkRetrieved(error, downloadUrl) {
@@ -105,10 +105,10 @@ module.exports = (function() {
 		var organizationAlias = req.params.organization;
 		var siteAlias = req.params.site;
 
-		var siteService = new SiteService(dataService, dropboxService, organizationAlias, siteAlias);
+		var siteService = new SiteService(dataService, dropboxService);
 
 		var includeContents = true;
-		siteService.retrieveSite(includeContents, _handleSiteModelLoaded);
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, _handleSiteModelLoaded);
 
 
 		function _handleSiteModelLoaded(error, siteModel) {
