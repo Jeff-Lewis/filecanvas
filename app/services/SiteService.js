@@ -195,12 +195,14 @@ module.exports = (function() {
 				return cacheDictionary;
 
 
-				function _buildCacheDictionary(cacheRoot) {
-					var cacheDictionary = {};
+				function _buildCacheDictionary(cacheRoot, cacheDictionary) {
+					cacheDictionary = cacheDictionary || {};
 					if (!cacheRoot) { return cacheDictionary; }
 					_addItemToCache(cacheRoot, cacheDictionary);
 					if (cacheRoot.contents) {
-						cacheDictionary = cacheRoot.contents.reduce(_buildCacheDictionary, cacheDictionary);
+						cacheDictionary = cacheRoot.contents.reduce(function(cacheDictionary, cacheEntry) {
+							return _buildCacheDictionary(cacheEntry, cacheDictionary);
+						}, cacheDictionary);
 					}
 					return cacheDictionary;
 				}
