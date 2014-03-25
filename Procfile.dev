@@ -1,1 +1,1 @@
-web: node --debug server.js
+web: supervisor --watch . --debug server.js
