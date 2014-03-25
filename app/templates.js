@@ -6,7 +6,7 @@ module.exports = (function() {
 	var Handlebars = require('handlebars');
 
 	return {
-		'fathom': compileTemplate('templates/fathom/index.hbs')
+		'fathom': compileTemplate('templates/sites/fathom/index.hbs')
 	};
 
 

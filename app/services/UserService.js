@@ -4,7 +4,8 @@ module.exports = (function() {
 	var DB_COLLECTION_USERS = 'users';
 	var DB_COLLECTION_DROPBOX_USERS = 'dropboxUsers';
 
-	var DROPBOX_FOLDER_PATH_FORMAT = '/.dropkick/sites/${USERNAME}';
+	var USER_FOLDER_PATH_FORMAT = '/.dropkick/sites/${USERNAME}';
+	var USER_FOLDER_SHARE_PATH_FORMAT = '/.dropkick/sites/${USERNAME}/${SHARENAME}';
 
 
 	function UserService(dataService) {
@@ -13,8 +14,11 @@ module.exports = (function() {
 
 	UserService.prototype.dataService = null;
 
-	UserService.prototype.getDropboxFolderPath = function(username) {
-		return DROPBOX_FOLDER_PATH_FORMAT.replace(/\$\{USERNAME\}/, username);
+	UserService.prototype.getUserFolderPath = function(username, shareName) {
+		if (!shareName) {
+			return USER_FOLDER_PATH_FORMAT.replace(/\$\{USERNAME\}/, username).replace(/\$\{SHARENAME\}/, shareName);
+		}
+		return USER_FOLDER_SHARE_PATH_FORMAT.replace(/\$\{USERNAME\}/, username).replace(/\$\{SHARENAME\}/, shareName);
 	};
 
 	UserService.prototype.retrieveUser = function(username, callback) {

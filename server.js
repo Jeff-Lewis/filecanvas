@@ -15,10 +15,11 @@
 
 	var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
 	var baseUrl = process.env.BASE_URL || null;
+	var debugMode = (process.env.DEBUG === 'true');
 
 	initServices(function(error) {
 		if (error) { throw error; }
-		initServer(port, baseUrl);
+		initServer(port, baseUrl, debugMode);
 	});
 
 
@@ -85,7 +86,7 @@
 	}
 
 
-	function initServer(port, baseUrl) {
+	function initServer(port, baseUrl, debugMode) {
 		var app = express();
 
 		app.use(express.compress());
@@ -117,7 +118,7 @@
 		app.use('/sites', require('./app/routes/sites'));
 		app.use('/', require('./app/routes/index'));
 
-		if (!process.env.DEBUG) {
+		if (!debugMode) {
 
 			app.use(function(req, res, next) {
 				res.send(404);
@@ -130,7 +131,7 @@
 
 		app.listen(port);
 
-		console.log('Server listening on port ' + port);
+		console.log('Server listening on port ' + port + (debugMode ? ', debugging activated' : ''));
 
 		return app;
 	}

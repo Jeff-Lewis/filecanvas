@@ -4,7 +4,7 @@ module.exports = (function() {
 	var express = require('express');
 	var path = require('path');
 
-	var templatesRoot = path.resolve(path.dirname(require.main.filename), 'templates');
+	var templatesRoot = path.resolve(path.dirname(require.main.filename), 'templates/sites');
 
 	return express['static'](templatesRoot);
 })();

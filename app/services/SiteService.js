@@ -8,7 +8,6 @@ module.exports = (function() {
 	var MINUTES = SECONDS * 60;
 	var DROPBOX_DELTA_CACHE_EXPIRY = 5 * MINUTES;
 
-	var SITE_FOLDER_PATH_FORMAT = '${USER_FOLDER}/${SITE_NAME}';
 	var SITE_CONTENTS_DOWNLOAD_URL_PREFIX = 'download';
 
 	var DB_COLLECTION_SITES = 'sites';
@@ -25,19 +24,41 @@ module.exports = (function() {
 	SiteService.prototype.siteUser = null;
 	SiteService.prototype.siteName = null;
 
-	SiteService.prototype.getFolderPath = function() {
-		// TODO: Store dropbox folder independently of site name
-		var userService = new UserService(this.dataService);
-		var userFolderPath = userService.getDropboxFolderPath(this.siteUser);
-		return SITE_FOLDER_PATH_FORMAT
-			.replace(/\$\{USER_FOLDER\}/g, userFolderPath)
-			.replace(/\$\{SITE_NAME\}/g, this.siteName);
+	SiteService.prototype.retrieveFolderPath = function(callback) {
+		var query = { 'username': this.siteUser, 'site': this.siteName };
+		var projection = { '_id': 0, 'public': 0, 'users': 0 };
+
+		var self = this;
+		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
+			function(error, siteModel) {
+				if (error) { return callback && callback(error); }
+
+				var siteFolderPath = _getSiteFolderPath(self.siteUser, siteModel, self.dataService);
+
+				return callback && callback(null, siteFolderPath);
+
+
+				function _getSiteFolderPath(username, siteModel, dataService) {
+					var sitePath = siteModel.path;
+					var userService = new UserService(dataService);
+					var userFolderPath = userService.getUserFolderPath(username, sitePath);
+					return userFolderPath;
+				}
+			}
+		);
 	};
 
 	SiteService.prototype.retrieveDownloadLink = function(downloadPath, callback) {
 		var downloadService = new DownloadService(this.dropbox);
-		var dropboxFilePath = this.getFolderPath() + '/' + downloadPath;
-		downloadService.retrieveDownloadLink(dropboxFilePath, _handleDownloadLinkRetrieved);
+		this.retrieveFolderPath(_handleFolderPathRetrieved);
+
+
+		function _handleFolderPathRetrieved(error, folderPath) {
+			if (error) { return callback && callback(error); }
+
+			var dropboxFilePath = folderPath + '/' + downloadPath;
+			downloadService.retrieveDownloadLink(dropboxFilePath, _handleDownloadLinkRetrieved);
+		}
 
 		function _handleDownloadLinkRetrieved(error, downloadUrl) {
 			if (error) { return callback && callback(error); }
@@ -79,11 +100,18 @@ module.exports = (function() {
 				if (error) { return callback && callback(error); }
 				if (!includeContents) { return callback && callback(null, siteModel); }
 
-				var siteFolderPath = self.getFolderPath();
+				var siteFolderPath = _getSiteFolderPath(self.siteUser, siteModel, self.dataService);
 				var downloadUrlPrefix = SITE_CONTENTS_DOWNLOAD_URL_PREFIX;
 
 				self._loadFolderContents(siteFolderPath, siteModel.cache, downloadUrlPrefix, _handleSiteContentsLoaded);
 
+
+				function _getSiteFolderPath(username, siteModel, dataService) {
+					var sitePath = siteModel.path;
+					var userService = new UserService(dataService);
+					var userFolderPath = userService.getUserFolderPath(username, sitePath);
+					return userFolderPath;
+				}
 
 				function _handleSiteContentsLoaded(error, siteContents, siteCache) {
 					if (error) { return callback && callback(error); }
@@ -99,16 +127,23 @@ module.exports = (function() {
 	SiteService.prototype._loadFolderContents = function(folderPath, folderCache, downloadUrlPrefix, callback) {
 		var cacheCursor = (folderCache && folderCache.cursor) || null;
 		var cacheRoot = (folderCache && folderCache.data) || null;
-		var cacheUpdated = (folderCache && folderCache.updated) || 0;
+		var cacheUpdated = (folderCache && folderCache.updated) || null;
 
-		var timeSinceLastUpdate = (new Date() - cacheUpdated);
-		if (timeSinceLastUpdate < DROPBOX_DELTA_CACHE_EXPIRY) {
+		var needsUpdate = _needsUpdate(cacheUpdated, DROPBOX_DELTA_CACHE_EXPIRY);
+		if (!needsUpdate) {
 			var folderCacheContents = this._getFolderCacheContents(folderCache, folderPath, downloadUrlPrefix);
 			return callback && callback(null, folderCacheContents, folderCache);
 		}
 
 		var self = this;
-		this.dropboxService.client.delta(cacheCursor, folderPath, _handleDeltaLoaded);
+		this.dropboxService.client.delta(cacheCursor || 0, folderPath, _handleDeltaLoaded);
+
+
+		function _needsUpdate(lastUpdated, cacheDuration) {
+			if (!lastUpdated) { return true; }
+			var delta = (new Date() - lastUpdated);
+			return (delta > cacheDuration);
+		}
 
 
 		function _handleDeltaLoaded(error, pulledChanges) {
@@ -116,32 +151,23 @@ module.exports = (function() {
 
 			cacheCursor = pulledChanges.cursorTag;
 
-			var cachePathLookupTable;
-			if (pulledChanges.blankSlate) {
-				cacheRoot = null;
-				cachePathLookupTable = {};
-			} else {
-				cachePathLookupTable = _getCacheDictionary({}, cacheRoot);
-			}
+			var cachePathLookupTable = _getCacheDictionary(cacheRoot, pulledChanges, folderPath);
+			cacheRoot = cachePathLookupTable[folderPath.toLowerCase()];
 
 			pulledChanges.changes.forEach(function(changeModel) {
 				var changePath = changeModel.path.toLowerCase();
 
 				var parentPath = changePath.substr(0, changePath.lastIndexOf('/')).toLowerCase();
 				var parentFolder = cachePathLookupTable[parentPath] || null;
-				var isRootFolder = (changePath === folderPath.toLowerCase());
 
 				if (changeModel.wasRemoved) {
-					if (isRootFolder) { cacheRoot = null; }
 					parentFolder.contents = parentFolder.contents.filter(function(siblingFolder) {
 						return siblingFolder.path.toLowerCase() !== changePath;
 					});
 				} else {
 					var fileModel = changeModel.stat.json();
 					if (fileModel.is_dir) { fileModel.contents = []; }
-					if (isRootFolder) {
-						cacheRoot = fileModel;
-					} else {
+					if (parentFolder) {
 						parentFolder.contents.push(fileModel);
 					}
 					cachePathLookupTable[changePath] = fileModel;
@@ -160,13 +186,53 @@ module.exports = (function() {
 				return callback && callback(null, folderCacheContents, updatedFolderCache);
 			}
 
+			function _getCacheDictionary(cacheRoot, pulledChanges, folderPath) {
+				var cacheDictionary;
+				cacheRoot = _updateCacheRoot(cacheRoot, pulledChanges, folderPath);
+				cacheDictionary = _buildCacheDictionary(cacheRoot);
+				_addItemToCache(cacheRoot, cacheDictionary);
 
-			function _getCacheDictionary(cachePathLookupTable, cacheItem) {
-				cachePathLookupTable[cacheItem.path.toLowerCase()] = cacheItem;
-				if (cacheItem.contents) {
-					cachePathLookupTable = cacheItem.contents.reduce(_getCacheDictionary, cachePathLookupTable);
+				return cacheDictionary;
+
+
+				function _buildCacheDictionary(cacheRoot) {
+					var cacheDictionary = {};
+					if (!cacheRoot) { return cacheDictionary; }
+					_addItemToCache(cacheRoot, cacheDictionary);
+					if (cacheRoot.contents) {
+						cacheDictionary = cacheRoot.contents.reduce(_buildCacheDictionary, cacheDictionary);
+					}
+					return cacheDictionary;
 				}
-				return cachePathLookupTable;
+			}
+
+
+			function _updateCacheRoot(cacheRoot, pulledChanges, folderPath) {
+				if (pulledChanges.blankSlate) { cacheRoot = null; }
+				pulledChanges.changes.forEach(function(changeModel) {
+					var isRootFolder = _isRootFolder(changeModel, folderPath);
+					if (!isRootFolder) { return; }
+					if (changeModel.wasRemoved) {
+						cacheRoot = null;
+					} else {
+						cacheRoot = _getFileModel(changeModel);
+					}
+				});
+				return cacheRoot;
+			}
+
+			function _addItemToCache(cacheItem, cacheDictionary) {
+				return (cacheDictionary[cacheItem.path.toLowerCase()] = cacheItem);
+			}
+
+			function _isRootFolder(changeModel, folderPath) {
+				return (changeModel.path.toLowerCase() === folderPath.toLowerCase());
+			}
+
+			function _getFileModel(changeModel) {
+				var fileModel = changeModel.stat.json();
+				if (fileModel.is_dir) { fileModel.contents = []; }
+				return fileModel;
 			}
 		}
 	};
