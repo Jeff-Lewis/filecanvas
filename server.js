@@ -14,12 +14,11 @@
 	var subdomain = require('./app/middleware/subdomain');
 
 	var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
-	var baseUrl = process.env.BASE_URL || null;
 	var debugMode = (process.env.DEBUG === 'true');
 
 	initServices(function(error) {
 		if (error) { throw error; }
-		initServer(port, baseUrl, debugMode);
+		initServer(port, debugMode);
 	});
 
 
@@ -86,7 +85,7 @@
 	}
 
 
-	function initServer(port, baseUrl, debugMode) {
+	function initServer(port, debugMode) {
 		var app = express();
 
 		app.use(express.compress());
@@ -97,8 +96,20 @@
 				path: '/'
 			},
 			{
+				subdomain: 'ping',
+				path: '/ping'
+			},
+			{
 				subdomain: 'templates',
 				path: '/templates'
+			},
+			{
+				subdomain: 'admin',
+				path: '/admin'
+			},
+			{
+				subdomain: 'my',
+				path: '/admin'
 			},
 			{
 				subdomain: /([a-z0-9_\-]+)/,
@@ -106,16 +117,13 @@
 			}
 		];
 
-		if (baseUrl) {
-			app.set('subdomain offset', baseUrl.split('.').length);
-		}
-
 		app.use('/', stripTrailingSlash);
 		app.use('/', subdomain({ mappings: subdomainMappings }));
 
 		app.use('/ping', require('./app/routes/ping'));
 		app.use('/templates', require('./app/routes/templates'));
 		app.use('/sites', require('./app/routes/sites'));
+		app.use('/admin', require('./app/routes/admin'));
 		app.use('/', require('./app/routes/index'));
 
 		if (debugMode) {

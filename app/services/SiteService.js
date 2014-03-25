@@ -2,7 +2,7 @@ module.exports = (function() {
 	'use strict';
 
 	var DownloadService = require('../services/DownloadService');
-	var UserService = require('../services/UserService');
+	var OrganizationService = require('../services/OrganizationService');
 
 	var SECONDS = 1000;
 	var MINUTES = SECONDS * 60;
@@ -12,20 +12,20 @@ module.exports = (function() {
 
 	var DB_COLLECTION_SITES = 'sites';
 
-	function SiteService(dataService, dropboxService, siteUser, siteName) {
+	function SiteService(dataService, dropboxService, organizationAlias, siteAlias) {
 		this.dataService = dataService;
 		this.dropboxService = dropboxService;
-		this.siteUser = siteUser;
-		this.siteName = siteName;
+		this.organizationAlias = organizationAlias;
+		this.siteAlias = siteAlias;
 	}
 
 	SiteService.prototype.dataService = null;
 	SiteService.prototype.dropboxService = null;
-	SiteService.prototype.siteUser = null;
-	SiteService.prototype.siteName = null;
+	SiteService.prototype.organizationAlias = null;
+	SiteService.prototype.siteAlias = null;
 
 	SiteService.prototype.retrieveFolderPath = function(callback) {
-		var query = { 'username': this.siteUser, 'site': this.siteName };
+		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
 		var projection = { '_id': 0, 'public': 0, 'users': 0 };
 
 		var self = this;
@@ -33,16 +33,16 @@ module.exports = (function() {
 			function(error, siteModel) {
 				if (error) { return callback && callback(error); }
 
-				var siteFolderPath = _getSiteFolderPath(self.siteUser, siteModel, self.dataService);
+				var siteFolderPath = _getSiteFolderPath(self.organizationAlias, siteModel, self.dataService);
 
 				return callback && callback(null, siteFolderPath);
 
 
-				function _getSiteFolderPath(username, siteModel, dataService) {
-					var sitePath = siteModel.path;
-					var userService = new UserService(dataService);
-					var userFolderPath = userService.getUserFolderPath(username, sitePath);
-					return userFolderPath;
+				function _getSiteFolderPath(organizationAlias, siteModel, dataService) {
+					var organizationService = new OrganizationService(dataService);
+					var organizationShareRoot = organizationService.getOrganizationShareRoot(organizationAlias);
+					var sitePath = organizationShareRoot + siteModel.sharePath;
+					return sitePath;
 				}
 			}
 		);
@@ -67,7 +67,7 @@ module.exports = (function() {
 	};
 
 	SiteService.prototype.getAuthenticationDetails = function(callback) {
-		var query = { 'username': this.siteUser, 'site': this.siteName };
+		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
 		var projection = { 'public': 1, 'users': 1 };
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -90,7 +90,7 @@ module.exports = (function() {
 	};
 
 	SiteService.prototype.retrieveSite = function(includeContents, callback) {
-		var query = { 'username': this.siteUser, 'site': this.siteName };
+		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
 		var projection = { '_id': 0, 'public': 0, 'users': 0 };
 		if (!includeContents) { projection['cache'] = 0; }
 
@@ -100,17 +100,17 @@ module.exports = (function() {
 				if (error) { return callback && callback(error); }
 				if (!includeContents) { return callback && callback(null, siteModel); }
 
-				var siteFolderPath = _getSiteFolderPath(self.siteUser, siteModel, self.dataService);
+				var siteFolderPath = _getSiteFolderPath(self.organizationAlias, siteModel, self.dataService);
 				var downloadUrlPrefix = SITE_CONTENTS_DOWNLOAD_URL_PREFIX;
 
 				self._loadFolderContents(siteFolderPath, siteModel.cache, downloadUrlPrefix, _handleSiteContentsLoaded);
 
 
-				function _getSiteFolderPath(username, siteModel, dataService) {
-					var sitePath = siteModel.path;
-					var userService = new UserService(dataService);
-					var userFolderPath = userService.getUserFolderPath(username, sitePath);
-					return userFolderPath;
+				function _getSiteFolderPath(organizationAlias, siteModel, dataService) {
+					var organizationService = new OrganizationService(dataService);
+					var organizationShareRoot = organizationService.getOrganizationShareRoot(organizationAlias);
+					var sitePath = organizationShareRoot + siteModel.sharePath;
+					return sitePath;
 				}
 
 				function _handleSiteContentsLoaded(error, siteContents, siteCache) {
@@ -291,7 +291,7 @@ module.exports = (function() {
 	};
 
 	SiteService.prototype.retrieveSiteCache = function(callback) {
-		var query = { 'username': this.siteUser, 'site': this.siteName };
+		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
 		var projection = { 'cache': 1 };
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -305,7 +305,7 @@ module.exports = (function() {
 	SiteService.prototype.updateSiteCache = function(cache, callback) {
 		cache = cache || null;
 
-		var query = { 'username': this.siteUser, 'site': this.siteName };
+		var query = { 'organization': this.organizationAlias, 'site': this.siteAlias };
 		var update = { $set: { 'cache': cache } };
 		var options = { w: 1 };
 

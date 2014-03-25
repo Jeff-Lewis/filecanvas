@@ -1,0 +1,16 @@
+<h1 class="page-header">FAQ</h1>
+<p class="lead">Below you will find answers to our most frequently asked questions.</p>
+<p class="lead">For anything not in this list, contact us via the <a href="/support">Support</a> page.</p>
+
+<ul>
+	{{#each questions}}
+	<li><a href="#{{ id }}">{{ question }}</a></li>
+	{{/each}}
+</ul>
+
+<hr/>
+
+{{#each questions}}
+<h4 id="{{ id }}">{{ question }}</h4>
+<p>{{ answer }}</p>
+{{/each}}

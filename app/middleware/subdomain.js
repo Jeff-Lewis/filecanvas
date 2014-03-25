@@ -1,5 +1,8 @@
 module.exports = (function() {
 	'use strict';
+	
+	var express = require('express');
+	var tld = require('tldjs');
 
 	return function(options) {
 
@@ -11,7 +14,16 @@ module.exports = (function() {
 			};
 		});
 
-		return function(req, res, next) {
+
+		var app = express();
+
+		app.use(function(req, res, next) {
+			var baseUrl = tld.getDomain(req.host);
+			app.set('subdomain offset', baseUrl.split('.').length);
+			next();
+		});
+
+		app.use(function(req, res, next) {
 			var reqSubdomains = req.subdomains.slice();
 			reqSubdomains.reverse();
 			var subdomain = reqSubdomains.join('.');
@@ -43,7 +55,9 @@ module.exports = (function() {
 
 			req.url = updatedUrl;
 			next();
-		};
+		});
+
+		return app;
 	};
 
 })();

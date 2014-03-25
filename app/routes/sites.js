@@ -6,36 +6,36 @@ module.exports = (function() {
 	var dropboxService = require('../globals').dropboxService;
 	var dataService = require('../globals').dataService;
 
-	var UserService = require('../services/UserService');
+	var OrganizationService = require('../services/OrganizationService');
 	var SiteService = require('../services/SiteService');
 	var ResponseService = require('../services/ResponseService');
-	var TemplateService = require('../services/TemplateService');
+	var SiteTemplateService = require('../services/SiteTemplateService');
 	var AuthenticationService = require('../services/AuthenticationService');
 
 	var app = express();
 
-	app.get('/:username', defaultRoute);
-	app.get('/:username/download/*', defaultDownloadRoute);
-	app.get('/:username/:site', siteAuth, siteRoute);
-	app.get('/:username/:site/download/*', siteAuth, downloadRoute);
+	app.get('/:organization', defaultRoute);
+	app.get('/:organization/download/*', defaultDownloadRoute);
+	app.get('/:organization/:site', siteAuth, siteRoute);
+	app.get('/:organization/:site/download/*', siteAuth, downloadRoute);
 
 	return app;
 
 
 	function siteAuth(req, res, next) {
-		var siteOwner = req.params.username;
-		var siteName = req.params.site;
+		var organizationAlias = req.params.organization;
+		var siteAlias = req.params.site;
 
-		var siteService = new SiteService(dataService, dropboxService, siteOwner, siteName);
+		var siteService = new SiteService(dataService, dropboxService, organizationAlias, siteAlias);
 
-		siteService.getAuthenticationDetails(function(error, authentication, callback) {
+		siteService.getAuthenticationDetails(function(error, authenticationDetails, callback) {
 			if (error) { return next(error); }
 
-			var isPublic = authentication['public'];
+			var isPublic = authenticationDetails['public'];
 			if (isPublic) { return next(); }
 
 			express.basicAuth(function(username, password) {
-				var validUsers = authentication.users;
+				var validUsers = authenticationDetails.users;
 				var authenticationService = new AuthenticationService();
 				return authenticationService.authenticate(username, password, validUsers);
 			})(req, res, next);
@@ -43,46 +43,46 @@ module.exports = (function() {
 	}
 
 	function defaultRoute(req, res, next) {
-		var siteOwner = req.params.username;
-		var userService = new UserService(dataService);
+		var organizationAlias = req.params.organization;
+		var organizationAliasService = new OrganizationService(dataService);
 
-		userService.retrieveDefaultSiteName(siteOwner, function(error, siteName) {
+		organizationAliasService.retrieveDefaultSiteName(organizationAlias, function(error, siteAlias) {
 			if (error) { return next(error); }
-			if (!siteName) {
+			if (!siteAlias) {
 				error = new Error();
 				error.status = 404;
 				return next(error);
 			}
 
-			req.url += '/' + siteName;
+			req.url += '/' + siteAlias;
 			next();
 		});
 	}
 
 	function defaultDownloadRoute(req, res, next) {
-		var siteOwner = req.params.username;
-		var userService = new UserService(dataService);
+		var organizationAlias = req.params.organization;
+		var organizationAliasService = new OrganizationService(dataService);
 		var downloadPath = req.params[0];
 
-		userService.retrieveDefaultSiteName(siteOwner, function(error, siteName) {
+		organizationAliasService.retrieveDefaultSiteName(organizationAlias, function(error, siteAlias) {
 			if (error) { return next(error); }
-			if (!siteName) {
+			if (!siteAlias) {
 				error = new Error();
 				error.status = 404;
 				return next(error);
 			}
 
-			req.url = '/' + siteOwner + '/' + siteName + '/download/' + downloadPath;
+			req.url = '/' + organizationAlias + '/' + siteAlias + '/download/' + downloadPath;
 			next();
 		});
 	}
 
 	function downloadRoute(req, res, next) {
-		var siteOwner = req.params.username;
-		var siteName = req.params.site;
+		var organizationAlias = req.params.organization;
+		var siteAlias = req.params.site;
 		var downloadPath = req.params[0];
 
-		var siteService = new SiteService(dataService, dropboxService, siteOwner, siteName);
+		var siteService = new SiteService(dataService, dropboxService, organizationAlias, siteAlias);
 
 		siteService.retrieveDownloadLink(downloadPath, _handleDownloadLinkRetrieved);
 
@@ -102,10 +102,10 @@ module.exports = (function() {
 	}
 
 	function siteRoute(req, res, next) {
-		var siteOwner = req.params.username;
-		var siteName = req.params.site;
+		var organizationAlias = req.params.organization;
+		var siteAlias = req.params.site;
 
-		var siteService = new SiteService(dataService, dropboxService, siteOwner, siteName);
+		var siteService = new SiteService(dataService, dropboxService, organizationAlias, siteAlias);
 
 		var includeContents = true;
 		siteService.retrieveSite(includeContents, _handleSiteModelLoaded);
@@ -120,8 +120,8 @@ module.exports = (function() {
 				},
 				'html': function() {
 					var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
-					var templateService = new TemplateService(siteModel.template);
-					var html = templateService.render(siteModel, hostname);
+					var siteTemplateService = new SiteTemplateService(siteModel.template);
+					var html = siteTemplateService.render(siteModel, hostname);
 					res.send(html);
 				}
 			}).respondTo(req);

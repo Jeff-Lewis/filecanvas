@@ -1,34 +1,19 @@
 module.exports = (function() {
 	'use strict';
 
-	var templates = require('../templates');
+	var fs = require('fs');
+	var path = require('path');
+	var Handlebars = require('handlebars');
 
-	var TEMPLATES_ROOT_URL = '//templates.${HOST}/';
+	function TemplateService() {
 
-	function TemplateService(templateName) {
-		this.templateName = templateName;
 	}
 
-	TemplateService.prototype.templateName = null;
-
-	TemplateService.prototype.render = function(siteModel, hostname) {
-		var templatesRoot = TEMPLATES_ROOT_URL.replace(/\$\{HOST\}/g, hostname);
-		var siteContents = siteModel.contents;
-		var title = siteModel.title;
-		var template = templates[this.templateName];
-		var templateRoot = templatesRoot + this.templateName + '/';
-
-		return template({
-			title: title,
-			templateRoot: templateRoot,
-			contents: siteContents,
-			folders: siteContents.folders,
-			files: siteContents.files
-		});
+	TemplateService.prototype.compile = function(templatePath) {
+		var filePath = path.resolve(path.dirname(require.main.filename), templatePath);
+		var template = fs.readFileSync(filePath, 'UTF-8');
+		return Handlebars.compile(template);
 	};
-
-	TemplateService.prototype.templatesRoot = null;
-	TemplateService.prototype.templatesRoot = null;
 
 	return TemplateService;
 })();

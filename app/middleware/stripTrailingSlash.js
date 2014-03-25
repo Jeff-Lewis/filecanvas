@@ -1,9 +1,12 @@
 module.exports = (function() {
 	'use strict';
 
+	var REGEXP_TRAILING_SLASH = /\/+$/;
 	return function(req, res, next) {
-		if ((req.url !== '/') && (req.url.substr(-1) === '/')) {
-			req.url = req.url.slice(0, -1);
+		var hasTrailingSlash = (req.url !== '/') && REGEXP_TRAILING_SLASH.test(req.url);
+		if (hasTrailingSlash) {
+			res.redirect(301, req.url.replace(REGEXP_TRAILING_SLASH, ''));
+			return;
 		}
 		next();
 	};
