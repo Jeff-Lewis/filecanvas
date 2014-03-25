@@ -23,8 +23,9 @@ module.exports = (function() {
 
 	UserService.prototype.retrieveUser = function(username, callback) {
 		var query = { 'username': username };
+		var projection = { 'shares': 0 };
 
-		this.dataService.db.collection(DB_COLLECTION_USERS).findOne(query,
+		this.dataService.db.collection(DB_COLLECTION_USERS).findOne(query, projection,
 			function(error, userModel) {
 				if (error) { return callback && callback(error); }
 				if (!userModel) {
@@ -67,6 +68,44 @@ module.exports = (function() {
 					return callback && callback(error);
 				}
 				return callback && callback(null, dropboxUserModel.username);
+			}
+		);
+	};
+
+	UserService.prototype.retrieveUserShares = function(username, callback) {
+		var query = { 'username': username };
+		var projection = { 'shares': 1 };
+
+		this.dataService.db.collection(DB_COLLECTION_USERS).findOne(query, projection,
+			function(error, userModel) {
+				if (error) { return callback && callback(error); }
+				if (!userModel) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
+				return callback && callback(null, userModel['shares']);
+			}
+		);
+	};
+
+	UserService.prototype.addUserShare = function(username, shareName, sharePath, callback) {
+		var shareData = {
+			'name': shareName,
+			'path': sharePath
+		};
+
+		var query = { 'username': username };
+		var updates = {
+			'$push': {
+				'shares' : shareData
+			}
+		};
+
+		this.dataService.db.collection(DB_COLLECTION_USERS).update(query, updates,
+			function(error) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null);
 			}
 		);
 	};
