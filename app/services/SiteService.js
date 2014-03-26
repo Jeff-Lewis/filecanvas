@@ -12,7 +12,7 @@ module.exports = (function() {
 
 	var DB_COLLECTION_SITES = 'sites';
 
-	function SiteService(dataService, dropboxService, organizationAlias, siteAlias) {
+	function SiteService(dataService, dropboxService) {
 		this.dataService = dataService;
 		this.dropboxService = dropboxService;
 	}
@@ -95,6 +95,11 @@ module.exports = (function() {
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
 			function(error, siteModel) {
 				if (error) { return callback && callback(error); }
+				if (!siteModel) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
 				if (!includeContents) { return callback && callback(null, siteModel); }
 
 				var siteFolderPath = _getSiteFolderPath(organizationAlias, siteModel, self.dataService);
@@ -127,6 +132,11 @@ module.exports = (function() {
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
 			function(error, siteModel) {
+				if (!siteModel) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
 				if (error) { return callback && callback(error); }
 				return callback && callback(null, siteModel.cache);
 			}
@@ -136,6 +146,7 @@ module.exports = (function() {
 	SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, cache, callback) {
 		cache = cache || null;
 
+		// TODO: Is it necessary to confirm that the site exists before updating cache?
 		var query = { 'organization': organizationAlias, 'alias': siteAlias };
 		var update = { $set: { 'cache': cache } };
 		var options = { w: 1 };
