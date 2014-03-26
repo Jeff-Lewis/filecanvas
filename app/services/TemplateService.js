@@ -5,6 +5,15 @@ module.exports = (function() {
 	var path = require('path');
 	var Handlebars = require('handlebars');
 
+	Handlebars.registerHelper('ifequals', function(item1, item2, options) {
+		var isEqual = (item1 == item2); // jshint ignore:line
+		if (isEqual) {
+			return options.fn(this);
+		} else {
+			return options.inverse(this);
+		}
+	});
+
 	function TemplateService() {
 
 	}
