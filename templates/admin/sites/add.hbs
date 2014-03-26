@@ -14,7 +14,7 @@
 				<div class="form-group">
 					<label for="input-sites-alias" class="col-sm-3 col-lg-2 control-label">Path</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="alias" class="form-control" id="input-sites-alias" placeholder="Site path" data-bind-id="site-alias" data-bind-value="site-name|slug" title="This determines the site’s web address" data-trigger="focus"/>
+						<input type="text" name="alias" class="form-control" id="input-sites-alias" placeholder="Site path" data-bind-id="site-alias" data-bind-value="site-name|slug" data-parser="slug" title="This determines the site’s web address" data-trigger="focus"/>
 						<p class="help-block">{{ session.urls.organization }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
 					</div>
 				</div>

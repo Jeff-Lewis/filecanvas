@@ -3,8 +3,49 @@
 	'use strict';
 
 	$(function() {
+		_initInputParsers();
 		_initDataBindings();
 	});
+
+	function _initInputParsers() {
+		var attributeName = 'data-parser';
+
+		var $inputElements = $('[' + attributeName + ']');
+
+		var parsers = {
+			'slug': function(value) {
+				return value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+			}
+		};
+
+		var inputParsers = _createInputParsers($inputElements, attributeName, parsers);
+		return inputParsers;
+
+
+		function _createInputParsers($inputElements, attributeName, parsers) {
+			$inputElements.each(function(index, inputElement) {
+				var $inputElement = $(inputElement);
+
+				var parserId = $inputElement.attr(attributeName);
+				if (!(parserId in parsers)) { throw new Error('Invalid parser specified: "' + parserId + '"'); }
+				
+				var parser = parsers[parserId];
+				_addParserListeners($inputElement, parser);
+			});
+
+			function _addParserListeners($inputElement, parser) {
+				$inputElement.on('input change', _handleInputUpdated);
+
+				function _handleInputUpdated(event) {
+					var inputValue = $inputElement.val();
+					var parsedValue = parser(inputValue);
+					if (parsedValue === inputValue) { return; }
+					$inputElement.val(parsedValue);
+					$inputElement.change();
+				}
+			}
+		}
+	}
 
 	function _initDataBindings() {
 		var sourceAttributeName = 'data-bind-id';
@@ -15,7 +56,7 @@
 
 		var filters = {
 			'slug': function(value) {
-				return value.toLowerCase().replace(/[^a-z0-9]+(?!$)/g, '-').replace(/[^a-z0-9]+$/, '');
+				return value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 			},
 			'format': function(value, formatString) {
 				return formatString.replace(/\$0/g, value);
@@ -119,9 +160,9 @@
 				var bindingSource = {
 					value: value,
 					observers: [],
-					bind: _bind,
-					unbind: _unbind,
-					update: _update
+					bind: _bindTarget,
+					unbind: _unbindTarget,
+					update: _updateBindingValue
 				};
 				
 				_addBindingListeners($sourceElement, bindingSource);
@@ -129,13 +170,13 @@
 				return bindingSource;
 
 
-				function _bind($targetElement, filter) {
+				function _bindTarget($targetElement, filter) {
 					var observers = bindingSource.observers;
 					var observer = _createObserver($targetElement, filter);
 					observers.push(observer);
 				}
 
-				function _unbind($targetElement) {
+				function _unbindTarget($targetElement) {
 					var observers = bindingSource.observers;
 					
 					if (!$targetElement) {
@@ -151,7 +192,7 @@
 					}
 				}
 
-				function _update(value) {
+				function _updateBindingValue(value) {
 					var valueWasSpecified = (arguments.length > 0);
 					if (valueWasSpecified) {
 						if (bindingSource.value === value) { return; }
