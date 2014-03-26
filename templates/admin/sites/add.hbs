@@ -1,1 +1,35 @@
-Add a site.
+<div class="row">
+	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
+		<h2>Add a site</h2>
+		<p class="lead">Use the fields below to create a new Dropkick site.</p>
+		<hr/>
+		<form class="form-horizontal" role="form">
+			<fieldset>
+				<div class="form-group">
+					<label for="input-sites-name" class="col-sm-3 col-lg-2 control-label">Name</label>
+					<div class="col-sm-6 col-lg-4">
+						<input type="text" name="name" class="form-control" id="input-sites-name" placeholder="Site name" value="{{ site.name }}" data-role="site-name" title="This helps you identify the site in the Dropkick admin area" data-trigger="focus"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="input-sites-alias" class="col-sm-3 col-lg-2 control-label">Path</label>
+					<div class="col-sm-6 col-lg-4">
+						<input type="text" name="alias" class="form-control" id="input-sites-alias" placeholder="Site path" value="{{ site.alias }}" data-role="site-alias" title="This determines the site’s web address" data-trigger="focus"/>
+						<p class="help-block">https://{{{ session.organization.alias }}}.dropkick.it/<strong data-value="site-alias">{{ site.alias }}</strong></p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="input-sites-title" class="col-sm-3 col-lg-2 control-label">Title</label>
+					<div class="col-sm-6 col-lg-4">
+						<input type="text" name="title" class="form-control" id="input-sites-title" placeholder="Page title" value="{{ site.title }}" title="This determines what is shown in the title of the user’s browser window" data-trigger="focus"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+						<button type="submit" class="btn btn-success">Save changes</button>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+</div>
