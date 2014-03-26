@@ -87,8 +87,11 @@ module.exports = (function() {
 
 	SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, includeUsers, callback) {
 		var query = { 'organization': organizationAlias, 'alias': siteAlias };
-		var projection = { '_id': 0, 'public': 0 };
-		if (!includeUsers) { projection.users = 0; }
+		var projection = { '_id': 0 };
+		if (!includeUsers) {
+			projection['public'] = 0;
+			projection.users = 0;
+		}
 		if (!includeContents) { projection.cache = 0; }
 
 		var self = this;

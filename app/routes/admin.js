@@ -225,7 +225,7 @@ module.exports = (function() {
 			'title': req.body.title,
 			'template': 'fathom',
 			'sharePath': req.body.share || null,
-			'public': (req.body['private'] === 'false')
+			'public': (req.body['private'] !== 'true')
 		};
 
 		var siteService = new SiteService(dataService);
