@@ -67,6 +67,20 @@ module.exports = (function() {
 		function _getSessionData(req, administratorModel, organizationModel, siteModels) {
 			var adminUrls = _getAdminUrls(req, organizationModel);
 			return {
+				navigation: [
+					{
+						id: 'faq',
+						label: 'FAQ',
+						link: adminUrls.faq,
+						active: (req.path === adminUrls.faq)
+					},
+					{
+						id: 'support',
+						label: 'Support',
+						link: adminUrls.support,
+						active: (req.path === adminUrls.support)
+					}
+				],
 				urls: adminUrls,
 				user: administratorModel,
 				organization: organizationModel,

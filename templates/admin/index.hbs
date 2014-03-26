@@ -46,8 +46,13 @@
 								<li><a href="{{{ session.urls.sites }}}">Create a new site...</a></li>
 							</ul>
 						</li>
-						<li><a href="{{{ session.urls.faq }}}">FAQ</a></li>
-						<li><a href="{{{ session.urls.support }}}">Support</a></li>
+						{{#each session.navigation}}
+						{{#if active}}
+						<li class="active"><a href="{{ link }}">{{ label }}</a></li>
+						{{else}}
+						<li><a href="{{ link }}">{{ label }}</a></li>
+						{{/if}}
+						{{/each}}
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li class="dropdown">
