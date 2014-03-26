@@ -89,6 +89,8 @@
 		var app = express();
 
 		app.use(express.compress());
+		app.use(express.json());
+		app.use(express.urlencoded());
 
 		var subdomainMappings = [
 			{

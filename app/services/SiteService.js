@@ -159,6 +159,53 @@ module.exports = (function() {
 		);
 	};
 
+	SiteService.prototype.createSite = function(siteModel, callback) {
+		if (!siteModel) { return _validationError('No site model specified', callback); }
+		if (!siteModel.organization) { return _validationError('No organization specified', callback); }
+		if (!siteModel.name) { return _validationError('No site name specified', callback); }
+		if (!siteModel.alias) { return _validationError('No site alias specified', callback); }
+		if (!siteModel.title) { return _validationError('No site title specified', callback); }
+		if (!siteModel.template) { return _validationError('No site template specified', callback); }
+		// TODO: Validate organization when creating site
+		// TODO: Validate name when creating site
+		// TODO: Validate alias when creating site
+		// TODO: Validate title when creating site
+		// TODO: Validate template when creating site
+		// TODO: Validate sharePath when creating site
+		var doc = {
+			'organization': siteModel.organization,
+			'alias': siteModel.alias,
+			'name': siteModel.name,
+			'title': siteModel.title,
+			'template': siteModel.template,
+			'sharePath': siteModel.sharePath || null,
+			'public': Boolean(siteModel['public']),
+			'users': [],
+			'cache': {
+				'updated': null,
+				'cursor': null,
+				'data': null
+			}
+		};
+
+		var options = { safe: true };
+
+		this.dataService.db.collection(DB_COLLECTION_SITES).insert(doc, options,
+			function(error, records) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, siteModel);
+			}
+		);
+
+
+		function _validationError(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	};
+
+
 	SiteService.prototype._loadFolderContents = function(folderPath, folderCache, downloadUrlPrefix, callback) {
 		var cacheCursor = (folderCache && folderCache.cursor) || null;
 		var cacheRoot = (folderCache && folderCache.data) || null;

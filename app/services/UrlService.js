@@ -4,6 +4,7 @@ module.exports = (function() {
 
 	function UrlService(req) {
 		this.subdomains = req.subdomains;
+		this.subdomain = this.subdomains.join('.');
 
 		var protocol = req.protocol;
 		var hostIncludingPort = req.get('host');

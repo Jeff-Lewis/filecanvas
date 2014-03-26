@@ -4,11 +4,13 @@
 		<p class="lead">Use the fields below to create a new Dropkick site.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST">
+			<input type="hidden" name="organization" value="{{ session.organization.alias }}"/>
 			<fieldset>
 				<div class="form-group">
 					<label for="input-sites-name" class="col-sm-3 col-lg-2 control-label">Name</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="name" class="form-control" id="input-sites-name"
+						<input type="text" class="form-control" id="input-sites-name"
+							name="name"
 							title="This helps you identify the site in the Dropkick admin area"
 							placeholder="Site name"
 							data-bind-id="site-name"
@@ -20,7 +22,8 @@
 				<div class="form-group">
 					<label for="input-sites-alias" class="col-sm-3 col-lg-2 control-label">Path</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="alias" class="form-control" id="input-sites-alias"
+						<input type="text" class="form-control" id="input-sites-alias"
+						 	name="alias"
 							title="This determines the site’s web address"
 							placeholder="Site path"
 							data-bind-id="site-alias"
@@ -35,7 +38,8 @@
 				<div class="form-group">
 					<label for="input-sites-title" class="col-sm-3 col-lg-2 control-label">Title</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="title" class="form-control" id="input-sites-title"
+						<input type="text" class="form-control" id="input-sites-title"
+							name="title"
 							title="This determines what is shown in the title of the user’s browser window"
 							placeholder="Page title"
 							data-bind-value="site-name|format:'$0 | {{ session.organization.name }}':''"
@@ -47,7 +51,10 @@
 				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
 					<div class="col-sm-6 col-lg-4">
-						<select name="share" class="form-control" title="Choose the Dropbox folder that this site syncs from">
+						<select class="form-control"
+							name="share"
+							title="Choose the Dropbox folder that this site syncs from"
+						>
 							<option value="">No Dropbox folder selected</option>
 							{{#each session.organization.shares}}
 							<option value="{{ path }}">{{ name }}</option>
@@ -61,7 +68,10 @@
 					<div class="col-sm-9">
 						<div class="checkbox">
 							<label title="Only allow users with a valid username and password to see the Dropkick site">
-								<input type="checkbox" name="private" value="true"/> Password protect this site
+								<input type="checkbox"
+									name="private"
+									value="true"
+								/> Password protect this site
 							</label>
 						</div>
 					</div>

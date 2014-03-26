@@ -30,6 +30,8 @@ module.exports = (function() {
 	app.get('/sites/:site', adminAuth, retrieveSiteDetailsRoute);
 	app.get('/shares', adminAuth, retrieveShareListRoute);
 
+	app.post('/sites', adminAuth, createSiteRoute);
+
 
 	return app;
 
@@ -135,8 +137,8 @@ module.exports = (function() {
 	}
 
 	function retrieveLogoutRoute(req, res, next) {
-		var session = app.locals.session;
-		var homeUrl = session.urls.home;
+		var urlService = new UrlService(req);
+		var homeUrl = urlService.getSubdomainUrl('www');
 		res.redirect(homeUrl);
 	}
 
@@ -212,6 +214,32 @@ module.exports = (function() {
 		};
 		_outputAdminPage(adminTemplates.SHARES, templateData, req, res);
 	}
+
+
+	function createSiteRoute(req, res, next) {
+		// TODO: Allow user to choose theme when creating site
+		var siteModel = {
+			'organization': req.body.organization,
+			'alias': req.body.alias,
+			'name': req.body.name,
+			'title': req.body.title,
+			'template': 'fathom',
+			'sharePath': req.body.share || null,
+			'public': (req.body['private'] === 'false')
+		};
+
+		var siteService = new SiteService(dataService);
+		siteService.createSite(siteModel, _handleSiteCreated);
+
+		function _handleSiteCreated(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites' + '/' + siteModel.alias);
+			res.redirect(303, sitesUrl);
+		}
+	}
+
 
 	function _outputAdminPage(htmlTemplate, templateData, req, res) {
 		new ResponseService({
