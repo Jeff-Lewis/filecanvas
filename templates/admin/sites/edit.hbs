@@ -45,6 +45,18 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
+					<div class="col-sm-6 col-lg-4">
+						<select class="form-control" title="Choose the Dropbox folder that this site syncs from">
+							<option value="">No Dropbox folder selected</option>
+							{{#each session.organization.shares}}
+							<option value="{{ path }}">{{ name }}</option>
+							{{/each}}
+						</select>
+						<p class="form-control-static"><a href="{{ session.urls.shares }}">Manage your linked Dropbox folders…</a></p>
+					</div>
+				</div>
+				<div class="form-group">
 					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
 						<button type="submit" class="btn btn-success">Save changes</button>
 					</div>
@@ -52,12 +64,6 @@
 			</fieldset>
 			<fieldset>
 				<legend>Dropbox sync</legend>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
-					<div class="col-sm-9">
-						<p class="form-control-static">Tradeweb Extranet (<a href="#change" title="Change the Dropbox folder that this site currently syncs from">change</a>)</p>
-					</div>
-				</div>
 				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">File listing</label>
 					<div class="col-sm-9">
@@ -167,7 +173,7 @@
 			<fieldset>
 				<legend>Custom domain names</legend>
 				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Domain names<br/><h6>This requires that you <a href="#faq">point your DNS to Dropkick</a></h6></label>
+					<label class="col-sm-3 col-lg-2 control-label">Domain names<br/><h6>This requires that you <a href="/faq#dns">point your DNS to Dropkick</a></h6></label>
 					<div class="col-sm-6 col-lg-4">
 						<textarea class="form-control" rows="3" placeholder="my-domain.com" title="Enter all the domain names which you want to point to this Dropkick site (e.g. ‘my-extranet.com’ or ‘extranet.my-domain.com’). If entering multiple domain names, enter one per line. You must already own these domain names for this to work." data-trigger="focus"></textarea>
 					</div>

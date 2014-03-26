@@ -3,7 +3,7 @@
 		<h2>Add a site</h2>
 		<p class="lead">Use the fields below to create a new Dropkick site.</p>
 		<hr/>
-		<form class="form-horizontal" role="form">
+		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST">
 			<fieldset>
 				<div class="form-group">
 					<label for="input-sites-name" class="col-sm-3 col-lg-2 control-label">Name</label>
@@ -11,7 +11,6 @@
 						<input type="text" name="name" class="form-control" id="input-sites-name"
 							title="This helps you identify the site in the Dropkick admin area"
 							placeholder="Site name"
-							value="My new site"
 							data-bind-id="site-name"
 							data-validate="notEmpty"
 							data-trigger="focus"
@@ -39,7 +38,7 @@
 						<input type="text" name="title" class="form-control" id="input-sites-title"
 							title="This determines what is shown in the title of the user’s browser window"
 							placeholder="Page title"
-							data-bind-value="site-name|format:'$0 | {{ session.organization.name }}'"
+							data-bind-value="site-name|format:'$0 | {{ session.organization.name }}':''"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -47,8 +46,14 @@
 				</div>
 				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
-					<div class="col-sm-9">
-						<p class="form-control-static">Tradeweb Extranet (<a href="#change" title="Change the Dropbox folder that this site syncs from">change</a>)</p>
+					<div class="col-sm-6 col-lg-4">
+						<select name="share" class="form-control" title="Choose the Dropbox folder that this site syncs from">
+							<option value="">No Dropbox folder selected</option>
+							{{#each session.organization.shares}}
+							<option value="{{ path }}">{{ name }}</option>
+							{{/each}}
+						</select>
+						<p class="form-control-static"><a href="{{ session.urls.shares }}">Manage your linked Dropbox folders…</a></p>
 					</div>
 				</div>
 				<div class="form-group">

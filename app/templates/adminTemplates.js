@@ -13,7 +13,8 @@ module.exports = (function() {
 		'SUPPORT': _createAdminPageTemplate('templates/admin/support.hbs'),
 		'ACCOUNT_SETTINGS': _createAdminPageTemplate('templates/admin/account.hbs'),
 		'SITE_ADD': _createAdminPageTemplate('templates/admin/sites/add.hbs'),
-		'SITE_DETAIL': _createAdminPageTemplate('templates/admin/sites/edit.hbs')
+		'SITE_DETAIL': _createAdminPageTemplate('templates/admin/sites/edit.hbs'),
+		'SHARES': _createAdminPageTemplate('templates/admin/shares.hbs')
 	};
 
 	function _createAdminPageTemplate(templatePath) {

@@ -1,3 +1,33 @@
-<p>Logged in as {{ session.user.name }}.</p>
+<h1 class="page-header">Your sites</h1>
 
-<p>Site listing for {{ session.organization.name }}:</p>
+{{#if session.sites}}
+
+<p class="lead">The following sites have been registered within this organization:</p>
+<div class="row">
+	<div class="col-sm-6 col-lg-4">
+		<table class="table table-bordered table-condensed">
+			<tbody>
+				{{#each session.sites }}
+				<tr>
+					<td>
+						{{ name }}
+						<div class="btn-group pull-right">
+							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}" title="Update this site’s details"><span class="glyphicon glyphicon-pencil"></span> Edit site</a>
+							<a class="btn btn-info btn-xs" href="{{ ../session.urls.organization }}{{ alias }}" target="_blank"><span class="glyphicon glyphicon-home"></span> Visit site</a>
+						</div>
+					</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{{else}}
+
+<div class="alert alert-info">
+	<p>There are no sites registered within this organization.</p>
+	<p>Start using Dropkick by <a href="{{ session.urls.sites }}">adding a new site</a>.</p>
+</div>
+
+{{/if}}

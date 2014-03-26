@@ -4,8 +4,8 @@
 
 	$(function() {
 		_initInputParsers();
-		_initInputValidators();
 		_initDataBindings();
+		_initInputValidators();
 	});
 
 	function _initInputParsers() {
@@ -80,7 +80,6 @@
 				function _handleInputUpdated(event) {
 					var inputValue = $inputElement.val();
 					var isValid = validator(inputValue);
-					console.log(validator, isValid);
 					$inputElement.parent().toggleClass('has-error', !isValid);
 				}
 			}
@@ -98,7 +97,8 @@
 			'slug': function(value) {
 				return value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 			},
-			'format': function(value, formatString) {
+			'format': function(value, formatString, emptyString) {
+				if (!value && (arguments.length >= 3)) { return emptyString; }
 				return formatString.replace(/\$0/g, value);
 			}
 		};

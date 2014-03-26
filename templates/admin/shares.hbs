@@ -1,0 +1,27 @@
+<h1 class="page-header">Your Dropbox folders</h1>
+
+{{#if session.organization.shares}}
+
+<p class="lead">The following Dropbox folders have been linked to this organization:</p>
+<div class="row">
+	<div class="col-sm-6 col-lg-4">
+		<table class="table table-bordered table-condensed">
+			<tbody>
+				{{#each session.organization.shares }}
+				<tr>
+					<td>{{ name }} <button class="pull-right btn btn-default btn-xs" title="Prevent Dropkick from accessing this folder"><span class="glyphicon glyphicon-remove"></span> Unlink folder</button></td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{{else}}
+
+<div class="alert alert-info">
+	<p>There are no Dropbox folders linked to this organization.</p>
+	<p>Link a Dropbox folder to this organization by sharing the folder with <strong>incoming@dropkick.it</strong>.</p>
+</div>
+
+{{/if}}

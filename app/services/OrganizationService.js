@@ -46,9 +46,10 @@ module.exports = (function() {
 		return ORGANIZATION_SHARE_ROOT_FORMAT.replace(/\$\{ORGANIZATION\}/, organizationAlias);
 	};
 
-	OrganizationService.prototype.retrieveOrganization = function(organizationAlias, callback) {
+	OrganizationService.prototype.retrieveOrganization = function(organizationAlias, includeShares, callback) {
 		var query = { 'alias': organizationAlias };
-		var projection = { 'shares': 0 };
+		var projection = {};
+		if (!includeShares) { projection.shares = 0; }
 
 		this.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).findOne(query, projection,
 			function(error, organizationModel) {

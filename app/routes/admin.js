@@ -28,6 +28,7 @@ module.exports = (function() {
 	app.get('/logout', adminAuth, retrieveLogoutRoute);
 	app.get('/sites', adminAuth, retrieveSiteListRoute);
 	app.get('/sites/:site', adminAuth, retrieveSiteDetailsRoute);
+	app.get('/shares', adminAuth, retrieveShareListRoute);
 
 
 	return app;
@@ -92,11 +93,13 @@ module.exports = (function() {
 				return {
 					home: urlService.getSubdomainUrl('www'),
 					organization: urlService.getSubdomainUrl(organizationModel.alias),
+					admin: '/',
 					faq: '/faq',
 					support: '/support',
 					account: '/account',
 					logout: '/logout',
-					sites: '/sites'
+					sites: '/sites',
+					shares: '/shares'
 				};
 			}
 		}
@@ -121,7 +124,8 @@ module.exports = (function() {
 
 		function _retrieveOrganizationDetails(organizationAlias, callback) {
 			var organizationService = new OrganizationService(dataService);
-			organizationService.retrieveOrganization(organizationAlias, callback);
+			var includeShares = true;
+			organizationService.retrieveOrganization(organizationAlias, includeShares, callback);
 		}
 
 		function _retrieveOrganizationSites(organizationAlias, callback) {
@@ -199,6 +203,14 @@ module.exports = (function() {
 			};
 			_outputAdminPage(adminTemplates.SITE_DETAIL, templateData, req, res);
 		}
+	}
+
+	function retrieveShareListRoute(req, res, next) {
+		var templateData = {
+			title: 'Linked Dropbox folders',
+			session: app.locals.session
+		};
+		_outputAdminPage(adminTemplates.SHARES, templateData, req, res);
 	}
 
 	function _outputAdminPage(htmlTemplate, templateData, req, res) {
