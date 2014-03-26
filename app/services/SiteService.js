@@ -154,12 +154,13 @@ module.exports = (function() {
 	SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, cache, callback) {
 		cache = cache || null;
 
-		// TODO: Is it necessary to confirm that the site exists before updating cache?
-		var query = { 'organization': organizationAlias, 'alias': siteAlias };
+		// TODO: Is it necessary to confirm that the site exists before updating site cache?
+
+		var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
 		var update = { $set: { 'cache': cache } };
 		var options = { w: 1 };
 
-		this.dataService.db.collection(DB_COLLECTION_SITES).update(query, update, options,
+		this.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, update, options,
 			function(error, result) {
 				if (error) { return callback && callback(error); }
 				return callback && callback(null, result);
@@ -168,50 +169,122 @@ module.exports = (function() {
 	};
 
 	SiteService.prototype.createSite = function(siteModel, callback) {
-		if (!siteModel) { return _validationError('No site model specified', callback); }
-		if (!siteModel.organization) { return _validationError('No organization specified', callback); }
-		if (!siteModel.name) { return _validationError('No site name specified', callback); }
-		if (!siteModel.alias) { return _validationError('No site alias specified', callback); }
-		if (!siteModel.title) { return _validationError('No site title specified', callback); }
-		if (!siteModel.template) { return _validationError('No site template specified', callback); }
-		// TODO: Validate organization when creating site
-		// TODO: Validate name when creating site
-		// TODO: Validate alias when creating site
-		// TODO: Validate title when creating site
-		// TODO: Validate template when creating site
-		// TODO: Validate share when creating site
-		var doc = {
-			'organization': siteModel.organization,
-			'alias': siteModel.alias,
-			'name': siteModel.name,
-			'title': siteModel.title,
-			'template': siteModel.template,
-			'share': siteModel.share || null,
-			'public': Boolean(siteModel['public']),
-			'users': [],
-			'cache': {
-				'updated': null,
-				'cursor': null,
-				'data': null
-			}
-		};
+		var self = this;
+		_parseSiteModel(siteModel, _handleSiteModelParsed);
 
-		var options = { safe: true };
+		function _handleSiteModelParsed(error, siteModel) {
+			if (error) { return callback && callback(error); }
 
-		this.dataService.db.collection(DB_COLLECTION_SITES).insert(doc, options,
-			function(error, records) {
-				if (error) { return callback && callback(error); }
-				return callback && callback(null, siteModel);
-			}
-		);
+			var options = { safe: true };
 
-
-		function _validationError(message, callback) {
-			var error = new Error(message);
-			error.status = 400;
-			return callback && callback(error);
+			self.dataService.db.collection(DB_COLLECTION_SITES).insert(siteModel, options,
+				function(error, records) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null, siteModel);
+				}
+			);
 		}
 	};
+
+
+	SiteService.prototype.updateSite = function(organizationAlias, siteAlias, siteModel, callback) {
+		var self = this;
+		_parseSiteModel(siteModel, _handleSiteModelParsed);
+
+		function _handleSiteModelParsed(error, siteModelFields) {
+			if (error) { return callback && callback(error); }
+
+			// TODO: Handle updating of site users
+			delete siteModelFields.users;
+
+			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var updates = { $set: siteModelFields };
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+				function(error, records) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null, siteModel);
+				}
+			);
+		}
+	};
+
+
+	SiteService.prototype.deleteSite = function(organizationAlias, siteAlias, callback) {
+
+		// TODO: Validate site delete requests
+
+		var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+		var options = { safe: true };
+
+		this.dataService.db.collection(DB_COLLECTION_SITES).remove(criteria, options,
+			function(error, recordsCount) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null);
+			}
+		);
+	};
+
+
+	function _parseSiteModel(siteModel, callback) {
+		_validateSiteModel(siteModel, _handleSiteModelValidated);
+
+
+		function _handleSiteModelValidated(error, siteModel) {
+			if (error) { return callback && callback(error); }
+			var parsedModelFields = _parseModelFields(siteModel);
+			return callback && callback(null, parsedModelFields);
+		}
+
+		function _parseModelFields(siteModel) {
+			return {
+				'organization': siteModel.organization,
+				'alias': siteModel.alias,
+				'name': siteModel.name,
+				'title': siteModel.title,
+				'template': siteModel.template,
+				'share': siteModel.share || null,
+				'public': Boolean(siteModel['public']),
+				'users': siteModel.users || [],
+				'cache': {
+					'updated': null,
+					'cursor': null,
+					'data': null
+				}
+			};
+		}
+	}
+
+	function _validateSiteModel(siteModel, callback) {
+		if (!siteModel) { return _failValidation('No site model specified', callback); }
+		if (!siteModel.organization) { return _failValidation('No organization specified', callback); }
+		if (!siteModel.name) { return _failValidation('No site name specified', callback); }
+		if (!siteModel.alias) { return _failValidation('No site alias specified', callback); }
+		if (!siteModel.title) { return _failValidation('No site title specified', callback); }
+		if (!siteModel.template) { return _failValidation('No site template specified', callback); }
+
+		// TODO: Validate organization when validating site model
+		// TODO: Validate name when validating site model
+		// TODO: Validate alias when validating site model
+		// TODO: Validate title when validating site model
+		// TODO: Validate template when validating site model
+		// TODO: Validate share when validating site model
+		
+		return callback && callback(null, siteModel);
+
+
+		function _failValidation(message, callback) {
+			var error = _createValidationError(400, message);
+			return callback && callback(error);
+
+			function _createValidationError(status, message, callback) {
+				var error = new Error(message);
+				error.status = status;
+				return error;
+			}
+		}
+	}
 
 
 	SiteService.prototype._loadFolderContents = function(folderPath, folderCache, downloadUrlPrefix, callback) {

@@ -31,6 +31,8 @@ module.exports = (function() {
 	app.get('/shares', adminAuth, retrieveShareListRoute);
 
 	app.post('/sites', adminAuth, createSiteRoute);
+	app.put('/sites/:site', adminAuth, updateSiteRoute);
+	app.del('/sites/:site', adminAuth, deleteSiteRoute);
 
 
 	return app;
@@ -217,9 +219,12 @@ module.exports = (function() {
 
 
 	function createSiteRoute(req, res, next) {
-		// TODO: Allow user to choose theme when creating site
+		var organizationAlias = app.locals.session.organization.alias;
+
+		// TODO: Allow user to set site theme when creating site
+		// TODO: Allow user to set site users when creating site
 		var siteModel = {
-			'organization': req.body.organization,
+			'organization': organizationAlias,
 			'alias': req.body.alias,
 			'name': req.body.name,
 			'title': req.body.title,
@@ -231,11 +236,59 @@ module.exports = (function() {
 		var siteService = new SiteService(dataService);
 		siteService.createSite(siteModel, _handleSiteCreated);
 
+
 		function _handleSiteCreated(error, siteModel) {
 			if (error) { return next(error); }
 			var urlService = new UrlService(req);
 			var currentSubdomain = urlService.subdomain;
 			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites' + '/' + siteModel.alias);
+			res.redirect(303, sitesUrl);
+		}
+	}
+
+
+	function updateSiteRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var siteAlias = req.params.site;
+
+		// TODO: Allow user to update site theme
+		// TODO: Allow user to update site users
+		var siteModel = {
+			'organization': organizationAlias,
+			'alias': req.body.alias,
+			'name': req.body.name,
+			'title': req.body.title,
+			'template': 'fathom',
+			'share': req.body.share || null,
+			'public': (req.body['private'] !== 'true')
+		};
+
+		var siteService = new SiteService(dataService);
+		siteService.updateSite(organizationAlias, siteAlias, siteModel, _handleSiteUpdated);
+
+
+		function _handleSiteUpdated(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites' + '/' + siteModel.alias);
+			res.redirect(303, sitesUrl);
+		}
+	}
+
+	function deleteSiteRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var siteAlias = req.params.site;
+
+		var siteService = new SiteService(dataService);
+		siteService.deleteSite(organizationAlias, siteAlias, _handleSiteDeleted);
+
+
+		function _handleSiteDeleted(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites');
 			res.redirect(303, sitesUrl);
 		}
 	}
