@@ -4,15 +4,16 @@
 
 <p class="lead">The following sites have been registered within this organization:</p>
 <div class="row">
-	<div class="col-sm-6 col-lg-4">
+	<div class="col-sm-8 col-lg-5">
 		<table class="table table-bordered table-condensed">
 			<tbody>
 				{{#each session.sites }}
 				<tr>
 					<td>
 						{{ name }}
-						<div class="btn-group pull-right">
-							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}" title="Update this site’s details"><span class="glyphicon glyphicon-pencil"></span> Edit site</a>
+						<div class="pull-right">
+							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}" title="Update this site’s details"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+							<a class="btn btn-success btn-xs" href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."><span class="glyphicon glyphicon-refresh"></span> Sync</a>
 							<a class="btn btn-info btn-xs" href="{{ ../session.urls.organization }}{{ alias }}" target="_blank"><span class="glyphicon glyphicon-home"></span> Visit site</a>
 						</div>
 					</td>
