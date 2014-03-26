@@ -147,7 +147,7 @@ module.exports = (function() {
 			title: null,
 			session: app.locals.session
 		};
-		_outputAdminPage(adminTemplates.HOME, templateData, req, res);
+		_outputAdminPage(adminTemplates.SITES, templateData, req, res);
 	}
 
 	function retrieveFaqRoute(req, res, next) {

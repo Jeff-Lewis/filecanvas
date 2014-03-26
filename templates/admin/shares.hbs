@@ -10,12 +10,12 @@
 				{{#each session.organization.shares }}
 				<tr>
 					<td>
-						{{ name }}
 						<form class="pull-right" action="{{ ../session.urls.shares }}/{{ alias }}" method="POST">
 							<input type="hidden" name="X-HTTP-Method-Override" value="DELETE"/>
 							<input type="hidden" name="alias" value="{{ alias }}"/>
 							<button type="submit" class="pull-right btn btn-default btn-xs" title="Prevent Dropkick from accessing this folder"><span class="glyphicon glyphicon-remove"></span> Unlink folder</button>
 						</form>
+						{{ name }}
 					</td>
 				</tr>
 				{{/each}}

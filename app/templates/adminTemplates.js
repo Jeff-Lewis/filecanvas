@@ -8,7 +8,7 @@ module.exports = (function() {
 	var indexTemplate = templateService.compile('templates/admin/index.hbs');
 
 	return {
-		'HOME': _createAdminPageTemplate('templates/admin/home.hbs'),
+		'SITES': _createAdminPageTemplate('templates/admin/sites.hbs'),
 		'FAQ': _createAdminPageTemplate('templates/admin/faq.hbs'),
 		'SUPPORT': _createAdminPageTemplate('templates/admin/support.hbs'),
 		'ACCOUNT_SETTINGS': _createAdminPageTemplate('templates/admin/account.hbs'),

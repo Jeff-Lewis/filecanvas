@@ -10,8 +10,6 @@
 				{{#each session.sites }}
 				<tr>
 					<td>
-						{{ name }}
-						<a href="{{ ../session.urls.organization }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
 						<form class="pull-right" action="{{ ../session.urls.sites }}/{{ alias }}" method="POST">
 							<input type="hidden" name="X-HTTP-Method-Override" value="DELETE"/>
 							<input type="hidden" name="alias" value="{{ alias }}"/>
@@ -19,6 +17,8 @@
 							<a class="btn btn-success btn-xs" href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."><span class="glyphicon glyphicon-refresh"></span></a>
 							<button type="submit" class="btn btn-danger btn-xs" title="Delete this site"><span class="glyphicon glyphicon-remove"></span></button>
 						</form>
+						{{ name }}
+						<a href="{{ ../session.urls.organization }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
 					</td>
 				</tr>
 				{{/each}}
