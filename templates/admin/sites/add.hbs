@@ -4,6 +4,7 @@
 		<p class="lead">Use the fields below to create a new Dropkick site.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST">
+			<input type="hidden" name="X-HTTP-Method-Override" value="POST"/>
 			<input type="hidden" name="organization" value="{{ session.organization.alias }}"/>
 			<fieldset>
 				<div class="form-group">
@@ -57,7 +58,7 @@
 						>
 							<option value="">No Dropbox folder selected</option>
 							{{#each session.organization.shares}}
-							<option value="{{ path }}">{{ name }}</option>
+							<option value="{{ alias }}">{{ name }}</option>
 							{{/each}}
 						</select>
 						<p class="form-control-static"><a href="{{ session.urls.shares }}">Manage your linked Dropbox folders…</a></p>

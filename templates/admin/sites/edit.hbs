@@ -3,9 +3,10 @@
 		<h2>Edit Site: {{ site.name }}</h2>
 		<p class="lead">Use the fields below to make changes to this Dropkick site.</p>
 		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}{{ site.alias }}" method="POST">
+		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST">
+			<input type="hidden" name="X-HTTP-Method-Override" value="PUT"/>
 			<input type="hidden" name="organization" value="{{ session.organization.alias }}"/>
-			{{#unless site.sharePath}}
+			{{#unless site.share}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> This site has not yet been linked to a Dropbox folder.</p>
 			</div>
@@ -59,9 +60,8 @@
 						>
 							<option value="">No Dropbox folder selected</option>
 							{{#each session.organization.shares}}
-							<option
-								value="{{ path }}"
-								{{#ifequals path ../site.sharePath}}selected="selected"{{/ifequals}}
+							<option value="{{ alias }}"
+								{{#ifequals alias ../site.share}}selected="selected"{{/ifequals}}
 							>{{ name }}</option>
 							{{/each}}
 						</select>
@@ -136,6 +136,28 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
+					<div class="col-sm-6 col-lg-4">
+						<input type="hidden"
+							name="removed-users"
+							value=""
+						/>
+						{{#if site.users}}
+						<table class="table table-bordered table-condensed users-table">
+							<tbody>
+								{{#each site.users}}
+								<tr>
+									<td>{{ username }} <button type="button" class="pull-right btn btn-default btn-xs" title="Revoke access for this user"><span class="glyphicon glyphicon-remove"></span> Remove user</button></td>
+								</tr>
+								{{/each}}
+							</tbody>
+						</table>
+						{{else}}
+						<p class="help-block" title="Password protection is enabled, but you have not yet added any user passwords">Nobody is allowed to access this site</p>
+						{{/if}}
+					</div>
+				</div>
+				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">Add new user</label>
 					<div class="col-sm-9 col-lg-6">
 						<input type="hidden"
@@ -160,31 +182,9 @@
 								/>
 							</div>
 							<div class="col-sm-4">
-								<button class="btn btn-default" title="Add this user to the list of users who are allowed to see your Dropkick site"><span class="glyphicon glyphicon-plus"></span> Add user</button>
+								<button type="button" class="btn btn-default" title="Add this user to the list of users who are allowed to see your Dropkick site"><span class="glyphicon glyphicon-plus"></span> Add user</button>
 							</div>
 						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="hidden"
-							name="removed-users"
-							value=""
-						/>
-						{{#if site.users}}
-						<table class="table table-bordered table-condensed users-table">
-							<tbody>
-								{{#each site.users}}
-								<tr>
-									<td>{{ username }} <button class="pull-right btn btn-default btn-xs" title="Revoke access for this user"><span class="glyphicon glyphicon-remove"></span> Remove user</button></td>
-								</tr>
-								{{/each}}
-							</tbody>
-						</table>
-						{{else}}
-						<p class="help-block" title="Password protection is enabled, but you have not yet added any user passwords">Nobody is allowed to access this site</p>
-						{{/if}}
 					</div>
 				</div>
 				<div class="form-group">

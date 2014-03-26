@@ -37,7 +37,7 @@ module.exports = (function() {
 				function _getSiteFolderPath(organizationAlias, siteModel, dataService) {
 					var organizationService = new OrganizationService(dataService);
 					var organizationShareRoot = organizationService.getOrganizationShareRoot(organizationAlias);
-					var sitePath = organizationShareRoot + siteModel.sharePath;
+					var sitePath = organizationShareRoot + siteModel.share;
 					return sitePath;
 				}
 			}
@@ -106,15 +106,20 @@ module.exports = (function() {
 				if (!includeContents) { return callback && callback(null, siteModel); }
 
 				var siteFolderPath = _getSiteFolderPath(organizationAlias, siteModel, self.dataService);
-				var downloadUrlPrefix = SITE_CONTENTS_DOWNLOAD_URL_PREFIX;
+				
+				var hasSiteFolder = (siteFolderPath !== null);
+				if (!hasSiteFolder) { return callback && callback(null, siteModel); }
 
+				var downloadUrlPrefix = SITE_CONTENTS_DOWNLOAD_URL_PREFIX;
 				self._loadFolderContents(siteFolderPath, siteModel.cache, downloadUrlPrefix, _handleSiteContentsLoaded);
 
 
 				function _getSiteFolderPath(organizationAlias, siteModel, dataService) {
+					var shareAlias = siteModel.share;
+					if (!shareAlias) { return null; }
 					var organizationService = new OrganizationService(dataService);
 					var organizationShareRoot = organizationService.getOrganizationShareRoot(organizationAlias);
-					var sitePath = organizationShareRoot + siteModel.sharePath;
+					var sitePath = organizationShareRoot + siteModel.share;
 					return sitePath;
 				}
 
@@ -174,14 +179,14 @@ module.exports = (function() {
 		// TODO: Validate alias when creating site
 		// TODO: Validate title when creating site
 		// TODO: Validate template when creating site
-		// TODO: Validate sharePath when creating site
+		// TODO: Validate share when creating site
 		var doc = {
 			'organization': siteModel.organization,
 			'alias': siteModel.alias,
 			'name': siteModel.name,
 			'title': siteModel.title,
 			'template': siteModel.template,
-			'sharePath': siteModel.sharePath || null,
+			'share': siteModel.share || null,
 			'public': Boolean(siteModel['public']),
 			'users': [],
 			'cache': {

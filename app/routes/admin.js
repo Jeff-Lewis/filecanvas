@@ -224,7 +224,7 @@ module.exports = (function() {
 			'name': req.body.name,
 			'title': req.body.title,
 			'template': 'fathom',
-			'sharePath': req.body.share || null,
+			'share': req.body.share || null,
 			'public': (req.body['private'] !== 'true')
 		};
 

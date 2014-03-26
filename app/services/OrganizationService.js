@@ -132,10 +132,16 @@ module.exports = (function() {
 		);
 	};
 
-	OrganizationService.prototype.addOrganizationShare = function(organizationAlias, shareName, sharePath, callback) {
+	OrganizationService.prototype.createOrganizationShare = function(organizationAlias, shareModel, callback) {
+		if (!shareModel) { return _validationError('No share model specified', callback); }
+		if (!shareModel.alias) { return _validationError('No share alias specified', callback); }
+		if (!shareModel.name) { return _validationError('No share name specified', callback); }
+		// TODO: Validate alias when creating share
+		// TODO: Validate name when creating share
+
 		var shareData = {
-			'name': shareName,
-			'path': sharePath
+			'alias': shareModel.alias,
+			'name': shareModel.name
 		};
 
 		var query = { 'username': organizationAlias };
@@ -151,6 +157,13 @@ module.exports = (function() {
 				return callback && callback(null);
 			}
 		);
+
+
+		function _validationError(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
 	};
 
 	return OrganizationService;

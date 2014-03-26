@@ -13,7 +13,7 @@ module.exports = (function() {
 
 	SiteTemplateService.prototype.render = function(siteModel, hostname) {
 		var siteTemplatesRoot = TEMPLATES_ROOT_URL.replace(/\$\{HOST\}/g, hostname);
-		var siteContents = siteModel.contents;
+		var siteContents = siteModel.contents || { folders: null, files: null };
 		var title = siteModel.title;
 		var siteTemplate = siteTemplates[this.templateName];
 		var siteTemplateRoot = siteTemplatesRoot + this.templateName + '/';
