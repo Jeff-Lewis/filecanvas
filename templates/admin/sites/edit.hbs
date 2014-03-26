@@ -4,8 +4,8 @@
 		<p class="lead">Use the fields below to make changes to this Dropkick site.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST">
-			<input type="hidden" name="X-HTTP-Method-Override" value="PUT"/>
 			<input type="hidden" name="organization" value="{{ session.organization.alias }}"/>
+			<input type="hidden" name="_method" value="PUT"/>
 			{{#unless site.share}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> This site has not yet been linked to a Dropbox folder.</p>

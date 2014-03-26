@@ -11,7 +11,7 @@
 				<tr>
 					<td>
 						<form class="pull-right" action="{{ ../session.urls.sites }}/{{ alias }}" method="POST">
-							<input type="hidden" name="X-HTTP-Method-Override" value="DELETE"/>
+							<input type="hidden" name="_method" value="DELETE"/>
 							<input type="hidden" name="alias" value="{{ alias }}"/>
 							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}" title="Edit this site’s details"><span class="glyphicon glyphicon-pencil"></span></a>
 							<a class="btn btn-success btn-xs" href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."><span class="glyphicon glyphicon-refresh"></span></a>
