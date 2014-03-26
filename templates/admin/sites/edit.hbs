@@ -59,7 +59,10 @@
 						>
 							<option value="">No Dropbox folder selected</option>
 							{{#each session.organization.shares}}
-							<option value="{{ path }}">{{ name }}</option>
+							<option
+								value="{{ path }}"
+								{{#ifequals path ../site.sharePath}}selected="selected"{{/ifequals}}
+							>{{ name }}</option>
 							{{/each}}
 						</select>
 						<p class="form-control-static"><a href="{{ session.urls.shares }}">Manage your linked Dropbox folders…</a></p>
@@ -122,18 +125,11 @@
 					<div class="col-sm-9">
 						<div class="checkbox">
 							<label title="Only allow users with a valid username and password to see the Dropkick site">
-								{{#if site.public}}
 								<input type="checkbox"
 									name="private"
 									value="true"
+									{{#unless site.public}}checked="checked"{{/unless}}
 								/>
-								{{else}}
-								<input type="checkbox"
-									name="private"
-									value="true"
-									checked="checked"
-								/>
-								{{/if}}
 								Password protect this site
 							</label>
 						</div>
