@@ -65,7 +65,7 @@ module.exports = (function() {
 		})(req, res, next);
 					
 		function _getSessionData(req, administratorModel, organizationModel, siteModels) {
-			var adminUrls = _getAdminUrls(req);
+			var adminUrls = _getAdminUrls(req, organizationModel);
 			return {
 				urls: adminUrls,
 				user: administratorModel,
@@ -73,10 +73,11 @@ module.exports = (function() {
 				sites: siteModels
 			};
 
-			function _getAdminUrls(req) {
+			function _getAdminUrls(req, organizationModel) {
 				var urlService = new UrlService(req);
 				return {
 					home: urlService.getSubdomainUrl('www'),
+					organization: urlService.getSubdomainUrl(organizationModel.alias),
 					faq: '/faq',
 					support: '/support',
 					account: '/account',

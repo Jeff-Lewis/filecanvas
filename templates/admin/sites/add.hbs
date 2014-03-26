@@ -8,20 +8,36 @@
 				<div class="form-group">
 					<label for="input-sites-name" class="col-sm-3 col-lg-2 control-label">Name</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="name" class="form-control" id="input-sites-name" placeholder="Site name" value="{{ site.name }}" title="This helps you identify the site in the Dropkick admin area" data-trigger="focus"/>
+						<input type="text" name="name" class="form-control" id="input-sites-name" placeholder="Site name" data-bind-id="site-name" value="My site" title="This helps you identify the site in the Dropkick admin area" data-trigger="focus"/>
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="input-sites-alias" class="col-sm-3 col-lg-2 control-label">Path</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="alias" class="form-control" id="input-sites-alias" placeholder="Site path" value="{{ site.alias }}" data-bind-source="site-alias" title="This determines the site’s web address" data-trigger="focus"/>
-						<p class="help-block">https://{{{ session.organization.alias }}}.dropkick.it/<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
+						<input type="text" name="alias" class="form-control" id="input-sites-alias" placeholder="Site path" data-bind-id="site-alias" data-bind-value="site-name|slug" title="This determines the site’s web address" data-trigger="focus"/>
+						<p class="help-block">{{ session.urls.organization }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="input-sites-title" class="col-sm-3 col-lg-2 control-label">Title</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="title" class="form-control" id="input-sites-title" placeholder="Page title" value="{{ site.title }}" title="This determines what is shown in the title of the user’s browser window" data-trigger="focus"/>
+						<input type="text" name="title" class="form-control" id="input-sites-title" placeholder="Page title" data-bind-value="site-name|format:'$0 | {{ session.organization.name }}'" title="This determines what is shown in the title of the user’s browser window" data-trigger="focus"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
+					<div class="col-sm-9">
+						<p class="form-control-static">Tradeweb Extranet (<a href="#change" title="Change the Dropbox folder that this site syncs from">change</a>)</p>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Site access</label>
+					<div class="col-sm-9">
+						<div class="checkbox">
+							<label title="Only allow users with a valid username and password to see the Dropkick site">
+								<input type="checkbox" name="private" value="true"/> Password protect this site
+							</label>
+						</div>
 					</div>
 				</div>
 				<div class="form-group">
