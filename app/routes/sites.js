@@ -108,7 +108,8 @@ module.exports = (function() {
 		var siteService = new SiteService(dataService, dropboxService);
 
 		var includeContents = true;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, _handleSiteModelLoaded);
+		var includeUsers = false;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, _handleSiteModelLoaded);
 
 
 		function _handleSiteModelLoaded(error, siteModel) {

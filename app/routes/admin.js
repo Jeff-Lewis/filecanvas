@@ -6,7 +6,9 @@ module.exports = (function() {
 
 	var AuthenticationService = require('../services/AuthenticationService');
 	var OrganizationService = require('../services/OrganizationService');
+	var SiteService = require('../services/SiteService');
 	var UrlService = require('../services/UrlService');
+	var ResponseService = require('../services/ResponseService');
 
 	var adminTemplates = require('../templates/adminTemplates');
 	var faqData = require('../../templates/admin/faq.json');
@@ -43,32 +45,46 @@ module.exports = (function() {
 				var isAuthenticated = _authenticateAdministrator(username, password, administratorModel);
 				if (!isAuthenticated) { return callback && callback(null, false); }
 
-				_retrieveOrganizationDetails(administratorModel.organization, _handleOrganizationLoaded);
+				_retrieveOrganizationDetails(administratorModel.organization, _handleOrganizationDetailsLoaded);
 
-				function _handleOrganizationLoaded(error, organizationModel) {
+				function _handleOrganizationDetailsLoaded(error, organizationModel) {
 					if (error) { return callback && callback(error); }
-					var adminUrls = _getAdminUrls(req);
-					app.locals.session = {
-						urls: adminUrls,
-						user: administratorModel,
-						organization: organizationModel
-					};
-					return callback && callback(null, administratorModel);
-				}
+					
+					_retrieveOrganizationSites(administratorModel.organization, _handleOrganizationSitesLoaded);
 
-				function _getAdminUrls(req) {
-					var urlService = new UrlService(req);
-					return {
-						home: urlService.getSubdomainUrl('www'),
-						faq: '/faq',
-						support: '/support',
-						account: '/account',
-						logout: '/logout',
-						sites: '/sites'
-					};
+					function _handleOrganizationSitesLoaded(error, siteModels) {
+						if (error) { return callback && callback(error); }
+
+						var session = _getSessionData(req, administratorModel, organizationModel, siteModels);
+						app.locals.session = session;
+						
+						return callback && callback(null, administratorModel);
+					}
 				}
 			}
 		})(req, res, next);
+					
+		function _getSessionData(req, administratorModel, organizationModel, siteModels) {
+			var adminUrls = _getAdminUrls(req);
+			return {
+				urls: adminUrls,
+				user: administratorModel,
+				organization: organizationModel,
+				sites: siteModels
+			};
+
+			function _getAdminUrls(req) {
+				var urlService = new UrlService(req);
+				return {
+					home: urlService.getSubdomainUrl('www'),
+					faq: '/faq',
+					support: '/support',
+					account: '/account',
+					logout: '/logout',
+					sites: '/sites'
+				};
+			}
+		}
 
 
 		function _retrieveAdministratorDetails(username, callback) {
@@ -92,6 +108,11 @@ module.exports = (function() {
 			var organizationService = new OrganizationService(dataService);
 			organizationService.retrieveOrganization(organizationAlias, callback);
 		}
+
+		function _retrieveOrganizationSites(organizationAlias, callback) {
+			var organizationService = new OrganizationService(dataService);
+			organizationService.retrieveOrganizationSites(organizationAlias, callback);
+		}
 	}
 
 	function retrieveLogoutRoute(req, res, next) {
@@ -102,50 +123,78 @@ module.exports = (function() {
 
 	function retrieveHomeRoute(req, res, next) {
 		var templateData = {
+			title: null,
 			session: app.locals.session
 		};
-		var html = adminTemplates.HOME(templateData);
-		res.send(html);
+		_outputAdminPage(adminTemplates.HOME, templateData, req, res);
 	}
 
 	function retrieveFaqRoute(req, res, next) {
 		var templateData = {
+			title: 'FAQ',
 			session: app.locals.session,
 			questions: faqData
 		};
-		var html = adminTemplates.FAQ(templateData);
-		res.send(html);
+		_outputAdminPage(adminTemplates.FAQ, templateData, req, res);
 	}
 
 	function retrieveSupportRoute(req, res, next) {
 		var templateData = {
+			title: 'Support',
 			session: app.locals.session
 		};
-		var html = adminTemplates.SUPPORT(templateData);
-		res.send(html);
+		_outputAdminPage(adminTemplates.SUPPORT, templateData, req, res);
 	}
 
 	function retrieveAccountSettingsRoute(req, res, next) {
 		var templateData = {
+			title: 'Account settings',
 			session: app.locals.session
 		};
-		var html = adminTemplates.ACCOUNT_SETTINGS(templateData);
-		res.send(html);
+		
+		_outputAdminPage(adminTemplates.ACCOUNT_SETTINGS, templateData, req, res);
 	}
 
 	function retrieveSiteListRoute(req, res, next) {
 		var templateData = {
+			title: 'Your sites',
 			session: app.locals.session
 		};
-		var html = adminTemplates.SITE_ADD(templateData);
-		res.send(html);
+		_outputAdminPage(adminTemplates.SITE_ADD, templateData, req, res);
 	}
 
 	function retrieveSiteDetailsRoute(req, res, next) {
-		var templateData = {
-			session: app.locals.session
-		};
-		var html = adminTemplates.SITE_DETAIL(templateData);
-		res.send(html);
+		var session = app.locals.session;
+		
+		var organizationModel = session.organization;
+		var organizationAlias = organizationModel.alias;
+		var siteAlias = req.params.site;
+
+		var siteService = new SiteService(dataService);
+		var includeContents = false;
+		var includeUsers = true;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, _handleSiteDetailsLoaded);
+
+		function _handleSiteDetailsLoaded(error, siteModel) {
+			if (error) { return next(error); }
+			var templateData = {
+				title: 'Edit site: ' + siteModel.name,
+				session: app.locals.session,
+				site: siteModel
+			};
+			_outputAdminPage(adminTemplates.SITE_DETAIL, templateData, req, res);
+		}
+	}
+
+	function _outputAdminPage(htmlTemplate, templateData, req, res) {
+		new ResponseService({
+			'json': function() {
+				res.json(templateData);
+			},
+			'html': function() {
+				var html = htmlTemplate(templateData);
+				res.send(html);
+			}
+		}).respondTo(req);
 	}
 })();

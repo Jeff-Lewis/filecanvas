@@ -4,6 +4,7 @@ module.exports = (function() {
 	var DB_COLLECTION_ORGANIZATIONS = 'organizations';
 	var DB_COLLECTION_ADMINISTRATORS = 'administrators';
 	var DB_COLLECTION_DROPBOX_USERS = 'dropboxUsers';
+	var DB_COLLECTION_SITES = 'sites';
 
 	var ORGANIZATION_SHARE_ROOT_FORMAT = '/.dropkick/sites/${ORGANIZATION}/';
 
@@ -58,6 +59,23 @@ module.exports = (function() {
 					return callback && callback(error);
 				}
 				return callback && callback(null, organizationModel);
+			}
+		);
+	};
+
+	OrganizationService.prototype.retrieveOrganizationSites = function(organizationAlias, callback) {
+		var query = { 'organization': organizationAlias };
+		var projection = { '_id': 0, 'public': 0, 'users': 0, 'cache': 0 };
+		
+		this.dataService.db.collection(DB_COLLECTION_SITES).find(query, projection,
+			function(error, siteModelsCursor) {
+				if (error) { return callback && callback(error); }
+				siteModelsCursor.toArray(_handleSiteModelsLoaded);
+
+				function _handleSiteModelsLoaded(error, siteModels) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null, siteModels);
+				}
 			}
 		);
 	};

@@ -21,7 +21,7 @@ module.exports = (function() {
 	SiteService.prototype.dropboxService = null;
 
 	SiteService.prototype.retrieveFolderPath = function(organizationAlias, siteAlias, callback) {
-		var query = { 'organization': organizationAlias, 'site': siteAlias };
+		var query = { 'organization': organizationAlias, 'alias': siteAlias };
 		var projection = { '_id': 0, 'public': 0, 'users': 0 };
 
 		var self = this;
@@ -63,7 +63,7 @@ module.exports = (function() {
 	};
 
 	SiteService.prototype.retrieveAuthenticationDetails = function(organizationAlias, siteAlias, callback) {
-		var query = { 'organization': organizationAlias, 'site': siteAlias };
+		var query = { 'organization': organizationAlias, 'alias': siteAlias };
 		var projection = { 'public': 1, 'users': 1 };
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -85,10 +85,11 @@ module.exports = (function() {
 		);
 	};
 
-	SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, callback) {
-		var query = { 'organization': organizationAlias, 'site': siteAlias };
-		var projection = { '_id': 0, 'public': 0, 'users': 0 };
-		if (!includeContents) { projection['cache'] = 0; }
+	SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, includeUsers, callback) {
+		var query = { 'organization': organizationAlias, 'alias': siteAlias };
+		var projection = { '_id': 0, 'public': 0 };
+		if (!includeUsers) { projection.users = 0; }
+		if (!includeContents) { projection.cache = 0; }
 
 		var self = this;
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -121,7 +122,7 @@ module.exports = (function() {
 	};
 
 	SiteService.prototype.retrieveSiteCache = function(organizationAlias, siteAlias, callback) {
-		var query = { 'organization': organizationAlias, 'site': siteAlias };
+		var query = { 'organization': organizationAlias, 'alias': siteAlias };
 		var projection = { 'cache': 1 };
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -135,7 +136,7 @@ module.exports = (function() {
 	SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, cache, callback) {
 		cache = cache || null;
 
-		var query = { 'organization': organizationAlias, 'site': siteAlias };
+		var query = { 'organization': organizationAlias, 'alias': siteAlias };
 		var update = { $set: { 'cache': cache } };
 		var options = { w: 1 };
 
