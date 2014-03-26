@@ -4,6 +4,7 @@
 
 	$(function() {
 		_initInputParsers();
+		_initInputValidators();
 		_initDataBindings();
 	});
 
@@ -18,8 +19,7 @@
 			}
 		};
 
-		var inputParsers = _createInputParsers($inputElements, attributeName, parsers);
-		return inputParsers;
+		_createInputParsers($inputElements, attributeName, parsers);
 
 
 		function _createInputParsers($inputElements, attributeName, parsers) {
@@ -42,6 +42,46 @@
 					if (parsedValue === inputValue) { return; }
 					$inputElement.val(parsedValue);
 					$inputElement.change();
+				}
+			}
+		}
+	}
+
+	function _initInputValidators() {
+		var attributeName = 'data-validate';
+
+		var $inputElements = $('[' + attributeName + ']');
+
+		var validators = {
+			'notEmpty': function(value) {
+				return Boolean(value);
+			},
+			'slug': function(value) {
+				return /^[a-z0-9\-]+$/.test(value);
+			}
+		};
+
+		_createInputValidators($inputElements, attributeName, validators);
+
+		function _createInputValidators($inputElements, attributeName, validators) {
+			$inputElements.each(function(index, inputElement) {
+				var $inputElement = $(inputElement);
+
+				var validatorId = $inputElement.attr(attributeName);
+				if (!(validatorId in validators)) { throw new Error('Invalid validator specified: "' + validatorId + '"'); }
+				
+				var validator = validators[validatorId];
+				_addParserListeners($inputElement, validator);
+			});
+
+			function _addParserListeners($inputElement, validator) {
+				$inputElement.on('input change blur', _handleInputUpdated);
+
+				function _handleInputUpdated(event) {
+					var inputValue = $inputElement.val();
+					var isValid = validator(inputValue);
+					console.log(validator, isValid);
+					$inputElement.parent().toggleClass('has-error', !isValid);
 				}
 			}
 		}
