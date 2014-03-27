@@ -8,6 +8,8 @@ module.exports = (function() {
 	var MINUTES = SECONDS * 60;
 	var DROPBOX_DELTA_CACHE_EXPIRY = 5 * MINUTES;
 
+	var MONGO_ERROR_CODE_DUPLICATE_KEY = 11000;
+
 	var SITE_CONTENTS_DOWNLOAD_URL_PREFIX = 'download';
 
 	var DB_COLLECTION_SITES = 'sites';
@@ -182,6 +184,11 @@ module.exports = (function() {
 
 			self.dataService.db.collection(DB_COLLECTION_SITES).insert(siteModel, options,
 				function(error, records) {
+					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
+						error = new Error('A site already exists at that path');
+						error.status = 409;
+						return callback && callback(error);
+					}
 					if (error) { return callback && callback(error); }
 					return callback && callback(null, siteModel);
 				}
