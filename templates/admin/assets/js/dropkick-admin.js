@@ -130,58 +130,76 @@
 					var $targetElement = $(targetElement);
 					
 					var bindingExpression = $targetElement.attr(targetAttributeName);
-					var bindingExpressionSegments = /^\s*(.*?)(?:\s*\|\s*(.*?))?\s*$/.exec(bindingExpression);
+					var bindingExpressionSegments = /^\s*(!?)\s*\s*(.*?)(?:\s*\|\s*(.*?))?\s*$/.exec(bindingExpression);
 					
-					var bindingSourceId = bindingExpressionSegments[1];
+					var bindingSourceInverted = Boolean(bindingExpressionSegments[1]);
+					var bindingSourceId = bindingExpressionSegments[2];
 					var bindingSource = bindingSources[bindingSourceId];
 					if (!bindingSource) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
 
-					var bindingFilterExpression = bindingExpressionSegments[2] || null;
-					var bindingFilter = null;
+					var bindingFilterExpression = bindingExpressionSegments[3] || null;
 
-					if (bindingFilterExpression) {
+					var filter = _getBindingFilter(bindingFilterExpression);
+					if (bindingSourceInverted) { filter = _invertBindingFilter(filter); }
+					
+					bindingSource.bind($targetElement, filter);
+
+
+					function _getBindingFilter(filterExpression) {
+						if (!filterExpression) { return null; }
+
 						var bindingFilterId = null;
-						var bindingFilterArguments = null;
 						bindingFilterId = _parseFilterId(bindingFilterExpression);
 						
 						var bindingFilterExists = (bindingFilterId in filters);
 						if (!bindingFilterExists) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
 						
-						bindingFilterArguments = _parseFilterArguments(bindingFilterExpression);
-						bindingFilter = _getFilter(bindingFilterId, bindingFilterArguments, filters);
+						var bindingFilterArguments = _parseFilterArguments(bindingFilterExpression);
+						return _getFilter(bindingFilterId, bindingFilterArguments, filters);
+
+
+						function _parseFilterId(filterExpression) {
+							return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[1];
+						}
+
+						function _parseFilterArguments(filterExpression) {
+							var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[2];
+							if (!argumentsString) { return null; }
+							var filterArguments = argumentsString.split(/\s*:\s*/);
+							return filterArguments.map(function(filterArgument) {
+								if (filterArgument === 'null') {
+									return null;
+								} else if (filterArgument === 'true') {
+									return true;
+								} else if (filterArgument === 'false') {
+									return false;
+								} else if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(filterArgument)) {
+									return Number(filterArgument);
+								} else if (/^'.*'$/.test(filterArgument)) {
+									return filterArgument.substr(1, filterArgument.length - 1 - 1);
+								}
+							});
+						}
+
+						function _getFilter(filterId, filterArguments, filters) {
+							var filter = filters[bindingFilterId];
+							if (!filterArguments || (filterArguments.length === 0)) { return filter; }
+							return function(value) {
+								return filter.apply(null, [value].concat(filterArguments));
+							};
+						}
 					}
-					
-					bindingSource.bind($targetElement, bindingFilter);
 
-
-					function _parseFilterId(filterExpression) {
-						return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[1];
-					}
-
-					function _parseFilterArguments(filterExpression) {
-						var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[2];
-						if (!argumentsString) { return null; }
-						var filterArguments = argumentsString.split(/\s*:\s*/);
-						return filterArguments.map(function(filterArgument) {
-							if (filterArgument === 'null') {
-								return null;
-							} else if (filterArgument === 'true') {
-								return true;
-							} else if (filterArgument === 'false') {
-								return false;
-							} else if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(filterArgument)) {
-								return Number(filterArgument);
-							} else if (/^'.*'$/.test(filterArgument)) {
-								return filterArgument.substr(1, filterArgument.length - 1 - 1);
-							}
-						});
-					}
-
-					function _getFilter(filterId, filterArguments, filters) {
-						var filter = filters[bindingFilterId];
-						if (!filterArguments || (filterArguments.length === 0)) { return filter; }
+					function _invertBindingFilter(bindingFilter) {
+						if (!bindingFilter) {
+							return function(value) {
+								return !value;
+							};
+						}
+							
 						return function(value) {
-							return filter.apply(null, [value].concat(filterArguments));
+							var invertedValue = !value;
+							return bindingFilter(invertedValue);
 						};
 					}
 				});
@@ -267,7 +285,11 @@
 				}
 
 				function _getCurrentValue($sourceElement) {
-					if ($sourceElement.is('input,textarea,select,option,button')) {
+					if ($sourceElement.is('input[type="radio"],input[type="checkbox"]')) {
+						return $sourceElement.prop('checked');
+					} else if ($sourceElement.is('button,input[type="submit"],input[type="reset"]')) {
+						return $sourceElement.prop('disabled');
+					} else if ($sourceElement.is('input,textarea,select,option')) {
 						return $sourceElement.val();
 					} else {
 						return $sourceElement.text();
@@ -275,7 +297,11 @@
 				}
 
 				function _updateBindingTarget($targetElement, value) {
-					if ($targetElement.is('input,textarea,select,option,button')) {
+					if ($targetElement.is('input[type="radio"],input[type="checkbox"]')) {
+						$targetElement.prop('checked', value && (value !== 'false'));
+					} else if ($targetElement.is('button,input[type="submit"],input[type="reset"]')) {
+						$targetElement.prop('disabled', value && (value !== 'false'));
+					} else if ($targetElement.is('input,textarea,select,option')) {
 						$targetElement.val(value);
 						$targetElement.change();
 					} else {

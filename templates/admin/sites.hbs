@@ -10,12 +10,10 @@
 				{{#each session.sites }}
 				<tr>
 					<td>
-						<form class="pull-right" action="{{ ../session.urls.sites }}/{{ alias }}" method="POST">
-							<input type="hidden" name="_method" value="DELETE"/>
-							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}" title="Edit this site’s details"><span class="glyphicon glyphicon-pencil"></span></a>
-							<a class="btn btn-success btn-xs" href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."><span class="glyphicon glyphicon-refresh"></span></a>
-							<button type="submit" class="btn btn-danger btn-xs" title="Delete this site"><span class="glyphicon glyphicon-remove"></span></button>
-						</form>
+						<div class="pull-right">
+							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/edit/{{ alias }}" title="Edit this site’s details"><span class="glyphicon glyphicon-pencil"></span> Edit site</a>
+							<a class="btn btn-success btn-xs" href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."><span class="glyphicon glyphicon-refresh"></span> Sync</a>
+						</div>
 						{{ name }}
 						<a href="{{ ../session.urls.organization }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
 					</td>
@@ -23,7 +21,7 @@
 				{{/each}}
 			</tbody>
 		</table>
-		<p><a class="btn btn-primary" href="{{ session.urls.sites }}"><span class="glyphicon glyphicon-plus"></span> Create a new site</a></p>
+		<p><a class="btn btn-primary" href="{{ session.urls.sites }}/add"><span class="glyphicon glyphicon-plus"></span> Create a new site</a></p>
 	</div>
 </div>
 

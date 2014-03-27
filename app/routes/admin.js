@@ -27,7 +27,8 @@ module.exports = (function() {
 	app.get('/account', adminAuth, retrieveAccountSettingsRoute);
 	app.get('/logout', adminAuth, retrieveLogoutRoute);
 	app.get('/sites', adminAuth, retrieveSiteListRoute);
-	app.get('/sites/:site', adminAuth, retrieveSiteDetailsRoute);
+	app.get('/sites/add', adminAuth, retrieveSiteAddRoute);
+	app.get('/sites/edit/:site', adminAuth, retrieveSiteEditRoute);
 	app.get('/shares', adminAuth, retrieveShareListRoute);
 
 	app.post('/sites', adminAuth, createSiteRoute);
@@ -145,11 +146,10 @@ module.exports = (function() {
 	}
 
 	function retrieveHomeRoute(req, res, next) {
-		var templateData = {
-			title: null,
-			session: app.locals.session
-		};
-		_outputAdminPage(adminTemplates.SITES, templateData, req, res);
+		var urlService = new UrlService(req);
+		var currentSubdomain = urlService.subdomain;
+		var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites');
+		res.redirect(sitesUrl);
 	}
 
 	function retrieveFaqRoute(req, res, next) {
@@ -175,7 +175,7 @@ module.exports = (function() {
 			session: app.locals.session
 		};
 		
-		_outputAdminPage(adminTemplates.ACCOUNT_SETTINGS, templateData, req, res);
+		_outputAdminPage(adminTemplates.ACCOUNT, templateData, req, res);
 	}
 
 	function retrieveSiteListRoute(req, res, next) {
@@ -183,10 +183,18 @@ module.exports = (function() {
 			title: 'Your sites',
 			session: app.locals.session
 		};
-		_outputAdminPage(adminTemplates.SITE_ADD, templateData, req, res);
+		_outputAdminPage(adminTemplates.SITES, templateData, req, res);
 	}
 
-	function retrieveSiteDetailsRoute(req, res, next) {
+	function retrieveSiteAddRoute(req, res, next) {
+		var templateData = {
+			title: 'Add a site',
+			session: app.locals.session
+		};
+		_outputAdminPage(adminTemplates.SITES_ADD, templateData, req, res);
+	}
+
+	function retrieveSiteEditRoute(req, res, next) {
 		var session = app.locals.session;
 		
 		var organizationModel = session.organization;
@@ -205,7 +213,7 @@ module.exports = (function() {
 				session: app.locals.session,
 				site: siteModel
 			};
-			_outputAdminPage(adminTemplates.SITE_DETAIL, templateData, req, res);
+			_outputAdminPage(adminTemplates.SITES_EDIT, templateData, req, res);
 		}
 	}
 

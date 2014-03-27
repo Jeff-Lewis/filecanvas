@@ -8,12 +8,12 @@ module.exports = (function() {
 	var indexTemplate = templateService.compile('templates/admin/index.hbs');
 
 	return {
-		'SITES': _createAdminPageTemplate('templates/admin/sites.hbs'),
 		'FAQ': _createAdminPageTemplate('templates/admin/faq.hbs'),
 		'SUPPORT': _createAdminPageTemplate('templates/admin/support.hbs'),
-		'ACCOUNT_SETTINGS': _createAdminPageTemplate('templates/admin/account.hbs'),
-		'SITE_ADD': _createAdminPageTemplate('templates/admin/sites/add.hbs'),
-		'SITE_DETAIL': _createAdminPageTemplate('templates/admin/sites/edit.hbs'),
+		'ACCOUNT': _createAdminPageTemplate('templates/admin/account.hbs'),
+		'SITES': _createAdminPageTemplate('templates/admin/sites.hbs'),
+		'SITES_ADD': _createAdminPageTemplate('templates/admin/sites/add.hbs'),
+		'SITES_EDIT': _createAdminPageTemplate('templates/admin/sites/edit.hbs'),
 		'SHARES': _createAdminPageTemplate('templates/admin/shares.hbs')
 	};
 
