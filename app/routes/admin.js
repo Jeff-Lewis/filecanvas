@@ -26,9 +26,14 @@ module.exports = (function() {
 	app.get('/support', adminAuth, retrieveSupportRoute);
 	app.get('/account', adminAuth, retrieveAccountSettingsRoute);
 	app.get('/logout', adminAuth, retrieveLogoutRoute);
+	
+	
 	app.get('/organization', adminAuth, retrieveOrganizationSettingsRoute);
 	app.get('/organization/shares', adminAuth, retrieveOrganizationShareListRoute);
 	
+	app.del('/organization/shares/:share', adminAuth, deleteOrganizationShareRoute);
+	
+
 	app.get('/sites', adminAuth, retrieveSiteListRoute);
 	app.get('/sites/add', adminAuth, retrieveSiteAddRoute);
 	app.get('/sites/edit/:site', adminAuth, retrieveSiteEditRoute);
@@ -186,6 +191,23 @@ module.exports = (function() {
 			session: app.locals.session
 		};
 		_outputAdminPage(adminTemplates.ORGANIZATION_SHARES, templateData, req, res);
+	}
+
+	function deleteOrganizationShareRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var shareAlias = req.params.share;
+
+		var organizationService = new OrganizationService(dataService);
+		organizationService.deleteOrganizationShare(organizationAlias, shareAlias, _handleOrganizationShareDeleted);
+
+
+		function _handleOrganizationShareDeleted(error, shareModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sharesUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/shares');
+			res.redirect(303, sharesUrl);
+		}
 	}
 
 

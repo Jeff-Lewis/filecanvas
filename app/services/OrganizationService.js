@@ -15,6 +15,12 @@ module.exports = (function() {
 
 	OrganizationService.prototype.dataService = null;
 
+
+	OrganizationService.prototype.getOrganizationShareRoot = function(organizationAlias) {
+		return ORGANIZATION_SHARE_ROOT_FORMAT.replace(/\$\{ORGANIZATION\}/, organizationAlias);
+	};
+
+
 	OrganizationService.prototype.retrieveAdministrator = function(administratorUsername, callback) {
 		var query = { 'username': administratorUsername };
 
@@ -40,10 +46,6 @@ module.exports = (function() {
 				return callback && callback(null, organizationAdministrators);
 			}
 		);
-	};
-
-	OrganizationService.prototype.getOrganizationShareRoot = function(organizationAlias) {
-		return ORGANIZATION_SHARE_ROOT_FORMAT.replace(/\$\{ORGANIZATION\}/, organizationAlias);
 	};
 
 	OrganizationService.prototype.retrieveOrganization = function(organizationAlias, includeShares, callback) {
@@ -150,10 +152,12 @@ module.exports = (function() {
 		);
 	};
 
+
 	OrganizationService.prototype.createOrganizationShare = function(organizationAlias, shareModel, callback) {
 		if (!shareModel) { return _validationError('No share model specified', callback); }
 		if (!shareModel.alias) { return _validationError('No share alias specified', callback); }
 		if (!shareModel.name) { return _validationError('No share name specified', callback); }
+		
 		// TODO: Validate alias when creating share
 		// TODO: Validate name when creating share
 
@@ -163,19 +167,96 @@ module.exports = (function() {
 		};
 
 		var query = { 'username': organizationAlias };
-		var updates = {
-			'$push': {
-				'shares' : shareData
-			}
-		};
+		var updates = { $push: { 'shares' : shareData } };
+		var options = { safe: true };
 
-		this.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).update(query, updates,
-			function(error) {
+		this.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).update(query, updates, options,
+			function(error, numRecords) {
 				if (error) { return callback && callback(error); }
+				if (numRecords === 0) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
 				return callback && callback(null);
 			}
 		);
 
+
+		function _validationError(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	};
+
+
+	OrganizationService.prototype.deleteOrganizationShare = function(organizationAlias, shareAlias, callback) {
+		if (!organizationAlias) { return _validationError('No organization specified', callback); }
+		if (!shareAlias) { return _validationError('No share specified', callback); }
+
+		var self = this;
+		_scanForSitesThatAreUsingShare(organizationAlias, shareAlias, _handleCheckedWhetherSitesAreUsingShare);
+
+
+		function _handleCheckedWhetherSitesAreUsingShare(error, sitesUsingShare) {
+			if (error) { return callback && callback(error); }
+
+			if (sitesUsingShare && (sitesUsingShare.length > 0)) {
+				// TODO: Return proper confirmation page for when dropbox folder is currently in use
+				error = new Error('Dropbox folder is currently being used by the following sites: "' + sitesUsingShare.join('", "') + '"');
+				error.status = 403;
+				return callback && callback(error);
+			}
+
+			_deleteOrganizationShare(organizationAlias, shareAlias, _handleShareDeleted);
+
+
+			function _handleShareDeleted() {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null);
+			}
+		}
+
+
+		function _scanForSitesThatAreUsingShare(organizationAlias, shareAlias, callback) {
+			var query = { 'organization': organizationAlias, 'share': shareAlias };
+			var projection = { 'alias': 1 };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).find(query, projection,
+				function(error, organizationModelsCursor) {
+					if (error) { return callback && callback(error); }
+					organizationModelsCursor.toArray(_handleOrganizationModelsLoaded);
+
+
+					function _handleOrganizationModelsLoaded(error, organizationModels) {
+						if (error) { return callback && callback(error); }
+						var organizationAliases = organizationModels.map(function(organizationModel) {
+							return organizationModel.alias;
+						});
+						return callback && callback(null, organizationAliases);
+					}
+				}
+			);
+		}
+
+		function _deleteOrganizationShare(organizationAlias, shareAlias, callback) {
+			var criteria = { 'alias': organizationAlias };
+			var updates = { $pull: { 'shares': { 'alias': shareAlias } } };
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null);
+				}
+			);
+		}
 
 		function _validationError(message, callback) {
 			var error = new Error(message);

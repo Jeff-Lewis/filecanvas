@@ -158,7 +158,7 @@ module.exports = (function() {
 
 		var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
 		var update = { $set: { 'cache': cache } };
-		var options = { w: 1 };
+		var options = { safe: true };
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, update, options,
 			function(error, numResults) {
@@ -204,9 +204,50 @@ module.exports = (function() {
 		function _handleSiteModelParsed(error, siteModelFields) {
 			if (error) { return callback && callback(error); }
 
-			// TODO: Handle updating of site users
-			delete siteModelFields.users;
+			_getSiteShareAlias(organizationAlias, siteAlias, _handleSiteShareAliasLoaded);
 
+
+			function _handleSiteShareAliasLoaded(error, currentShareAlias) {
+				if (error) { return callback && callback(error); }
+
+				var shareAliasHasChanged = (currentShareAlias !== siteModelFields.share);
+				if (!shareAliasHasChanged) {
+					delete siteModelFields.share;
+					delete siteModelFields.cache;
+				}
+
+				// TODO: Handle updating of site users
+				delete siteModelFields.users;
+
+				_updateSite(organizationAlias, siteAlias, siteModelFields, _handleSiteUpdated);
+
+
+				function _handleSiteUpdated(error, siteModel) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null, siteModel);
+				}
+			}
+		}
+
+		function _getSiteShareAlias(organizationAlias, siteAlias, callback) {
+			var query = { 'organization': organizationAlias, 'alias': siteAlias };
+			var projection = { 'share': 1 };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
+				function(error, siteModel) {
+					if (error) { return callback && callback(error); }
+					if (!siteModel) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					var shareAlias = siteModel.share;
+					return callback && callback(null, shareAlias);
+				}
+			);
+		}
+
+		function _updateSite(organizationAlias, siteAlias, siteModelFields) {
 			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
 			var updates = { $set: siteModelFields };
 			var options = { safe: true };
@@ -276,10 +317,10 @@ module.exports = (function() {
 		}
 
 		function _deleteSite(organizationAlias, siteAlias, callback) {
-			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var selector = { 'organization': organizationAlias, 'alias': siteAlias };
 			var options = { safe: true };
 
-			self.dataService.db.collection(DB_COLLECTION_SITES).remove(criteria, options,
+			self.dataService.db.collection(DB_COLLECTION_SITES).remove(selector, options,
 				function(error, numRecords) {
 					if (error) { return callback && callback(error); }
 					if (numRecords === 0) {
@@ -322,14 +363,14 @@ module.exports = (function() {
 	function _validateSiteModel(siteModel, callback) {
 		if (!siteModel) { return _failValidation('No site model specified', callback); }
 		if (!siteModel.organization) { return _failValidation('No organization specified', callback); }
-		if (!siteModel.name) { return _failValidation('No site name specified', callback); }
 		if (!siteModel.alias) { return _failValidation('No site alias specified', callback); }
+		if (!siteModel.name) { return _failValidation('No site name specified', callback); }
 		if (!siteModel.title) { return _failValidation('No site title specified', callback); }
 		if (!siteModel.template) { return _failValidation('No site template specified', callback); }
 
 		// TODO: Validate organization when validating site model
-		// TODO: Validate name when validating site model
 		// TODO: Validate alias when validating site model
+		// TODO: Validate name when validating site model
 		// TODO: Validate title when validating site model
 		// TODO: Validate template when validating site model
 		// TODO: Validate share when validating site model
