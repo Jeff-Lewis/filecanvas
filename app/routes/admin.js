@@ -262,28 +262,54 @@ module.exports = (function() {
 		var organizationAlias = app.locals.session.organization.alias;
 		var siteAlias = req.params.site;
 
-		// TODO: Allow user to update site theme
-		// TODO: Allow user to update site users
-		var siteModel = {
-			'organization': organizationAlias,
-			'alias': req.body.alias,
-			'name': req.body.name,
-			'title': req.body.title,
-			'template': 'fathom',
-			'share': req.body.share || null,
-			'public': (req.body['private'] !== 'true')
-		};
-
-		var siteService = new SiteService(dataService);
-		siteService.updateSite(organizationAlias, siteAlias, siteModel, _handleSiteUpdated);
+		var isPurgeRequest = (req.body._action === 'purge');
+		if (isPurgeRequest) {
+			_purgeSite(organizationAlias, siteAlias);
+		} else {
+			_updateSite(organizationAlias, siteAlias);
+		}
 
 
-		function _handleSiteUpdated(error, siteModel) {
-			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteModel.alias);
-			res.redirect(303, sitesUrl);
+		function _purgeSite(organizationAlias, siteAlias) {
+			var cache = null;
+			var siteService = new SiteService(dataService);
+			siteService.updateSiteCache(organizationAlias, siteAlias, cache, _handleCacheUpdated);
+
+
+			function _handleCacheUpdated(error) {
+				if (error) { return next(error); }
+				var urlService = new UrlService(req);
+				var currentSubdomain = urlService.subdomain;
+				var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias);
+				res.redirect(303, siteUrl);
+			}
+		}
+
+		function _updateSite(organizationAlias, siteAlias) {
+
+			// TODO: Allow user to update site theme
+			// TODO: Allow user to update site users
+			var siteModel = {
+				'organization': organizationAlias,
+				'alias': req.body.alias,
+				'name': req.body.name,
+				'title': req.body.title,
+				'template': 'fathom',
+				'share': req.body.share || null,
+				'public': (req.body['private'] !== 'true')
+			};
+			
+			var siteService = new SiteService(dataService);
+			siteService.updateSite(organizationAlias, siteAlias, siteModel, _handleSiteUpdated);
+
+
+			function _handleSiteUpdated(error, siteModel) {
+				if (error) { return next(error); }
+				var urlService = new UrlService(req);
+				var currentSubdomain = urlService.subdomain;
+				var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteModel.alias);
+				res.redirect(303, siteUrl);
+			}
 		}
 	}
 

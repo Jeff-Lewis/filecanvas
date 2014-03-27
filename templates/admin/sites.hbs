@@ -12,7 +12,15 @@
 					<td>
 						<div class="pull-right">
 							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/edit/{{ alias }}" title="Edit this site’s details"><span class="glyphicon glyphicon-pencil"></span> Edit site</a>
-							<a class="btn btn-success btn-xs" href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."><span class="glyphicon glyphicon-refresh"></span> Sync</a>
+							<button type="button" class="btn btn-success btn-xs"
+									title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
+									data-dropkick-purge="{{ alias }}"
+								>
+								<span class="dropkick-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
+								<span class="dropkick-sync-loading"><span class="glyphicon glyphicon-refresh"></span> Syncing…</span>
+								<span class="dropkick-sync-success"><span class="glyphicon glyphicon-ok"></span> Sync done</span>
+								<span class="dropkick-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
+							</button>
 						</div>
 						{{ name }}
 						<a href="{{ ../session.urls.webroot }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>

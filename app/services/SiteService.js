@@ -154,16 +154,19 @@ module.exports = (function() {
 	SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, cache, callback) {
 		cache = cache || null;
 
-		// TODO: Is it necessary to confirm that the site exists before updating site cache?
-
 		var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
 		var update = { $set: { 'cache': cache } };
 		var options = { w: 1 };
 
 		this.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, update, options,
-			function(error, result) {
+			function(error, numResults) {
 				if (error) { return callback && callback(error); }
-				return callback && callback(null, result);
+				if (numResults === 0) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
+				return callback && callback(null);
 			}
 		);
 	};
@@ -304,11 +307,7 @@ module.exports = (function() {
 				'share': siteModel.share || null,
 				'public': Boolean(siteModel['public']),
 				'users': siteModel.users || [],
-				'cache': {
-					'updated': null,
-					'cursor': null,
-					'data': null
-				}
+				'cache': null
 			};
 		}
 	}

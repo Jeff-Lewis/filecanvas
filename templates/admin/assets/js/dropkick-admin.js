@@ -6,6 +6,7 @@
 		_initInputParsers();
 		_initDataBindings();
 		_initInputValidators();
+		_initDropkick();
 	});
 
 	function _initInputParsers() {
@@ -288,7 +289,7 @@
 					if ($sourceElement.is('input[type="radio"],input[type="checkbox"]')) {
 						return $sourceElement.prop('checked');
 					} else if ($sourceElement.is('button,input[type="submit"],input[type="reset"]')) {
-						return $sourceElement.prop('disabled');
+						return !$sourceElement.prop('disabled');
 					} else if ($sourceElement.is('input,textarea,select,option')) {
 						return $sourceElement.val();
 					} else {
@@ -300,7 +301,7 @@
 					if ($targetElement.is('input[type="radio"],input[type="checkbox"]')) {
 						$targetElement.prop('checked', value && (value !== 'false'));
 					} else if ($targetElement.is('button,input[type="submit"],input[type="reset"]')) {
-						$targetElement.prop('disabled', value && (value !== 'false'));
+						$targetElement.prop('disabled', !(value && (value !== 'false')));
 					} else if ($targetElement.is('input,textarea,select,option')) {
 						$targetElement.val(value);
 						$targetElement.change();
@@ -310,6 +311,58 @@
 				}
 			}
 		}
+	}
 
+	function _initDropkick() {
+		var dropkick = window.dropkick;
+		
+		_initPurgeLinks(dropkick);
+
+
+		function _initPurgeLinks(dropkick) {
+			var attributeName = 'data-dropkick-purge';
+
+			var $purgeButtonElements = $('[' + attributeName + ']');
+
+			_createPurgeButtons($purgeButtonElements, attributeName, dropkick);
+
+
+			function _createPurgeButtons($purgeButtonElements, attributeName, dropkick) {
+				$purgeButtonElements.on('click', _handlePurgeButtonClicked);
+
+				function _handlePurgeButtonClicked(event) {
+					var $purgeButtonElement = $(event.currentTarget);
+					var siteAlias = $purgeButtonElement.attr(attributeName);
+					$purgeButtonElement.prop('disabled', true);
+					$purgeButtonElement.addClass('-dropkick-sync-loading');
+					dropkick.purgeSiteCache(siteAlias, _handleSiteCachePurged);
+
+
+					function _handleSiteCachePurged(error) {
+						$purgeButtonElement.prop('disabled', false);
+						$purgeButtonElement.removeClass('-dropkick-sync-loading');
+
+						if (error) {
+							var errorTimeoutDuration = 3000;
+							_setButtonState($purgeButtonElement, '-dropkick-sync-error', errorTimeoutDuration);
+							return;
+						}
+
+						var successTimeoutDuration = 3000;
+						_setButtonState($purgeButtonElement, '-dropkick-sync-success', successTimeoutDuration);
+
+
+						function _setButtonState($element, className, timeoutDuration) {
+							$element.prop('disabled', true);
+							$element.addClass(className);
+							setTimeout(function() {
+								$element.prop('disabled', false);
+								$element.removeClass(className);
+							}, 3000);
+						}
+					}
+				}
+			}
+		}
 	}
 })();
