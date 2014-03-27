@@ -26,10 +26,12 @@ module.exports = (function() {
 	app.get('/support', adminAuth, retrieveSupportRoute);
 	app.get('/account', adminAuth, retrieveAccountSettingsRoute);
 	app.get('/logout', adminAuth, retrieveLogoutRoute);
+	app.get('/organization', adminAuth, retrieveOrganizationSettingsRoute);
+	app.get('/organization/shares', adminAuth, retrieveOrganizationShareListRoute);
+	
 	app.get('/sites', adminAuth, retrieveSiteListRoute);
 	app.get('/sites/add', adminAuth, retrieveSiteAddRoute);
 	app.get('/sites/edit/:site', adminAuth, retrieveSiteEditRoute);
-	app.get('/shares', adminAuth, retrieveShareListRoute);
 
 	app.post('/sites', adminAuth, createSiteRoute);
 	app.put('/sites/:site', adminAuth, updateSiteRoute);
@@ -71,40 +73,30 @@ module.exports = (function() {
 		})(req, res, next);
 					
 		function _getSessionData(req, administratorModel, organizationModel, siteModels) {
-			var adminUrls = _getAdminUrls(req, organizationModel);
+			var urlService = new UrlService(req);
+			var adminUrls = _getAdminUrls(urlService, organizationModel);
 			return {
-				navigation: [
-					{
-						id: 'faq',
-						label: 'FAQ',
-						link: adminUrls.faq,
-						active: (req.path === adminUrls.faq)
-					},
-					{
-						id: 'support',
-						label: 'Support',
-						link: adminUrls.support,
-						active: (req.path === adminUrls.support)
-					}
-				],
+				location: urlService.location,
 				urls: adminUrls,
 				user: administratorModel,
 				organization: organizationModel,
 				sites: siteModels
 			};
 
-			function _getAdminUrls(req, organizationModel) {
-				var urlService = new UrlService(req);
+			function _getAdminUrls(urlService, organizationModel) {
 				return {
 					home: urlService.getSubdomainUrl('www'),
-					organization: urlService.getSubdomainUrl(organizationModel.alias),
+					webroot: urlService.getSubdomainUrl(organizationModel.alias),
 					admin: '/',
 					faq: '/faq',
 					support: '/support',
 					account: '/account',
 					logout: '/logout',
 					sites: '/sites',
-					shares: '/shares'
+					sitesAdd: '/sites/add',
+					sitesEdit: '/sites/edit',
+					organization: '/organization',
+					organizationShares: '/organization/shares'
 				};
 			}
 		}
@@ -178,6 +170,25 @@ module.exports = (function() {
 		_outputAdminPage(adminTemplates.ACCOUNT, templateData, req, res);
 	}
 
+
+	function retrieveOrganizationSettingsRoute(req, res, next) {
+		var templateData = {
+			title: 'Organization settings',
+			session: app.locals.session
+		};
+		
+		_outputAdminPage(adminTemplates.ORGANIZATION, templateData, req, res);
+	}
+
+	function retrieveOrganizationShareListRoute(req, res, next) {
+		var templateData = {
+			title: 'Linked Dropbox folders',
+			session: app.locals.session
+		};
+		_outputAdminPage(adminTemplates.ORGANIZATION_SHARES, templateData, req, res);
+	}
+
+
 	function retrieveSiteListRoute(req, res, next) {
 		var templateData = {
 			title: 'Your sites',
@@ -217,14 +228,6 @@ module.exports = (function() {
 		}
 	}
 
-	function retrieveShareListRoute(req, res, next) {
-		var templateData = {
-			title: 'Linked Dropbox folders',
-			session: app.locals.session
-		};
-		_outputAdminPage(adminTemplates.SHARES, templateData, req, res);
-	}
-
 
 	function createSiteRoute(req, res, next) {
 		var organizationAlias = app.locals.session.organization.alias;
@@ -249,7 +252,7 @@ module.exports = (function() {
 			if (error) { return next(error); }
 			var urlService = new UrlService(req);
 			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites' + '/' + siteModel.alias);
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteModel.alias);
 			res.redirect(303, sitesUrl);
 		}
 	}
@@ -279,7 +282,7 @@ module.exports = (function() {
 			if (error) { return next(error); }
 			var urlService = new UrlService(req);
 			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites' + '/' + siteModel.alias);
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteModel.alias);
 			res.redirect(303, sitesUrl);
 		}
 	}

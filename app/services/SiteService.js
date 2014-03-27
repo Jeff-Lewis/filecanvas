@@ -202,8 +202,13 @@ module.exports = (function() {
 			var options = { safe: true };
 
 			self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
-				function(error, records) {
+				function(error, numRecords) {
 					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
 					return callback && callback(null, siteModel);
 				}
 			);
@@ -215,15 +220,67 @@ module.exports = (function() {
 
 		// TODO: Validate site delete requests
 
-		var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
-		var options = { safe: true };
+		var self = this;
+		_checkWhetherSiteisOrganizationDefaultSite(organizationAlias, siteAlias, _handleOrganizationDefaultSiteChecked);
 
-		this.dataService.db.collection(DB_COLLECTION_SITES).remove(criteria, options,
-			function(error, recordsCount) {
+
+		function _handleOrganizationDefaultSiteChecked(error, isDefaultSite) {
+			_deleteSite(organizationAlias, siteAlias, _handleSiteDeleted);
+
+			function _handleSiteDeleted() {
+				if (isDefaultSite) {
+					_resetOrganizationDefaultSite(organizationAlias, _handleOrganizationDefaultSiteReset);
+				} else {
+					return callback && callback(null);
+				}
+
+				function _handleOrganizationDefaultSiteReset(error) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null);
+				}
+			}
+			
+		}
+
+		function _checkWhetherSiteisOrganizationDefaultSite(organizationAlias, siteAlias, callback) {
+			var organizationService = new OrganizationService(self.dataService);
+			organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias, _handleOrganizationDefaultSiteRetrieved);
+
+
+			function _handleOrganizationDefaultSiteRetrieved(error, defaultSiteAlias) {
+				if (error) { return callback && callback(error); }
+				var isDefaultSite = (siteAlias === defaultSiteAlias);
+				return callback && callback(null, isDefaultSite);
+			}
+		}
+
+		function _resetOrganizationDefaultSite(organizationAlias, callback) {
+			var organizationService = new OrganizationService(self.dataService);
+			organizationService.updateOrganizationDefaultSiteAlias(organizationAlias, null, _handleOrganizationDefaultSiteUpdated);
+
+
+			function _handleOrganizationDefaultSiteUpdated(error) {
 				if (error) { return callback && callback(error); }
 				return callback && callback(null);
 			}
-		);
+		}
+
+		function _deleteSite(organizationAlias, siteAlias, callback) {
+			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).remove(criteria, options,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null);
+				}
+			);
+		}
 	};
 
 

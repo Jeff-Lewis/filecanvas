@@ -44,9 +44,9 @@ module.exports = (function() {
 
 	function defaultRoute(req, res, next) {
 		var organizationAlias = req.params.organization;
-		var organizationAliasService = new OrganizationService(dataService);
+		var organizationService = new OrganizationService(dataService);
 
-		organizationAliasService.retrieveDefaultSiteName(organizationAlias, function(error, siteAlias) {
+		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias, function(error, siteAlias) {
 			if (error) { return next(error); }
 			if (!siteAlias) {
 				error = new Error();
@@ -61,10 +61,10 @@ module.exports = (function() {
 
 	function defaultDownloadRoute(req, res, next) {
 		var organizationAlias = req.params.organization;
-		var organizationAliasService = new OrganizationService(dataService);
+		var organizationService = new OrganizationService(dataService);
 		var downloadPath = req.params[0];
 
-		organizationAliasService.retrieveDefaultSiteName(organizationAlias, function(error, siteAlias) {
+		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias, function(error, siteAlias) {
 			if (error) { return next(error); }
 			if (!siteAlias) {
 				error = new Error();

@@ -35,7 +35,7 @@
 							data-validate="slug"
 							data-trigger="focus"
 						/>
-						<p class="help-block">{{ session.urls.organization }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
+						<p class="help-block">{{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
 					</div>
 				</div>
 				<div class="form-group">
@@ -64,7 +64,7 @@
 							>{{ name }}</option>
 							{{/each}}
 						</select>
-						<p class="form-control-static"><a href="{{ session.urls.shares }}">Manage your linked Dropbox folders…</a></p>
+						<p class="form-control-static"><a href="{{ session.urls.organizationShares }}">Manage your linked Dropbox folders…</a></p>
 					</div>
 				</div>
 				<div class="form-group">
@@ -218,7 +218,7 @@
 				<legend>Delete site</legend>
 				<div class="form-group">
 					<ul>
-						<li>Deleting this site will permanently remove the Dropkick site located at <strong>{{ session.urls.organization }}{{ site.alias }}</strong></li>
+						<li>Deleting this site will permanently remove the Dropkick site located at <strong>{{ session.urls.webroot }}{{ site.alias }}</strong></li>
 						<li>Deleting this site will unlink the site’s Dropbox folder from the Dropkick service.</li>
 						<li>Deleting this site will <b>not</b> delete the contents of your Dropbox folder.</li>
 					</ul>

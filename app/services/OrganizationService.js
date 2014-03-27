@@ -81,7 +81,7 @@ module.exports = (function() {
 		);
 	};
 
-	OrganizationService.prototype.retrieveDefaultSiteName = function(organizationAlias, callback) {
+	OrganizationService.prototype.retrieveOrganizationDefaultSiteAlias = function(organizationAlias, callback) {
 		var query = { 'alias': organizationAlias };
 		var projection = { 'default': 1 };
 
@@ -94,6 +94,24 @@ module.exports = (function() {
 					return callback && callback(error);
 				}
 				return callback && callback(null, organizationModel['default']);
+			}
+		);
+	};
+
+	OrganizationService.prototype.updateOrganizationDefaultSiteAlias = function(organizationAlias, siteAlias, callback) {
+		var criteria = { 'alias': organizationAlias };
+		var updates = { $set: { 'default': siteAlias } };
+		var options = { 'safe': true };
+
+		this.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).update(criteria, updates, options,
+			function(error, numRecords) {
+				if (error) { return callback && callback(error); }
+				if (numRecords === 0) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
+				return callback && callback(null, siteAlias);
 			}
 		);
 	};

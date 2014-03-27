@@ -15,13 +15,13 @@
 							<a class="btn btn-success btn-xs" href="#" title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."><span class="glyphicon glyphicon-refresh"></span> Sync</a>
 						</div>
 						{{ name }}
-						<a href="{{ ../session.urls.organization }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
+						<a href="{{ ../session.urls.webroot }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
 					</td>
 				</tr>
 				{{/each}}
 			</tbody>
 		</table>
-		<p><a class="btn btn-primary" href="{{ session.urls.sites }}/add"><span class="glyphicon glyphicon-plus"></span> Create a new site</a></p>
+		<p><a class="btn btn-primary" href="{{ session.urls.sitesAdd }}"><span class="glyphicon glyphicon-plus"></span> Create a new site</a></p>
 	</div>
 </div>
 
@@ -29,7 +29,7 @@
 
 <div class="alert alert-info">
 	<p>There are no sites registered within this organization.</p>
-	<p>Start using Dropkick by <a href="{{ session.urls.sites }}">adding a new site</a>.</p>
+	<p>Start using Dropkick by <a href="{{ session.urls.sitesAdd }}">adding a new site</a>.</p>
 </div>
 
 {{/if}}
