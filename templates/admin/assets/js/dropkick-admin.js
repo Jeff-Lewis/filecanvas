@@ -16,7 +16,7 @@
 
 		var parsers = {
 			'slug': function(value) {
-				return value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+				return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
 			}
 		};
 
@@ -96,7 +96,7 @@
 
 		var filters = {
 			'slug': function(value) {
-				return value.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+				return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
 			},
 			'format': function(value, formatString, emptyString) {
 				if (!value && (arguments.length >= 3)) { return emptyString; }
