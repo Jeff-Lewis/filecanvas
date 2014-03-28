@@ -16,13 +16,44 @@
 	var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
 	var debugMode = (process.env.DEBUG === 'true');
 
-	initServices(function(error) {
+
+	if (!config.dropbox.appToken) {
+		console.warn('No Dropbox app token specified. Generating app token...');
+		generateDropboxToken(config, _handleDropboxTokenGenerated);
+	} else {
+		initServices(config, _handleServicesInitialized);
+	}
+
+	function _handleDropboxTokenGenerated(error, appToken) {
+		if (error) { throw error; }
+		console.info('Generated Dropbox app token: ' + appToken);
+		config.dropbox.appToken = appToken;
+		initServices(config, _handleServicesInitialized);
+	}
+
+	function _handleServicesInitialized(error) {
 		if (error) { throw error; }
 		initServer(port, debugMode);
-	});
+	}
+
+	function generateDropboxToken(config, callback) {
+		var DropboxService = require('./app/services/DropboxService');
+
+		var dropboxService = new DropboxService();
+
+		dropboxService.generateAppToken({
+			appKey: config.dropbox.appKey,
+			appSecret: config.dropbox.appSecret
+		}, _handleAppTokenGenerated);
 
 
-	function initServices(callback) {
+		function _handleAppTokenGenerated(error, appToken) {
+			if (error) { return callback && callback(error); }
+			return callback && callback(null, appToken);
+		}
+	}
+
+	function initServices(config, callback) {
 		var dropboxLoaded = false;
 		var mongodbLoaded = false;
 
