@@ -54,7 +54,7 @@
 					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
 					<div class="col-sm-6 col-lg-4">
 						<div class="row">
-							<div class="col-xs-7">
+							<div class="{{#if site.share}}col-xs-7{{else}}col-xs-12{{/if}}">
 								<select class="form-control"
 									name="share"
 									title="Choose the Dropbox folder that this site syncs from"
@@ -68,6 +68,7 @@
 									{{/each}}
 								</select>
 							</div>
+							{{#if site.share}}
 							<div class="col-xs-5">
 								<button type="button" class="btn btn-success col-xs-12"
 									title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
@@ -80,6 +81,7 @@
 									<span class="dropkick-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
 								</button>
 							</div>
+							{{/if}}
 						</div>
 						<p class="form-control-static"><a href="{{ session.urls.organizationShares }}">Manage your linked Dropbox folders…</a></p>
 					</div>

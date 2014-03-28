@@ -14,6 +14,7 @@
 							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/edit/{{ alias }}" title="Edit this site’s details"><span class="glyphicon glyphicon-pencil"></span> Edit site</a>
 							<button type="button" class="btn btn-success btn-xs"
 									title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
+									{{#unless share}}disabled="disabled"{{/unless}}
 									data-dropkick-purge="{{ alias }}"
 								>
 								<span class="dropkick-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
@@ -22,6 +23,11 @@
 								<span class="dropkick-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
 							</button>
 						</div>
+						{{#unless share}}
+						<span class="glyphicon glyphicon-exclamation-sign text-danger" title="This site has not yet been linked to a Dropbox folder."></span>
+						{{else}}
+						<span class="glyphicon"></span>
+						{{/unless}}
 						{{ name }}
 						<a href="{{ ../session.urls.webroot }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
 					</td>
