@@ -17,7 +17,8 @@ module.exports = (function() {
 
 		'SITES': _createAdminPageTemplate('templates/admin/sites.hbs'),
 		'SITES_ADD': _createAdminPageTemplate('templates/admin/sites/add.hbs'),
-		'SITES_EDIT': _createAdminPageTemplate('templates/admin/sites/edit.hbs')
+		'SITES_EDIT': _createAdminPageTemplate('templates/admin/sites/edit.hbs'),
+		'SITES_EDIT_USERS': _createAdminPageTemplate('templates/admin/sites/edit/users.hbs')
 	};
 
 	function _createAdminPageTemplate(templatePath) {

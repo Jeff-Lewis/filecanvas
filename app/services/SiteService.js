@@ -3,6 +3,7 @@ module.exports = (function() {
 
 	var DownloadService = require('../services/DownloadService');
 	var OrganizationService = require('../services/OrganizationService');
+	var AuthenticationService = require('../services/AuthenticationService');
 
 	var SECONDS = 1000;
 	var MINUTES = SECONDS * 60;
@@ -13,6 +14,7 @@ module.exports = (function() {
 	var SITE_CONTENTS_DOWNLOAD_URL_PREFIX = 'download';
 
 	var DB_COLLECTION_SITES = 'sites';
+	var DB_COLLECTION_ORGANIZATIONS = 'organizations';
 
 	function SiteService(dataService, dropboxService) {
 		this.dataService = dataService;
@@ -267,8 +269,118 @@ module.exports = (function() {
 	};
 
 
-	SiteService.prototype.deleteSite = function(organizationAlias, siteAlias, callback) {
+	SiteService.prototype.createSiteUser = function(organizationAlias, siteAlias, username, password, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified'); }
+		if (!siteAlias) { return _failValidation('No site specified'); }
+		if (!username) { return _failValidation('No username specified'); }
+		if (!password) { return _failValidation('No password specified'); }
 
+		// TODO: Validate site user details
+
+		var self = this;
+		_checkWhetherUserAlreadyExists(organizationAlias, siteAlias, username, _handleCheckedForExistingUser);
+
+
+		function _handleCheckedForExistingUser(error, userAlreadyExists) {
+			if (error) { return callback && callback(error); }
+			if (userAlreadyExists) {
+				error = new Error('A user already exists with this username');
+				error.status = 409;
+				return callback && callback(error);
+			}
+			_addSiteUser(organizationAlias, siteAlias, username, password, _handleSiteUserAdded);
+
+
+			function _handleSiteUserAdded(error, userModel) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, userModel);
+			}
+		}
+
+		function _checkWhetherUserAlreadyExists(organizationAlias, siteAlias, username, callback) {
+			var query = { 'organization': organizationAlias, 'users.username': username };
+			self.dataService.db.collection(DB_COLLECTION_SITES).count(query,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					var userAlreadyExists = (numRecords > 0);
+					return callback && callback(null, userAlreadyExists);
+				}
+			);
+		}
+
+
+		function _addSiteUser(organizationAlias, siteAlias, username, password, callback) {
+			var authenticationService = new AuthenticationService();
+			var userModel = authenticationService.create(username, password);
+
+			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var updates = { $push: { 'users': userModel } };
+			var options = { safe: 1 };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null, userModel);
+				}
+			);
+		}
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	};
+
+
+	SiteService.prototype.deleteSiteUser = function(organizationAlias, siteAlias, username, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified'); }
+		if (!siteAlias) { return _failValidation('No site specified'); }
+		if (!username) { return _failValidation('No user specified'); }
+
+		var self = this;
+		_deleteSiteUser(organizationAlias, siteAlias, username, _handleSiteUserDeleted);
+
+
+		function _handleSiteUserDeleted(error) {
+			if (error) { return callback && callback(error); }
+			return callback && callback(null);
+		}
+
+		function _deleteSiteUser(organizationAlias, shareAlias, username, callback) {
+			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var updates = { $pull: { 'users': { 'username': username } } };
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null);
+				}
+			);
+		}
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	};
+
+
+	SiteService.prototype.deleteSite = function(organizationAlias, siteAlias, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified'); }
+		if (!siteAlias) { return _failValidation('No site specified'); }
 		// TODO: Validate site delete requests
 
 		var self = this;
@@ -276,6 +388,8 @@ module.exports = (function() {
 
 
 		function _handleOrganizationDefaultSiteChecked(error, isDefaultSite) {
+			if (error) { return callback && callback(error); }
+
 			_deleteSite(organizationAlias, siteAlias, _handleSiteDeleted);
 
 			function _handleSiteDeleted() {
@@ -294,15 +408,14 @@ module.exports = (function() {
 		}
 
 		function _checkWhetherSiteisOrganizationDefaultSite(organizationAlias, siteAlias, callback) {
-			var organizationService = new OrganizationService(self.dataService);
-			organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias, _handleOrganizationDefaultSiteRetrieved);
-
-
-			function _handleOrganizationDefaultSiteRetrieved(error, defaultSiteAlias) {
-				if (error) { return callback && callback(error); }
-				var isDefaultSite = (siteAlias === defaultSiteAlias);
-				return callback && callback(null, isDefaultSite);
-			}
+			var query = { 'alias': organizationAlias, 'default': siteAlias };
+			self.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).count(query,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					var isDefaultSite = (numRecords > 0);
+					return callback && callback(null, isDefaultSite);
+				}
+			);
 		}
 
 		function _resetOrganizationDefaultSite(organizationAlias, callback) {
@@ -331,6 +444,13 @@ module.exports = (function() {
 					return callback && callback(null);
 				}
 			);
+		}
+
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
 		}
 	};
 
@@ -379,14 +499,9 @@ module.exports = (function() {
 
 
 		function _failValidation(message, callback) {
-			var error = _createValidationError(400, message);
+			var error = new Error(message);
+			error.status = 400;
 			return callback && callback(error);
-
-			function _createValidationError(status, message, callback) {
-				var error = new Error(message);
-				error.status = status;
-				return error;
-			}
 		}
 	}
 

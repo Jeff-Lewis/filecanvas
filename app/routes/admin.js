@@ -37,10 +37,13 @@ module.exports = (function() {
 	app.get('/sites', adminAuth, retrieveSiteListRoute);
 	app.get('/sites/add', adminAuth, retrieveSiteAddRoute);
 	app.get('/sites/edit/:site', adminAuth, retrieveSiteEditRoute);
+	app.get('/sites/edit/:site/users', adminAuth, retrieveSiteUsersEditRoute);
 
 	app.post('/sites', adminAuth, createSiteRoute);
 	app.put('/sites/:site', adminAuth, updateSiteRoute);
 	app.del('/sites/:site', adminAuth, deleteSiteRoute);
+	app.post('/sites/:site/users', adminAuth, createSiteUserRoute);
+	app.del('/sites/:site/users/:username', adminAuth, deleteSiteUserRoute);
 
 
 	return app;
@@ -250,6 +253,29 @@ module.exports = (function() {
 		}
 	}
 
+	function retrieveSiteUsersEditRoute(req, res, next) {
+		var session = app.locals.session;
+		
+		var organizationModel = session.organization;
+		var organizationAlias = organizationModel.alias;
+		var siteAlias = req.params.site;
+
+		var siteService = new SiteService(dataService);
+		var includeContents = false;
+		var includeUsers = true;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, _handleSiteDetailsLoaded);
+
+		function _handleSiteDetailsLoaded(error, siteModel) {
+			if (error) { return next(error); }
+			var templateData = {
+				title: 'Edit site users: ' + siteModel.name,
+				session: app.locals.session,
+				site: siteModel
+			};
+			_outputAdminPage(adminTemplates.SITES_EDIT_USERS, templateData, req, res);
+		}
+	}
+
 
 	function createSiteRoute(req, res, next) {
 		var organizationAlias = app.locals.session.organization.alias;
@@ -348,6 +374,44 @@ module.exports = (function() {
 			var urlService = new UrlService(req);
 			var currentSubdomain = urlService.subdomain;
 			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites');
+			res.redirect(303, sitesUrl);
+		}
+	}
+
+
+	function createSiteUserRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var siteAlias = req.params.site;
+		var username = req.body.username;
+		var password = req.body.password;
+
+		var siteService = new SiteService(dataService);
+		siteService.createSiteUser(organizationAlias, siteAlias, username, password, _handleSiteUserCreated);
+
+
+		function _handleSiteUserCreated(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/users');
+			res.redirect(303, sitesUrl);
+		}
+	}
+
+	function deleteSiteUserRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var siteAlias = req.params.site;
+		var username = req.params.username;
+
+		var siteService = new SiteService(dataService);
+		siteService.deleteSiteUser(organizationAlias, siteAlias, username, _handleSiteUserDeleted);
+
+
+		function _handleSiteUserDeleted(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/users');
 			res.redirect(303, sitesUrl);
 		}
 	}

@@ -1,0 +1,72 @@
+<div class="row">
+	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
+		<h2>Registered users for {{ site.name }}</h2>
+		<p class="lead">Use the fields below to control who is allowed to see this Dropkick site.</p>
+		<hr/>
+		<div class="form-horizontal">
+			{{#unless site.users}}
+			<div class="alert alert-danger">
+				<p><strong>Warning:</strong> There are no registered users for this site.</p>
+			</div>
+			{{/unless}}
+			<fieldset>
+				{{#if site.users}}
+				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
+					<div class="col-sm-6 col-lg-4">
+						<table class="form-control-static table table-bordered table-condensed">
+							<tbody>
+								{{#each site.users }}
+								<tr>
+									<td>
+										<form class="pull-right" action="{{ ../session.urls.sites }}/{{ ../site.alias }}/users/{{ username }}" method="POST">
+											<input type="hidden" name="_method" value="DELETE"/>
+											<button type="submit" class="pull-right btn btn-danger btn-xs" title="Prevent this user from accessing this site"><span class="glyphicon glyphicon-remove"></span> Remove user</button>
+										</form>
+										{{ username }}
+									</td>
+								</tr>
+								{{/each}}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				{{/if}}
+				<form class="form-group" action="{{ session.urls.sites }}/{{ site.alias }}/users" method="POST">
+					<input type="hidden" name="_method" value="POST"/>
+					<label class="col-sm-3 col-lg-2 control-label">Add user</label>
+					<div class="col-sm-6 col-lg-4">
+						<div class="row">
+							<div class="col-sm-6">
+								<input type="text" class="form-control"
+									name="username"
+									title="Enter a username which your users can use to log into your Dropkick site"
+									placeholder="username"
+									data-trigger="focus"
+									data-validate="notEmpty"
+								/>
+							</div>
+							<div class="col-sm-6">
+								<input type="password" class="form-control"
+									name="password"
+									title="Enter a password to go with this username"
+									placeholder="password"
+									data-trigger="focus"
+									data-validate="notEmpty"
+								/>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3 col-lg-2">
+						<button type="submit" class="btn btn-success" title="Add this user to the list of users who are allowed to see your Dropkick site"><span class="glyphicon glyphicon-plus"></span> Add user</button>
+					</div>
+				</form>
+				<div class="form-group">
+					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+						<a href="{{ session.urls.sites }}/edit/{{ site.alias }}" class="btn btn-default"><span class="glyphicon glyphicon-chevron-left"></span> Back to site</a>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	<div>
+</div>

@@ -154,9 +154,9 @@ module.exports = (function() {
 
 
 	OrganizationService.prototype.createOrganizationShare = function(organizationAlias, shareModel, callback) {
-		if (!shareModel) { return _validationError('No share model specified', callback); }
-		if (!shareModel.alias) { return _validationError('No share alias specified', callback); }
-		if (!shareModel.name) { return _validationError('No share name specified', callback); }
+		if (!shareModel) { return _failValidation('No share model specified', callback); }
+		if (!shareModel.alias) { return _failValidation('No share alias specified', callback); }
+		if (!shareModel.name) { return _failValidation('No share name specified', callback); }
 		
 		// TODO: Validate alias when creating share
 		// TODO: Validate name when creating share
@@ -183,7 +183,7 @@ module.exports = (function() {
 		);
 
 
-		function _validationError(message, callback) {
+		function _failValidation(message, callback) {
 			var error = new Error(message);
 			error.status = 400;
 			return callback && callback(error);
@@ -192,8 +192,8 @@ module.exports = (function() {
 
 
 	OrganizationService.prototype.deleteOrganizationShare = function(organizationAlias, shareAlias, callback) {
-		if (!organizationAlias) { return _validationError('No organization specified', callback); }
-		if (!shareAlias) { return _validationError('No share specified', callback); }
+		if (!organizationAlias) { return _failValidation('No organization specified', callback); }
+		if (!shareAlias) { return _failValidation('No share specified', callback); }
 
 		var self = this;
 		_scanForSitesThatAreUsingShare(organizationAlias, shareAlias, _handleCheckedWhetherSitesAreUsingShare);
@@ -258,7 +258,7 @@ module.exports = (function() {
 			);
 		}
 
-		function _validationError(message, callback) {
+		function _failValidation(message, callback) {
 			var error = new Error(message);
 			error.status = 400;
 			return callback && callback(error);
