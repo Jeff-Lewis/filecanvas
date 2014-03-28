@@ -298,7 +298,7 @@ module.exports = (function() {
 		}
 
 		function _checkWhetherUserAlreadyExists(organizationAlias, siteAlias, username, callback) {
-			var query = { 'organization': organizationAlias, 'users.username': username };
+			var query = { 'organization': organizationAlias, 'alias': siteAlias, 'users.username': username };
 			self.dataService.db.collection(DB_COLLECTION_SITES).count(query,
 				function(error, numRecords) {
 					if (error) { return callback && callback(error); }
