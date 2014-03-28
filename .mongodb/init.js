@@ -4,8 +4,8 @@ print('Initialising database:');
 print('');
 
 
-print(' - Switching to database \'dropkick\'...');
-db = db.getSiblingDB('dropkick');
+print(' - Switching to database \'shunt\'...');
+db = db.getSiblingDB('shunt');
 
 
 print(' - Dropping \'organizations\' collection...');

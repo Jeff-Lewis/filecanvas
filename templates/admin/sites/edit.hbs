@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
 		<h2>Edit Site: {{ site.name }} <a href="{{ session.urls.webroot }}{{ site.alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a></h2>
-		<p class="lead">Use the fields below to make changes to this Dropkick site.</p>
+		<p class="lead">Use the fields below to make changes to this Shunt site.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST">
 			<input type="hidden" name="_method" value="PUT"/>
@@ -15,7 +15,7 @@
 					<label for="input-sites-name" class="col-sm-3 col-lg-2 control-label">Name</label>
 					<div class="col-sm-6 col-lg-4">
 						<input type="text" name="name" class="form-control" id="input-sites-name"
-							title="This helps you identify the site in the Dropkick admin area"
+							title="This helps you identify the site in the Shunt admin area"
 							placeholder="Site name"
 							value="{{ site.name }}"
 							data-validate="notEmpty"
@@ -71,14 +71,14 @@
 							{{#if site.share}}
 							<div class="col-xs-5">
 								<button type="button" class="btn btn-success col-xs-12"
-									title="Dropkick scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
+									title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
 									data-bind-value="site-share"
-									data-dropkick-purge="{{ site.alias }}"
+									data-shunt-purge="{{ site.alias }}"
 								>
-									<span class="dropkick-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
-									<span class="dropkick-sync-loading"><span class="glyphicon glyphicon-refresh"></span> Syncing…</span>
-									<span class="dropkick-sync-success"><span class="glyphicon glyphicon-ok"></span> Sync done</span>
-									<span class="dropkick-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
+									<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
+									<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span> Syncing…</span>
+									<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span> Sync done</span>
+									<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
 								</button>
 							</div>
 							{{/if}}
@@ -90,7 +90,7 @@
 					<label class="col-sm-3 col-lg-2 control-label">Site access</label>
 					<div class="col-sm-9">
 						<div class="checkbox">
-							<label title="Only allow users with a valid username and password to see the Dropkick site">
+							<label title="Only allow users with a valid username and password to see the Shunt site">
 								<input type="checkbox"
 									name="private"
 									value="true"
@@ -139,7 +139,7 @@
 					<label class="col-sm-3 col-lg-2 control-label">Numbered items</label>
 					<div class="col-sm-9">
 						<div class="checkbox">
-							<label title="You can choose to keep your Dropbox files in order by preceding their filenames with numbers (e.g. ‘01 - Latest Designs’). Use this checkbox if you don’t want your users to see these numbers in the Dropkick site (i.e. display this as ‘Latest Designs’)">
+							<label title="You can choose to keep your Dropbox files in order by preceding their filenames with numbers (e.g. ‘01 - Latest Designs’). Use this checkbox if you don’t want your users to see these numbers in the Shunt site (i.e. display this as ‘Latest Designs’)">
 								<input type="checkbox"
 									name="numbered-items"
 									value="true"
@@ -153,7 +153,7 @@
 					<label class="col-sm-3 col-lg-2 control-label">File extensions</label>
 					<div class="col-sm-9">
 						<div class="checkbox">
-							<label title="By default, Dropkick will hide all file extensions (e.g. ‘.pdf’). Use this checkbox if you want your users to see these file extensions in the Dropkick site.">
+							<label title="By default, Shunt will hide all file extensions (e.g. ‘.pdf’). Use this checkbox if you want your users to see these file extensions in the Shunt site.">
 								<input type="checkbox"
 									name="show-extensions"
 									value="true"
@@ -171,11 +171,11 @@
 			<fieldset>
 				<legend>Custom domain names</legend>
 				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Domain names<br/><h6>This requires that you <a href="/faq#dns">point your DNS to Dropkick</a></h6></label>
+					<label class="col-sm-3 col-lg-2 control-label">Domain names<br/><h6>This requires that you <a href="/faq#dns">point your DNS to Shunt</a></h6></label>
 					<div class="col-sm-6 col-lg-4">
 						<textarea class="form-control" rows="3"
 							name="dns"
-							title="Enter all the domain names which you want to point to this Dropkick site (e.g. ‘my-extranet.com’ or ‘extranet.my-domain.com’). If entering multiple domain names, enter one per line. You must already own these domain names for this to work."
+							title="Enter all the domain names which you want to point to this Shunt site (e.g. ‘my-extranet.com’ or ‘extranet.my-domain.com’). If entering multiple domain names, enter one per line. You must already own these domain names for this to work."
 							placeholder="my-domain.com"
 							data-trigger="focus"
 						></textarea>
@@ -195,15 +195,15 @@
 				<legend>Delete site</legend>
 				<div class="form-group">
 					<ul>
-						<li>Deleting this site will permanently remove the Dropkick site located at <strong>{{ session.urls.webroot }}{{ site.alias }}</strong></li>
-						<li>Deleting this site will unlink the site’s Dropbox folder from the Dropkick service.</li>
+						<li>Deleting this site will permanently remove the Shunt site located at <strong>{{ session.urls.webroot }}{{ site.alias }}</strong></li>
+						<li>Deleting this site will unlink the site’s Dropbox folder from the Shunt service.</li>
 						<li>Deleting this site will <b>not</b> delete the contents of your Dropbox folder.</li>
 					</ul>
 					<label class="col-sm-3 col-lg-2 control-label">Are you sure?</label>
 					<div class="col-sm-9">
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete this Dropkick site
+								<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete this Shunt site
 							</label>
 						</div>
 					</div>

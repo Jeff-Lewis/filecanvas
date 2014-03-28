@@ -13,7 +13,7 @@
 						<form class="pull-right" action="{{ ../session.urls.organizationShares }}/{{ alias }}" method="POST">
 							<input type="hidden" name="_method" value="DELETE"/>
 							<input type="hidden" name="share" value="{{ alias }}"/>
-							<button type="submit" class="pull-right btn btn-default btn-xs" title="Prevent Dropkick from accessing this folder"><span class="glyphicon glyphicon-remove"></span> Unlink folder</button>
+							<button type="submit" class="pull-right btn btn-default btn-xs" title="Prevent Shunt from accessing this folder"><span class="glyphicon glyphicon-remove"></span> Unlink folder</button>
 						</form>
 						{{ name }}
 					</td>
@@ -28,7 +28,7 @@
 
 <div class="alert alert-info">
 	<p>There are no Dropbox folders linked to this organization.</p>
-	<p>Link a Dropbox folder to this organization by sharing the folder with <strong>incoming@dropkick.it</strong>.</p>
+	<p>Link a Dropbox folder to this organization by sharing the folder with <strong>incoming@shunt.io</strong>.</p>
 </div>
 
 {{/if}}

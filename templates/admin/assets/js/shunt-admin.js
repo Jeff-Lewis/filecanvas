@@ -6,7 +6,7 @@
 		_initInputParsers();
 		_initDataBindings();
 		_initInputValidators();
-		_initDropkick();
+		_initShunt();
 	});
 
 	function _initInputParsers() {
@@ -313,43 +313,43 @@
 		}
 	}
 
-	function _initDropkick() {
-		var dropkick = window.dropkick;
+	function _initShunt() {
+		var shunt = window.shunt;
 		
-		_initPurgeLinks(dropkick);
+		_initPurgeLinks(shunt);
 
 
-		function _initPurgeLinks(dropkick) {
-			var attributeName = 'data-dropkick-purge';
+		function _initPurgeLinks(shunt) {
+			var attributeName = 'data-shunt-purge';
 
 			var $purgeButtonElements = $('[' + attributeName + ']');
 
-			_createPurgeButtons($purgeButtonElements, attributeName, dropkick);
+			_createPurgeButtons($purgeButtonElements, attributeName, shunt);
 
 
-			function _createPurgeButtons($purgeButtonElements, attributeName, dropkick) {
+			function _createPurgeButtons($purgeButtonElements, attributeName, shunt) {
 				$purgeButtonElements.on('click', _handlePurgeButtonClicked);
 
 				function _handlePurgeButtonClicked(event) {
 					var $purgeButtonElement = $(event.currentTarget);
 					var siteAlias = $purgeButtonElement.attr(attributeName);
 					$purgeButtonElement.prop('disabled', true);
-					$purgeButtonElement.addClass('-dropkick-sync-loading');
-					dropkick.purgeSiteCache(siteAlias, _handleSiteCachePurged);
+					$purgeButtonElement.addClass('-shunt-sync-loading');
+					shunt.purgeSiteCache(siteAlias, _handleSiteCachePurged);
 
 
 					function _handleSiteCachePurged(error) {
 						$purgeButtonElement.prop('disabled', false);
-						$purgeButtonElement.removeClass('-dropkick-sync-loading');
+						$purgeButtonElement.removeClass('-shunt-sync-loading');
 
 						if (error) {
 							var errorTimeoutDuration = 3000;
-							_setButtonState($purgeButtonElement, '-dropkick-sync-error', errorTimeoutDuration);
+							_setButtonState($purgeButtonElement, '-shunt-sync-error', errorTimeoutDuration);
 							return;
 						}
 
 						var successTimeoutDuration = 3000;
-						_setButtonState($purgeButtonElement, '-dropkick-sync-success', successTimeoutDuration);
+						_setButtonState($purgeButtonElement, '-shunt-sync-success', successTimeoutDuration);
 
 
 						function _setButtonState($element, className, timeoutDuration) {

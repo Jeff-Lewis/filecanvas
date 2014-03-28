@@ -2,11 +2,11 @@
 (function() {
 	'use strict';
 
-	var Dropkick = (function() {
+	var Shunt = (function() {
 
-		function Dropkick() {}
+		function Shunt() {}
 
-		Dropkick.prototype.purgeSiteCache = function(siteAlias, callback) {
+		Shunt.prototype.purgeSiteCache = function(siteAlias, callback) {
 			var url = '/sites/' + siteAlias;
 			var settings = {
 				type: 'POST',
@@ -27,9 +27,9 @@
 			}
 		};
 
-		return Dropkick;
+		return Shunt;
 	})();
 
-	window.dropkick = new Dropkick();
+	window.shunt = new Shunt();
 
 })();

@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
 		<h2>Add a site</h2>
-		<p class="lead">Use the fields below to create a new Dropkick site.</p>
+		<p class="lead">Use the fields below to create a new Shunt site.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST">
 			<input type="hidden" name="_method" value="POST"/>
@@ -11,7 +11,7 @@
 					<div class="col-sm-6 col-lg-4">
 						<input type="text" class="form-control" id="input-sites-name"
 							name="name"
-							title="This helps you identify the site in the Dropkick admin area"
+							title="This helps you identify the site in the Shunt admin area"
 							placeholder="Site name"
 							data-bind-id="site-name"
 							data-validate="notEmpty"
@@ -67,7 +67,7 @@
 					<label class="col-sm-3 col-lg-2 control-label">Site access</label>
 					<div class="col-sm-9">
 						<div class="checkbox">
-							<label title="Only allow users with a valid username and password to see the Dropkick site">
+							<label title="Only allow users with a valid username and password to see the Shunt site">
 								<input type="checkbox"
 									name="private"
 									value="true"
