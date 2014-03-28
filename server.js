@@ -17,6 +17,12 @@
 	var debugMode = (process.env.DEBUG === 'true');
 
 
+	if (!config.dropbox.appKey) { throw new Error('Missing Dropboox app key'); }
+	if (!config.dropbox.appSecret) { throw new Error('Missing Dropboox app secret'); }
+	if (!config.mongodb.uri) { throw new Error('Missing MongoDB connection URI'); }
+	if (!config.email.from) { throw new Error('Missing email sender details'); }
+	if (!config.templates['default']) { throw new Error('Missing default template name'); }
+
 	if (!config.dropbox.appToken) {
 		console.warn('No Dropbox app token specified. Generating app token...');
 		generateDropboxToken(config, _handleDropboxTokenGenerated);
