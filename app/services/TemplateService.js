@@ -14,6 +14,10 @@ module.exports = (function() {
 		}
 	});
 
+	Handlebars.registerHelper('replace', function(item1, item2, options) {
+		return options.fn(this).replace(item1, item2);
+	});
+
 	function TemplateService() {
 
 	}

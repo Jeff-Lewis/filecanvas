@@ -44,9 +44,14 @@ module.exports = (function() {
 		var query = (organizationAlias ? { 'organization': organizationAlias } : null);
 
 		this.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).find(query,
-			function(error, organizationAdministrators) {
+			function(error, administratorModelsCursor) {
 				if (error) { return callback && callback(error); }
-				return callback && callback(null, organizationAdministrators);
+				administratorModelsCursor.toArray(_handleAdministratorsLoaded);
+
+				function _handleAdministratorsLoaded(error, adminstratorModels) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null, adminstratorModels);
+				}
 			}
 		);
 	};
@@ -67,6 +72,124 @@ module.exports = (function() {
 				return callback && callback(null, organizationModel);
 			}
 		);
+	};
+
+	OrganizationService.prototype.updateOrganization = function(organizationAlias, organizationModel, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified', callback); }
+		if (!organizationModel) { return _failValidation('No organization model specified', callback); }
+
+		// TODO: validate organization model updates
+
+		var organizationAliasHasChanged = (('alias' in organizationModel) && (organizationAlias !== organizationModel.alias));
+
+		var criteria = { 'alias': organizationAlias };
+		var updates = { $set: organizationModel };
+		var options = { safe: true };
+
+		var self = this;
+		_updateOrganization(organizationAlias, organizationModel, _handleOrganizationUpdated);
+
+
+		function _handleOrganizationUpdated(error, organizationModel) {
+			if (error) { return callback && callback(error); }
+
+			if (organizationAliasHasChanged) {
+				var oldOrganizationAlias = organizationAlias;
+				var newOrganizationAlias = organizationModel.alias;
+				_updateOrganizationAliasAcrossCollections(oldOrganizationAlias, newOrganizationAlias, _handleOrganizationAliasUpdated);
+			} else {
+				return callback && callback(null, organizationModel);
+			}
+
+
+			function _handleOrganizationAliasUpdated(error, organizationAlias) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, organizationModel);
+			}
+		}
+
+
+		function _updateOrganization(organizationAlias, organizationModel, callback) {
+			self.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null, organizationModel);
+				}
+			);
+		}
+
+		function _updateOrganizationAliasAcrossCollections(oldOrganizationAlias, newOrganizationAlias, callback) {
+			_updateAdministratorsCollection(oldOrganizationAlias, newOrganizationAlias, _handleAdministratorsCollectionUpdated);
+
+
+			function _handleAdministratorsCollectionUpdated(error) {
+				if (error) { return callback && callback(error); }
+				_updateDropboxUsersCollection(oldOrganizationAlias, newOrganizationAlias, _handleDropboxUsersCollectionUpdated);
+
+
+				function _handleDropboxUsersCollectionUpdated(error) {
+					if (error) { return callback && callback(error); }
+					_updateSitesCollection(oldOrganizationAlias, newOrganizationAlias, _handleSitesCollectionUpdated);
+
+
+					function _handleSitesCollectionUpdated(error) {
+						if (error) { return callback && callback(error); }
+						return callback && callback(null, newOrganizationAlias);
+					}
+				}
+			}
+
+
+			function _updateAdministratorsCollection(oldOrganizationAlias, newOrganizationAlias, callback) {
+				var criteria = { 'organization': oldOrganizationAlias };
+				var updates = { $set: { 'organization': newOrganizationAlias } };
+				var options = { safe: true };
+
+				self.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).update(criteria, updates, options,
+					function(error, numRecords) {
+						if (error) { return callback && callback(error); }
+						return callback && callback(null, newOrganizationAlias);
+					}
+				);
+			}
+
+			function _updateDropboxUsersCollection(oldOrganizationAlias, newOrganizationAlias, callback) {
+				var criteria = { 'organization': oldOrganizationAlias };
+				var updates = { $set: { 'organization': newOrganizationAlias } };
+				var options = { safe: true };
+
+				self.dataService.db.collection(DB_COLLECTION_DROPBOX_USERS).update(criteria, updates, options,
+					function(error, numRecords) {
+						if (error) { return callback && callback(error); }
+						return callback && callback(null, newOrganizationAlias);
+					}
+				);
+			}
+
+			function _updateSitesCollection(oldOrganizationAlias, newOrganizationAlias, callback) {
+				var criteria = { 'organization': oldOrganizationAlias };
+				var updates = { $set: { 'organization': newOrganizationAlias } };
+				var options = { safe: true };
+
+				self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+					function(error, numRecords) {
+						if (error) { return callback && callback(error); }
+						return callback && callback(null, newOrganizationAlias);
+					}
+				);
+			}
+		}
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
 	};
 
 	OrganizationService.prototype.retrieveOrganizationSites = function(organizationAlias, callback) {
@@ -104,6 +227,9 @@ module.exports = (function() {
 	};
 
 	OrganizationService.prototype.updateOrganizationDefaultSiteAlias = function(organizationAlias, siteAlias, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified', callback); }
+		if (!organizationAlias) { return _failValidation('No site specified', callback); }
+
 		var criteria = { 'alias': organizationAlias };
 		var updates = { $set: { 'default': siteAlias } };
 		var options = { 'safe': true };
@@ -119,6 +245,13 @@ module.exports = (function() {
 				return callback && callback(null, siteAlias);
 			}
 		);
+
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
 	};
 
 	OrganizationService.prototype.retrieveDropboxAccountOrganization = function(dropboxEmail, callback) {
@@ -157,6 +290,7 @@ module.exports = (function() {
 
 
 	OrganizationService.prototype.createOrganizationShare = function(organizationAlias, shareModel, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified', callback); }
 		if (!shareModel) { return _failValidation('No share model specified', callback); }
 		if (!shareModel.alias) { return _failValidation('No share alias specified', callback); }
 		if (!shareModel.name) { return _failValidation('No share name specified', callback); }

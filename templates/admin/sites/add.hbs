@@ -3,13 +3,13 @@
 		<h2>Add a site</h2>
 		<p class="lead">Use the fields below to create a new Shunt site.</p>
 		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST">
+		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="POST"/>
 			<fieldset>
 				<div class="form-group">
-					<label for="input-sites-name" class="col-sm-3 col-lg-2 control-label">Name</label>
+					<label for="input-site-name" class="col-sm-3 col-lg-2 control-label">Name</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-sites-name"
+						<input type="text" class="form-control" id="input-site-name"
 							name="name"
 							title="This helps you identify the site in the Shunt admin area"
 							placeholder="Site name"
@@ -20,9 +20,9 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="input-sites-alias" class="col-sm-3 col-lg-2 control-label">Path</label>
+					<label for="input-site-alias" class="col-sm-3 col-lg-2 control-label">Path</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-sites-alias"
+						<input type="text" class="form-control" id="input-site-alias"
 						 	name="alias"
 							title="This determines the site’s web address"
 							placeholder="Site path"
@@ -36,9 +36,9 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="input-sites-title" class="col-sm-3 col-lg-2 control-label">Page title</label>
+					<label for="input-site-title" class="col-sm-3 col-lg-2 control-label">Page title</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-sites-title"
+						<input type="text" class="form-control" id="input-site-title"
 							name="title"
 							title="This determines what is shown in the title of the user’s browser window"
 							placeholder="Page title"

@@ -34,6 +34,7 @@ module.exports = (function() {
 	app.get('/organization', adminAuth, retrieveOrganizationSettingsRoute);
 	app.get('/organization/shares', adminAuth, retrieveOrganizationShareListRoute);
 	
+	app.put('/organization', adminAuth, updateOrganizationRoute);
 	app.del('/organization/shares/:share', adminAuth, deleteOrganizationShareRoute);
 	
 
@@ -98,6 +99,7 @@ module.exports = (function() {
 				return {
 					home: urlService.getSubdomainUrl('www'),
 					webroot: urlService.getSubdomainUrl(organizationModel.alias),
+					domain: urlService.getSubdomainUrl('$0'),
 					admin: '/',
 					faq: '/faq',
 					support: '/support',
@@ -183,12 +185,21 @@ module.exports = (function() {
 
 
 	function retrieveOrganizationSettingsRoute(req, res, next) {
-		var templateData = {
-			title: 'Organization settings',
-			session: app.locals.session
-		};
-		
-		_outputAdminPage(adminTemplates.ORGANIZATION, templateData, req, res);
+		var organizationAlias = app.locals.session.organization.alias;
+		var organizationService = new OrganizationService(dataService);
+		organizationService.retrieveOrganizationAdministrators(organizationAlias, _handleOrganizationAdministratorsLoaded);
+
+		function _handleOrganizationAdministratorsLoaded(error, administratorModels) {
+			if (error) { return next(error); }
+
+			var templateData = {
+				title: 'Organization settings',
+				session: app.locals.session,
+				administrators: administratorModels
+			};
+			
+			_outputAdminPage(adminTemplates.ORGANIZATION, templateData, req, res);
+		}
 	}
 
 	function retrieveOrganizationShareListRoute(req, res, next) {
@@ -197,6 +208,27 @@ module.exports = (function() {
 			session: app.locals.session
 		};
 		_outputAdminPage(adminTemplates.ORGANIZATION_SHARES, templateData, req, res);
+	}
+
+	function updateOrganizationRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var organizationModel = {
+			'alias': req.body.alias,
+			'name': req.body.name,
+			'email': req.body.email,
+			'default': req.body['default'] || null
+		};
+		var organizationService = new OrganizationService(dataService);
+		organizationService.updateOrganization(organizationAlias, organizationModel, _handleOrganizationUpdated);
+
+
+		function _handleOrganizationUpdated(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization');
+			res.redirect(303, siteUrl);
+		}
 	}
 
 	function deleteOrganizationShareRoute(req, res, next) {
