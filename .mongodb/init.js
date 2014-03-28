@@ -77,7 +77,7 @@ db.sites.save({
 	'alias': 'extranet',
 	'name': 'Acme Corporation Extranet',
 	'title': 'Extranet | Acme Corporation',
-	'template': 'identiq',
+	'template': 'fathom',
 	'share': 'acme-extranet',
 	'public': false,
 	'users': [
