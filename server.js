@@ -58,6 +58,7 @@
 				console.info('Dropbox API connected');
 
 				client.getAccountInfo(function(error, accountInfo) {
+					if (error) { return callback && callback(error); }
 					console.log('Dropbox logged in as ' + accountInfo.name);
 					if (callback) { callback(null, dropboxService); }
 				});
