@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Edit Site: {{ site.name }}</h2>
+		<h2>Edit Site: {{ site.name }} <a href="{{ session.urls.webroot }}{{ site.alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a></h2>
 		<p class="lead">Use the fields below to make changes to this Dropkick site.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST">
