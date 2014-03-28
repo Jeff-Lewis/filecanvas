@@ -6,7 +6,10 @@ module.exports = (function() {
 	var DB_COLLECTION_DROPBOX_USERS = 'dropboxUsers';
 	var DB_COLLECTION_SITES = 'sites';
 
-	var ORGANIZATION_SHARE_ROOT_FORMAT = '/.dropkick/sites/${ORGANIZATION}/';
+	var config = require('../../config');
+
+	var DROPBOX_ROOT = config.dropbox.appRoot;
+	var ORGANIZATION_SHARE_ROOT_FORMAT = DROPBOX_ROOT + '${ORGANIZATION}/';
 
 
 	function OrganizationService(dataService) {

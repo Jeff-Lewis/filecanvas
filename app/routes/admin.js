@@ -13,9 +13,12 @@ module.exports = (function() {
 	var adminTemplates = require('../templates/adminTemplates');
 	var faqData = require('../../templates/admin/faq.json');
 
+	var config = require('../../config');
 	var dataService = require('../globals').dataService;
 
 	var app = express();
+
+	var DEFAULT_TEMPLATE = config.templates['default'];
 
 	var assetsRoot = path.resolve(path.dirname(require.main.filename), 'templates/admin/assets');
 	var assetsMiddleware = express['static'](assetsRoot);
@@ -287,7 +290,7 @@ module.exports = (function() {
 			'alias': req.body.alias,
 			'name': req.body.name,
 			'title': req.body.title,
-			'template': 'fathom',
+			'template': DEFAULT_TEMPLATE,
 			'share': req.body.share || null,
 			'public': (req.body['private'] !== 'true')
 		};
@@ -342,7 +345,7 @@ module.exports = (function() {
 				'alias': req.body.alias,
 				'name': req.body.name,
 				'title': req.body.title,
-				'template': 'fathom',
+				'template': DEFAULT_TEMPLATE,
 				'share': req.body.share || null,
 				'public': (req.body['private'] !== 'true')
 			};
