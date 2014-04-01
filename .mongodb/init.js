@@ -87,7 +87,10 @@ db.sites.save({
 			'salt': '14io6xWHl:GGp}x-y@gvuMNg|k:7BO&M1*7M7%}p'
 		}
 	],
-	'cache': null
+	'cache': null,
+	'domains': [
+		'acme-extranet.example.com'
+	]
 });
 
 print('');

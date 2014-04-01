@@ -89,7 +89,7 @@ module.exports = (function() {
 		);
 	};
 
-	SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, includeUsers, callback) {
+	SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, callback) {
 		var query = { 'organization': organizationAlias, 'alias': siteAlias };
 		var projection = { '_id': 0 };
 		if (!includeUsers) {
@@ -97,6 +97,7 @@ module.exports = (function() {
 			projection.users = 0;
 		}
 		if (!includeContents) { projection.cache = 0; }
+		if (!includeDomains) { projection.domains = 0; }
 
 		var self = this;
 		this.dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -357,6 +358,111 @@ module.exports = (function() {
 		function _deleteSiteUser(organizationAlias, shareAlias, username, callback) {
 			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
 			var updates = { $pull: { 'users': { 'username': username } } };
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null);
+				}
+			);
+		}
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	};
+
+
+	SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, domain, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified'); }
+		if (!siteAlias) { return _failValidation('No site specified'); }
+		if (!domain) { return _failValidation('No domain specified'); }
+
+		// TODO: Validate site domain details
+
+		var self = this;
+		_checkWhetherDomainAlreadyExists(domain, _handleCheckedForExistingDomain);
+
+
+		function _handleCheckedForExistingDomain(error, userAlreadyExists) {
+			if (error) { return callback && callback(error); }
+			if (userAlreadyExists) {
+				error = new Error('A site is already registered to this domain');
+				error.status = 409;
+				return callback && callback(error);
+			}
+			_addSiteDomain(organizationAlias, siteAlias, domain, _handleSiteDomainAdded);
+
+
+			function _handleSiteDomainAdded(error, userModel) {
+				if (error) { return callback && callback(error); }
+				return callback && callback(null, userModel);
+			}
+		}
+
+		function _checkWhetherDomainAlreadyExists(domain, callback) {
+			var query = { 'domains': domain };
+			self.dataService.db.collection(DB_COLLECTION_SITES).count(query,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					var domainAlreadyExists = (numRecords > 0);
+					return callback && callback(null, domainAlreadyExists);
+				}
+			);
+		}
+
+
+		function _addSiteDomain(organizationAlias, siteAlias, domain, callback) {
+			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var updates = { $push: { 'domains': domain } };
+			var options = { safe: 1 };
+
+			self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null, domain);
+				}
+			);
+		}
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	};
+
+
+	SiteService.prototype.deleteSiteDomain = function(organizationAlias, siteAlias, domain, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified'); }
+		if (!siteAlias) { return _failValidation('No site specified'); }
+		if (!domain) { return _failValidation('No domain specified'); }
+
+		var self = this;
+		_deleteSiteDomain(organizationAlias, siteAlias, domain, _handleSiteDomainDeleted);
+
+
+		function _handleSiteDomainDeleted(error) {
+			if (error) { return callback && callback(error); }
+			return callback && callback(null);
+		}
+
+		function _deleteSiteDomain(organizationAlias, shareAlias, domain, callback) {
+			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var updates = { $pull: { 'domains': domain } };
 			var options = { safe: true };
 
 			self.dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,

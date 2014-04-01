@@ -10,9 +10,8 @@
 				{{#each session.organization.shares}}
 				<tr>
 					<td>
-						<form class="pull-right" action="{{ ../session.urls.organizationShares }}/{{ alias }}" method="POST">
+						<form class="pull-right" action="{{ ../session.urls.organizationShares }}/{{ alias }}" method="POST" autocomplete="off">
 							<input type="hidden" name="_method" value="DELETE"/>
-							<input type="hidden" name="share" value="{{ alias }}"/>
 							<button type="submit" class="pull-right btn btn-default btn-xs" title="Prevent Shunt from accessing this folder"><span class="glyphicon glyphicon-remove"></span> Unlink folder</button>
 						</form>
 						{{ name }}

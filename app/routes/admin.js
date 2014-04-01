@@ -48,12 +48,15 @@ module.exports = (function() {
 	app.get('/sites/add', adminAuth, retrieveSiteAddRoute);
 	app.get('/sites/edit/:site', adminAuth, retrieveSiteEditRoute);
 	app.get('/sites/edit/:site/users', adminAuth, retrieveSiteUsersEditRoute);
+	app.get('/sites/edit/:site/domains', adminAuth, retrieveSiteDomainsEditRoute);
 
 	app.post('/sites', adminAuth, createSiteRoute);
 	app.put('/sites/:site', adminAuth, updateSiteRoute);
 	app.del('/sites/:site', adminAuth, deleteSiteRoute);
 	app.post('/sites/:site/users', adminAuth, createSiteUserRoute);
 	app.del('/sites/:site/users/:username', adminAuth, deleteSiteUserRoute);
+	app.post('/sites/:site/domains', adminAuth, createSiteDomainRoute);
+	app.del('/sites/:site/domains/:domain', adminAuth, deleteSiteDomainRoute);
 
 
 	return app;
@@ -429,7 +432,8 @@ module.exports = (function() {
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = true;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, _handleSiteDetailsLoaded);
+		var includeDomains = false;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, _handleSiteDetailsLoaded);
 
 		function _handleSiteDetailsLoaded(error, siteModel) {
 			if (error) { return next(error); }
@@ -452,7 +456,8 @@ module.exports = (function() {
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = true;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, _handleSiteDetailsLoaded);
+		var includeDomains = true;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, _handleSiteDetailsLoaded);
 
 		function _handleSiteDetailsLoaded(error, siteModel) {
 			if (error) { return next(error); }
@@ -462,6 +467,30 @@ module.exports = (function() {
 				site: siteModel
 			};
 			_outputAdminPage(adminTemplates.SITES_EDIT_USERS, templateData, req, res);
+		}
+	}
+
+	function retrieveSiteDomainsEditRoute(req, res, next) {
+		var session = app.locals.session;
+		
+		var organizationModel = session.organization;
+		var organizationAlias = organizationModel.alias;
+		var siteAlias = req.params.site;
+
+		var siteService = new SiteService(dataService);
+		var includeContents = false;
+		var includeUsers = false;
+		var includeDomains = true;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, _handleSiteDetailsLoaded);
+
+		function _handleSiteDetailsLoaded(error, siteModel) {
+			if (error) { return next(error); }
+			var templateData = {
+				title: 'Edit site domains: ' + siteModel.name,
+				session: app.locals.session,
+				site: siteModel
+			};
+			_outputAdminPage(adminTemplates.SITES_EDIT_DOMAINS, templateData, req, res);
 		}
 	}
 
@@ -601,6 +630,43 @@ module.exports = (function() {
 			var urlService = new UrlService(req);
 			var currentSubdomain = urlService.subdomain;
 			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/users');
+			res.redirect(303, sitesUrl);
+		}
+	}
+
+
+	function createSiteDomainRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var siteAlias = req.params.site;
+		var domain = req.body.domain;
+
+		var siteService = new SiteService(dataService);
+		siteService.createSiteDomain(organizationAlias, siteAlias, domain, _handleSiteDomainCreated);
+
+
+		function _handleSiteDomainCreated(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/domains');
+			res.redirect(303, sitesUrl);
+		}
+	}
+
+	function deleteSiteDomainRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var siteAlias = req.params.site;
+		var domain = req.params.domain;
+
+		var siteService = new SiteService(dataService);
+		siteService.deleteSiteDomain(organizationAlias, siteAlias, domain, _handleSiteDomainDeleted);
+
+
+		function _handleSiteDomainDeleted(error, siteModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/domains');
 			res.redirect(303, sitesUrl);
 		}
 	}

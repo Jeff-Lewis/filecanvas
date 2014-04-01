@@ -109,7 +109,8 @@ module.exports = (function() {
 
 		var includeContents = true;
 		var includeUsers = false;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, _handleSiteModelLoaded);
+		var includeDomains = false;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, _handleSiteModelLoaded);
 
 
 		function _handleSiteModelLoaded(error, siteModel) {

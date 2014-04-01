@@ -19,7 +19,7 @@
 								{{#each site.users }}
 								<tr>
 									<td>
-										<form class="pull-right" action="{{ ../session.urls.sites }}/{{ ../site.alias }}/users/{{ username }}" method="POST">
+										<form class="pull-right" action="{{ ../session.urls.sites }}/{{ ../site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
 											<input type="hidden" name="_method" value="DELETE"/>
 											<button type="submit" class="pull-right btn btn-danger btn-xs" title="Prevent this user from accessing this site"><span class="glyphicon glyphicon-remove"></span> Remove user</button>
 										</form>
@@ -32,7 +32,7 @@
 					</div>
 				</div>
 				{{/if}}
-				<form class="form-group" action="{{ session.urls.sites }}/{{ site.alias }}/users" method="POST">
+				<form class="form-group" action="{{ session.urls.sites }}/{{ site.alias }}/users" method="POST" autocomplete="off">
 					<input type="hidden" name="_method" value="POST"/>
 					<label class="col-sm-3 col-lg-2 control-label">Add user</label>
 					<div class="col-sm-6 col-lg-4">

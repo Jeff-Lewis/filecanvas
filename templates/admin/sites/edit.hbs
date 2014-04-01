@@ -132,6 +132,29 @@
 				</div>
 			</fieldset>
 			{{/unless}}
+			<fieldset>
+				<legend>Custom domain names</legend>
+				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Domain names</label>
+					<div class="col-sm-6 col-lg-4">
+						{{#if domains}}
+						<p class="form-control-static">
+							{{#ifequals domains.length 1}}
+							1 custom domain name
+							{{else}}
+							{{domains.length}} registered domain names
+							{{/ifequals}}
+							(<a href="{{ session.urls.sites }}/edit/{{ site.alias }}/domains">edit</a>)
+						</p>
+						{{else}}
+						<p class="form-control-static" title="You have not yet registered any custom domain names for this site">
+							No custom domain names
+							(<a href="{{ session.urls.sites }}/edit/{{ site.alias }}/domains">edit</a>)
+						</p>
+						{{/if}}
+					</div>
+				</div>
+			</fieldset>
 			<!--
 			<fieldset>
 				<legend>Display options</legend>
@@ -189,7 +212,7 @@
 			</fieldset>
 			-->
 		</form>
-		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST">
+		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="DELETE"/>
 			<fieldset>
 				<legend>Delete site</legend>
