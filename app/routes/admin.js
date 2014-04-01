@@ -30,12 +30,18 @@ module.exports = (function() {
 	app.get('/account', adminAuth, retrieveAccountSettingsRoute);
 	app.get('/logout', adminAuth, retrieveLogoutRoute);
 	
-	
 	app.get('/organization', adminAuth, retrieveOrganizationSettingsRoute);
 	app.get('/organization/shares', adminAuth, retrieveOrganizationShareListRoute);
+	app.get('/organization/users', adminAuth, retrieveOrganizationUserListRoute);
+	app.get('/organization/users/add', adminAuth, retrieveOrganizationUserAddRoute);
+	app.get('/organization/users/edit/:username', adminAuth, retrieveOrganizationUserEditRoute);
 	
 	app.put('/organization', adminAuth, updateOrganizationRoute);
 	app.del('/organization/shares/:share', adminAuth, deleteOrganizationShareRoute);
+	app.post('/organization/users', adminAuth, createOrganizationUserRoute);
+	app.put('/organization/users/:username', adminAuth, updateOrganizationUserRoute);
+	app.put('/organization/users/:username/password', adminAuth, updateOrganizationUserPasswordRoute);
+	app.del('/organization/users/:user', adminAuth, deleteOrganizationUserRoute);
 	
 
 	app.get('/sites', adminAuth, retrieveSiteListRoute);
@@ -109,7 +115,10 @@ module.exports = (function() {
 					sitesAdd: '/sites/add',
 					sitesEdit: '/sites/edit',
 					organization: '/organization',
-					organizationShares: '/organization/shares'
+					organizationShares: '/organization/shares',
+					organizationUsers: '/organization/users',
+					organizationUsersAdd: '/organization/users/add',
+					organizationUsersEdit: '/organization/users/edit'
 				};
 			}
 		}
@@ -176,7 +185,7 @@ module.exports = (function() {
 
 	function retrieveAccountSettingsRoute(req, res, next) {
 		var templateData = {
-			title: 'Account settings',
+			title: 'Your account',
 			session: app.locals.session
 		};
 		
@@ -186,6 +195,7 @@ module.exports = (function() {
 
 	function retrieveOrganizationSettingsRoute(req, res, next) {
 		var organizationAlias = app.locals.session.organization.alias;
+
 		var organizationService = new OrganizationService(dataService);
 		organizationService.retrieveOrganizationAdministrators(organizationAlias, _handleOrganizationAdministratorsLoaded);
 
@@ -210,6 +220,50 @@ module.exports = (function() {
 		_outputAdminPage(adminTemplates.ORGANIZATION_SHARES, templateData, req, res);
 	}
 
+	function retrieveOrganizationUserListRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+
+		var organizationService = new OrganizationService(dataService);
+		organizationService.retrieveOrganizationAdministrators(organizationAlias, _handleOrganizationUsersLoaded);
+
+
+		function _handleOrganizationUsersLoaded(error, administratorModels) {
+			if (error) { return next(error); }
+			var templateData = {
+				title: 'Organization user accounts',
+				session: app.locals.session,
+				users: administratorModels
+			};
+			_outputAdminPage(adminTemplates.ORGANIZATION_USERS, templateData, req, res);
+		}
+	}
+
+	function retrieveOrganizationUserAddRoute(req, res, next) {
+		var templateData = {
+			title: 'Add a user',
+			session: app.locals.session
+		};
+		_outputAdminPage(adminTemplates.ORGANIZATION_USERS_ADD, templateData, req, res);
+	}
+
+	function retrieveOrganizationUserEditRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var username = req.params.username;
+
+		var organizationService = new OrganizationService(dataService);
+		organizationService.retrieveOrganizationAdministrator(organizationAlias, username, _handleOrganizationUserLoaded);
+
+
+		function _handleOrganizationUserLoaded(error, administratorModel) {
+			var templateData = {
+				title: 'User account settings',
+				session: app.locals.session,
+				user: administratorModel
+			};
+			_outputAdminPage(adminTemplates.ORGANIZATION_USERS_EDIT, templateData, req, res);
+		}
+	}
+
 	function updateOrganizationRoute(req, res, next) {
 		var organizationAlias = app.locals.session.organization.alias;
 		var organizationModel = {
@@ -231,6 +285,81 @@ module.exports = (function() {
 		}
 	}
 
+	function createOrganizationUserRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var administratorModel = {
+			'organization': organizationAlias,
+			'username': req.body.email,
+			'email': req.body.email,
+			'name': req.body.name,
+			'password': req.body.password
+		};
+		var organizationService = new OrganizationService(dataService);
+		organizationService.createOrganizationAdministrator(administratorModel, _handleOrganizationAdministratorCreated);
+
+
+		function _handleOrganizationAdministratorCreated(error, administratorModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
+			res.redirect(303, siteUrl);
+		}
+	}
+
+	function updateOrganizationUserRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var username = req.params.username;
+		var administratorModel = {
+			'organization': organizationAlias,
+			'username': req.body.email,
+			'email': req.body.email,
+			'name': req.body.name
+		};
+		var organizationService = new OrganizationService(dataService);
+		organizationService.updateOrganizationAdministrator(organizationAlias, username, administratorModel, _handleOrganizationAdministratorUpdated);
+
+
+		function _handleOrganizationAdministratorUpdated(error, administratorModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
+			res.redirect(303, siteUrl);
+		}
+	}
+
+	function updateOrganizationUserPasswordRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var username = req.params.username;
+		var passwordCurrent = req.body['password-current'];
+		var passwordNew = req.body['password-new'];
+		var passwordConfirm = req.body['password-confirm'];
+
+		if (passwordNew !== passwordConfirm) {
+			var error = new Error('Supplied passwords do not match');
+			error.status = 400;
+			next(error);
+		}
+
+		var administratorModel = {
+			'username': username,
+			'password': passwordNew
+		};
+
+		var organizationService = new OrganizationService(dataService);
+		organizationService.updateOrganizationAdministratorPassword(organizationAlias, username, passwordCurrent, administratorModel, _handleOrganizationAdministratorUpdated);
+
+
+		function _handleOrganizationAdministratorUpdated(error, administratorModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
+			res.redirect(303, siteUrl);
+		}
+	}
+
 	function deleteOrganizationShareRoute(req, res, next) {
 		var organizationAlias = app.locals.session.organization.alias;
 		var shareAlias = req.params.share;
@@ -244,6 +373,31 @@ module.exports = (function() {
 			var urlService = new UrlService(req);
 			var currentSubdomain = urlService.subdomain;
 			var sharesUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/shares');
+			res.redirect(303, sharesUrl);
+		}
+	}
+
+	function deleteOrganizationUserRoute(req, res, next) {
+		var organizationAlias = app.locals.session.organization.alias;
+		var username = req.params.user;
+
+		var isCurrentUser = (username === app.locals.session.user.username);
+		if (isCurrentUser) {
+			// TODO: Warn if deleting the current user account
+			var error = new Error('Cannot delete the currently logged-in user');
+			error.status = 403;
+			next(error);
+		}
+
+		var organizationService = new OrganizationService(dataService);
+		organizationService.deleteOrganizationAdministrator(organizationAlias, username, _handleOrganizationUserDeleted);
+
+
+		function _handleOrganizationUserDeleted(error, shareModel) {
+			if (error) { return next(error); }
+			var urlService = new UrlService(req);
+			var currentSubdomain = urlService.subdomain;
+			var sharesUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
 			res.redirect(303, sharesUrl);
 		}
 	}

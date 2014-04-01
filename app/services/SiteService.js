@@ -179,6 +179,7 @@ module.exports = (function() {
 		var self = this;
 		_parseSiteModel(siteModel, _handleSiteModelParsed);
 
+
 		function _handleSiteModelParsed(error, siteModel) {
 			if (error) { return callback && callback(error); }
 
@@ -202,6 +203,7 @@ module.exports = (function() {
 	SiteService.prototype.updateSite = function(organizationAlias, siteAlias, siteModel, callback) {
 		var self = this;
 		_parseSiteModel(siteModel, _handleSiteModelParsed);
+
 
 		function _handleSiteModelParsed(error, siteModelFields) {
 			if (error) { return callback && callback(error); }

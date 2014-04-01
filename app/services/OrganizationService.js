@@ -7,9 +7,13 @@ module.exports = (function() {
 	var DB_COLLECTION_SITES = 'sites';
 
 	var config = require('../../config');
+	
+	var AuthenticationService = require('../services/AuthenticationService');
 
 	var DROPBOX_ROOT = config.dropbox.appRoot;
 	var ORGANIZATION_SHARE_ROOT_FORMAT = DROPBOX_ROOT + '${ORGANIZATION}/';
+
+	var MONGO_ERROR_CODE_DUPLICATE_KEY = 11000;
 
 
 	function OrganizationService(dataService) {
@@ -52,6 +56,23 @@ module.exports = (function() {
 					if (error) { return callback && callback(error); }
 					return callback && callback(null, adminstratorModels);
 				}
+			}
+		);
+	};
+
+	OrganizationService.prototype.retrieveOrganizationAdministrator = function(organizationAlias, username, callback) {
+		var query = { 'organization': organizationAlias, 'username': username };
+		var projection = { 'organization': 1, 'username': 1, 'email': 1, 'name': 1 };
+
+		this.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).findOne(query, projection,
+			function(error, administratorModel) {
+				if (error) { return callback && callback(error); }
+				if (!administratorModel) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
+				return callback && callback(null, administratorModel);
 			}
 		);
 	};
@@ -298,13 +319,13 @@ module.exports = (function() {
 		// TODO: Validate alias when creating share
 		// TODO: Validate name when creating share
 
-		var shareData = {
+		var shareModelFields = {
 			'alias': shareModel.alias,
 			'name': shareModel.name
 		};
 
 		var query = { 'username': organizationAlias };
-		var updates = { $push: { 'shares' : shareData } };
+		var updates = { $push: { 'shares' : shareModelFields } };
 		var options = { safe: true };
 
 		this.dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).update(query, updates, options,
@@ -315,7 +336,7 @@ module.exports = (function() {
 					error.status = 404;
 					return callback && callback(error);
 				}
-				return callback && callback(null);
+				return callback && callback(null, shareModelFields);
 			}
 		);
 
@@ -401,6 +422,222 @@ module.exports = (function() {
 			return callback && callback(error);
 		}
 	};
+
+
+	OrganizationService.prototype.createOrganizationAdministrator = function(administratorModel, callback) {
+		var self = this;
+		var requireFullModel = true;
+		_parseAdministratorModel(administratorModel, requireFullModel, _handleAdministratorModelParsed);
+
+
+		function _handleAdministratorModelParsed(error, administratorModelFields) {
+			if (error) { return callback && callback(error); }
+
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).insert(administratorModelFields, options,
+				function(error, records) {
+					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
+						error = new Error('A user already exists with that username');
+						error.status = 409;
+						return callback && callback(error);
+					}
+					if (error) { return callback && callback(error); }
+					return callback && callback(null, administratorModelFields);
+				}
+			);
+		}
+	};
+
+
+	OrganizationService.prototype.updateOrganizationAdministrator = function(organizationAlias, username, administratorModel, callback) {
+		var self = this;
+		var requireFullModel = false;
+		_parseAdministratorModel(administratorModel, requireFullModel, _handleAdministratorModelParsed);
+
+
+		function _handleAdministratorModelParsed(error, administratorModelFields) {
+			if (error) { return callback && callback(error); }
+
+			var criteria = { 'organization': organizationAlias, 'username': username };
+			var updates = { $set: administratorModelFields };
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
+						error = new Error('A user already exists with that username');
+						error.status = 409;
+						return callback && callback(error);
+					}
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null, administratorModelFields);
+				}
+			);
+		}
+	};
+
+
+	OrganizationService.prototype.updateOrganizationAdministratorPassword = function(organizationAlias, username, currentPassword, administratorModel, callback) {
+		var self = this;
+		var requireFullModel = false;
+		_parseAdministratorModel(administratorModel, requireFullModel, _handleAdministratorModelParsed);
+
+
+		function _handleAdministratorModelParsed(error, administratorModelFields) {
+			if (error) { return callback && callback(error); }
+
+			_loadCurrentOrganizationAdministratorAuthenticationDetails(organizationAlias, username, _handleCurrentAuthenticationDetailsLoaded);
+
+
+			function _handleCurrentAuthenticationDetailsLoaded(error, authenticationDetails) {
+				if (error) { return callback && callback(error); }
+
+				var isCurrentPasswordCorrect = _checkPassword(username, currentPassword, authenticationDetails);
+				if (!isCurrentPasswordCorrect) {
+					error = new Error('Current password was entered incorrectly');
+					error.status = 403;
+					return callback && callback(error);
+				}
+
+				_updateOrganizationAdministratorPassword(organizationAlias, username, administratorModelFields, _handleOrganizationAdministratorPasswordUpdated);
+
+
+				function _handleOrganizationAdministratorPasswordUpdated(error) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null);
+				}
+			}
+		}
+
+		function _checkPassword(username, password, authenticationDetails) {
+			var authenticationService = new AuthenticationService();
+			var validUsers = [authenticationDetails];
+			return authenticationService.authenticate(username, password, validUsers);
+		}
+
+		function _loadCurrentOrganizationAdministratorAuthenticationDetails(organizationAlias, username, callback) {
+			var query = { 'organization': organizationAlias, 'username': username };
+			var projection = { 'username': 1, 'password': 1, 'salt': 1 };
+
+			self.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).findOne(query, projection,
+				function (error, authenticationDetails) {
+					if (error) { return callback && callback(error); }
+					if (!authenticationDetails) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null, authenticationDetails);
+				}
+			);
+		}
+
+		function _updateOrganizationAdministratorPassword(organizationAlias, username, administratorModelFields, callback) {
+			var criteria = { 'organization': organizationAlias, 'username': username };
+			var updates = { $set: administratorModelFields };
+			var options = { safe: true };
+
+			self.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
+						error = new Error('A user already exists with that username');
+						error.status = 409;
+						return callback && callback(error);
+					}
+					if (error) { return callback && callback(error); }
+					if (numRecords === 0) {
+						error = new Error();
+						error.status = 404;
+						return callback && callback(error);
+					}
+					return callback && callback(null, administratorModelFields);
+				}
+			);
+		}
+	};
+
+	OrganizationService.prototype.deleteOrganizationAdministrator = function(organizationAlias, username, callback) {
+		if (!organizationAlias) { return _failValidation('No organization specified', callback); }
+		if (!username) { return _failValidation('No username specified', callback); }
+
+		var selector = { 'organization': organizationAlias, 'username': username };
+		var options = { safe: true };
+
+		this.dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).remove(selector, options,
+			function(error, numRecords) {
+				if (error) { return callback && callback(error); }
+				if (numRecords === 0) {
+					error = new Error();
+					error.status = 404;
+					return callback && callback(error);
+				}
+				return callback && callback(null);
+			}
+		);
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	};
+
+	function _parseAdministratorModel(administratorModel, requireFullModel, callback) {
+		_validateAdministratorModel(administratorModel, requireFullModel, _handleAdministratorModelValidated);
+
+
+		function _handleAdministratorModelValidated(error, administratorModel) {
+			if (error) { return callback && callback(error); }
+			var parsedModelFields = _parseModelFields(administratorModel);
+			return callback && callback(null, parsedModelFields);
+		}
+
+		function _parseModelFields(administratorModel) {
+			var administratorModelFields = {};
+			if ('organization' in administratorModel) { administratorModelFields.organization = administratorModel.organization; }
+			if ('email' in administratorModel) { administratorModelFields.email = administratorModel.email; }
+			if ('name' in administratorModel) { administratorModelFields.name = administratorModel.name; }
+			if ('username' in administratorModel) { administratorModelFields.username = administratorModel.username; }
+			if ('password' in administratorModel) {
+				if (!administratorModel.username) { throw new Error('No username specified'); }
+				var authenticationService = new AuthenticationService();
+				var authenticationDetails = authenticationService.create(administratorModel.username, administratorModel.password);
+				administratorModelFields.password = authenticationDetails.password;
+				administratorModelFields.salt = authenticationDetails.salt;
+			}
+			return administratorModelFields;
+		}
+	}
+
+	function _validateAdministratorModel(administratorModel, requireFullModel, callback) {
+		if (!administratorModel) { return _failValidation('No user model specified', callback); }
+		if ((requireFullModel || ('organization' in administratorModel)) && !administratorModel.organization) { return _failValidation('No organization specified', callback); }
+		if ((requireFullModel || ('username' in administratorModel)) && !administratorModel.username) { return _failValidation('No username specified', callback); }
+		if ((requireFullModel || ('email' in administratorModel)) && !administratorModel.email) { return _failValidation('No email specified', callback); }
+		if ((requireFullModel || ('password' in administratorModel)) && !administratorModel.password) { return _failValidation('No password specified', callback); }
+		if ((requireFullModel || ('name' in administratorModel)) && !administratorModel.name) { return _failValidation('No name specified', callback); }
+
+		// TODO: Validate organization when validating administrator model
+		// TODO: Validate username when validating administrator model
+		// TODO: Validate email when validating administrator model
+		// TODO: Validate password when validating administrator model
+		// TODO: Validate name when validating administrator model
+		
+		return callback && callback(null, administratorModel);
+
+
+		function _failValidation(message, callback) {
+			var error = new Error(message);
+			error.status = 400;
+			return callback && callback(error);
+		}
+	}
 
 	return OrganizationService;
 })();

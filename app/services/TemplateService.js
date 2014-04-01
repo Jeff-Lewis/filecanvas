@@ -14,6 +14,15 @@ module.exports = (function() {
 		}
 	});
 
+	Handlebars.registerHelper('unlessequals', function(item1, item2, options) {
+		var isNotEqual = (item1 != item2); // jshint ignore:line
+		if (isNotEqual) {
+			return options.fn(this);
+		} else {
+			return options.inverse(this);
+		}
+	});
+
 	Handlebars.registerHelper('replace', function(item1, item2, options) {
 		return options.fn(this).replace(item1, item2);
 	});

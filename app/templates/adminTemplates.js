@@ -14,6 +14,9 @@ module.exports = (function() {
 		
 		'ORGANIZATION': _createAdminPageTemplate('templates/admin/organization.hbs'),
 		'ORGANIZATION_SHARES': _createAdminPageTemplate('templates/admin/organization/shares.hbs'),
+		'ORGANIZATION_USERS': _createAdminPageTemplate('templates/admin/organization/users.hbs'),
+		'ORGANIZATION_USERS_ADD': _createAdminPageTemplate('templates/admin/organization/users/add.hbs'),
+		'ORGANIZATION_USERS_EDIT': _createAdminPageTemplate('templates/admin/organization/users/edit.hbs'),
 
 		'SITES': _createAdminPageTemplate('templates/admin/sites.hbs'),
 		'SITES_ADD': _createAdminPageTemplate('templates/admin/sites/add.hbs'),
