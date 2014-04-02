@@ -1,13 +1,13 @@
 <h1 class="page-header">Your Dropbox folders</h1>
 
-{{#if session.organization.shares}}
+{{#if content.shares}}
 
 <p class="lead">The following Dropbox folders have been linked to this organization:</p>
 <div class="row">
 	<div class="col-sm-6 col-lg-4">
 		<table class="table table-bordered table-condensed">
 			<tbody>
-				{{#each session.organization.shares}}
+				{{#each content.shares}}
 				<tr>
 					<td>
 						<form class="pull-right" action="{{ ../session.urls.organizationShares }}/{{ alias }}" method="POST" autocomplete="off">

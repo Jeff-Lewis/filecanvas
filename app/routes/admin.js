@@ -188,7 +188,9 @@ module.exports = (function() {
 		var templateData = {
 			title: 'FAQ',
 			session: app.locals.session,
-			questions: faqData
+			content: {
+				questions: faqData
+			}
 		};
 		_outputAdminPage(adminTemplates.FAQ, templateData, req, res);
 	}
@@ -196,7 +198,8 @@ module.exports = (function() {
 	function retrieveSupportRoute(req, res, next) {
 		var templateData = {
 			title: 'Support',
-			session: app.locals.session
+			session: app.locals.session,
+			content: null
 		};
 		_outputAdminPage(adminTemplates.SUPPORT, templateData, req, res);
 	}
@@ -204,7 +207,10 @@ module.exports = (function() {
 	function retrieveAccountSettingsRoute(req, res, next) {
 		var templateData = {
 			title: 'Your account',
-			session: app.locals.session
+			session: app.locals.session,
+			content: {
+				user: app.locals.session.user
+			}
 		};
 		
 		_outputAdminPage(adminTemplates.ACCOUNT, templateData, req, res);
@@ -223,7 +229,10 @@ module.exports = (function() {
 			var templateData = {
 				title: 'Organization settings',
 				session: app.locals.session,
-				administrators: administratorModels
+				content: {
+					organization: app.locals.session.organization,
+					administrators: administratorModels
+				}
 			};
 			
 			_outputAdminPage(adminTemplates.ORGANIZATION, templateData, req, res);
@@ -233,7 +242,10 @@ module.exports = (function() {
 	function retrieveOrganizationShareListRoute(req, res, next) {
 		var templateData = {
 			title: 'Linked Dropbox folders',
-			session: app.locals.session
+			session: app.locals.session,
+			content: {
+				shares: app.locals.session.organization.shares
+			}
 		};
 		_outputAdminPage(adminTemplates.ORGANIZATION_SHARES, templateData, req, res);
 	}
@@ -250,7 +262,9 @@ module.exports = (function() {
 			var templateData = {
 				title: 'Organization user accounts',
 				session: app.locals.session,
-				users: administratorModels
+				content: {
+					users: administratorModels
+				}
 			};
 			_outputAdminPage(adminTemplates.ORGANIZATION_USERS, templateData, req, res);
 		}
@@ -259,7 +273,8 @@ module.exports = (function() {
 	function retrieveOrganizationUserAddRoute(req, res, next) {
 		var templateData = {
 			title: 'Add a user',
-			session: app.locals.session
+			session: app.locals.session,
+			content: null
 		};
 		_outputAdminPage(adminTemplates.ORGANIZATION_USERS_ADD, templateData, req, res);
 	}
@@ -276,7 +291,9 @@ module.exports = (function() {
 			var templateData = {
 				title: 'User account settings',
 				session: app.locals.session,
-				user: administratorModel
+				content: {
+					user: administratorModel
+				}
 			};
 			_outputAdminPage(adminTemplates.ORGANIZATION_USERS_EDIT, templateData, req, res);
 		}
@@ -424,7 +441,10 @@ module.exports = (function() {
 	function retrieveSiteListRoute(req, res, next) {
 		var templateData = {
 			title: 'Your sites',
-			session: app.locals.session
+			session: app.locals.session,
+			content: {
+				sites: app.locals.session.sites
+			}
 		};
 		_outputAdminPage(adminTemplates.SITES, templateData, req, res);
 	}
@@ -432,7 +452,8 @@ module.exports = (function() {
 	function retrieveSiteAddRoute(req, res, next) {
 		var templateData = {
 			title: 'Add a site',
-			session: app.locals.session
+			session: app.locals.session,
+			content: null
 		};
 		_outputAdminPage(adminTemplates.SITES_ADD, templateData, req, res);
 	}
@@ -455,7 +476,9 @@ module.exports = (function() {
 			var templateData = {
 				title: 'Edit site: ' + siteModel.name,
 				session: app.locals.session,
-				site: siteModel
+				content: {
+					site: siteModel
+				}
 			};
 			_outputAdminPage(adminTemplates.SITES_EDIT, templateData, req, res);
 		}
@@ -479,7 +502,9 @@ module.exports = (function() {
 			var templateData = {
 				title: 'Edit site users: ' + siteModel.name,
 				session: app.locals.session,
-				site: siteModel
+				content: {
+					site: siteModel
+				}
 			};
 			_outputAdminPage(adminTemplates.SITES_EDIT_USERS, templateData, req, res);
 		}
@@ -503,7 +528,9 @@ module.exports = (function() {
 			var templateData = {
 				title: 'Edit site domains: ' + siteModel.name,
 				session: app.locals.session,
-				site: siteModel
+				content: {
+					site: siteModel
+				}
 			};
 			_outputAdminPage(adminTemplates.SITES_EDIT_DOMAINS, templateData, req, res);
 		}
@@ -690,7 +717,7 @@ module.exports = (function() {
 	function _outputAdminPage(htmlTemplate, templateData, req, res) {
 		new ResponseService({
 			'json': function() {
-				res.json(templateData);
+				res.json(templateData.content);
 			},
 			'html': function() {
 				var html = htmlTemplate(templateData);

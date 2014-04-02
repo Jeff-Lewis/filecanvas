@@ -1,6 +1,6 @@
 <h1 class="page-header">Edit users for {{ session.organization.name }}</h1>
 
-{{#if users}}
+{{#if content.users}}
 
 <p class="lead">The following users have admin accounts for this organization:</p>
 <div class="row">
@@ -16,7 +16,7 @@
 						<strong>{{ session.user.name }}</strong> (you)
 					</td>
 				</tr>
-				{{#each users}}
+				{{#each content.users}}
 				{{#unlessequals username ../session.user.username}}
 				<tr>
 					<td>

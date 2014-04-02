@@ -1,11 +1,11 @@
 <div class="row">
 	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Edit Site: {{ site.name }} <a href="{{ session.urls.webroot }}{{ site.alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a></h2>
+		<h2>Edit Site: {{ content.site.name }} <a href="{{ session.urls.webroot }}{{ content.site.alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a></h2>
 		<p class="lead">Use the fields below to make changes to this Shunt site.</p>
 		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST" autocomplete="off">
+		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="PUT"/>
-			{{#unless site.share}}
+			{{#unless content.site.share}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> This site has not yet been linked to a Dropbox folder.</p>
 			</div>
@@ -17,7 +17,7 @@
 						<input type="text" name="name" class="form-control" id="input-site-name"
 							title="This helps you identify the site in the Shunt admin area"
 							placeholder="Site name"
-							value="{{ site.name }}"
+							value="{{ content.site.name }}"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -29,13 +29,13 @@
 						<input type="text" name="alias" class="form-control" id="input-site-alias"
 							title="This determines the site’s web address"
 							placeholder="Site path"
-							value="{{ site.alias }}"
+							value="{{ content.site.alias }}"
 							data-bind-id="site-alias"
 							data-parser="slug"
 							data-validate="slug"
 							data-trigger="focus"
 						/>
-						<p class="help-block">{{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
+						<p class="help-block">{{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ content.site.alias }}</strong></p>
 					</div>
 				</div>
 				<div class="form-group">
@@ -44,7 +44,7 @@
 						<input type="text" name="title" class="form-control" id="input-site-title"
 							title="This determines what is shown in the title of the user’s browser window"
 							placeholder="Page title"
-							value="{{ site.title }}"
+							value="{{ content.site.title }}"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -54,7 +54,7 @@
 					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
 					<div class="col-sm-6 col-lg-4">
 						<div class="row">
-							<div class="{{#if site.share}}col-xs-7{{else}}col-xs-12{{/if}}">
+							<div class="{{#if content.site.share}}col-xs-7{{else}}col-xs-12{{/if}}">
 								<select class="form-control"
 									name="share"
 									title="Choose the Dropbox folder that this site syncs from"
@@ -63,17 +63,17 @@
 									<option value="">No Dropbox folder selected</option>
 									{{#each session.organization.shares}}
 									<option value="{{ alias }}"
-										{{#ifequals alias ../site.share}}selected="selected"{{/ifequals}}
+										{{#ifequals alias ../content.site.share}}selected="selected"{{/ifequals}}
 									>{{ name }}</option>
 									{{/each}}
 								</select>
 							</div>
-							{{#if site.share}}
+							{{#if content.site.share}}
 							<div class="col-xs-5">
 								<button type="button" class="btn btn-success col-xs-12"
 									title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
 									data-bind-value="site-share"
-									data-shunt-purge="{{ site.alias }}"
+									data-shunt-purge="{{ content.site.alias }}"
 								>
 									<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
 									<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span> Syncing…</span>
@@ -94,7 +94,7 @@
 								<input type="checkbox"
 									name="private"
 									value="true"
-									{{#unless site.public}}checked="checked"{{/unless}}
+									{{#unless content.site.public}}checked="checked"{{/unless}}
 								/>
 								Password protect this site
 							</label>
@@ -107,25 +107,25 @@
 					</div>
 				</div>
 			</fieldset>
-			{{#unless site.public}}
+			{{#unless content.site.public}}
 			<fieldset>
 				<legend>Password protection</legend>
 				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
 					<div class="col-sm-6 col-lg-4">
-						{{#if site.users}}
+						{{#if content.site.users}}
 						<p class="form-control-static">
-							{{#ifequals site.users.length 1}}
+							{{#ifequals content.site.users.length 1}}
 							1 registered user
 							{{else}}
-							{{site.users.length}} registered users
+							{{content.site.users.length}} registered users
 							{{/ifequals}}
-							(<a href="{{ session.urls.sites }}/edit/{{ site.alias }}/users">edit</a>)
+							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
 						</p>
 						{{else}}
 						<p class="form-control-static" title="Password protection is enabled, but you have not yet registered any users">
 							<strong class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Nobody is allowed to access this site</strong>
-							(<a href="{{ session.urls.sites }}/edit/{{ site.alias }}/users">edit</a>)
+							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
 						</p>
 						{{/if}}
 					</div>
@@ -144,12 +144,12 @@
 							{{else}}
 							{{domains.length}} registered domain names
 							{{/ifequals}}
-							(<a href="{{ session.urls.sites }}/edit/{{ site.alias }}/domains">edit</a>)
+							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/domains">edit</a>)
 						</p>
 						{{else}}
 						<p class="form-control-static" title="You have not yet registered any custom domain names for this site">
 							No custom domain names
-							(<a href="{{ session.urls.sites }}/edit/{{ site.alias }}/domains">edit</a>)
+							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/domains">edit</a>)
 						</p>
 						{{/if}}
 					</div>
@@ -212,13 +212,13 @@
 			</fieldset>
 			-->
 		</form>
-		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ site.alias }}" method="POST" autocomplete="off">
+		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="DELETE"/>
 			<fieldset>
 				<legend>Delete site</legend>
 				<div class="form-group">
 					<ul>
-						<li>Deleting this site will permanently remove the Shunt site located at <strong>{{ session.urls.webroot }}{{ site.alias }}</strong></li>
+						<li>Deleting this site will permanently remove the Shunt site located at <strong>{{ session.urls.webroot }}{{ content.site.alias }}</strong></li>
 						<li>Deleting this site will unlink the site’s Dropbox folder from the Shunt service.</li>
 						<li>Deleting this site will <b>not</b> delete the contents of your Dropbox folder.</li>
 					</ul>

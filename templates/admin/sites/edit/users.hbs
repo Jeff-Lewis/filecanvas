@@ -1,25 +1,25 @@
 <div class="row">
 	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Registered users for {{ site.name }}</h2>
+		<h2>Registered users for {{ content.site.name }}</h2>
 		<p class="lead">Use the fields below to control who is allowed to see this Shunt site.</p>
 		<hr/>
 		<div class="form-horizontal">
-			{{#unless site.users}}
+			{{#unless content.site.users}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> There are no registered users for this site.</p>
 			</div>
 			{{/unless}}
 			<fieldset>
-				{{#if site.users}}
+				{{#if content.site.users}}
 				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
 					<div class="col-sm-6 col-lg-4">
 						<table class="form-control-static table table-bordered table-condensed">
 							<tbody>
-								{{#each site.users }}
+								{{#each content.site.users }}
 								<tr>
 									<td>
-										<form class="pull-right" action="{{ ../session.urls.sites }}/{{ ../site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
+										<form class="pull-right" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
 											<input type="hidden" name="_method" value="DELETE"/>
 											<button type="submit" class="pull-right btn btn-danger btn-xs" title="Prevent this user from accessing this site"><span class="glyphicon glyphicon-remove"></span> Remove user</button>
 										</form>
@@ -32,7 +32,7 @@
 					</div>
 				</div>
 				{{/if}}
-				<form class="form-group" action="{{ session.urls.sites }}/{{ site.alias }}/users" method="POST" autocomplete="off">
+				<form class="form-group" action="{{ session.urls.sites }}/{{ content.site.alias }}/users" method="POST" autocomplete="off">
 					<input type="hidden" name="_method" value="POST"/>
 					<label class="col-sm-3 col-lg-2 control-label">Add user</label>
 					<div class="col-sm-6 col-lg-4">
@@ -63,7 +63,7 @@
 				</form>
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<a href="{{ session.urls.sites }}/edit/{{ site.alias }}" class="btn btn-default"><span class="glyphicon glyphicon-chevron-left"></span> Back to site</a>
+						<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}" class="btn btn-default"><span class="glyphicon glyphicon-chevron-left"></span> Back to site</a>
 					</div>
 				</div>
 			</fieldset>

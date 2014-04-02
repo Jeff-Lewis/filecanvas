@@ -1,11 +1,11 @@
 <div class="row">
 	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Organization settings for {{ session.organization.name }}</h2>
+		<h2>Organization settings for {{ content.organization.name }}</h2>
 		<p class="lead">Use the fields below to edit the settings for this organization.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.organization }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="PUT"/>
-			{{#unless session.organization.default}}
+			{{#unless content.organization.default}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> This organization does not have a default site.</p>
 			</div>
@@ -18,7 +18,7 @@
 							name="name"
 							title="This helps you identify the organization in the Shunt admin area"
 							placeholder="Organization name"
-							value="{{ session.organization.name }}"
+							value="{{ content.organization.name }}"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -31,13 +31,13 @@
 						 	name="alias"
 							title="This determines your organization’s Shunt web root, where your sites are located"
 							placeholder="Organizations path"
-							value="{{ session.organization.alias }}"
+							value="{{ content.organization.alias }}"
 							data-bind-id="organization-alias"
 							data-parser="slug"
 							data-validate="slug"
 							data-trigger="focus"
 						/>
-						<p class="help-block">{{#replace '$0' session.organization.alias}}{{#replace '$0' '<strong data-bind-value="organization-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+						<p class="help-block">{{#replace '$0' content.organization.alias}}{{#replace '$0' '<strong data-bind-value="organization-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
 					</div>
 				</div>
 				<div class="form-group">
@@ -47,7 +47,7 @@
 							name="email"
 							title="Information regarding the organization’s account will be delivered to this email address"
 							placeholder="Contact email address"
-							value="{{ session.organization.email }}"
+							value="{{ content.organization.email }}"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -62,7 +62,7 @@
 						>
 							<option value="">No default site selected</option>
 							{{#each session.sites}}
-							<option value="{{ alias }}"{{#ifequals alias ../session.organization.default }} selected="selected"{{/ifequals}}>{{ name }}</option>
+							<option value="{{ alias }}"{{#ifequals alias ../content.organization.default }} selected="selected"{{/ifequals}}>{{ name }}</option>
 							{{/each}}
 						</select>
 					</div>
@@ -79,10 +79,10 @@
 					<label class="col-sm-3 col-lg-2 control-label">Admin accounts</label>
 					<div class="col-sm-6 col-lg-4">
 						<p class="form-control-static">
-							{{#ifequals administrators.length 1}}
+							{{#ifequals content.administrators.length 1}}
 							1 registered admin user
 							{{else}}
-							{{administrators.length}} registered admin users
+							{{content.administrators.length}} registered admin users
 							{{/ifequals}}
 							(<a href="{{ session.urls.organizationUsers }}">edit</a>)
 						</p>

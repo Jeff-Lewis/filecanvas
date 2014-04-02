@@ -3,14 +3,14 @@
 <p class="lead">For anything not in this list, contact us via the <a href="/support">Support</a> page.</p>
 
 <ul>
-	{{#each questions}}
+	{{#each content.questions}}
 	<li><a href="#{{ id }}">{{ question }}</a></li>
 	{{/each}}
 </ul>
 
 <hr/>
 
-{{#each questions}}
+{{#each content.questions}}
 <h4 id="{{ id }}">{{ question }}</h4>
 <p>{{ answer }}</p>
 {{/each}}

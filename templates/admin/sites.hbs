@@ -1,13 +1,13 @@
 <h1 class="page-header">Your sites</h1>
 
-{{#if session.sites}}
+{{#if content.sites}}
 
 <p class="lead">The following sites have been registered within this organization:</p>
 <div class="row">
 	<div class="col-sm-8 col-lg-5">
 		<table class="table table-bordered table-condensed">
 			<tbody>
-				{{#each session.sites }}
+				{{#each content.sites }}
 				<tr>
 					<td>
 						<div class="pull-right">
