@@ -137,12 +137,12 @@
 				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">Domain names</label>
 					<div class="col-sm-6 col-lg-4">
-						{{#if domains}}
+						{{#if content.site.domains}}
 						<p class="form-control-static">
-							{{#ifequals domains.length 1}}
+							{{#ifequals content.site.domains.length 1}}
 							1 custom domain name
 							{{else}}
-							{{domains.length}} registered domain names
+							{{ content.site.domains.length }} registered domain names
 							{{/ifequals}}
 							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/domains">edit</a>)
 						</p>

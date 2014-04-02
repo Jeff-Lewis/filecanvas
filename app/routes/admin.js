@@ -468,7 +468,7 @@ module.exports = (function() {
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = true;
-		var includeDomains = false;
+		var includeDomains = true;
 		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, _handleSiteDetailsLoaded);
 
 		function _handleSiteDetailsLoaded(error, siteModel) {
