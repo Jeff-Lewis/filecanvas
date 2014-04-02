@@ -3,7 +3,7 @@ module.exports = (function() {
 
 	var siteTemplates = require('../templates/siteTemplates');
 
-	var TEMPLATES_ROOT_URL = '//templates.${HOST}/';
+	var templatesRootUrl = require('../../config').urls.templates;
 
 	function SiteTemplateService(templateName) {
 		this.templateName = templateName;
@@ -12,7 +12,7 @@ module.exports = (function() {
 	SiteTemplateService.prototype.templateName = null;
 
 	SiteTemplateService.prototype.render = function(siteModel, hostname) {
-		var siteTemplatesRoot = TEMPLATES_ROOT_URL.replace(/\$\{HOST\}/g, hostname);
+		var siteTemplatesRoot = templatesRootUrl.replace(/\$\{HOST\}/g, hostname);
 		var siteContents = siteModel.contents || { folders: null, files: null };
 		var title = siteModel.title;
 		var siteTemplate = siteTemplates[this.templateName];

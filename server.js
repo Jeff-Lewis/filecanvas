@@ -11,6 +11,7 @@
 	var globals = require('./app/globals');
 
 	var stripTrailingSlash = require('./app/middleware/stripTrailingSlash');
+	var customDomain = require('./app/middleware/customDomain');
 	var subdomain = require('./app/middleware/subdomain');
 
 	var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
@@ -159,6 +160,7 @@
 		];
 
 		app.use('/', stripTrailingSlash);
+		app.use('/', customDomain);
 		app.use('/', subdomain({ mappings: subdomainMappings }));
 
 		app.use('/ping', require('./app/routes/ping'));

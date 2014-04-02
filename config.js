@@ -12,6 +12,9 @@ config.mongodb.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || proc
 config.email = {};
 config.email.from = { 'name': 'Shunt Admin', 'address': 'admin@shunt.io' };
 
+config.urls = {};
+config.urls.templates = process.env.TEMPLATES_URL || '//templates.${HOST}/';
+
 config.templates = {};
 config.templates['default'] = 'fathom';
 

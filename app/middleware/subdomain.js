@@ -24,6 +24,8 @@ module.exports = (function() {
 		});
 
 		app.use(function(req, res, next) {
+			if (res.locals.domainResolved) { return next(); }
+
 			var reqSubdomains = req.subdomains.slice();
 			reqSubdomains.reverse();
 			var subdomain = reqSubdomains.join('.');

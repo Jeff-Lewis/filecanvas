@@ -89,6 +89,24 @@ module.exports = (function() {
 		);
 	};
 
+	SiteService.prototype.retrieveSiteByDomain = function(domain, callback) {
+		var criteria = { 'domains': domain };
+		var projection = { 'organization': 1, 'alias': 1 };
+		var options = { limit: 1 };
+
+		this.dataService.db.collection(DB_COLLECTION_SITES).find(criteria, projection, options,
+			function(error, siteModelsCursor) {
+				if (error) { return callback && callback(error); }
+				siteModelsCursor.toArray(_handleSiteModelsLoaded);
+
+				function _handleSiteModelsLoaded(error, siteModels) {
+					if (error) { return callback && callback(error); }
+					return callback && callback(null, siteModels[0] || null);
+				}
+			}
+		);
+	};
+
 	SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, callback) {
 		var query = { 'organization': organizationAlias, 'alias': siteAlias };
 		var projection = { '_id': 0 };
