@@ -24,42 +24,116 @@ module.exports = (function() {
 	var assetsMiddleware = express['static'](assetsRoot);
 	app.use('/assets', assetsMiddleware);
 
-	app.get('/', adminAuth, retrieveHomeRoute);
-	app.get('/faq', adminAuth, retrieveFaqRoute);
-	app.get('/support', adminAuth, retrieveSupportRoute);
-	app.get('/account', adminAuth, retrieveAccountSettingsRoute);
-	app.get('/logout', adminAuth, retrieveLogoutRoute);
+	app.get('/', adminAuth, initSession, retrieveHomeRoute);
+	app.get('/faq', adminAuth, initSession, retrieveFaqRoute);
+	app.get('/support', adminAuth, initSession, retrieveSupportRoute);
+	app.get('/account', adminAuth, initSession, retrieveAccountSettingsRoute);
+	app.get('/logout', adminAuth, initSession, retrieveLogoutRoute);
 	
-	app.get('/organization', adminAuth, retrieveOrganizationSettingsRoute);
-	app.get('/organization/shares', adminAuth, retrieveOrganizationShareListRoute);
-	app.get('/organization/users', adminAuth, retrieveOrganizationUserListRoute);
-	app.get('/organization/users/add', adminAuth, retrieveOrganizationUserAddRoute);
-	app.get('/organization/users/edit/:username', adminAuth, retrieveOrganizationUserEditRoute);
+	app.get('/organization', adminAuth, initSession, retrieveOrganizationSettingsRoute);
+	app.get('/organization/shares', adminAuth, initSession, retrieveOrganizationShareListRoute);
+	app.get('/organization/users', adminAuth, initSession, retrieveOrganizationUserListRoute);
+	app.get('/organization/users/add', adminAuth, initSession, retrieveOrganizationUserAddRoute);
+	app.get('/organization/users/edit/:username', adminAuth, initSession, retrieveOrganizationUserEditRoute);
 	
-	app.put('/organization', adminAuth, updateOrganizationRoute);
-	app.del('/organization/shares/:share', adminAuth, deleteOrganizationShareRoute);
-	app.post('/organization/users', adminAuth, createOrganizationUserRoute);
-	app.put('/organization/users/:username', adminAuth, updateOrganizationUserRoute);
-	app.put('/organization/users/:username/password', adminAuth, updateOrganizationUserPasswordRoute);
-	app.del('/organization/users/:user', adminAuth, deleteOrganizationUserRoute);
+	app.put('/organization', adminAuth, initSession, updateOrganizationRoute);
+	app.del('/organization/shares/:share', adminAuth, initSession, deleteOrganizationShareRoute);
+	app.post('/organization/users', adminAuth, initSession, createOrganizationUserRoute);
+	app.put('/organization/users/:username', adminAuth, initSession, updateOrganizationUserRoute);
+	app.put('/organization/users/:username/password', adminAuth, initSession, updateOrganizationUserPasswordRoute);
+	app.del('/organization/users/:user', adminAuth, initSession, deleteOrganizationUserRoute);
 	
 
-	app.get('/sites', adminAuth, retrieveSiteListRoute);
-	app.get('/sites/add', adminAuth, retrieveSiteAddRoute);
-	app.get('/sites/edit/:site', adminAuth, retrieveSiteEditRoute);
-	app.get('/sites/edit/:site/users', adminAuth, retrieveSiteUsersEditRoute);
-	app.get('/sites/edit/:site/domains', adminAuth, retrieveSiteDomainsEditRoute);
+	app.get('/sites', adminAuth, initSession, retrieveSiteListRoute);
+	app.get('/sites/add', adminAuth, initSession, retrieveSiteAddRoute);
+	app.get('/sites/edit/:site', adminAuth, initSession, retrieveSiteEditRoute);
+	app.get('/sites/edit/:site/users', adminAuth, initSession, retrieveSiteUsersEditRoute);
+	app.get('/sites/edit/:site/domains', adminAuth, initSession, retrieveSiteDomainsEditRoute);
 
-	app.post('/sites', adminAuth, createSiteRoute);
-	app.put('/sites/:site', adminAuth, updateSiteRoute);
-	app.del('/sites/:site', adminAuth, deleteSiteRoute);
-	app.post('/sites/:site/users', adminAuth, createSiteUserRoute);
-	app.del('/sites/:site/users/:username', adminAuth, deleteSiteUserRoute);
-	app.post('/sites/:site/domains', adminAuth, createSiteDomainRoute);
-	app.del('/sites/:site/domains/:domain', adminAuth, deleteSiteDomainRoute);
+	app.post('/sites', adminAuth, initSession, createSiteRoute);
+	app.put('/sites/:site', adminAuth, initSession, updateSiteRoute);
+	app.del('/sites/:site', adminAuth, initSession, deleteSiteRoute);
+	app.post('/sites/:site/users', adminAuth, initSession, createSiteUserRoute);
+	app.del('/sites/:site/users/:username', adminAuth, initSession, deleteSiteUserRoute);
+	app.post('/sites/:site/domains', adminAuth, initSession, createSiteDomainRoute);
+	app.del('/sites/:site/domains/:domain', adminAuth, initSession, deleteSiteDomainRoute);
 
 
 	return app;
+
+	function initSession(req, res, next) {
+		var administratorModel = req.user;
+		_retrieveSessionData(req, administratorModel, _handleSessionDataLoaded);
+
+		function _handleSessionDataLoaded(error, sessionModel) {
+			if (error) { return next(error); }
+			app.locals.session = sessionModel;
+			next();
+		}
+
+
+		function _retrieveSessionData(req, administratorModel, callback) {
+			_retrieveOrganizationDetails(administratorModel.organization, _handleOrganizationDetailsLoaded);
+
+			function _handleOrganizationDetailsLoaded(error, organizationModel) {
+				if (error) { return callback && callback(error); }
+				
+				_retrieveOrganizationSites(administratorModel.organization, _handleOrganizationSitesLoaded);
+
+				function _handleOrganizationSitesLoaded(error, siteModels) {
+					if (error) { return callback && callback(error); }
+
+					var sessionModel = _getSessionData(req, administratorModel, organizationModel, siteModels);
+					
+					return callback && callback(null, sessionModel);
+				}
+			}
+
+			function _retrieveOrganizationDetails(organizationAlias, callback) {
+				var organizationService = new OrganizationService(dataService);
+				var includeShares = true;
+				organizationService.retrieveOrganization(organizationAlias, includeShares, callback);
+			}
+
+			function _retrieveOrganizationSites(organizationAlias, callback) {
+				var organizationService = new OrganizationService(dataService);
+				organizationService.retrieveOrganizationSites(organizationAlias, callback);
+			}
+
+			function _getSessionData(req, administratorModel, organizationModel, siteModels) {
+				var urlService = new UrlService(req);
+				var adminUrls = _getAdminUrls(urlService, organizationModel);
+				return {
+					location: urlService.location,
+					urls: adminUrls,
+					user: administratorModel,
+					organization: organizationModel,
+					sites: siteModels
+				};
+
+				function _getAdminUrls(urlService, organizationModel) {
+					return {
+						home: urlService.getSubdomainUrl('www'),
+						webroot: urlService.getSubdomainUrl(organizationModel.alias),
+						domain: urlService.getSubdomainUrl('$0'),
+						admin: '/',
+						faq: '/faq',
+						support: '/support',
+						account: '/account',
+						logout: '/logout',
+						sites: '/sites',
+						sitesAdd: '/sites/add',
+						sitesEdit: '/sites/edit',
+						organization: '/organization',
+						organizationShares: '/organization/shares',
+						organizationUsers: '/organization/users',
+						organizationUsersAdd: '/organization/users/add',
+						organizationUsersEdit: '/organization/users/edit'
+					};
+				}
+			}
+		}
+	}
 
 
 	function adminAuth(req, res, next) {
@@ -74,57 +148,9 @@ module.exports = (function() {
 				var isAuthenticated = _authenticateAdministrator(username, password, administratorModel);
 				if (!isAuthenticated) { return callback && callback(null, false); }
 
-				_retrieveOrganizationDetails(administratorModel.organization, _handleOrganizationDetailsLoaded);
-
-				function _handleOrganizationDetailsLoaded(error, organizationModel) {
-					if (error) { return callback && callback(error); }
-					
-					_retrieveOrganizationSites(administratorModel.organization, _handleOrganizationSitesLoaded);
-
-					function _handleOrganizationSitesLoaded(error, siteModels) {
-						if (error) { return callback && callback(error); }
-
-						var session = _getSessionData(req, administratorModel, organizationModel, siteModels);
-						app.locals.session = session;
-						
-						return callback && callback(null, administratorModel);
-					}
-				}
+				return callback && callback(null, administratorModel);
 			}
 		})(req, res, next);
-					
-		function _getSessionData(req, administratorModel, organizationModel, siteModels) {
-			var urlService = new UrlService(req);
-			var adminUrls = _getAdminUrls(urlService, organizationModel);
-			return {
-				location: urlService.location,
-				urls: adminUrls,
-				user: administratorModel,
-				organization: organizationModel,
-				sites: siteModels
-			};
-
-			function _getAdminUrls(urlService, organizationModel) {
-				return {
-					home: urlService.getSubdomainUrl('www'),
-					webroot: urlService.getSubdomainUrl(organizationModel.alias),
-					domain: urlService.getSubdomainUrl('$0'),
-					admin: '/',
-					faq: '/faq',
-					support: '/support',
-					account: '/account',
-					logout: '/logout',
-					sites: '/sites',
-					sitesAdd: '/sites/add',
-					sitesEdit: '/sites/edit',
-					organization: '/organization',
-					organizationShares: '/organization/shares',
-					organizationUsers: '/organization/users',
-					organizationUsersAdd: '/organization/users/add',
-					organizationUsersEdit: '/organization/users/edit'
-				};
-			}
-		}
 
 
 		function _retrieveAdministratorDetails(username, callback) {
@@ -142,17 +168,6 @@ module.exports = (function() {
 			var authenticationService = new AuthenticationService();
 			var isAuthenticated = authenticationService.authenticate(username, password, validUsers);
 			return isAuthenticated;
-		}
-
-		function _retrieveOrganizationDetails(organizationAlias, callback) {
-			var organizationService = new OrganizationService(dataService);
-			var includeShares = true;
-			organizationService.retrieveOrganization(organizationAlias, includeShares, callback);
-		}
-
-		function _retrieveOrganizationSites(organizationAlias, callback) {
-			var organizationService = new OrganizationService(dataService);
-			organizationService.retrieveOrganizationSites(organizationAlias, callback);
 		}
 	}
 
