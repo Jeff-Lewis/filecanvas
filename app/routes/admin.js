@@ -672,7 +672,7 @@ module.exports = (function() {
 	function _outputAdminPage(htmlTemplate, templateData, req, res) {
 		new ResponseService({
 			'json': function() {
-				res.json(templateData.content);
+				res.json(templateData && templateData.content);
 			},
 			'html': function() {
 				var html = htmlTemplate(templateData);
