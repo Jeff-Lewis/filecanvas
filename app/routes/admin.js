@@ -178,10 +178,7 @@ module.exports = (function() {
 	}
 
 	function retrieveHomeRoute(req, res, next) {
-		var urlService = new UrlService(req);
-		var currentSubdomain = urlService.subdomain;
-		var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites');
-		res.redirect(sitesUrl);
+		res.redirect('/sites');
 	}
 
 	function retrieveFaqRoute(req, res, next) {
@@ -313,10 +310,7 @@ module.exports = (function() {
 
 		function _handleOrganizationUpdated(error, siteModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization');
-			res.redirect(303, siteUrl);
+			res.redirect(303, '/organization');
 		}
 	}
 
@@ -335,10 +329,7 @@ module.exports = (function() {
 
 		function _handleOrganizationAdministratorCreated(error, administratorModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
-			res.redirect(303, siteUrl);
+			res.redirect(303, '/organization/users');
 		}
 	}
 
@@ -357,10 +348,7 @@ module.exports = (function() {
 
 		function _handleOrganizationAdministratorUpdated(error, administratorModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
-			res.redirect(303, siteUrl);
+			res.redirect(303, '/organization/users');
 		}
 	}
 
@@ -388,10 +376,7 @@ module.exports = (function() {
 
 		function _handleOrganizationAdministratorUpdated(error, administratorModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
-			res.redirect(303, siteUrl);
+			res.redirect(303, '/organization/users');
 		}
 	}
 
@@ -405,10 +390,7 @@ module.exports = (function() {
 
 		function _handleOrganizationShareDeleted(error, shareModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sharesUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/shares');
-			res.redirect(303, sharesUrl);
+			res.redirect(303, '/organization/shares');
 		}
 	}
 
@@ -430,10 +412,7 @@ module.exports = (function() {
 
 		function _handleOrganizationUserDeleted(error, shareModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sharesUrl = urlService.getSubdomainUrl(currentSubdomain, '/organization/users');
-			res.redirect(303, sharesUrl);
+			res.redirect(303, '/organization/users');
 		}
 	}
 
@@ -558,10 +537,7 @@ module.exports = (function() {
 
 		function _handleSiteCreated(error, siteModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteModel.alias);
-			res.redirect(303, sitesUrl);
+			res.redirect(303, '/sites/edit/' + siteModel.alias);
 		}
 	}
 
@@ -586,10 +562,7 @@ module.exports = (function() {
 
 			function _handleCacheUpdated(error) {
 				if (error) { return next(error); }
-				var urlService = new UrlService(req);
-				var currentSubdomain = urlService.subdomain;
-				var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias);
-				res.redirect(303, siteUrl);
+				res.redirect(303, '/sites/edit/' + siteAlias);
 			}
 		}
 
@@ -613,10 +586,7 @@ module.exports = (function() {
 
 			function _handleSiteUpdated(error, siteModel) {
 				if (error) { return next(error); }
-				var urlService = new UrlService(req);
-				var currentSubdomain = urlService.subdomain;
-				var siteUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteModel.alias);
-				res.redirect(303, siteUrl);
+				res.redirect(303, '/sites/edit/' + siteModel.alias);
 			}
 		}
 	}
@@ -631,10 +601,7 @@ module.exports = (function() {
 
 		function _handleSiteDeleted(error, siteModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites');
-			res.redirect(303, sitesUrl);
+			res.redirect(303, '/sites');
 		}
 	}
 
@@ -651,10 +618,7 @@ module.exports = (function() {
 
 		function _handleSiteUserCreated(error, siteModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/users');
-			res.redirect(303, sitesUrl);
+			res.redirect(303, '/sites/edit/' + siteAlias + '/users');
 		}
 	}
 
@@ -669,10 +633,7 @@ module.exports = (function() {
 
 		function _handleSiteUserDeleted(error, siteModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/users');
-			res.redirect(303, sitesUrl);
+			res.redirect(303, '/sites/edit/' + siteAlias + '/users');
 		}
 	}
 
@@ -688,10 +649,7 @@ module.exports = (function() {
 
 		function _handleSiteDomainCreated(error, siteModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/domains');
-			res.redirect(303, sitesUrl);
+			res.redirect(303, '/sites/edit/' + siteAlias + '/domains');
 		}
 	}
 
@@ -706,10 +664,7 @@ module.exports = (function() {
 
 		function _handleSiteDomainDeleted(error, siteModel) {
 			if (error) { return next(error); }
-			var urlService = new UrlService(req);
-			var currentSubdomain = urlService.subdomain;
-			var sitesUrl = urlService.getSubdomainUrl(currentSubdomain, '/sites/edit/' + siteAlias + '/domains');
-			res.redirect(303, sitesUrl);
+			res.redirect(303, '/sites/edit/' + siteAlias + '/domains');
 		}
 	}
 
