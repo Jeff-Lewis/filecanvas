@@ -3,6 +3,8 @@ module.exports = (function() {
 
 	var path = require('path');
 	var express = require('express');
+	var passport = require('passport'),
+		LocalStrategy = require('passport-local').Strategy;
 
 	var AuthenticationService = require('../services/AuthenticationService');
 	var OrganizationService = require('../services/OrganizationService');
@@ -14,7 +16,8 @@ module.exports = (function() {
 	var faqData = require('../../templates/admin/faq.json');
 
 	var config = require('../../config');
-	var dataService = require('../globals').dataService;
+	var globals = require('../globals');
+	var dataService = globals.dataService;
 
 	var app = express();
 
@@ -24,134 +27,71 @@ module.exports = (function() {
 	var assetsMiddleware = express['static'](assetsRoot);
 	app.use('/assets', assetsMiddleware);
 
-	app.get('/', adminAuth, initSession, retrieveHomeRoute);
-	app.get('/faq', adminAuth, initSession, retrieveFaqRoute);
-	app.get('/support', adminAuth, initSession, retrieveSupportRoute);
-	app.get('/account', adminAuth, initSession, retrieveAccountSettingsRoute);
-	app.get('/logout', adminAuth, initSession, retrieveLogoutRoute);
+	passport.use('admin/local', new LocalStrategy(adminAuth));
+	globals.passport.serializers['admin'] = serializeAdminAuthUser;
+	globals.passport.deserializers['admin'] = deserializeAdminAuthUser;
+
+	app.get('/login', loginAuthCheck, initAdminSession, retrieveLoginRoute);
+	app.post('/login', passport.authenticate('admin/local', { successRedirect: '/', failureRedirect: '/login' }));
+	app.get('/logout', initAdminSession, retrieveLogoutRoute);
+
+
+	app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
+	app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
+	app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
+	app.get('/account', ensureAuth, initAdminSession, retrieveAccountSettingsRoute);
+
+
+	app.get('/organization', ensureAuth, initAdminSession, retrieveOrganizationSettingsRoute);
+	app.get('/organization/shares', ensureAuth, initAdminSession, retrieveOrganizationShareListRoute);
+	app.get('/organization/users', ensureAuth, initAdminSession, retrieveOrganizationUserListRoute);
+	app.get('/organization/users/add', ensureAuth, initAdminSession, retrieveOrganizationUserAddRoute);
+	app.get('/organization/users/edit/:username', ensureAuth, initAdminSession, retrieveOrganizationUserEditRoute);
 	
-	app.get('/organization', adminAuth, initSession, retrieveOrganizationSettingsRoute);
-	app.get('/organization/shares', adminAuth, initSession, retrieveOrganizationShareListRoute);
-	app.get('/organization/users', adminAuth, initSession, retrieveOrganizationUserListRoute);
-	app.get('/organization/users/add', adminAuth, initSession, retrieveOrganizationUserAddRoute);
-	app.get('/organization/users/edit/:username', adminAuth, initSession, retrieveOrganizationUserEditRoute);
-	
-	app.put('/organization', adminAuth, initSession, updateOrganizationRoute);
-	app.del('/organization/shares/:share', adminAuth, initSession, deleteOrganizationShareRoute);
-	app.post('/organization/users', adminAuth, initSession, createOrganizationUserRoute);
-	app.put('/organization/users/:username', adminAuth, initSession, updateOrganizationUserRoute);
-	app.put('/organization/users/:username/password', adminAuth, initSession, updateOrganizationUserPasswordRoute);
-	app.del('/organization/users/:user', adminAuth, initSession, deleteOrganizationUserRoute);
+	app.put('/organization', ensureAuth, initAdminSession, updateOrganizationRoute);
+	app.del('/organization/shares/:share', ensureAuth, initAdminSession, deleteOrganizationShareRoute);
+	app.post('/organization/users', ensureAuth, initAdminSession, createOrganizationUserRoute);
+	app.put('/organization/users/:username', ensureAuth, initAdminSession, updateOrganizationUserRoute);
+	app.put('/organization/users/:username/password', ensureAuth, initAdminSession, updateOrganizationUserPasswordRoute);
+	app.del('/organization/users/:user', ensureAuth, initAdminSession, deleteOrganizationUserRoute);
 	
 
-	app.get('/sites', adminAuth, initSession, retrieveSiteListRoute);
-	app.get('/sites/add', adminAuth, initSession, retrieveSiteAddRoute);
-	app.get('/sites/edit/:site', adminAuth, initSession, retrieveSiteEditRoute);
-	app.get('/sites/edit/:site/users', adminAuth, initSession, retrieveSiteUsersEditRoute);
-	app.get('/sites/edit/:site/domains', adminAuth, initSession, retrieveSiteDomainsEditRoute);
+	app.get('/sites', ensureAuth, initAdminSession, retrieveSiteListRoute);
+	app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
+	app.get('/sites/edit/:site', ensureAuth, initAdminSession, retrieveSiteEditRoute);
+	app.get('/sites/edit/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersEditRoute);
+	app.get('/sites/edit/:site/domains', ensureAuth, initAdminSession, retrieveSiteDomainsEditRoute);
 
-	app.post('/sites', adminAuth, initSession, createSiteRoute);
-	app.put('/sites/:site', adminAuth, initSession, updateSiteRoute);
-	app.del('/sites/:site', adminAuth, initSession, deleteSiteRoute);
-	app.post('/sites/:site/users', adminAuth, initSession, createSiteUserRoute);
-	app.del('/sites/:site/users/:username', adminAuth, initSession, deleteSiteUserRoute);
-	app.post('/sites/:site/domains', adminAuth, initSession, createSiteDomainRoute);
-	app.del('/sites/:site/domains/:domain', adminAuth, initSession, deleteSiteDomainRoute);
-
+	app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
+	app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
+	app.del('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
+	app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUserRoute);
+	app.del('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
+	app.post('/sites/:site/domains', ensureAuth, initAdminSession, createSiteDomainRoute);
+	app.del('/sites/:site/domains/:domain', ensureAuth, initAdminSession, deleteSiteDomainRoute);
 
 	return app;
 
-	function initSession(req, res, next) {
-		var administratorModel = req.user;
-		_retrieveSessionData(req, administratorModel, _handleSessionDataLoaded);
 
-		function _handleSessionDataLoaded(error, sessionModel) {
-			if (error) { return next(error); }
-			app.locals.session = sessionModel;
-			next();
+	function adminAuth(username, password, callback) {
+		_retrieveAdministratorDetails(username, _handleAdministratorLoaded);
+
+
+		function _handleAdministratorLoaded(error, administratorModel) {
+			var userExists = (!(error && (error.status === 404)));
+			if (!userExists) { return callback && callback(null, false); }
+
+			if (error) { return callback && callback(error); }
+
+			var isAuthenticated = _authenticateAdministrator(username, password, administratorModel);
+			if (!isAuthenticated) { return callback && callback(null, false); }
+
+			var passportUser = {
+				type: 'admin',
+				model: administratorModel
+			};
+			return callback && callback(null, passportUser);
 		}
-
-
-		function _retrieveSessionData(req, administratorModel, callback) {
-			_retrieveOrganizationDetails(administratorModel.organization, _handleOrganizationDetailsLoaded);
-
-			function _handleOrganizationDetailsLoaded(error, organizationModel) {
-				if (error) { return callback && callback(error); }
-				
-				_retrieveOrganizationSites(administratorModel.organization, _handleOrganizationSitesLoaded);
-
-				function _handleOrganizationSitesLoaded(error, siteModels) {
-					if (error) { return callback && callback(error); }
-
-					var sessionModel = _getSessionData(req, administratorModel, organizationModel, siteModels);
-					
-					return callback && callback(null, sessionModel);
-				}
-			}
-
-			function _retrieveOrganizationDetails(organizationAlias, callback) {
-				var organizationService = new OrganizationService(dataService);
-				var includeShares = true;
-				organizationService.retrieveOrganization(organizationAlias, includeShares, callback);
-			}
-
-			function _retrieveOrganizationSites(organizationAlias, callback) {
-				var organizationService = new OrganizationService(dataService);
-				organizationService.retrieveOrganizationSites(organizationAlias, callback);
-			}
-
-			function _getSessionData(req, administratorModel, organizationModel, siteModels) {
-				var urlService = new UrlService(req);
-				var adminUrls = _getAdminUrls(urlService, organizationModel);
-				return {
-					location: urlService.location,
-					urls: adminUrls,
-					user: administratorModel,
-					organization: organizationModel,
-					sites: siteModels
-				};
-
-				function _getAdminUrls(urlService, organizationModel) {
-					return {
-						home: urlService.getSubdomainUrl('www'),
-						webroot: urlService.getSubdomainUrl(organizationModel.alias),
-						domain: urlService.getSubdomainUrl('$0'),
-						admin: '/',
-						faq: '/faq',
-						support: '/support',
-						account: '/account',
-						logout: '/logout',
-						sites: '/sites',
-						sitesAdd: '/sites/add',
-						sitesEdit: '/sites/edit',
-						organization: '/organization',
-						organizationShares: '/organization/shares',
-						organizationUsers: '/organization/users',
-						organizationUsersAdd: '/organization/users/add',
-						organizationUsersEdit: '/organization/users/edit'
-					};
-				}
-			}
-		}
-	}
-
-
-	function adminAuth(req, res, next) {
-		express.basicAuth(function(username, password, callback) {
-			_retrieveAdministratorDetails(username, _handleAdministratorLoaded);
-
-
-			function _handleAdministratorLoaded(error, administratorModel) {
-				if (error && (error.status === 404)) { return callback && callback(null, false); }
-				if (error) { return callback && callback(error); }
-
-				var isAuthenticated = _authenticateAdministrator(username, password, administratorModel);
-				if (!isAuthenticated) { return callback && callback(null, false); }
-
-				return callback && callback(null, administratorModel);
-			}
-		})(req, res, next);
-
 
 		function _retrieveAdministratorDetails(username, callback) {
 			var organizationService = new OrganizationService(dataService);
@@ -171,10 +111,138 @@ module.exports = (function() {
 		}
 	}
 
-	function retrieveLogoutRoute(req, res, next) {
+	function ensureAuth(req, res, next) {
+		if (req.isAuthenticated()) { return next(); }
+		res.redirect('/login');
+	}
+
+	function loginAuthCheck(req, res, next) {
+		if (req.isAuthenticated()) {
+			return res.redirect('/');
+		}
+		return next();
+	}
+
+	function serializeAdminAuthUser(userModel, callback) {
+		return callback && callback(null, userModel.username);
+	}
+
+	function deserializeAdminAuthUser(username, callback) {
+		var organizationService = new OrganizationService(dataService);
+		organizationService.retrieveAdministrator(username, _handleAdministratorLoaded);
+
+
+		function _handleAdministratorLoaded(error, administratorModel) {
+			if (error) { return callback && callback(error); }
+			return callback && callback(null, administratorModel);
+		}
+	}
+
+	function initAdminSession(req, res, next) {
+		if (req.user) {
+			var administratorModel = req.user.model;
+			_retrieveSessionData(req, administratorModel, _handleSessionDataLoaded);
+		} else {
+			var sessionModel = _getAnonymousSessionData();
+			_handleSessionDataLoaded(null, sessionModel);
+		}
+
+
+		function _handleSessionDataLoaded(error, sessionModel) {
+			if (error) { return next(error); }
+			app.locals.session = sessionModel;
+			return next();
+		}
+
+		function _getAnonymousSessionData() {
+			var administratorModel = null;
+			var organizationModel = null;
+			var siteModels = null;
+			return _getSessionData(req, administratorModel, organizationModel, siteModels);
+		}
+
+
+		function _retrieveSessionData(req, administratorModel, callback) {
+			_retrieveOrganizationDetails(administratorModel.organization, _handleOrganizationDetailsLoaded);
+
+			function _handleOrganizationDetailsLoaded(error, organizationModel) {
+				if (error) { return callback && callback(error); }
+				
+				_retrieveOrganizationSites(administratorModel.organization, _handleOrganizationSitesLoaded);
+
+				function _handleOrganizationSitesLoaded(error, siteModels) {
+					if (error) { return callback && callback(error); }
+
+					var sessionModel = _getSessionData(req, administratorModel, organizationModel, siteModels);
+					return callback && callback(null, sessionModel);
+				}
+			}
+
+			function _retrieveOrganizationDetails(organizationAlias, callback) {
+				var organizationService = new OrganizationService(dataService);
+				var includeShares = true;
+				organizationService.retrieveOrganization(organizationAlias, includeShares, callback);
+			}
+
+			function _retrieveOrganizationSites(organizationAlias, callback) {
+				var organizationService = new OrganizationService(dataService);
+				organizationService.retrieveOrganizationSites(organizationAlias, callback);
+			}
+		}
+	}
+
+	function _getSessionData(req, administratorModel, organizationModel, siteModels) {
 		var urlService = new UrlService(req);
-		var homeUrl = urlService.getSubdomainUrl('www');
-		res.redirect(homeUrl);
+		var adminUrls = _getAdminUrls(urlService, organizationModel);
+		return {
+			location: urlService.location,
+			urls: adminUrls,
+			user: administratorModel || null,
+			organization: organizationModel || null,
+			sites: siteModels || null
+		};
+
+		function _getAdminUrls(urlService, organizationModel) {
+			return {
+				webroot: (organizationModel ? urlService.getSubdomainUrl(organizationModel.alias) : null),
+				domain: urlService.getSubdomainUrl('$0'),
+				admin: '/',
+				faq: '/faq',
+				support: '/support',
+				account: '/account',
+				login: '/login',
+				logout: '/logout',
+				sites: '/sites',
+				sitesAdd: '/sites/add',
+				sitesEdit: '/sites/edit',
+				organization: '/organization',
+				organizationShares: '/organization/shares',
+				organizationUsers: '/organization/users',
+				organizationUsersAdd: '/organization/users/add',
+				organizationUsersEdit: '/organization/users/edit'
+			};
+		}
+	}
+
+	function retrieveLoginRoute(req, res, next) {
+		var htmlTemplate = adminTemplates.LOGIN;
+		var templateData = {
+			title: 'Login',
+			session: app.locals.session,
+			content: null
+		};
+
+		new ResponseService({
+			'html': function() {
+				var html = htmlTemplate(templateData);
+				res.send(html);
+			}
+		}).respondTo(req);
+	}
+
+	function retrieveLogoutRoute(req, res, next) {
+		req.logout();
+		res.redirect('/');
 	}
 
 	function retrieveHomeRoute(req, res, next) {

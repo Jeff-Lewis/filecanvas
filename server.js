@@ -6,6 +6,7 @@
 	}
 
 	var express = require('express');
+	var passport = require('passport');
 
 	var config = require('./config');
 	var globals = require('./app/globals');
@@ -127,69 +128,162 @@
 	function initServer(port, debugMode) {
 		var app = express();
 
-		app.use(express.compress());
-		app.use(express.json());
-		app.use(express.urlencoded());
-		app.use(express.methodOverride());
+		_initExpress(app);
+		_initPassport(app);
+		_initCustomDomains(app);
+		_initSubdomains(app);
+		_initRoutes(app);
+		_initErrorHandling(app, debugMode);
 
-		var subdomainMappings = [
-			{
-				subdomain: 'www',
-				path: '/'
-			},
-			{
-				subdomain: 'ping',
-				path: '/ping'
-			},
-			{
-				subdomain: 'templates',
-				path: '/templates'
-			},
-			{
-				subdomain: 'admin',
-				path: '/admin'
-			},
-			{
-				subdomain: 'my',
-				path: '/admin'
-			},
-			{
-				subdomain: /([a-z0-9_\-]+)/,
-				path: '/sites/$0'
+		_startServer(app, port, debugMode);
+
+		return app;
+
+
+		function _initExpress(app) {
+			var sessionSecret = _generateRandomString(128);
+
+			app.use(express.compress());
+			app.use(express.cookieParser());
+			app.use(express.json());
+			app.use(express.urlencoded());
+			app.use(express.methodOverride());
+			app.use(express.session({ secret: sessionSecret }));
+			
+			app.use('/', stripTrailingSlash);
+
+
+			function _generateRandomString(length, characters) {
+				characters = characters || '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+				var string = '';
+				while (string.length < length) { string += characters.charAt(Math.floor(Math.random() * characters.length)); }
+				return string;
 			}
-		];
+		}
 
-		app.use('/', stripTrailingSlash);
-		app.use('/', customDomain);
-		app.use('/', subdomain({ mappings: subdomainMappings }));
 
-		app.use('/ping', require('./app/routes/ping'));
-		app.use('/templates', require('./app/routes/templates'));
-		app.use('/sites', require('./app/routes/sites'));
-		app.use('/admin', require('./app/routes/admin'));
-		app.use('/', require('./app/routes/index'));
+		function _initPassport(app) {
+			app.use(passport.initialize());
+			app.use(passport.session());
 
-		if (debugMode) {
+			passport.serializeUser(function(passportUser, callback) {
+				if (!passportUser) { return callback && callback(new Error('No user specified')); }
+				if (!passportUser.type) { return callback && callback(new Error('No user type specified')); }
+				if (!passportUser.model) { return callback && callback(new Error('No user model specified')); }
+				var userType = passportUser.type;
+				var userModel = passportUser.model;
+				
+				var serializers = globals.passport.serializers;
+				var existsSerializer = (userType in serializers);
+				if (!existsSerializer) {
+					return callback && callback(new Error('No serializer registered for user type "' + userType + '"'));
+				}
 
-			app.use(function(err, req, res, next) {
-				throw err;
+				var serializer = serializers[userType];
+				serializer(userModel, _handleUserSerialized);
+
+
+				function _handleUserSerialized(error, serializedUser) {
+					if (error) { return callback && callback(error); }
+					var id = userType + ':' + serializedUser;
+					return callback && callback(null, id);
+				}
 			});
 
-		} else {
+			passport.deserializeUser(function(id, callback) {
+				var userType = id.substr(0, id.indexOf(':'));
+				var serializedUser = id.substr(id.indexOf(':') + ':'.length);
 
-			app.use(function(req, res, next) {
-				res.send(404);
-			});
+				if (!userType || !serializedUser) { return callback && callback(new Error('Invalid serialized user specified: "' + id + '"')); }
+				
+				var deserializers = globals.passport.deserializers;
+				var existsDeserializer = (userType in deserializers);
+				if (!existsDeserializer) {
+					return callback && callback(new Error('No deserializer registered for user type "' + userType + '"'));
+				}
 
-			app.use(function(err, req, res, next) {
-				res.send(err.status || 500);
+				var deserializer = deserializers[userType];
+				deserializer(serializedUser, _handleUserDeserialized);
+
+
+				function _handleUserDeserialized(error, userModel) {
+					if (error) { return callback && callback(error); }
+					var passportUser = {
+						type: userType,
+						model: userModel
+					};
+					return callback && callback(null, passportUser);
+				}
 			});
 		}
 
-		app.listen(port);
+		function _initCustomDomains(app) {
+			app.use('/', customDomain);
+		}
 
-		console.log('Server listening on port ' + port + (debugMode ? ', debugging activated' : ''));
+		function _initSubdomains(app) {
 
-		return app;
+			var subdomainMappings = [
+				{
+					subdomain: 'www',
+					path: '/'
+				},
+				{
+					subdomain: 'ping',
+					path: '/ping'
+				},
+				{
+					subdomain: 'templates',
+					path: '/templates'
+				},
+				{
+					subdomain: 'admin',
+					path: '/admin'
+				},
+				{
+					subdomain: 'my',
+					path: '/admin'
+				},
+				{
+					subdomain: /([a-z0-9_\-]+)/,
+					path: '/sites/$0'
+				}
+			];
+
+			app.use('/', subdomain({ mappings: subdomainMappings }));
+		}
+
+		function _initRoutes(app) {
+			app.use('/ping', require('./app/routes/ping'));
+			app.use('/templates', require('./app/routes/templates'));
+			app.use('/sites', require('./app/routes/sites'));
+			app.use('/admin', require('./app/routes/admin'));
+			app.use('/', require('./app/routes/index'));
+		}
+
+		function _initErrorHandling(app, debugMode) {
+			if (debugMode) {
+
+				app.use(function(err, req, res, next) {
+					throw err;
+				});
+
+			} else {
+
+				app.use(function(req, res, next) {
+					res.send(404);
+				});
+
+				app.use(function(err, req, res, next) {
+					res.send(err.status || 500);
+				});
+			}
+		}
+
+		function _startServer(app, port, debugMode) {
+			app.listen(port);
+			console.info('Server listening on port ' + port + (debugMode ? ', debugging activated' : ''));
+			return app;
+		}
 	}
 })();

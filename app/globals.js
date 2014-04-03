@@ -3,6 +3,10 @@ module.exports = (function() {
 
 	return {
 		db: null,
-		dropbox: null
+		dropbox: null,
+		passport: {
+			serializers: {},
+			deserializers: {}
+		}
 	};
 })();
