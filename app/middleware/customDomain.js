@@ -16,7 +16,6 @@ module.exports = (function() {
 		function _handleDomainChecked(error, siteModel) {
 			if (error) { return next(error); }
 			if (siteModel) {
-				console.log(JSON.stringify(siteModel ,null, '\t'));
 				req.url = _getRedirectedUrl(req, siteModel);
 				res.locals.domainResolved = true;
 			}
