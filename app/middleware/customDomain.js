@@ -25,7 +25,7 @@ module.exports = (function() {
 		function _getRedirectedUrl(req, siteModel) {
 			var organizationAlias = siteModel.organization;
 			var siteAlias = siteModel.alias;
-			var redirectedUrl = '/sites/' + organizationAlias + '/' + siteAlias;
+			var redirectedUrl = '/sites/' + organizationAlias + '/' + siteAlias + req.path;
 			return redirectedUrl;
 		}
 	};
