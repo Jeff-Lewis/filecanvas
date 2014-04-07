@@ -169,9 +169,7 @@
 			passport.serializeUser(function(passportUser, callback) {
 				if (!passportUser) { return callback && callback(new Error('No user specified')); }
 				if (!passportUser.type) { return callback && callback(new Error('No user type specified')); }
-				if (!passportUser.model) { return callback && callback(new Error('No user model specified')); }
 				var userType = passportUser.type;
-				var userModel = passportUser.model;
 				
 				var serializers = globals.passport.serializers;
 				var existsSerializer = (userType in serializers);
@@ -180,7 +178,7 @@
 				}
 
 				var serializer = serializers[userType];
-				serializer(userModel, _handleUserSerialized);
+				serializer(passportUser, _handleUserSerialized);
 
 
 				function _handleUserSerialized(error, serializedUser) {
@@ -206,12 +204,8 @@
 				deserializer(serializedUser, _handleUserDeserialized);
 
 
-				function _handleUserDeserialized(error, userModel) {
+				function _handleUserDeserialized(error, passportUser) {
 					if (error) { return callback && callback(error); }
-					var passportUser = {
-						type: userType,
-						model: userModel
-					};
 					return callback && callback(null, passportUser);
 				}
 			});

@@ -11,12 +11,16 @@ module.exports = (function() {
 
 	AuthenticationService.prototype.authenticate = function(username, password, validUsers) {
 		if (!(validUsers instanceof Array)) { validUsers = [validUsers]; }
-		return validUsers.some(function(user) {
+		var authenticatedUser = null;
+		var isAuthenticated = validUsers.some(function(user) {
 			if (username !== user.username) { return false; }
 			var saltedPassword = user.salt + password;
 			var hashedPassword = new Hashes.SHA256().hex(saltedPassword);
-			return (hashedPassword === user.password);
+			var isAuthenticated = (hashedPassword === user.password);
+			if (isAuthenticated) { authenticatedUser = user; }
+			return isAuthenticated;
 		});
+		return (isAuthenticated ? authenticatedUser : false);
 	};
 
 	AuthenticationService.prototype.create = function(username, password) {

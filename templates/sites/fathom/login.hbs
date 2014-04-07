@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="HandheldFriendly" content="true">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="shortcut icon" href="{{{ templateRoot }}}favicon.ico"/>
+	<title>{{ title }}</title>
+	<link href='http://fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+
+	<!-- Import CSS -->
+	<link rel="stylesheet" href="{{{ templateRoot }}}css/base.css">
+	<!--[if lt IE 10]>
+		<link href= "css/ie.css" rel= "stylesheet" media= "all" />
+	<![endif]-->
+
+	<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+</head>
+
+<body>
+
+	<!-- Start Sticky Navigation -->
+	<nav id="mainnav">
+		<div class="container">
+			<div class="row">
+				<div class="span4">
+					<a href="http://www.fathomlondon.com/" class="logo"><img src="{{{ templateRoot }}}img/FathomLogoTiny.png" alt=""></a>
+				</div>
+				<div class="span8">
+				</div>
+			</div>
+		</div>
+	</nav>
+	<!-- End Sticky Navigation -->
+
+
+	<section class="page">
+		<div class="container">
+			<div class="row">
+				<form class="form-signin" role="form" action="{{ session.urls.login }}" method="POST" autocomplete="off" style="text-align: center;">
+					<h2 class="form-signin-heading">Sign in</h2>
+					<div><input type="text" name="username" class="form-control" placeholder="Username" required autofocus></div>
+					<div><input type="password" name="password" class="form-control" placeholder="Password" required></div>
+					<div><button class="btn btn-lg btn-primary btn-block" type="submit" style="background-color: #8bc53e;">Sign in</button></div>
+				</form>
+			</div><!-- End of row -->
+		</div><!-- End of container -->
+	</section>
+
+</body>
+
+</html>

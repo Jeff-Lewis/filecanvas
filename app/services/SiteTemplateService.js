@@ -11,11 +11,23 @@ module.exports = (function() {
 
 	SiteTemplateService.prototype.templateName = null;
 
-	SiteTemplateService.prototype.render = function(siteModel, hostname) {
+	SiteTemplateService.prototype.renderLoginPage = function(siteModel, hostname) {
+		var siteTemplatesRoot = templatesRootUrl.replace(/\$\{HOST\}/g, hostname);
+		var title = siteModel.title;
+		var siteTemplate = siteTemplates[this.templateName].login;
+		var siteTemplateRoot = siteTemplatesRoot + this.templateName + '/';
+
+		return siteTemplate({
+			title: title,
+			templateRoot: siteTemplateRoot
+		});
+	};
+
+	SiteTemplateService.prototype.renderIndexPage = function(siteModel, hostname) {
 		var siteTemplatesRoot = templatesRootUrl.replace(/\$\{HOST\}/g, hostname);
 		var siteContents = siteModel.contents || { folders: null, files: null };
 		var title = siteModel.title;
-		var siteTemplate = siteTemplates[this.templateName];
+		var siteTemplate = siteTemplates[this.templateName].index;
 		var siteTemplateRoot = siteTemplatesRoot + this.templateName + '/';
 
 		return siteTemplate({
@@ -27,7 +39,6 @@ module.exports = (function() {
 		});
 	};
 
-	SiteTemplateService.prototype.templatesRoot = null;
 	SiteTemplateService.prototype.templatesRoot = null;
 
 	return SiteTemplateService;

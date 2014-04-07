@@ -6,6 +6,9 @@ module.exports = (function() {
 	var templateService = new TemplateService();
 
 	return {
-		'fathom': templateService.compile('templates/sites/fathom/index.hbs')
+		'fathom': {
+			login: templateService.compile('templates/sites/fathom/login.hbs'),
+			index: templateService.compile('templates/sites/fathom/index.hbs')
+		}
 	};
 })();

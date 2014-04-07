@@ -123,18 +123,24 @@ module.exports = (function() {
 		return next();
 	}
 
-	function serializeAdminAuthUser(userModel, callback) {
-		return callback && callback(null, userModel.username);
+	function serializeAdminAuthUser(passportUser, callback) {
+		var serializedUser = passportUser.model.username;
+		return callback && callback(null, serializedUser);
 	}
 
-	function deserializeAdminAuthUser(username, callback) {
+	function deserializeAdminAuthUser(serializedUser, callback) {
+		var username = serializedUser;
 		var organizationService = new OrganizationService(dataService);
 		organizationService.retrieveAdministrator(username, _handleAdministratorLoaded);
 
 
 		function _handleAdministratorLoaded(error, administratorModel) {
 			if (error) { return callback && callback(error); }
-			return callback && callback(null, administratorModel);
+			var passportUser = {
+				type: 'admin',
+				model: administratorModel
+			};
+			return callback && callback(null, passportUser);
 		}
 	}
 

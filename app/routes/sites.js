@@ -2,7 +2,10 @@ module.exports = (function() {
 	'use strict';
 
 	var express = require('express');
+	var passport = require('passport'),
+		LocalStrategy = require('passport-local').Strategy;
 
+	var globals = require('../globals');
 	var dropboxService = require('../globals').dropboxService;
 	var dataService = require('../globals').dataService;
 
@@ -14,31 +17,128 @@ module.exports = (function() {
 
 	var app = express();
 
+	passport.use('site/local', new LocalStrategy({ passReqToCallback: true }, siteAuth));
+	globals.passport.serializers['site'] = serializeSiteAuthUser;
+	globals.passport.deserializers['site'] = deserializeSiteAuthUser;
+
+
 	app.get('/:organization', defaultRoute);
+	app.get('/:organization/login', defaultLoginRoute);
+	app.post('/:organization/login', defaultLoginRoute);
 	app.get('/:organization/download/*', defaultDownloadRoute);
-	app.get('/:organization/:site', siteAuth, siteRoute);
-	app.get('/:organization/:site/download/*', siteAuth, downloadRoute);
+
+	// TODO: prevent showing login page if user is already logged in
+	app.get('/:organization/:site/login', loginRoute);
+	app.post('/:organization/:site/login', processLoginRoute);
+
+	app.get('/:organization/:site', ensureAuth, siteRoute);
+	app.get('/:organization/:site/download/*', ensureAuth, downloadRoute);
 
 	return app;
 
+	function processLoginRoute(req, res, next) {
+		passport.authenticate('site/local', function(error, user, info) {
+			if (error) { return next(error); }
+			var loginWasSuccessful = Boolean(user);
+			var requestPath = req.originalUrl.split('?')[0];
+			if (loginWasSuccessful) {
+				req.logIn(user, function(error) {
+					if (error) { return next(error); }
+					var siteIndexUrl = requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/';
+					return res.redirect(siteIndexUrl);
+				});
+			} else {
+				var siteLoginUrl = requestPath;
+				return res.redirect(siteLoginUrl);
+			}
+		})(req, res, next);
+	}
 
-	function siteAuth(req, res, next) {
+	function ensureAuth(req, res, next) {
+		if (req.isAuthenticated()) { return next(); }
+
 		var organizationAlias = req.params.organization;
 		var siteAlias = req.params.site;
 
 		var siteService = new SiteService(dataService, dropboxService);
-
-		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias, function(error, authenticationDetails, callback) {
+		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias, function(error, authenticationDetails) {
 			if (error) { return next(error); }
 
 			var isPublic = authenticationDetails['public'];
 			if (isPublic) { return next(); }
+			
+			var requestPath = req.originalUrl.split('?')[0];
 
-			express.basicAuth(function(username, password) {
-				var validUsers = authenticationDetails.users;
-				var authenticationService = new AuthenticationService();
-				return authenticationService.authenticate(username, password, validUsers);
-			})(req, res, next);
+			// TODO: Generate login link correctly for download URLs
+			var siteLoginUrl = (requestPath === '/' ? '' : requestPath) + '/login';
+			res.redirect(siteLoginUrl);
+		});
+	}
+
+	function siteAuth(req, username, password, callback) {
+		var organizationAlias = req.params.organization;
+		var siteAlias = req.params.site;
+
+		var siteService = new SiteService(dataService, dropboxService);
+		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias, function(error, authenticationDetails) {
+			if (error) { return callback && callback(error); }
+
+			var isPublic = authenticationDetails['public'];
+			if (isPublic) { return callback && callback(null, true); }
+			
+			var validUsers = authenticationDetails.users;
+			var authenticationService = new AuthenticationService();
+			var siteUserModel = authenticationService.authenticate(username, password, validUsers);
+
+			if (!siteUserModel) { return callback && callback(null, false); }
+
+			var passportUser = {
+				type: 'site',
+				organization: organizationAlias,
+				site: siteAlias,
+				model: siteUserModel
+			};
+			return callback && callback(null, passportUser);
+		});
+	}
+
+	function serializeSiteAuthUser(passportUser, callback) {
+		var serializedUser = JSON.stringify({
+			organization: passportUser.organization,
+			site: passportUser.site,
+			username: passportUser.model.username
+		});
+		return callback && callback(null, serializedUser);
+	}
+
+	function deserializeSiteAuthUser(serializedUser, callback) {
+		var deserializedUser = JSON.parse(serializedUser);
+		var organizationAlias = deserializedUser.organization;
+		var siteAlias = deserializedUser.site;
+		var username = deserializedUser.username;
+		
+		var siteService = new SiteService(dataService, dropboxService);
+		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias, function(error, authenticationDetails) {
+			if (error) { return callback && callback(error); }
+
+			var validUsers = authenticationDetails.users;
+			var matchedUsers = validUsers.filter(function(validUser) {
+				return validUser.username === username;
+			});
+
+			if (matchedUsers.length === 0) {
+				error = new Error('Username not found: "' + username + '"');
+				return callback && callback(error);
+			}
+
+			var siteUserModel = matchedUsers[0];
+			var passportUser = {
+				type: 'site',
+				organization: organizationAlias,
+				site: siteAlias,
+				model: siteUserModel
+			};
+			return callback && callback(null, passportUser);
 		});
 	}
 
@@ -55,6 +155,23 @@ module.exports = (function() {
 			}
 
 			req.url += '/' + siteAlias;
+			next();
+		});
+	}
+
+	function defaultLoginRoute(req, res, next) {
+		var organizationAlias = req.params.organization;
+		var organizationService = new OrganizationService(dataService);
+
+		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias, function(error, siteAlias) {
+			if (error) { return next(error); }
+			if (!siteAlias) {
+				error = new Error();
+				error.status = 404;
+				return next(error);
+			}
+
+			req.url = '/' + organizationAlias + '/' + siteAlias + '/login';
 			next();
 		});
 	}
@@ -123,7 +240,33 @@ module.exports = (function() {
 				'html': function() {
 					var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
 					var siteTemplateService = new SiteTemplateService(siteModel.template);
-					var html = siteTemplateService.render(siteModel, hostname);
+					var html = siteTemplateService.renderIndexPage(siteModel, hostname);
+					res.send(html);
+				}
+			}).respondTo(req);
+		}
+	}
+
+	function loginRoute(req, res, next) {
+		var organizationAlias = req.params.organization;
+		var siteAlias = req.params.site;
+
+		var siteService = new SiteService(dataService, dropboxService);
+
+		var includeContents = false;
+		var includeUsers = false;
+		var includeDomains = false;
+		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains, _handleSiteModelLoaded);
+
+
+		function _handleSiteModelLoaded(error, siteModel) {
+			if (error) { return next(error); }
+
+			new ResponseService({
+				'html': function() {
+					var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
+					var siteTemplateService = new SiteTemplateService(siteModel.template);
+					var html = siteTemplateService.renderLoginPage(siteModel, hostname);
 					res.send(html);
 				}
 			}).respondTo(req);
