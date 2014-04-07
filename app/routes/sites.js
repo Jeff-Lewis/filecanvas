@@ -27,8 +27,7 @@ module.exports = (function() {
 	app.post('/:organization/login', defaultLoginRoute);
 	app.get('/:organization/download/*', defaultDownloadRoute);
 
-	// TODO: prevent showing login page if user is already logged in
-	app.get('/:organization/:site/login', loginRoute);
+	app.get('/:organization/:site/login', loginAuthCheck, loginRoute);
 	app.post('/:organization/:site/login', processLoginRoute);
 
 	app.get('/:organization/:site', ensureAuth, siteRoute);
@@ -73,6 +72,15 @@ module.exports = (function() {
 			var siteLoginUrl = (requestPath === '/' ? '' : requestPath) + '/login';
 			res.redirect(siteLoginUrl);
 		});
+	}
+
+	function loginAuthCheck(req, res, next) {
+		if (req.isAuthenticated()) {
+			var requestPath = req.originalUrl.split('?')[0];
+			var siteIndexUrl = requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/';
+			return res.redirect(siteIndexUrl);
+		}
+		return next();
 	}
 
 	function siteAuth(req, username, password, callback) {
