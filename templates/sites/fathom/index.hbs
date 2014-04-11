@@ -85,7 +85,7 @@
 					<div class="span12">
 						<div class="title">{{ label }}</div>
 						<hr>
-						<div class="lead-small section-content"></div>
+						<div class="lead-small section-content" data-section-header="{{ alias }}"></div>
 
 						{{#if folders}}
 						<!-- Start Filters -->
@@ -173,16 +173,21 @@
 	<script>
 		$(document).ready(function() {
 			var sectionContent = {
-				"01-definition": "Smart thinking is what we do best. But smart thinking is diminished in potency without clear and accurate communication. We need to explain what our solution looks like and how it behaves for customers, and we need to do this quickly, in ways that mean you and your stakeholders can understand what we're proposing fully and unambiguously. This is the purpose of Definition. During Definition, our focus is on the creation of bespoke solutions and the timely, efficient communication of that solution to stakeholders.",
-				"02-discovery": "During Discovery, our focus is on analysis of issues, synthesis of insights and modelling of the people at the heart of the matter, the users.",
-				"03-origination": "Origination is the most obviously creative phase of our methodology and, as you'd expect, the hardest part to describe. Experience of interface aesthetics, usability best practice and software interactivity plays a huge part in this inherently creative process. During Origination, our focus is on synthesis of ideas and creation of solutions.",
-				"04-other-documents": null
+				"definition": "Smart thinking is what we do best. But smart thinking is diminished in potency without clear and accurate communication. We need to explain what our solution looks like and how it behaves for customers, and we need to do this quickly, in ways that mean you and your stakeholders can understand what we're proposing fully and unambiguously. This is the purpose of Definition. During Definition, our focus is on the creation of bespoke solutions and the timely, efficient communication of that solution to stakeholders.",
+				"discovery": "During Discovery, our focus is on analysis of issues, synthesis of insights and modelling of the people at the heart of the matter, the users.",
+				"origination": "Origination is the most obviously creative phase of our methodology and, as you'd expect, the hardest part to describe. Experience of interface aesthetics, usability best practice and software interactivity plays a huge part in this inherently creative process. During Origination, our focus is on synthesis of ideas and creation of solutions.",
+				"other-documents": null
 			};
 
-			for (var sectionName in sectionContent) {
-				var sectionText = sectionContent[sectionName];
-				var element = $('#' + sectionName + ' .section-content');
-				if (sectionText) { element.html(sectionText); } else { element.remove(); }
+			var $sections = $('[data-section-header]');
+			if ($sections) {
+				$sections.each(function(index, element) {
+					var $section = $(element);
+					var sectionAlias = $section.attr('data-section-header');
+					var sectionName = sectionAlias.replace(/^[0-9]+-/, '');
+					var sectionText = sectionContent[sectionName];
+					if (sectionText) { element.html(sectionText); } else { element.remove(); }
+				});
 			}
 		});
 
