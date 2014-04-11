@@ -182,11 +182,11 @@
 			var $sections = $('[data-section-header]');
 			if ($sections) {
 				$sections.each(function(index, element) {
-					var $section = $(element);
-					var sectionAlias = $section.attr('data-section-header');
+					var $sectionHeader = $(element);
+					var sectionAlias = $sectionHeader.attr('data-section-header');
 					var sectionName = sectionAlias.replace(/^[0-9]+-/, '');
 					var sectionText = sectionContent[sectionName];
-					if (sectionText) { element.html(sectionText); } else { element.remove(); }
+					if (sectionText) { $sectionHeader.html(sectionText); } else { $sectionHeader.remove(); }
 				});
 			}
 		});
