@@ -214,15 +214,7 @@ module.exports = (function() {
 
 		function _handleDownloadLinkRetrieved(error, downloadUrl) {
 			if (error) { return next(error); }
-
-			new ResponseService({
-				'json': function() {
-					res.json(downloadUrl);
-				},
-				'html': function() {
-					res.redirect(downloadUrl);
-				}
-			}).respondTo(req);
+			res.redirect(downloadUrl);
 		}
 	}
 
