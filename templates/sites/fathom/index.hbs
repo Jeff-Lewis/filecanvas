@@ -40,7 +40,9 @@
 					<ul id="fixed-nav" class="visible-desktop">
 						<li><a class="scroll-link" href="#home">Home</a></li>
 						{{#each folders}}
+						{{#if contents}}
 						<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
+						{{/if}}
 						{{/each}}
 					</ul>
 				</nav>
@@ -68,7 +70,9 @@
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
 							<li><a class="scroll-link" href="#home">Home</a></li>
 							{{#each folders}}
+							{{#if contents}}
 							<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
+							{{/if}}
 							{{/each}}
 						</ul>
 					</div>
@@ -93,7 +97,9 @@
 						<ul class="option-set" data-option-key="filter">
 							<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
 							{{#each folders}}
+							{{#if contents}}
 							<li><a href="#filter" data-option-value=".filter-{{ alias }}"><span></span>{{ label }}</a></li>
+							{{/if}}
 							{{/each}}
 						</ul>
 						<!-- End Filters -->
