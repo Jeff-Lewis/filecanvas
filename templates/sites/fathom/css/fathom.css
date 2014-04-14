@@ -28,6 +28,10 @@
 	background-image: url('filetypes/jpg.jpg');
 }
 
+.profile-photo[data-extension="png"] {
+	background-image: url('filetypes/png.jpg');
+}
+
 .profile-photo[data-extension="pdf"] {
 	background-image: url('filetypes/pdf.jpg');
 }
