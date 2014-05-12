@@ -786,7 +786,7 @@ module.exports = (function() {
 
 			Object.defineProperty(fileMetadata, 'files', {
 				'get': function() {
-					return (this.contents ? this.contents.filter(function(fileModel) { return !fileModel.is_dir; }) : null);
+					return (this.contents ? this.contents.filter(function(fileModel) { return !fileModel.is_dir; }).slice().reverse() : null);
 				}
 			});
 
