@@ -669,9 +669,11 @@ module.exports = (function() {
 				var parentFolder = cachePathLookupTable[parentPath] || null;
 
 				if (changeModel.wasRemoved) {
-					parentFolder.contents = parentFolder.contents.filter(function(siblingFolder) {
-						return siblingFolder.path.toLowerCase() !== changePath;
-					});
+					if (parentFolder && parentFolder.contents) {
+						parentFolder.contents = parentFolder.contents.filter(function(siblingFolder) {
+							return siblingFolder.path.toLowerCase() !== changePath;
+						});
+					}
 				} else {
 					var fileModel = changeModel.stat.json();
 					if (fileModel.is_dir) { fileModel.contents = []; }
