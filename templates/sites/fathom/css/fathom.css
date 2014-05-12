@@ -43,3 +43,13 @@
 .profile-photo[data-extension="zip"] {
 	background-image: url('filetypes/zip.jpg');
 }
+
+.profile-photo[data-extension="mov"],
+.profile-photo[data-extension="mpg"],
+.profile-photo[data-extension="mpeg"],
+.profile-photo[data-extension="mp4"],
+.profile-photo[data-extension="avi"],
+.profile-photo[data-extension="wmv"],
+.profile-photo[data-extension="flv"] {
+	background-image: url('filetypes/video.jpg');
+}
