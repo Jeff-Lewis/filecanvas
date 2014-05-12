@@ -780,13 +780,13 @@ module.exports = (function() {
 
 			Object.defineProperty(fileMetadata, 'folders', {
 				'get': function() {
-					return (this.contents ? this.contents.filter(function(fileModel) { return fileModel.is_dir; }) : null);
+					return (this.contents ? this.contents.filter(function(fileModel) { return fileModel.is_dir; }).sort(function(a, b) { return (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1); }) : null);
 				}
 			});
 
 			Object.defineProperty(fileMetadata, 'files', {
 				'get': function() {
-					return (this.contents ? this.contents.filter(function(fileModel) { return !fileModel.is_dir; }).slice().reverse() : null);
+					return (this.contents ? this.contents.filter(function(fileModel) { return !fileModel.is_dir; }).reverse() : null);
 				}
 			});
 
