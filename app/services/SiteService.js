@@ -777,6 +777,7 @@ module.exports = (function() {
 			}
 			fileMetadata.url = fileMetadata.path.replace(rootFolderPath, downloadUrlPrefix);
 			fileMetadata.date = formatDate(new Date(fileMetadata.modified));
+			fileMetadata.timestamp = Math.floor(new Date(fileMetadata.modified).getTime() / 1000);
 
 			Object.defineProperty(fileMetadata, 'folders', {
 				'get': function() {

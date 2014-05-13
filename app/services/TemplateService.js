@@ -27,10 +27,6 @@ module.exports = (function() {
 		return options.fn(this).replace(item1, item2);
 	});
 
-	Handlebars.registerHelper('timestamp', function(date, options) {
-		return (date ? Math.floor(date.getTime() / 1000) : '');
-	});
-
 	function TemplateService() {
 
 	}
