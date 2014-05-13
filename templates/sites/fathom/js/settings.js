@@ -129,7 +129,10 @@ function isoInstance($group){
 	$group.isotope({
 		itemSelector : '.post',
 		getSortData : {
-			modified : '[data-file-modified]'
+			modified : function(itemElem) {
+				var timestamp = $(itemElem).attr('data-file-modified');
+				return parseInt(timestamp, 10);
+			}
 		},
 		sortBy : ['modified', 'original-order'],
 		sortAscending : {
