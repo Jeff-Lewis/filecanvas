@@ -28,7 +28,7 @@ module.exports = (function() {
 	});
 
 	Handlebars.registerHelper('timestamp', function(date, options) {
-		return Math.floor(date.getTime() / 1000);
+		return (date ? Math.floor(date.getTime() / 1000) : '');
 	});
 
 	function TemplateService() {
