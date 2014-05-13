@@ -127,14 +127,7 @@ $(function(){
 function isoInstance($group){
 
 	$group.isotope({
-		itemSelector : '.post',
-		getSortData : {
-			modified : '[data-file-modified]'
-		},
-		sortBy : ['modified', 'original-order'],
-		sortAscending : {
-			modified : false
-		}
+		itemSelector : '.post'
 	});
 	
 	// Find filters
