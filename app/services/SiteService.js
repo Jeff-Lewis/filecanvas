@@ -780,13 +780,27 @@ module.exports = (function() {
 
 			Object.defineProperty(fileMetadata, 'folders', {
 				'get': function() {
-					return (this.contents ? this.contents.filter(function(fileModel) { return fileModel.is_dir; }).sort(function(a, b) { return (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1); }) : null);
+					if (!this.contents) { return null; }
+					var folders = this.contents.filter(function(fileModel) {
+						return fileModel.is_dir;
+					});
+					var sortedFolders = folders.sort(function _sortAlphabetically(a, b) {
+						return (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1);
+					});
+					return sortedFolders;
 				}
 			});
 
 			Object.defineProperty(fileMetadata, 'files', {
 				'get': function() {
-					return (this.contents ? this.contents.filter(function(fileModel) { return !fileModel.is_dir; }).reverse() : null);
+					if (!this.contents) { return null; }
+					var files = this.contents.filter(function(fileModel) {
+						return !fileModel.is_dir;
+					});
+					var sortedFiles = files.sort(function _sortByDate(a, b) {
+						return (a.modifiedAt - b.modifiedAt);
+					});
+					return sortedFiles;
 				}
 			});
 
