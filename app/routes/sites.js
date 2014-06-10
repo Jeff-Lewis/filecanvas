@@ -65,7 +65,7 @@ module.exports = (function() {
 
 			var isPublic = authenticationDetails['public'];
 			if (isPublic) { return next(); }
-			
+
 			var requestPath = req.originalUrl.split('?')[0];
 
 			// TODO: Generate login link correctly for download URLs
@@ -93,7 +93,7 @@ module.exports = (function() {
 
 			var isPublic = authenticationDetails['public'];
 			if (isPublic) { return callback && callback(null, true); }
-			
+
 			var validUsers = authenticationDetails.users;
 			var authenticationService = new AuthenticationService();
 			var siteUserModel = authenticationService.authenticate(username, password, validUsers);
@@ -124,7 +124,7 @@ module.exports = (function() {
 		var organizationAlias = deserializedUser.organization;
 		var siteAlias = deserializedUser.site;
 		var username = deserializedUser.username;
-		
+
 		var siteService = new SiteService(dataService, dropboxService);
 		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias, function(error, authenticationDetails) {
 			if (error) { return callback && callback(error); }

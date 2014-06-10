@@ -47,14 +47,14 @@ module.exports = (function() {
 	app.get('/organization/users', ensureAuth, initAdminSession, retrieveOrganizationUserListRoute);
 	app.get('/organization/users/add', ensureAuth, initAdminSession, retrieveOrganizationUserAddRoute);
 	app.get('/organization/users/edit/:username', ensureAuth, initAdminSession, retrieveOrganizationUserEditRoute);
-	
+
 	app.put('/organization', ensureAuth, initAdminSession, updateOrganizationRoute);
 	app.del('/organization/shares/:share', ensureAuth, initAdminSession, deleteOrganizationShareRoute);
 	app.post('/organization/users', ensureAuth, initAdminSession, createOrganizationUserRoute);
 	app.put('/organization/users/:username', ensureAuth, initAdminSession, updateOrganizationUserRoute);
 	app.put('/organization/users/:username/password', ensureAuth, initAdminSession, updateOrganizationUserPasswordRoute);
 	app.del('/organization/users/:user', ensureAuth, initAdminSession, deleteOrganizationUserRoute);
-	
+
 
 	app.get('/sites', ensureAuth, initAdminSession, retrieveSiteListRoute);
 	app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
@@ -173,7 +173,7 @@ module.exports = (function() {
 
 			function _handleOrganizationDetailsLoaded(error, organizationModel) {
 				if (error) { return callback && callback(error); }
-				
+
 				_retrieveOrganizationSites(administratorModel.organization, _handleOrganizationSitesLoaded);
 
 				function _handleOrganizationSitesLoaded(error, siteModels) {
@@ -283,7 +283,7 @@ module.exports = (function() {
 				user: app.locals.session.user
 			}
 		};
-		
+
 		_outputAdminPage(adminTemplates.ACCOUNT, templateData, req, res);
 	}
 
@@ -305,7 +305,7 @@ module.exports = (function() {
 					administrators: administratorModels
 				}
 			};
-			
+
 			_outputAdminPage(adminTemplates.ORGANIZATION, templateData, req, res);
 		}
 	}
@@ -513,7 +513,7 @@ module.exports = (function() {
 
 	function retrieveSiteEditRoute(req, res, next) {
 		var session = app.locals.session;
-		
+
 		var organizationModel = session.organization;
 		var organizationAlias = organizationModel.alias;
 		var siteAlias = req.params.site;
@@ -539,7 +539,7 @@ module.exports = (function() {
 
 	function retrieveSiteUsersEditRoute(req, res, next) {
 		var session = app.locals.session;
-		
+
 		var organizationModel = session.organization;
 		var organizationAlias = organizationModel.alias;
 		var siteAlias = req.params.site;
@@ -565,7 +565,7 @@ module.exports = (function() {
 
 	function retrieveSiteDomainsEditRoute(req, res, next) {
 		var session = app.locals.session;
-		
+
 		var organizationModel = session.organization;
 		var organizationAlias = organizationModel.alias;
 		var siteAlias = req.params.site;
@@ -653,7 +653,7 @@ module.exports = (function() {
 				'share': req.body.share || null,
 				'public': (req.body['private'] !== 'true')
 			};
-			
+
 			var siteService = new SiteService(dataService);
 			siteService.updateSite(organizationAlias, siteAlias, siteModel, _handleSiteUpdated);
 
