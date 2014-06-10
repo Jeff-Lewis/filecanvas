@@ -234,9 +234,12 @@ module.exports = (function() {
 			if (error) { return next(error); }
 
 			new ResponseService({
-				'json': function() {
-					res.json(siteModel);
-				},
+				/*
+				TODO: Sending JSON responses appears to confuse old versions of IE
+				//	'json': function() {
+				//		res.json(siteModel);
+				//	},
+				 */
 				'html': function() {
 					var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
 					var siteTemplateService = new SiteTemplateService(siteModel.template);

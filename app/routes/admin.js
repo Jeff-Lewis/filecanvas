@@ -745,9 +745,12 @@ module.exports = (function() {
 
 	function _outputAdminPage(htmlTemplate, templateData, req, res) {
 		new ResponseService({
+			/*
+			TODO: Sending JSON responses appears to confuse old versions of IE
 			'json': function() {
 				res.json(templateData && templateData.content);
 			},
+			*/
 			'html': function() {
 				var html = htmlTemplate(templateData);
 				res.send(html);
