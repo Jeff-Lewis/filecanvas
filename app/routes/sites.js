@@ -43,8 +43,9 @@ module.exports = (function() {
 			if (loginWasSuccessful) {
 				req.logIn(user, function(error) {
 					if (error) { return next(error); }
-					var siteIndexUrl = requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/';
-					return res.redirect(siteIndexUrl);
+					var redirectParam = req.param('redirect');
+					var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
+					return res.redirect(redirectUrl);
 				});
 			} else {
 				var siteLoginUrl = requestPath;
@@ -69,7 +70,13 @@ module.exports = (function() {
 			var requestPath = req.originalUrl.split('?')[0];
 
 			// TODO: Generate login link correctly for download URLs
-			var siteLoginUrl = (requestPath === '/' ? '' : requestPath) + '/login';
+			var siteLoginUrl = '/login';
+			var isDownloadLink = (requestPath.indexOf('/download') === 0);
+			if (isDownloadLink) {
+				siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
+			} else {
+				siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
+			}
 			res.redirect(siteLoginUrl);
 		});
 	}
@@ -77,8 +84,9 @@ module.exports = (function() {
 	function loginAuthCheck(req, res, next) {
 		if (req.isAuthenticated()) {
 			var requestPath = req.originalUrl.split('?')[0];
-			var siteIndexUrl = requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/';
-			return res.redirect(siteIndexUrl);
+			var redirectParam = req.param('redirect');
+			var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
+			return res.redirect(redirectUrl);
 		}
 		return next();
 	}
