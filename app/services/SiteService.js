@@ -775,7 +775,7 @@ module.exports = (function() {
 				fileMetadata.extension = fileMetadata.label.split('.').pop();
 				fileMetadata.label = fileMetadata.label.substr(0, fileMetadata.label.lastIndexOf('.'));
 			}
-			fileMetadata.url = fileMetadata.path.replace(rootFolderPath, downloadUrlPrefix);
+			fileMetadata.url = getFileUrl(fileMetadata.path, rootFolderPath, downloadUrlPrefix);
 			fileMetadata.date = formatDate(new Date(fileMetadata.modified));
 			fileMetadata.timestamp = Math.floor(new Date(fileMetadata.modified).getTime() / 1000);
 
@@ -812,6 +812,12 @@ module.exports = (function() {
 			var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 			var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dev'];
 			return DAYS[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear();
+		}
+
+		function getFileUrl(path, rootFolderPath, downloadUrlPrefix) {
+			var isExternalPath = (path.indexOf(rootFolderPath) !== 0);
+			if (isExternalPath) { throw new Error('Invalid file path: "' + path + '"'); }
+			return downloadUrlPrefix + path.replace(rootFolderPath, '').split('/').map(encodeURIComponent).join('/');
 		}
 	};
 
