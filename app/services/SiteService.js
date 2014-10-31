@@ -129,7 +129,7 @@ module.exports = (function() {
 				if (!includeContents) { return callback && callback(null, siteModel); }
 
 				var siteFolderPath = _getSiteFolderPath(organizationAlias, siteModel, self.dataService);
-				
+
 				var hasSiteFolder = (siteFolderPath !== null);
 				if (!hasSiteFolder) { return callback && callback(null, siteModel); }
 
@@ -530,7 +530,7 @@ module.exports = (function() {
 					return callback && callback(null);
 				}
 			}
-			
+
 		}
 
 		function _checkWhetherSiteisOrganizationDefaultSite(organizationAlias, siteAlias, callback) {
@@ -620,7 +620,7 @@ module.exports = (function() {
 		// TODO: Validate title when validating site model
 		// TODO: Validate template when validating site model
 		// TODO: Validate share when validating site model
-		
+
 		return callback && callback(null, siteModel);
 
 
