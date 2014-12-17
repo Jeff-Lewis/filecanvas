@@ -815,9 +815,15 @@ module.exports = (function() {
 		}
 
 		function getFileUrl(path, rootFolderPath, downloadUrlPrefix) {
-			var isExternalPath = (path.indexOf(rootFolderPath) !== 0);
+			var rootFolderRegExp = new RegExp('^' + escapeRegExp(rootFolderPath), 'i');
+			var isExternalPath = !rootFolderRegExp.test(path);
 			if (isExternalPath) { throw new Error('Invalid file path: "' + path + '"'); }
-			return downloadUrlPrefix + path.replace(rootFolderPath, '').split('/').map(encodeURIComponent).join('/');
+			return downloadUrlPrefix + path.replace(rootFolderRegExp, '').split('/').map(encodeURIComponent).join('/');
+
+
+			function escapeRegExp(string) {
+				return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+			}
 		}
 	};
 
