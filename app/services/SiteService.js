@@ -6,8 +6,7 @@ module.exports = (function() {
 	var AuthenticationService = require('../services/AuthenticationService');
 
 	var SECONDS = 1000;
-	var MINUTES = SECONDS * 60;
-	var DROPBOX_DELTA_CACHE_EXPIRY = 5 * MINUTES;
+	var DROPBOX_DELTA_CACHE_EXPIRY = 30 * SECONDS;
 
 	var MONGO_ERROR_CODE_DUPLICATE_KEY = 11000;
 
