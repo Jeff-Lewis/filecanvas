@@ -267,7 +267,15 @@ function initServer(port, debugMode, services) {
 		if (debugMode) {
 
 			app.use(function(err, req, res, next) {
-				throw err;
+				var ErrorTemplateService = require('./app/services/ErrorTemplateService');
+				var ResponseService = require('./app/services/ResponseService');
+				new ResponseService({
+					'html': function() {
+						var errorTemplateService = new ErrorTemplateService();
+						var html = errorTemplateService.renderErrorPage(err);
+						res.send(html);
+					}
+				}).respondTo(req);
 			});
 
 		} else {
