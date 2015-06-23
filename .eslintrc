@@ -1,0 +1,18 @@
+{
+	"env": {
+		"node": true
+	},
+	"rules": {
+		"strict": [2, "global"],
+		"quotes": [2, "single"],
+		"dot-notation": false,
+		"no-underscore-dangle": false,
+		"no-shadow": false,
+		"no-use-before-define": [2, "nofunc"],
+		"no-unused-vars": [2, {
+			"vars": "all",
+			"args": "none"
+		}],
+		"no-console": 2
+	}
+}

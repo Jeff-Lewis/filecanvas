@@ -1,10 +1,10 @@
-module.exports = (function() {
-	'use strict';
+'use strict';
 
-	var path = require('path');
-	var express = require('express');
+var path = require('path');
+var express = require('express');
 
-	var templatesRoot = path.resolve(path.dirname(require.main.filename), 'templates/sites');
+var templatesRoot = path.resolve(path.dirname(require.main.filename), 'templates/sites');
 
-	return express['static'](templatesRoot);
-})();
+var app = express.static(templatesRoot);
+
+module.exports = app;

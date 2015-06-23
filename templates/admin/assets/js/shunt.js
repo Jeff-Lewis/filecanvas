@@ -1,4 +1,3 @@
-/* jshint jquery: true */
 (function() {
 	'use strict';
 
@@ -11,17 +10,17 @@
 			var settings = {
 				type: 'POST',
 				data: { '_method': 'PUT', '_action': 'purge' },
-				success: _handleCachePurgeCompleted,
-				error: _handleCachePurgeFailed
+				success: onCachePurgeCompleted,
+				error: onCachePurgeFailed
 			};
 			$.ajax(url, settings);
 
 
-			function _handleCachePurgeCompleted() {
+			function onCachePurgeCompleted() {
 				return callback && callback(null);
 			}
 
-			function _handleCachePurgeFailed(jqXHR, textStatus, errorThrown) {
+			function onCachePurgeFailed(jqXHR, textStatus, errorThrown) {
 				var error = new Error(errorThrown);
 				return callback && callback(error);
 			}
@@ -31,5 +30,4 @@
 	})();
 
 	window.shunt = new Shunt();
-
 })();

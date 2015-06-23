@@ -1,14 +1,12 @@
-module.exports = (function() {
-	'use strict';
+'use strict';
 
-	var TemplateService = require('../services/TemplateService');
+var TemplateService = require('../services/TemplateService');
 
-	var templateService = new TemplateService();
+var templateService = new TemplateService();
 
-	return {
-		'fathom': {
-			login: templateService.compile('templates/sites/fathom/login.hbs'),
-			index: templateService.compile('templates/sites/fathom/index.hbs')
-		}
-	};
-})();
+module.exports = {
+	'fathom': {
+		login: templateService.compile('templates/sites/fathom/login.hbs'),
+		index: templateService.compile('templates/sites/fathom/index.hbs')
+	}
+};

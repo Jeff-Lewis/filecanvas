@@ -1,13 +1,11 @@
-module.exports = (function() {
-	'use strict';
+'use strict';
 
-	var express = require('express');
+var express = require('express');
 
-	var app = express();
+var app = express();
 
-	app.get('/', function(req, res) {
-		res.send(204);
-	});
+app.get('/', function(req, res) {
+	res.send(204);
+});
 
-	return app;
-})();
+module.exports = app;

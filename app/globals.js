@@ -1,12 +1,6 @@
-module.exports = (function() {
-	'use strict';
+'use strict';
 
-	return {
-		db: null,
-		dropbox: null,
-		passport: {
-			serializers: {},
-			deserializers: {}
-		}
-	};
-})();
+exports.passport = {
+	serializers: {},
+	deserializers: {}
+};

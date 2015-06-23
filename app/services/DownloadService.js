@@ -1,22 +1,24 @@
-module.exports = (function() {
-	'use strict';
+'use strict';
 
-	function DownloadService(dropboxService) {
-		this.dropboxService = dropboxService;
-	}
+var Promise = require('promise');
 
-	DownloadService.prototype.dropboxService = null;
+function DownloadService(dropboxService) {
+	this.dropboxService = dropboxService;
+}
 
-	DownloadService.prototype.retrieveDownloadLink = function(path, callback) {
+DownloadService.prototype.dropboxService = null;
+
+DownloadService.prototype.retrieveDownloadLink = function(path) {
+	var self = this;
+	return new Promise(function(resolve, reject) {
 		var generateTemporaryUrl = true;
-		this.dropboxService.client.makeUrl(path, { download: generateTemporaryUrl }, _handleDownloadLinkRetrieved);
+		self.dropboxService.client.makeUrl(path, { download: generateTemporaryUrl },
+			function(error, shareUrlModel) {
+				if (error) { return reject(error); }
+				return resolve(shareUrlModel.url);
+			}
+		);
+	});
+};
 
-
-		function _handleDownloadLinkRetrieved(error, shareUrlModel) {
-			if (error) { return error && callback(error); }
-			return callback && callback(null, shareUrlModel.url);
-		}
-	};
-
-	return DownloadService;
-})();
+module.exports = DownloadService;

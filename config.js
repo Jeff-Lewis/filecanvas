@@ -1,3 +1,5 @@
+'use strict';
+
 var config = {};
 
 config.dropbox = {};
@@ -8,9 +10,6 @@ config.dropbox.appRoot = process.env.DROPBOX_APP_ROOT || '/.shunt/sites/';
 
 config.mongodb = {};
 config.mongodb.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URI || null;
-
-config.email = {};
-config.email.from = { 'name': 'Shunt Admin', 'address': 'admin@shunt.io' };
 
 config.urls = {};
 config.urls.templates = process.env.TEMPLATES_URL || '//templates.${HOST}/';
