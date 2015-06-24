@@ -44,7 +44,7 @@
 						<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
 						{{/if}}
 						{{/each}}
-						<li><a href="logout">Log out</a></li>
+						<li><a href="{{ siteRoot }}logout">Log out</a></li>
 					</ul>
 				</nav>
 				<!-- End Navigation -->
@@ -109,7 +109,7 @@
 						<div class="posts row isotope ">
 							{{#each files}}
 							<div class="post item span4 isotope-item" data-file-modified="{{ timestamp }}">
-								<a href="{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp" rel="">
+								<a href="{{ ../../../siteRoot }}download{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp" rel="">
 										<div class="profile-photo" data-extension="{{ extension }}">
 											<div class="profile-icon">&#0109;</div>
 										</div>
@@ -123,7 +123,7 @@
 							{{#each folders}}
 							{{#each files}}
 							<div class="post item span4 isotope-item filter-{{ ../alias }}" data-file-modified="{{ timestamp }}">
-								<a href="{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp" rel="">
+								<a href="{{ ../../../../siteRoot }}download{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp" rel="">
 										<div class="profile-photo" data-extension="{{ extension }}">
 											<div class="profile-icon">&#0109;</div>
 										</div>
