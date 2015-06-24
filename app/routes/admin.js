@@ -256,6 +256,7 @@ module.exports = function(dataService) {
 
 	function retrieveLogoutRoute(req, res, next) {
 		req.logout();
+		req.session.destroy();
 		res.redirect('/');
 	}
 
