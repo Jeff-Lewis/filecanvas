@@ -51,7 +51,7 @@ module.exports = function(dataService, dropboxService) {
 						return;
 					}
 					var redirectParam = req.param('redirect');
-					var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
+					var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
 					res.redirect(redirectUrl);
 				});
 			} else {
@@ -299,7 +299,9 @@ module.exports = function(dataService, dropboxService) {
 					'html': function() {
 						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
 						var siteTemplateService = new SiteTemplateService(siteModel.template);
-						var html = siteTemplateService.renderIndexPage(siteModel, hostname);
+						var requestPath = req.originalUrl.split('?')[0];
+						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+						var html = siteTemplateService.renderIndexPage(siteModel, siteRoot, hostname);
 						res.send(html);
 					}
 				}).respondTo(req);
@@ -323,8 +325,10 @@ module.exports = function(dataService, dropboxService) {
 				new ResponseService({
 					'html': function() {
 						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
+						var requestPath = req.originalUrl.split('?')[0].replace(/\/login$/, '');
+						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
 						var siteTemplateService = new SiteTemplateService(siteModel.template);
-						var html = siteTemplateService.renderLoginPage(siteModel, hostname);
+						var html = siteTemplateService.renderLoginPage(siteModel, siteRoot, hostname);
 						res.send(html);
 					}
 				}).respondTo(req);

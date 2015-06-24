@@ -11,7 +11,7 @@ function SiteTemplateService(templateName) {
 SiteTemplateService.prototype.templateName = null;
 SiteTemplateService.prototype.templatesRoot = null;
 
-SiteTemplateService.prototype.renderLoginPage = function(siteModel, hostname) {
+SiteTemplateService.prototype.renderLoginPage = function(siteModel, siteRoot, hostname) {
 	var siteTemplatesRoot = templatesRootUrl.replace(/\$\{HOST\}/g, hostname);
 	var title = siteModel.title;
 	var siteTemplate = siteTemplates[this.templateName].login;
@@ -19,11 +19,12 @@ SiteTemplateService.prototype.renderLoginPage = function(siteModel, hostname) {
 
 	return siteTemplate({
 		title: title,
+		siteRoot: siteRoot,
 		templateRoot: siteTemplateRoot
 	});
 };
 
-SiteTemplateService.prototype.renderIndexPage = function(siteModel, hostname) {
+SiteTemplateService.prototype.renderIndexPage = function(siteModel, siteRoot, hostname) {
 	var siteTemplatesRoot = templatesRootUrl.replace(/\$\{HOST\}/g, hostname);
 	var siteContents = siteModel.contents || { folders: null, files: null };
 	var title = siteModel.title;
@@ -32,6 +33,7 @@ SiteTemplateService.prototype.renderIndexPage = function(siteModel, hostname) {
 
 	return siteTemplate({
 		title: title,
+		siteRoot: siteRoot,
 		templateRoot: siteTemplateRoot,
 		contents: siteContents,
 		folders: siteContents.folders,
