@@ -23,10 +23,12 @@ module.exports = function(dataService, dropboxService) {
 	app.get('/:organization', defaultRoute);
 	app.get('/:organization/login', defaultLoginRoute);
 	app.post('/:organization/login', defaultLoginRoute);
+	app.get('/:organization/logout', defaultLogoutRoute);
 	app.get('/:organization/download/*', defaultDownloadRoute);
 
 	app.get('/:organization/:site/login', loginAuthCheck, loginRoute);
 	app.post('/:organization/:site/login', processLoginRoute);
+	app.get('/:organization/:site/logout', processLogoutRoute);
 
 	app.get('/:organization/:site', ensureAuth, siteRoute);
 	app.get('/:organization/:site/download/*', ensureAuth, downloadRoute);
@@ -175,6 +177,13 @@ module.exports = function(dataService, dropboxService) {
 			});
 	}
 
+	function processLogoutRoute(req, res, next) {
+		req.logout();
+		var requestPath = req.originalUrl.split('?')[0];
+		var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
+		res.redirect(redirectUrl);
+	}
+
 	function defaultRoute(req, res, next) {
 		var organizationAlias = req.params.organization;
 		var organizationService = new OrganizationService(dataService);
@@ -206,6 +215,25 @@ module.exports = function(dataService, dropboxService) {
 					throw error;
 				}
 				req.url = '/' + organizationAlias + '/' + siteAlias + '/login';
+				next();
+			})
+			.catch(function(error) {
+				next(error);
+			});
+	}
+
+	function defaultLogoutRoute(req, res, next) {
+		var organizationAlias = req.params.organization;
+		var organizationService = new OrganizationService(dataService);
+
+		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
+			.then(function(siteAlias) {
+				if (!siteAlias) {
+					var error = new Error();
+					error.status = 404;
+					throw error;
+				}
+				req.url = '/' + organizationAlias + '/' + siteAlias + '/logout';
 				next();
 			})
 			.catch(function(error) {
