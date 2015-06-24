@@ -8,8 +8,6 @@ var AuthenticationService = require('../services/AuthenticationService');
 
 var MONGO_ERROR_CODE_DUPLICATE_KEY = 11000;
 
-var SITE_CONTENTS_DOWNLOAD_URL_PREFIX = 'download';
-
 var DB_COLLECTION_SITES = 'sites';
 var DB_COLLECTION_ORGANIZATIONS = 'organizations';
 
@@ -135,8 +133,7 @@ SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, incl
 
 			return dropboxService.loadFolderContents(siteFolderPath, siteModel.cache)
 				.then(function(data) {
-					var downloadUrlPrefix = SITE_CONTENTS_DOWNLOAD_URL_PREFIX;
-					siteModel.contents = processFileMetadata(data.contents, siteFolderPath, downloadUrlPrefix);
+					siteModel.contents = processFileMetadata(data.contents, siteFolderPath);
 					delete siteModel.cache;
 					self.updateSiteCache(organizationAlias, siteAlias, data.cache);
 					return siteModel;
@@ -178,8 +175,8 @@ SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, incl
 		return sitePath;
 	}
 
-	function processFileMetadata(fileMetadata, rootFolderPath, downloadUrlPrefix) {
-		fileMetadata.url = getFileUrl(fileMetadata.path, rootFolderPath, downloadUrlPrefix);
+	function processFileMetadata(fileMetadata, rootFolderPath) {
+		fileMetadata.url = getFileUrl(fileMetadata.path, rootFolderPath);
 
 		Object.defineProperty(fileMetadata, 'folders', {
 			'get': function() {
@@ -209,18 +206,18 @@ SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, incl
 
 		if (fileMetadata.is_dir) {
 			fileMetadata.contents = fileMetadata.contents.map(function(fileMetadata) {
-				return processFileMetadata(fileMetadata, rootFolderPath, downloadUrlPrefix);
+				return processFileMetadata(fileMetadata, rootFolderPath);
 			});
 		}
 
 		return fileMetadata;
 	}
 
-	function getFileUrl(path, rootFolderPath, downloadUrlPrefix) {
+	function getFileUrl(path, rootFolderPath) {
 		var rootFolderRegExp = new RegExp('^' + escapeRegExp(rootFolderPath), 'i');
 		var isExternalPath = !rootFolderRegExp.test(path);
 		if (isExternalPath) { throw new Error('Invalid file path: "' + path + '"'); }
-		return downloadUrlPrefix + path.replace(rootFolderRegExp, '').split('/').map(encodeURIComponent).join('/');
+		return path.replace(rootFolderRegExp, '').split('/').map(encodeURIComponent).join('/');
 
 
 		function escapeRegExp(string) {
