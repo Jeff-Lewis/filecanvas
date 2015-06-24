@@ -179,6 +179,7 @@ module.exports = function(dataService, dropboxService) {
 
 	function processLogoutRoute(req, res, next) {
 		req.logout();
+		req.session.destroy();
 		var requestPath = req.originalUrl.split('?')[0];
 		var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
 		res.redirect(redirectUrl);
