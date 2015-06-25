@@ -7,6 +7,8 @@ var LocalStrategy = require('passport-local').Strategy;
 var config = require('../../config');
 var globals = require('../globals');
 
+var HttpError = require('../errors/HttpError');
+
 var handlebarsEngine = require('../engines/handlebars');
 
 var OrganizationService = require('../services/OrganizationService');
@@ -164,8 +166,7 @@ module.exports = function(dataService, dropboxService) {
 				});
 
 				if (matchedUsers.length === 0) {
-					var error = new Error('Username not found: "' + username + '"');
-					throw error;
+					throw new Error('Username not found: "' + username + '"');
 				}
 
 				var siteUserModel = matchedUsers[0];
@@ -197,9 +198,7 @@ module.exports = function(dataService, dropboxService) {
 		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
-					var error = new Error();
-					error.status = 404;
-					throw error;
+					throw new HttpError(404);
 				}
 				req.url += '/' + siteAlias;
 				next();
@@ -216,9 +215,7 @@ module.exports = function(dataService, dropboxService) {
 		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
-					var error = new Error();
-					error.status = 404;
-					throw error;
+					throw new HttpError(404);
 				}
 				req.url = '/' + organizationAlias + '/' + siteAlias + '/login';
 				next();
@@ -235,9 +232,7 @@ module.exports = function(dataService, dropboxService) {
 		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
-					var error = new Error();
-					error.status = 404;
-					throw error;
+					throw new HttpError(404);
 				}
 				req.url = '/' + organizationAlias + '/' + siteAlias + '/logout';
 				next();
@@ -255,9 +250,7 @@ module.exports = function(dataService, dropboxService) {
 		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
-					var error = new Error();
-					error.status = 404;
-					throw error;
+					throw new HttpError(404);
 				}
 				req.url = '/' + organizationAlias + '/' + siteAlias + '/download/' + downloadPath;
 				next();

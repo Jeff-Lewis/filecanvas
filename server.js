@@ -11,6 +11,8 @@ var passport = require('passport');
 var config = require('./config');
 var globals = require('./app/globals');
 
+var HttpError = require('./app/errors/HttpError');
+
 var handlebarsEngine = require('./app/engines/handlebars');
 
 var stripTrailingSlash = require('./app/middleware/stripTrailingSlash');
@@ -274,9 +276,7 @@ function initServer(port, debugMode, services) {
 
 	function initErrorHandling(app, debugMode) {
 		app.use(function(req, res, next) {
-			var error = new Error();
-			error.status = 404;
-			next(error);
+			next(new HttpError(404));
 		});
 		app.use(errorHandler({ debug: debugMode }));
 	}

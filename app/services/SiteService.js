@@ -2,6 +2,8 @@
 
 var Promise = require('promise');
 
+var HttpError = require('../errors/HttpError');
+
 var DownloadService = require('../services/DownloadService');
 var OrganizationService = require('../services/OrganizationService');
 var AuthenticationService = require('../services/AuthenticationService');
@@ -74,9 +76,7 @@ SiteService.prototype.retrieveAuthenticationDetails = function(organizationAlias
 				function(error, siteModel) {
 					if (error) { return reject(error); }
 					if (!siteModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 
 					var authenticationDetails = {
@@ -156,9 +156,7 @@ SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, incl
 				function(error, siteModel) {
 					if (error) { return reject(error); }
 					if (!siteModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(siteModel);
 				}
@@ -239,9 +237,7 @@ SiteService.prototype.retrieveSiteCache = function(organizationAlias, siteAlias)
 			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
 				function(error, siteModel) {
 					if (!siteModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					if (error) { return reject(error); }
 					return resolve(siteModel.cache);
@@ -267,9 +263,7 @@ SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, c
 				function(error, numResults) {
 					if (error) { return reject(error); }
 					if (numResults === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve();
 				}
@@ -293,9 +287,7 @@ SiteService.prototype.createSite = function(siteModel) {
 			dataService.db.collection(DB_COLLECTION_SITES).insert(siteModel, options,
 				function(error, records) {
 					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						error = new Error('A site already exists at that path');
-						error.status = 409;
-						return reject(error);
+						return reject(new HttpError(409, 'A site already exists at that path'));
 					}
 					if (error) { return reject(error); }
 					return resolve(siteModel);
@@ -333,9 +325,7 @@ SiteService.prototype.updateSite = function(organizationAlias, siteAlias, siteMo
 				function(error, siteModel) {
 					if (error) { return reject(error); }
 					if (!siteModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					var shareAlias = siteModel.share;
 					return resolve(shareAlias);
@@ -354,9 +344,7 @@ SiteService.prototype.updateSite = function(organizationAlias, siteAlias, siteMo
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(siteModel);
 				}
@@ -367,10 +355,10 @@ SiteService.prototype.updateSite = function(organizationAlias, siteAlias, siteMo
 
 
 SiteService.prototype.createSiteUser = function(organizationAlias, siteAlias, username, password) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!siteAlias) { return Promise.reject(validationError('No site specified')); }
-	if (!username) { return Promise.reject(validationError('No username specified')); }
-	if (!password) { return Promise.reject(validationError('No password specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!password) { return Promise.reject(new HttpError(400, 'No password specified')); }
 
 	// TODO: Validate site user details
 
@@ -378,9 +366,7 @@ SiteService.prototype.createSiteUser = function(organizationAlias, siteAlias, us
 	return checkWhetherUserAlreadyExists(dataService, organizationAlias, siteAlias, username)
 		.then(function(userAlreadyExists) {
 			if (userAlreadyExists) {
-				var error = new Error('A user already exists with this username');
-				error.status = 409;
-				throw error;
+				throw new HttpError(409, 'A user already exists with this username');
 			}
 			return addSiteUser(dataService, organizationAlias, siteAlias, username, password);
 		});
@@ -412,9 +398,7 @@ SiteService.prototype.createSiteUser = function(organizationAlias, siteAlias, us
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(userModel);
 				}
@@ -425,9 +409,9 @@ SiteService.prototype.createSiteUser = function(organizationAlias, siteAlias, us
 
 
 SiteService.prototype.deleteSiteUser = function(organizationAlias, siteAlias, username) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!siteAlias) { return Promise.reject(validationError('No site specified')); }
-	if (!username) { return Promise.reject(validationError('No user specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var dataService = this.dataService;
 	return deleteSiteUser(dataService, organizationAlias, siteAlias, username);
@@ -443,9 +427,7 @@ SiteService.prototype.deleteSiteUser = function(organizationAlias, siteAlias, us
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve();
 				}
@@ -456,9 +438,9 @@ SiteService.prototype.deleteSiteUser = function(organizationAlias, siteAlias, us
 
 
 SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, domain) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!siteAlias) { return Promise.reject(validationError('No site specified')); }
-	if (!domain) { return Promise.reject(validationError('No domain specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!domain) { return Promise.reject(new HttpError(400, 'No domain specified')); }
 
 	// TODO: Validate site domain details
 
@@ -466,9 +448,7 @@ SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, 
 	return checkWhetherDomainAlreadyExists(dataService, domain)
 		.then(function(domainAlreadyExists) {
 			if (domainAlreadyExists) {
-				var error = new Error('A site is already registered to this domain');
-				error.status = 409;
-				throw error;
+				throw new HttpError(409, 'A site is already registered to this domain');
 			}
 			return addSiteDomain(dataService, organizationAlias, siteAlias, domain);
 		});
@@ -497,9 +477,7 @@ SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, 
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(domain);
 				}
@@ -510,9 +488,9 @@ SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, 
 
 
 SiteService.prototype.deleteSiteDomain = function(organizationAlias, siteAlias, domain) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!siteAlias) { return Promise.reject(validationError('No site specified')); }
-	if (!domain) { return Promise.reject(validationError('No domain specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!domain) { return Promise.reject(new HttpError(400, 'No domain specified')); }
 
 	var dataService = this.dataService;
 	return deleteSiteDomain(dataService, organizationAlias, siteAlias, domain);
@@ -528,9 +506,7 @@ SiteService.prototype.deleteSiteDomain = function(organizationAlias, siteAlias, 
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve();
 				}
@@ -541,8 +517,8 @@ SiteService.prototype.deleteSiteDomain = function(organizationAlias, siteAlias, 
 
 
 SiteService.prototype.deleteSite = function(organizationAlias, siteAlias) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!siteAlias) { return Promise.reject(validationError('No site specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
 
 	// TODO: Validate site delete requests
 
@@ -580,9 +556,7 @@ SiteService.prototype.deleteSite = function(organizationAlias, siteAlias) {
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve();
 				}
@@ -608,12 +582,12 @@ function parseSiteModel(siteModel) {
 
 	function validateSiteModel(siteModel) {
 		return new Promise(function(resolve, reject) {
-			if (!siteModel) { throw validationError('No site model specified'); }
-			if (!siteModel.organization) { throw validationError('No organization specified'); }
-			if (!siteModel.alias) { throw validationError('No site alias specified'); }
-			if (!siteModel.name) { throw validationError('No site name specified'); }
-			if (!siteModel.title) { throw validationError('No site title specified'); }
-			if (!siteModel.template) { throw validationError('No site template specified'); }
+			if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
+			if (!siteModel.organization) { throw new HttpError(400, 'No organization specified'); }
+			if (!siteModel.alias) { throw new HttpError(400, 'No site alias specified'); }
+			if (!siteModel.name) { throw new HttpError(400, 'No site name specified'); }
+			if (!siteModel.title) { throw new HttpError(400, 'No site title specified'); }
+			if (!siteModel.template) { throw new HttpError(400, 'No site template specified'); }
 
 			// TODO: Validate organization when validating site model
 			// TODO: Validate alias when validating site model
@@ -639,12 +613,6 @@ function parseSiteModel(siteModel) {
 			'cache': null
 		};
 	}
-}
-
-function validationError(message) {
-	var error = new Error(message);
-	error.status = 400;
-	return error;
 }
 
 module.exports = SiteService;

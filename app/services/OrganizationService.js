@@ -9,6 +9,8 @@ var Promise = require('promise');
 
 var config = require('../../config');
 
+var HttpError = require('../errors/HttpError');
+
 var AuthenticationService = require('../services/AuthenticationService');
 
 var DROPBOX_ROOT = config.dropbox.appRoot;
@@ -35,9 +37,7 @@ OrganizationService.prototype.retrieveAdministrator = function(administratorUser
 			function(error, adminstratorModel) {
 				if (error) { return reject(error); }
 				if (!adminstratorModel) {
-					error = new Error();
-					error.status = 404;
-					return reject(error);
+					return reject(new HttpError(404));
 				}
 				return resolve(adminstratorModel);
 			}
@@ -83,9 +83,7 @@ OrganizationService.prototype.retrieveOrganizationAdministrator = function(organ
 				function(error, administratorModel) {
 					if (error) { return reject(error); }
 					if (!administratorModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(administratorModel);
 				}
@@ -109,9 +107,7 @@ OrganizationService.prototype.retrieveOrganization = function(organizationAlias,
 				function(error, organizationModel) {
 					if (error) { return reject(error); }
 					if (!organizationModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(organizationModel);
 				}
@@ -121,8 +117,8 @@ OrganizationService.prototype.retrieveOrganization = function(organizationAlias,
 };
 
 OrganizationService.prototype.updateOrganization = function(organizationAlias, organizationModel) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!organizationModel) { return Promise.reject(validationError('No organization model specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!organizationModel) { return Promise.reject(new HttpError(400, 'No organization model specified')); }
 
 	var dataService = this.dataService;
 	var organizationAliasHasChanged = (('alias' in organizationModel) && (organizationAlias !== organizationModel.alias));
@@ -157,9 +153,7 @@ OrganizationService.prototype.updateOrganization = function(organizationAlias, o
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(organizationModel);
 				}
@@ -252,9 +246,7 @@ OrganizationService.prototype.retrieveOrganizationDefaultSiteAlias = function(or
 				function(error, organizationModel) {
 					if (error) { return reject(error); }
 					if (!organizationModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					var defaultSiteAlias = organizationModel['default'];
 					return resolve(defaultSiteAlias);
@@ -265,8 +257,8 @@ OrganizationService.prototype.retrieveOrganizationDefaultSiteAlias = function(or
 };
 
 OrganizationService.prototype.updateOrganizationDefaultSiteAlias = function(organizationAlias, siteAlias) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!organizationAlias) { return Promise.reject(validationError('No site specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
 
 	var dataService = this.dataService;
 	return updateOrganizationDefaultSiteAlias(dataService, organizationAlias, siteAlias);
@@ -282,9 +274,7 @@ OrganizationService.prototype.updateOrganizationDefaultSiteAlias = function(orga
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(siteAlias);
 				}
@@ -307,9 +297,7 @@ OrganizationService.prototype.retrieveDropboxAccountOrganization = function(drop
 				function(error, dropboxUserModel) {
 					if (error) { return reject(error); }
 					if (!dropboxUserModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					var organizationAlias = dropboxUserModel.organization;
 					return resolve(organizationAlias);
@@ -333,9 +321,7 @@ OrganizationService.prototype.retrieveOrganizationShares = function(organization
 				function(error, organizationModel) {
 					if (error) { return reject(error); }
 					if (!organizationModel) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					var shareModels = organizationModel.shares;
 					return resolve(shareModels);
@@ -346,10 +332,10 @@ OrganizationService.prototype.retrieveOrganizationShares = function(organization
 };
 
 OrganizationService.prototype.createOrganizationShare = function(organizationAlias, shareModel) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!shareModel) { return Promise.reject(validationError('No share model specified')); }
-	if (!shareModel.alias) { return Promise.reject(validationError('No share alias specified')); }
-	if (!shareModel.name) { return Promise.reject(validationError('No share name specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!shareModel) { return Promise.reject(new HttpError(400, 'No share model specified')); }
+	if (!shareModel.alias) { return Promise.reject(new HttpError(400, 'No share alias specified')); }
+	if (!shareModel.name) { return Promise.reject(new HttpError(400, 'No share name specified')); }
 
 	var dataService = this.dataService;
 	return createOrganizationShare(dataService, organizationAlias, shareModel);
@@ -374,9 +360,7 @@ OrganizationService.prototype.createOrganizationShare = function(organizationAli
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(shareModelFields);
 				}
@@ -386,17 +370,15 @@ OrganizationService.prototype.createOrganizationShare = function(organizationAli
 };
 
 OrganizationService.prototype.deleteOrganizationShare = function(organizationAlias, shareAlias) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!shareAlias) { return Promise.reject(validationError('No share specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!shareAlias) { return Promise.reject(new HttpError(400, 'No share specified')); }
 
 	var dataService = this.dataService;
 	return scanForSitesThatAreUsingShare(dataService, organizationAlias, shareAlias)
 		.then(function(sitesUsingShare) {
 			if (sitesUsingShare && (sitesUsingShare.length > 0)) {
 				// TODO: Return proper confirmation page for when dropbox folder is currently in use
-				var error = new Error('Dropbox folder is currently being used by the following sites: "' + sitesUsingShare.join('", "') + '"');
-				error.status = 403;
-				throw error;
+				throw new HttpError(403, 'Dropbox folder is currently being used by the following sites: "' + sitesUsingShare.join('", "') + '"');
 			}
 			return deleteOrganizationShare(dataService, organizationAlias, shareAlias);
 		});
@@ -435,9 +417,7 @@ OrganizationService.prototype.deleteOrganizationShare = function(organizationAli
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve();
 				}
@@ -462,9 +442,7 @@ OrganizationService.prototype.createOrganizationAdministrator = function(adminis
 			dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).insert(administratorModelFields, options,
 				function(error, records) {
 					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						error = new Error('A user already exists with that username');
-						error.status = 409;
-						return reject(error);
+						return reject(new HttpError(409, 'A user already exists with that username'));
 					}
 					if (error) { return reject(error); }
 					return resolve(administratorModelFields);
@@ -492,15 +470,11 @@ OrganizationService.prototype.updateOrganizationAdministrator = function(organiz
 			dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).update(criteria, updates, options,
 				function(error, numRecords) {
 					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						error = new Error('A user already exists with that username');
-						error.status = 409;
-						return reject(error);
+						return reject(new HttpError(409, 'A user already exists with that username'));
 					}
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(administratorModelFields);
 				}
@@ -518,9 +492,7 @@ OrganizationService.prototype.updateOrganizationAdministratorPassword = function
 				.then(function(authenticationDetails) {
 					var isCurrentPasswordCorrect = checkPassword(username, currentPassword, authenticationDetails);
 					if (!isCurrentPasswordCorrect) {
-						var error = new Error('Current password was entered incorrectly');
-						error.status = 403;
-						throw error;
+						throw new HttpError(403, 'Current password was entered incorrectly');
 					}
 					return updateOrganizationAdministratorPassword(dataService, organizationAlias, username, administratorModelFields);
 				});
@@ -542,9 +514,7 @@ OrganizationService.prototype.updateOrganizationAdministratorPassword = function
 				function (error, authenticationDetails) {
 					if (error) { return reject(error); }
 					if (!authenticationDetails) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve(authenticationDetails);
 				}
@@ -561,15 +531,11 @@ OrganizationService.prototype.updateOrganizationAdministratorPassword = function
 			dataService.db.collection(DB_COLLECTION_ADMINISTRATORS).update(criteria, updates, options,
 				function(error, numRecords) {
 					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						error = new Error('A user already exists with that username');
-						error.status = 409;
-						return reject(error);
+						return reject(new HttpError(409, 'A user already exists with that username'));
 					}
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve();
 				}
@@ -579,8 +545,8 @@ OrganizationService.prototype.updateOrganizationAdministratorPassword = function
 };
 
 OrganizationService.prototype.deleteOrganizationAdministrator = function(organizationAlias, username) {
-	if (!organizationAlias) { return Promise.reject(validationError('No organization specified')); }
-	if (!username) { return Promise.reject(validationError('No username specified')); }
+	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 
 	var dataService = this.dataService;
 	return deleteOrganizationAdministrator(dataService, organizationAlias, username);
@@ -595,9 +561,7 @@ OrganizationService.prototype.deleteOrganizationAdministrator = function(organiz
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					if (numRecords === 0) {
-						error = new Error();
-						error.status = 404;
-						return reject(error);
+						return reject(new HttpError(404));
 					}
 					return resolve();
 				}
@@ -616,12 +580,12 @@ function parseAdministratorModel(administratorModel, requireFullModel) {
 
 	function validateAdministratorModel(administratorModel, requireFullModel) {
 		return new Promise(function(resolve, reject) {
-			if (!administratorModel) { throw validationError('No user model specified'); }
-			if ((requireFullModel || ('organization' in administratorModel)) && !administratorModel.organization) { throw validationError('No organization specified'); }
-			if ((requireFullModel || ('username' in administratorModel)) && !administratorModel.username) { throw validationError('No username specified'); }
-			if ((requireFullModel || ('email' in administratorModel)) && !administratorModel.email) { throw validationError('No email specified'); }
-			if ((requireFullModel || ('password' in administratorModel)) && !administratorModel.password) { throw validationError('No password specified'); }
-			if ((requireFullModel || ('name' in administratorModel)) && !administratorModel.name) { throw validationError('No name specified'); }
+			if (!administratorModel) { throw new HttpError(400, 'No user specified'); }
+			if ((requireFullModel || ('organization' in administratorModel)) && !administratorModel.organization) { throw new HttpError(400, 'No organization specified'); }
+			if ((requireFullModel || ('username' in administratorModel)) && !administratorModel.username) { throw new HttpError(400, 'No username specified'); }
+			if ((requireFullModel || ('email' in administratorModel)) && !administratorModel.email) { throw new HttpError(400, 'No email specified'); }
+			if ((requireFullModel || ('password' in administratorModel)) && !administratorModel.password) { throw new HttpError(400, 'No password specified'); }
+			if ((requireFullModel || ('name' in administratorModel)) && !administratorModel.name) { throw new HttpError(400, 'No name specified'); }
 
 			// TODO: Validate organization when validating administrator model
 			// TODO: Validate username when validating administrator model
@@ -640,7 +604,7 @@ function parseAdministratorModel(administratorModel, requireFullModel) {
 		if ('name' in administratorModel) { administratorModelFields.name = administratorModel.name; }
 		if ('username' in administratorModel) { administratorModelFields.username = administratorModel.username; }
 		if ('password' in administratorModel) {
-			if (!administratorModel.username) { throw new Error('No username specified'); }
+			if (!administratorModel.username) { throw new HttpError(400, 'No username specified'); }
 			var authenticationService = new AuthenticationService();
 			var authenticationDetails = authenticationService.create(administratorModel.username, administratorModel.password);
 			administratorModelFields.password = authenticationDetails.password;
@@ -648,12 +612,6 @@ function parseAdministratorModel(administratorModel, requireFullModel) {
 		}
 		return administratorModelFields;
 	}
-}
-
-function validationError(message) {
-	var error = new Error(message);
-	error.status = 400;
-	return error;
 }
 
 module.exports = OrganizationService;

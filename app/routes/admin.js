@@ -9,6 +9,8 @@ var LocalStrategy = require('passport-local').Strategy;
 var config = require('../../config');
 var globals = require('../globals');
 
+var HttpError = require('../errors/HttpError');
+
 var handlebarsEngine = require('../engines/handlebars');
 
 var AuthenticationService = require('../services/AuthenticationService');
@@ -480,9 +482,7 @@ module.exports = function(dataService) {
 		var passwordNew = req.body['password-new'];
 		var passwordConfirm = req.body['password-confirm'];
 		if (passwordNew !== passwordConfirm) {
-			var error = new Error('Supplied passwords do not match');
-			error.status = 400;
-			next(error);
+			return next(new HttpError(400, 'Supplied passwords do not match'));
 		}
 
 		var administratorModel = {
@@ -520,9 +520,7 @@ module.exports = function(dataService) {
 		var isCurrentUser = (username === app.locals.session.user.username);
 		if (isCurrentUser) {
 			// TODO: Warn if deleting the current user account
-			var error = new Error('Cannot delete the currently logged-in user');
-			error.status = 403;
-			next(error);
+			return next(new HttpError(403, 'Cannot delete the currently logged-in user'));
 		}
 
 		var organizationService = new OrganizationService(dataService);
