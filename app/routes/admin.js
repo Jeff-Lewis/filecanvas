@@ -6,17 +6,17 @@ var express = require('express');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
+var config = require('../../config');
+var globals = require('../globals');
+
+var handlebarsEngine = require('../engines/handlebars');
+
 var AuthenticationService = require('../services/AuthenticationService');
 var OrganizationService = require('../services/OrganizationService');
 var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
-var ResponseService = require('../services/ResponseService');
 
-var adminTemplates = require('../templates/adminTemplates');
 var faqData = require('../../templates/admin/faq.json');
-
-var config = require('../../config');
-var globals = require('../globals');
 
 module.exports = function(dataService) {
 	var app = express();
@@ -69,6 +69,10 @@ module.exports = function(dataService) {
 	app.del('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 	app.post('/sites/:site/domains', ensureAuth, initAdminSession, createSiteDomainRoute);
 	app.del('/sites/:site/domains/:domain', ensureAuth, initAdminSession, deleteSiteDomainRoute);
+
+	app.engine('hbs', handlebarsEngine);
+	app.set('views', './templates/admin');
+	app.set('view engine', 'hbs');
 
 	return app;
 
@@ -239,19 +243,18 @@ module.exports = function(dataService) {
 	}
 
 	function retrieveLoginRoute(req, res, next) {
-		var htmlTemplate = adminTemplates.LOGIN;
 		var templateData = {
 			title: 'Login',
 			session: app.locals.session,
 			content: null
 		};
-
-		new ResponseService({
-			'html': function() {
-				var html = htmlTemplate(templateData);
-				res.send(html);
-			}
-		}).respondTo(req);
+		renderAdminPage(app, 'login', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveLogoutRoute(req, res, next) {
@@ -272,7 +275,13 @@ module.exports = function(dataService) {
 				questions: faqData
 			}
 		};
-		outputAdminPage(adminTemplates.FAQ, templateData, req, res);
+		renderAdminPage(app, 'faq', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveSupportRoute(req, res, next) {
@@ -281,7 +290,13 @@ module.exports = function(dataService) {
 			session: app.locals.session,
 			content: null
 		};
-		outputAdminPage(adminTemplates.SUPPORT, templateData, req, res);
+		renderAdminPage(app, 'support', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveAccountSettingsRoute(req, res, next) {
@@ -292,7 +307,13 @@ module.exports = function(dataService) {
 				user: app.locals.session.user
 			}
 		};
-		outputAdminPage(adminTemplates.ACCOUNT, templateData, req, res);
+		renderAdminPage(app, 'account', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveOrganizationSettingsRoute(req, res, next) {
@@ -308,7 +329,10 @@ module.exports = function(dataService) {
 						administrators: administratorModels
 					}
 				};
-				outputAdminPage(adminTemplates.ORGANIZATION, templateData, req, res);
+				return renderAdminPage(app, 'organization', templateData)
+					.then(function(data) {
+						res.send(data);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -323,7 +347,13 @@ module.exports = function(dataService) {
 				shares: app.locals.session.organization.shares
 			}
 		};
-		outputAdminPage(adminTemplates.ORGANIZATION_SHARES, templateData, req, res);
+		renderAdminPage(app, 'organization/shares', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveOrganizationUserListRoute(req, res, next) {
@@ -338,7 +368,10 @@ module.exports = function(dataService) {
 						users: administratorModels
 					}
 				};
-				outputAdminPage(adminTemplates.ORGANIZATION_USERS, templateData, req, res);
+				return renderAdminPage(app, 'organization/users', templateData)
+					.then(function(data) {
+						res.send(data);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -351,7 +384,7 @@ module.exports = function(dataService) {
 			session: app.locals.session,
 			content: null
 		};
-		outputAdminPage(adminTemplates.ORGANIZATION_USERS_ADD, templateData, req, res);
+		renderAdminPage(app, 'organization/users/add', templateData);
 	}
 
 	function retrieveOrganizationUserEditRoute(req, res, next) {
@@ -368,7 +401,10 @@ module.exports = function(dataService) {
 						user: administratorModel
 					}
 				};
-				outputAdminPage(adminTemplates.ORGANIZATION_USERS_EDIT, templateData, req, res);
+				return renderAdminPage(app, 'organization/users/edit', templateData)
+					.then(function(data) {
+						res.send(data);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -501,7 +537,13 @@ module.exports = function(dataService) {
 				sites: app.locals.session.sites
 			}
 		};
-		outputAdminPage(adminTemplates.SITES, templateData, req, res);
+		renderAdminPage(app, 'sites', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveSiteAddRoute(req, res, next) {
@@ -510,7 +552,13 @@ module.exports = function(dataService) {
 			session: app.locals.session,
 			content: null
 		};
-		outputAdminPage(adminTemplates.SITES_ADD, templateData, req, res);
+		renderAdminPage(app, 'sites/add', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveSiteEditRoute(req, res, next) {
@@ -531,7 +579,10 @@ module.exports = function(dataService) {
 						site: siteModel
 					}
 				};
-				outputAdminPage(adminTemplates.SITES_EDIT, templateData, req, res);
+				return renderAdminPage(app, 'sites/edit', templateData)
+					.then(function(data) {
+						res.send(data);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -558,7 +609,10 @@ module.exports = function(dataService) {
 						site: siteModel
 					}
 				};
-				outputAdminPage(adminTemplates.SITES_EDIT_USERS, templateData, req, res);
+				return renderAdminPage(app, 'sites/edit/users', templateData)
+					.then(function(data) {
+						res.send(data);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -585,7 +639,10 @@ module.exports = function(dataService) {
 						site: siteModel
 					}
 				};
-				outputAdminPage(adminTemplates.SITES_EDIT_DOMAINS, templateData, req, res);
+				return renderAdminPage(app, 'sites/edit/domains', templateData)
+					.then(function(data) {
+						res.send(data);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -741,18 +798,30 @@ module.exports = function(dataService) {
 			});
 	}
 
-	function outputAdminPage(htmlTemplate, templateData, req, res) {
-		new ResponseService({
-			/*
-			TODO: Sending JSON responses appears to confuse old versions of IE
-			'json': function() {
-				res.json(templateData && templateData.content);
-			},
-			*/
-			'html': function() {
-				var html = htmlTemplate(templateData);
-				res.send(html);
-			}
-		}).respondTo(req);
+	function renderAdminPage(app, templateName, context) {
+		return new Promise(function(resolve, reject) {
+			app.render(templateName, context, function(error, pageContent) {
+				if (error) { return reject(error); }
+				var templateOptions = {
+					partials: {
+						'page': pageContent
+					}
+				};
+				var templateData = getTemplateData(context, templateOptions);
+				app.render('index', templateData, function(error, data) {
+					if (error) { return reject(error); }
+					resolve(data);
+				});
+			});
+		});
+
+
+		function getTemplateData(object, templateOptions) {
+			var templateData = { _: templateOptions };
+			return Object.keys(object).reduce(function(templateData, key) {
+				templateData[key] = object[key];
+				return templateData;
+			}, templateData);
+		}
 	}
 };

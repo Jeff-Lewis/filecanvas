@@ -4,12 +4,13 @@ var express = require('express');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
+var config = require('../../config');
 var globals = require('../globals');
+
+var handlebarsEngine = require('../engines/handlebars');
 
 var OrganizationService = require('../services/OrganizationService');
 var SiteService = require('../services/SiteService');
-var ResponseService = require('../services/ResponseService');
-var SiteTemplateService = require('../services/SiteTemplateService');
 var AuthenticationService = require('../services/AuthenticationService');
 
 module.exports = function(dataService, dropboxService) {
@@ -32,6 +33,10 @@ module.exports = function(dataService, dropboxService) {
 
 	app.get('/:organization/:site', ensureAuth, siteRoute);
 	app.get('/:organization/:site/download/*', ensureAuth, downloadRoute);
+
+	app.engine('hbs', handlebarsEngine);
+	app.set('views', './templates/sites');
+	app.set('view engine', 'hbs');
 
 	return app;
 
@@ -289,26 +294,32 @@ module.exports = function(dataService, dropboxService) {
 		var includeDomains = false;
 		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
 			.then(function(siteModel) {
-				new ResponseService({
-					/*
-					TODO: Sending JSON responses appears to confuse old versions of IE
-					//	'json': function() {
-					//		res.json(siteModel);
-					//	},
-					 */
-					'html': function() {
-						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
-						var siteTemplateService = new SiteTemplateService(siteModel.template);
-						var requestPath = req.originalUrl.split('?')[0];
-						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-						var html = siteTemplateService.renderIndexPage(siteModel, siteRoot, hostname);
-						res.send(html);
-					}
-				}).respondTo(req);
+				var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
+				var requestPath = req.originalUrl.split('?')[0];
+				var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+				var templateOptions = getSiteTemplateOptions(siteModel, siteRoot, hostname);
+				res.render(siteModel.template + '/index', templateOptions);
 			})
 			.catch(function(error) {
 				next(error);
 			});
+
+
+		function getSiteTemplateOptions(siteModel, siteRoot, hostname) {
+			var siteTemplatesRoot = config.urls.templates.replace(/\$\{HOST\}/g, hostname);
+			var title = siteModel.title;
+			var siteContents = siteModel.contents || { folders: null, files: null };
+			var siteTemplateRoot = siteTemplatesRoot + siteModel.template + '/';
+
+			return {
+				title: title,
+				siteRoot: siteRoot,
+				templateRoot: siteTemplateRoot,
+				contents: siteContents,
+				folders: siteContents.folders,
+				files: siteContents.files
+			};
+		}
 	}
 
 	function loginRoute(req, res, next) {
@@ -322,19 +333,27 @@ module.exports = function(dataService, dropboxService) {
 		var includeDomains = false;
 		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
 			.then(function(siteModel) {
-				new ResponseService({
-					'html': function() {
-						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
-						var requestPath = req.originalUrl.split('?')[0].replace(/\/login$/, '');
-						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-						var siteTemplateService = new SiteTemplateService(siteModel.template);
-						var html = siteTemplateService.renderLoginPage(siteModel, siteRoot, hostname);
-						res.send(html);
-					}
-				}).respondTo(req);
+				var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
+				var requestPath = req.originalUrl.split('?')[0].replace(/\/login$/, '');
+				var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+				var templateOptions = getLoginTemplateOptions(siteModel, siteRoot, hostname);
+				res.render(siteModel.template + '/login', templateOptions);
 			})
 			.catch(function(error) {
 				next(error);
 			});
+
+
+		function getLoginTemplateOptions(siteModel, siteRoot, hostname) {
+			var siteTemplatesRoot = config.urls.templates.replace(/\$\{HOST\}/g, hostname);
+			var title = siteModel.title;
+			var siteTemplateRoot = siteTemplatesRoot + siteModel.template + '/';
+
+			return {
+				title: title,
+				siteRoot: siteRoot,
+				templateRoot: siteTemplateRoot
+			};
+		}
 	}
 };
