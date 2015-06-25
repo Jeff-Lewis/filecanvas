@@ -11,9 +11,12 @@ var passport = require('passport');
 var config = require('./config');
 var globals = require('./app/globals');
 
+var handlebarsEngine = require('./app/engines/handlebars');
+
 var stripTrailingSlash = require('./app/middleware/stripTrailingSlash');
 var customDomain = require('./app/middleware/customDomain');
 var subdomain = require('./app/middleware/subdomain');
+var errorHandler = require('./app/middleware/errorHandler');
 
 var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
 var debugMode = (process.env.DEBUG === 'true');
@@ -140,6 +143,7 @@ function initServer(port, debugMode, services) {
 	initPassport(app);
 	initCustomDomains(app, dataService);
 	initSubdomains(app);
+	initViewEngine(app);
 	initRoutes(app, dataService, dropboxService);
 	initErrorHandling(app, debugMode);
 
@@ -168,7 +172,6 @@ function initServer(port, debugMode, services) {
 			return string;
 		}
 	}
-
 
 	function initPassport(app) {
 		app.use(passport.initialize());
@@ -255,6 +258,12 @@ function initServer(port, debugMode, services) {
 		app.use('/', subdomain({ mappings: subdomainMappings }));
 	}
 
+	function initViewEngine(app) {
+		app.engine('hbs', handlebarsEngine);
+		app.set('views', './templates');
+		app.set('view engine', 'hbs');
+	}
+
 	function initRoutes(app, dataService, dropboxService) {
 		app.use('/ping', require('./app/routes/ping'));
 		app.use('/templates', require('./app/routes/templates'));
@@ -264,30 +273,12 @@ function initServer(port, debugMode, services) {
 	}
 
 	function initErrorHandling(app, debugMode) {
-		if (debugMode) {
-
-			app.use(function(err, req, res, next) {
-				var ErrorTemplateService = require('./app/services/ErrorTemplateService');
-				var ResponseService = require('./app/services/ResponseService');
-				new ResponseService({
-					'html': function() {
-						var errorTemplateService = new ErrorTemplateService();
-						var html = errorTemplateService.renderErrorPage(err);
-						res.send(html);
-					}
-				}).respondTo(req);
-			});
-
-		} else {
-
-			app.use(function(req, res, next) {
-				res.send(404);
-			});
-
-			app.use(function(err, req, res, next) {
-				res.send(err.status || 500);
-			});
-		}
+		app.use(function(req, res, next) {
+			var error = new Error();
+			error.status = 404;
+			next(error);
+		});
+		app.use(errorHandler({ debug: debugMode }));
 	}
 
 	function startServer(app, port, debugMode) {
