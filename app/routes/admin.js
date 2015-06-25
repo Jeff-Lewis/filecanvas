@@ -52,7 +52,7 @@ module.exports = function(dataService) {
 	app.del('/organization/shares/:share', ensureAuth, initAdminSession, deleteOrganizationShareRoute);
 	app.post('/organization/users', ensureAuth, initAdminSession, createOrganizationUserRoute);
 	app.put('/organization/users/:username', ensureAuth, initAdminSession, updateOrganizationUserRoute);
-	app.put('/organization/users/:username/password', ensureAuth, initAdminSession, updateOrganizationUserPasswordRoute);
+	app.put('/organization/users/:username/change-password', ensureAuth, initAdminSession, updateOrganizationUserPasswordRoute);
 	app.del('/organization/users/:user', ensureAuth, initAdminSession, deleteOrganizationUserRoute);
 
 
