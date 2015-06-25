@@ -687,7 +687,13 @@ module.exports = function(dataService) {
 
 		var isPurgeRequest = (req.body._action === 'purge');
 		if (isPurgeRequest) {
-			purgeSite(organizationAlias, siteAlias);
+			purgeSite(organizationAlias, siteAlias)
+				.then(function() {
+					res.redirect(303, '/sites/edit/' + siteAlias);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 		} else {
 
 			// TODO: Allow user to update site theme when updating site
@@ -701,31 +707,25 @@ module.exports = function(dataService) {
 				'share': req.body.share || null,
 				'public': (req.body['private'] !== 'true')
 			};
-			updateSite(organizationAlias, siteAlias, siteModel);
-		}
-
-
-		function purgeSite(organizationAlias, siteAlias) {
-			var cache = null;
-			var siteService = new SiteService(dataService);
-			siteService.updateSiteCache(organizationAlias, siteAlias, cache)
-				.then(function() {
-					res.redirect(303, '/sites/edit/' + siteAlias);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-		}
-
-		function updateSite(organizationAlias, siteAlias, siteModel) {
-			var siteService = new SiteService(dataService);
-			siteService.updateSite(organizationAlias, siteAlias, siteModel)
+			updateSite(organizationAlias, siteAlias, siteModel)
 				.then(function(siteModel) {
 					res.redirect(303, '/sites/edit/' + siteModel.alias);
 				})
 				.catch(function(error) {
 					next(error);
 				});
+		}
+
+
+		function purgeSite(organizationAlias, siteAlias) {
+			var cache = null;
+			var siteService = new SiteService(dataService);
+			return siteService.updateSiteCache(organizationAlias, siteAlias, cache);
+		}
+
+		function updateSite(organizationAlias, siteAlias, siteModel) {
+			var siteService = new SiteService(dataService);
+			return siteService.updateSite(organizationAlias, siteAlias, siteModel);
 		}
 	}
 
