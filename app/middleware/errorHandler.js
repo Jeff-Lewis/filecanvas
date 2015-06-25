@@ -1,7 +1,5 @@
 'use strict';
 
-var http = require('http');
-
 module.exports = function(options) {
 	var debugMode = Boolean(options.debug);
 
@@ -11,14 +9,8 @@ module.exports = function(options) {
 
 
 		function getErrorTemplateOptions(error) {
-			var status = error.status || 500;
-			var description = http.STATUS_CODES[status];
 			return {
-				error: error,
-				status: status,
-				description: description,
-				message: error.message,
-				stack: error.stack
+				error: error
 			};
 		}
 	};
