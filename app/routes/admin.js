@@ -384,7 +384,13 @@ module.exports = function(dataService) {
 			session: app.locals.session,
 			content: null
 		};
-		renderAdminPage(app, 'organization/users/add', templateData);
+		renderAdminPage(app, 'organization/users/add', templateData)
+			.then(function(data) {
+				res.send(data);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 	}
 
 	function retrieveOrganizationUserEditRoute(req, res, next) {
