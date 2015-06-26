@@ -2,7 +2,7 @@
 
 var path = require('path');
 var Promise = require('promise');
-var Dropbox = require('../../lib/dropbox');
+var Dropbox = require('dropbox');
 
 var SECONDS = 1000;
 var DROPBOX_DELTA_CACHE_EXPIRY = 30 * SECONDS;
@@ -118,7 +118,7 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 			});
 		}
 
-		client.delta(cacheCursor || 0, folderPath, onDeltaLoaded);
+		client.delta(cacheCursor || 0, { 'path_prefix': folderPath }, onDeltaLoaded);
 
 
 		function onDeltaLoaded(error, pulledChanges) {
