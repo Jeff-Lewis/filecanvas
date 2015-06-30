@@ -51,11 +51,11 @@ module.exports = function(dataService) {
 
 	app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 	app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
-	app.del('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
+	app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
 	app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUserRoute);
-	app.del('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
+	app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 	app.post('/sites/:site/domains', ensureAuth, initAdminSession, createSiteDomainRoute);
-	app.del('/sites/:site/domains/:domain', ensureAuth, initAdminSession, deleteSiteDomainRoute);
+	app.delete('/sites/:site/domains/:domain', ensureAuth, initAdminSession, deleteSiteDomainRoute);
 
 	app.engine('hbs', handlebarsEngine);
 	app.set('views', './templates/admin');
