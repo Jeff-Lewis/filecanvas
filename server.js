@@ -4,6 +4,7 @@ var http = require('http');
 var https = require('https');
 var express = require('express');
 var passport = require('passport');
+var methodOverride = require('method-override');
 
 var HttpError = require('./app/errors/HttpError');
 
@@ -89,7 +90,7 @@ function initApp(dataService, isProduction) {
 		app.use(express.cookieParser());
 		app.use(express.json());
 		app.use(express.urlencoded());
-		app.use(express.methodOverride());
+		app.use(methodOverride('X-HTTP-Method-Override'));
 		app.use(express.session({ secret: sessionSecret }));
 
 		app.use('/', stripTrailingSlash);
