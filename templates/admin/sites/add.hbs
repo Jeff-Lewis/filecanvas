@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Add a site</h2>
+		<h2>Create a site</h2>
 		<p class="lead">Use the fields below to create a new Shunt site.</p>
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST" autocomplete="off">
@@ -42,7 +42,7 @@
 							name="title"
 							title="This determines what is shown in the title of the user’s browser window"
 							placeholder="Page title"
-							data-bind-value="site-name|format:'$0 | {{ session.organization.name }}':''"
+							data-bind-value="site-name"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -51,16 +51,13 @@
 				<div class="form-group">
 					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
 					<div class="col-sm-6 col-lg-4">
-						<select class="form-control"
-							name="share"
+						<input type="text" class="form-control" id="input-site-path"
+						 	name="path"
 							title="Choose the Dropbox folder that this site syncs from"
-						>
-							<option value="">No Dropbox folder selected</option>
-							{{#each session.organization.shares}}
-							<option value="{{ alias }}">{{ name }}</option>
-							{{/each}}
-						</select>
-						<p class="form-control-static"><a href="{{ session.urls.organizationShares }}">Manage your linked Dropbox folders…</a></p>
+							placeholder="Dropbox folder"
+							data-bind-value="site-alias|format:'/shunt/$0'"
+							data-trigger="focus"
+						/>
 					</div>
 				</div>
 				<div class="form-group">

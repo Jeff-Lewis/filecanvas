@@ -1,11 +1,9 @@
-<form class="form-signin" role="form" action="{{ session.urls.login }}" method="POST" autocomplete="off">
+<form class="form-signin" role="form" action="{{ session.urls.oauth }}" method="GET" autocomplete="off">
 	<h2 class="form-signin-heading">Sign in to Shunt</h2>
-	<input type="email" name="username" class="form-control" placeholder="Email address" required autofocus>
-	<input type="password" name="password" class="form-control" placeholder="Password" required>
 	<!--
 	<label class="checkbox">
 		<input type="checkbox" value="remember-me"> Remember me
 	</label>
 	-->
-	<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+	<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in using Dropbox</button>
 </form>

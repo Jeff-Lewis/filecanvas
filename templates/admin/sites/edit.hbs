@@ -5,7 +5,7 @@
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="PUT"/>
-			{{#unless content.site.share}}
+			{{#unless content.site.path}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> This site has not yet been linked to a Dropbox folder.</p>
 			</div>
@@ -54,36 +54,29 @@
 					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
 					<div class="col-sm-6 col-lg-4">
 						<div class="row">
-							<div class="{{#if content.site.share}}col-xs-7{{else}}col-xs-12{{/if}}">
-								<select class="form-control"
-									name="share"
+							<div class="{{#if content.site.path}}col-xs-8{{else}}col-xs-12{{/if}}">
+								<input type="text" name="path" class="form-control" id="input-site-path"
 									title="Choose the Dropbox folder that this site syncs from"
-									data-bind-id="site-share"
-								>
-									<option value="">No Dropbox folder selected</option>
-									{{#each session.organization.shares}}
-									<option value="{{ alias }}"
-										{{#ifequals alias ../content.site.share}}selected="selected"{{/ifequals}}
-									>{{ name }}</option>
-									{{/each}}
-								</select>
+									placeholder="Dropbox folder"
+									value="{{ content.site.path }}"
+									data-bind-id="site-path"
+								/>
 							</div>
-							{{#if content.site.share}}
-							<div class="col-xs-5">
+							{{#if content.site.path}}
+							<div class="col-xs-4">
 								<button type="button" class="btn btn-success col-xs-12"
 									title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
-									data-bind-value="site-share"
+									data-bind-value="site-path"
 									data-shunt-purge="{{ content.site.alias }}"
 								>
-									<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
-									<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span> Syncing…</span>
-									<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span> Sync done</span>
-									<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
+									<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync</span>
+									<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span></span>
+									<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span> Done</span>
+									<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Failed</span>
 								</button>
 							</div>
 							{{/if}}
 						</div>
-						<p class="form-control-static"><a href="{{ session.urls.organizationShares }}">Manage your linked Dropbox folders…</a></p>
 					</div>
 				</div>
 				<div class="form-group">

@@ -3,7 +3,7 @@
 		<h2>Your account</h2>
 		<p class="lead">Use the fields below to edit your account settings.</p>
 		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.organizationUsers }}/{{ content.user.username }}" method="POST" autocomplete="off">
+		<form class="form-horizontal" role="form" action="{{ session.urls.userUsers }}/{{ user.username }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="PUT"/>
 			<fieldset>
 				<div class="form-group">
@@ -13,7 +13,7 @@
 							name="name"
 							title="This is used to identify you in the Shunt admin area and in any email communication"
 							placeholder="Full name"
-							value="{{ content.user.name }}"
+							value="{{ user.name }}"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -26,51 +26,40 @@
 						 	name="email"
 							title="This is used as your login to the Shunt admin area and the address for any email communication"
 							placeholder="Email address"
-							value="{{ content.user.email }}"
+							value="{{ user.email }}"
 							data-validate="email"
 							data-trigger="focus"
 						/>
 					</div>
 				</div>
 				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-success">Save changes</button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
-		<form class="form-horizontal" role="form" action="{{ session.urls.organizationUsers }}/{{ content.user.username }}/change-password" method="POST" autocomplete="off">
-			<input type="hidden" name="_method" value="PUT"/>
-			<fieldset>
-				<legend>Change password</legend>
-				<div class="form-group">
-					<label for="input-user-password-current" class="col-sm-3 col-lg-2 control-label">Current password</label>
+					<label for="input-user-alias" class="col-sm-3 col-lg-2 control-label">Alias</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="password" class="form-control" id="input-user-password-current"
-							name="password-current"
-							title="Type your existing password here"
+						<input type="text" class="form-control" id="input-user-alias"
+						 	name="alias"
+							title="This determines your Shunt web root, where your sites are located"
+							placeholder="Organizations path"
+							value="{{ user.alias }}"
+							data-bind-id="user-alias"
+							data-parser="slug"
+							data-validate="slug"
 							data-trigger="focus"
 						/>
+						<p class="help-block">{{#replace '$0' user.alias}}{{#replace '$0' '<strong data-bind-value="user-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="input-user-password-new" class="col-sm-3 col-lg-2 control-label">New password</label>
+					<label class="col-sm-3 col-lg-2 control-label">Default site</label>
 					<div class="col-sm-6 col-lg-4">
-						<input type="password" class="form-control" id="input-user-password-new"
-							name="password-new"
-							title="Type your new password here"
-							data-trigger="focus"
-						/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="input-user-password-confirm" class="col-sm-3 col-lg-2 control-label">Confirm password</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="password" class="form-control" id="input-user-password-confirm"
-							name="password-confirm"
-							title="Retype your new password here"
-							data-trigger="focus"
-						/>
+						<select class="form-control"
+							name="default"
+							title="This determines the site that will be shown if a user navigates to {{ session.urls.webroot }}"
+						>
+							<option value="">No default site selected</option>
+							{{#each session.sites}}
+							<option value="{{ alias }}"{{#ifequals alias ../user.default }} selected="selected"{{/ifequals}}>{{ name }}</option>
+							{{/each}}
+						</select>
 					</div>
 				</div>
 				<div class="form-group">

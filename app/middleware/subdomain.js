@@ -15,8 +15,14 @@ module.exports = function(options) {
 	var app = express();
 
 	app.use(function(req, res, next) {
-		var baseUrl = tld.getDomain(req.host);
-		app.set('subdomain offset', baseUrl.split('.').length);
+		var isLocalHost = (req.host.split('.').pop() === 'localhost');
+		if (isLocalHost) {
+			app.set('subdomain offset', 1);
+		} else {
+			var baseUrl = tld.getDomain(req.host);
+			var subdomainOffset = baseUrl.split('.').length;
+			app.set('subdomain offset', subdomainOffset);
+		}
 		next();
 	});
 

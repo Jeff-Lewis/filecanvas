@@ -4,149 +4,134 @@ var Promise = require('promise');
 
 var HttpError = require('../errors/HttpError');
 
+var DropboxService = require('../services/DropboxService');
 var DownloadService = require('../services/DownloadService');
-var OrganizationService = require('../services/OrganizationService');
+var UserService = require('../services/UserService');
 var AuthenticationService = require('../services/AuthenticationService');
+
+var config = require('../../config');
 
 var MONGO_ERROR_CODE_DUPLICATE_KEY = 11000;
 
 var DB_COLLECTION_SITES = 'sites';
 var DB_COLLECTION_ORGANIZATIONS = 'organizations';
 
-function SiteService(dataService, dropboxService) {
+var DROPBOX_APP_KEY = config.dropbox.appKey;
+var DROPBOX_APP_SECRET = config.dropbox.appSecret;
+
+function SiteService(dataService) {
 	this.dataService = dataService;
-	this.dropboxService = dropboxService;
-	this.downloadService = new DownloadService(dropboxService);
 }
 
 SiteService.prototype.dataService = null;
-SiteService.prototype.dropboxService = null;
 
-SiteService.prototype.retrieveFolderPath = function(organizationAlias, siteAlias) {
+SiteService.prototype.createSite = function(siteModel) {
 	var dataService = this.dataService;
-	return retrieveSiteModel(dataService, organizationAlias, siteAlias)
+	return parseSiteModel(siteModel)
 		.then(function(siteModel) {
-			var siteFolderPath = getSiteFolderPath(organizationAlias, siteModel, dataService);
-			return siteFolderPath;
+			return createSite(dataService, siteModel);
 		});
 
 
-	function retrieveSiteModel(dataService, organizationAlias, siteAlias) {
+	function createSite(dataService, siteModel) {
 		return new Promise(function(resolve, reject) {
-			var query = { 'organization': organizationAlias, 'alias': siteAlias };
-			var projection = { '_id': 0, 'public': 0, 'users': 0 };
+			var options = { safe: true };
 
-			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
-				function(error, siteModel) {
+			dataService.db.collection(DB_COLLECTION_SITES).insert(siteModel, options,
+				function(error, records) {
+					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
+						return reject(new HttpError(409, 'A site already exists at that path'));
+					}
 					if (error) { return reject(error); }
 					return resolve(siteModel);
 				}
 			);
 		});
 	}
-
-	function getSiteFolderPath(organizationAlias, siteModel, dataService) {
-		var organizationService = new OrganizationService(dataService);
-		var organizationShareRoot = organizationService.getOrganizationShareRoot(organizationAlias);
-		var sitePath = organizationShareRoot + siteModel.share;
-		return sitePath;
-	}
 };
 
-SiteService.prototype.retrieveDownloadLink = function(organizationAlias, siteAlias, downloadPath) {
-	var downloadService = this.downloadService;
-	return this.retrieveFolderPath(organizationAlias, siteAlias)
-		.then(function(folderPath) {
-			var dropboxFilePath = folderPath + '/' + downloadPath;
-			return downloadService.retrieveDownloadLink(dropboxFilePath);
-		});
-};
+SiteService.prototype.createSiteUser = function(uid, siteAlias, username, password) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!password) { return Promise.reject(new HttpError(400, 'No password specified')); }
 
-SiteService.prototype.retrieveAuthenticationDetails = function(organizationAlias, siteAlias) {
+	// TODO: Validate site user details
+
 	var dataService = this.dataService;
-	return retrieveAuthenticationDetails(dataService, organizationAlias, siteAlias);
+	return checkWhetherUserAlreadyExists(dataService, uid, siteAlias, username)
+		.then(function(userAlreadyExists) {
+			if (userAlreadyExists) {
+				throw new HttpError(409, 'A user already exists with this username');
+			}
+			return addSiteUser(dataService, uid, siteAlias, username, password);
+		});
 
 
-	function retrieveAuthenticationDetails(dataService, organizationAlias, siteAlias) {
+	function checkWhetherUserAlreadyExists(dataService, uid, siteAlias, username) {
 		return new Promise(function(resolve, reject) {
-			var query = { 'organization': organizationAlias, 'alias': siteAlias };
-			var projection = { 'public': 1, 'users': 1 };
-
-			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
-				function(error, siteModel) {
+			var query = { 'user': uid, 'alias': siteAlias, 'users.username': username };
+			dataService.db.collection(DB_COLLECTION_SITES).count(query,
+				function(error, numRecords) {
 					if (error) { return reject(error); }
-					if (!siteModel) {
+					var userAlreadyExists = (numRecords > 0);
+					return resolve(userAlreadyExists);
+				}
+			);
+		});
+	}
+
+	function addSiteUser(dataService, uid, siteAlias, username, password) {
+		return new Promise(function(resolve, reject) {
+			var authenticationService = new AuthenticationService();
+			var userModel = authenticationService.create(username, password);
+
+			var criteria = { 'user': uid, 'alias': siteAlias };
+			var updates = { $push: { 'users': userModel } };
+			var options = { safe: 1 };
+
+			dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return reject(error); }
+					if (numRecords === 0) {
 						return reject(new HttpError(404));
 					}
-
-					var authenticationDetails = {
-						'public': siteModel.public,
-						'users': siteModel.users
-					};
-
-					return resolve(authenticationDetails);
+					return resolve(userModel);
 				}
 			);
 		});
 	}
 };
 
-SiteService.prototype.retrieveSiteByDomain = function(domain) {
+SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, includeUsers, includeDomains) {
 	var dataService = this.dataService;
-	return retrieveSiteByDomain(dataService, domain);
-
-
-	function retrieveSiteByDomain(dataService, domain) {
-		return new Promise(function(resolve, reject) {
-			var criteria = { 'domains': domain };
-			var projection = { 'organization': 1, 'alias': 1 };
-			var options = { limit: 1 };
-
-			dataService.db.collection(DB_COLLECTION_SITES).find(criteria, projection, options,
-				function(error, siteModelsCursor) {
-					if (error) { return reject(error); }
-					siteModelsCursor.toArray(onSiteModelsLoaded);
-
-
-					function onSiteModelsLoaded(error, siteModels) {
-						if (error) { return reject(error); }
-						var siteModel = siteModels[0] || null;
-						return resolve(siteModel);
-					}
-				}
-			);
-		});
-	}
-};
-
-SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains) {
-	var dataService = this.dataService;
-	var dropboxService = this.dropboxService;
+	var userService = new UserService(dataService);
 	var self = this;
-	return retrieveSite(dataService, organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
+	return retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers, includeDomains)
 		.then(function(siteModel) {
 			if (!includeContents) { return siteModel; }
-
-			var siteFolderPath = getSiteFolderPath(organizationAlias, siteModel, dataService);
-			var hasSiteFolder = (siteFolderPath !== null);
+			var hasSiteFolder = (siteModel.path !== null);
 			if (!hasSiteFolder) { return siteModel; }
 
-			return dropboxService.loadFolderContents(siteFolderPath, siteModel.cache)
-				.then(function(data) {
-					siteModel.contents = processFileMetadata(data.contents, siteFolderPath);
-					delete siteModel.cache;
-					self.updateSiteCache(organizationAlias, siteAlias, data.cache);
-					return siteModel;
+			return userService.retrieveUser(uid)
+				.then(function(userModel) {
+					var accessToken = userModel.token;
+					return loadSiteContents(siteModel, accessToken)
+						.then(function(data) {
+							siteModel.contents = processFileMetadata(data.contents, siteModel.path);
+							delete siteModel.cache;
+							self.updateSiteCache(uid, siteAlias, data.cache);
+							return siteModel;
+						});
 				});
 		});
 
 
-	function retrieveSite(dataService, organizationAlias, siteAlias, includeContents, includeUsers, includeDomains) {
+	function retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers, includeDomains) {
 		return new Promise(function(resolve, reject) {
-			var query = { 'organization': organizationAlias, 'alias': siteAlias };
+			var query = { 'user': uid, 'alias': siteAlias };
 			var projection = { '_id': 0 };
 			if (!includeUsers) {
-				projection['public'] = 0;
 				projection.users = 0;
 			}
 			if (!includeContents) { projection.cache = 0; }
@@ -164,13 +149,14 @@ SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, incl
 		});
 	}
 
-	function getSiteFolderPath(organizationAlias, siteModel, dataService) {
-		var shareAlias = siteModel.share;
-		if (!shareAlias) { return null; }
-		var organizationService = new OrganizationService(dataService);
-		var organizationShareRoot = organizationService.getOrganizationShareRoot(organizationAlias);
-		var sitePath = organizationShareRoot + siteModel.share;
-		return sitePath;
+	function loadSiteContents(siteModel, accessToken) {
+		var appKey = DROPBOX_APP_KEY;
+		var appSecret = DROPBOX_APP_SECRET;
+		var dropboxService = new DropboxService();
+		return dropboxService.connect(appKey, appSecret, accessToken)
+			.then(function(client) {
+				return dropboxService.loadFolderContents(siteModel.path, siteModel.cache);
+			});
 	}
 
 	function processFileMetadata(fileMetadata, rootFolderPath) {
@@ -224,14 +210,87 @@ SiteService.prototype.retrieveSite = function(organizationAlias, siteAlias, incl
 	}
 };
 
-SiteService.prototype.retrieveSiteCache = function(organizationAlias, siteAlias) {
+SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downloadPath) {
 	var dataService = this.dataService;
-	return retrieveSiteCache(dataService, organizationAlias, siteAlias);
+	var userService = new UserService(dataService);
+	return retrieveSiteDropboxPath(uid, siteAlias)
+		.then(function(folderPath) {
+			return userService.retrieveUser(uid)
+				.then(function(userModel) {
+					var accessToken = userModel.token;
+					var appKey = DROPBOX_APP_KEY;
+					var appSecret = DROPBOX_APP_SECRET;
+					var dropboxService = new DropboxService();
+					return dropboxService.connect(appKey, appSecret, accessToken)
+						.then(function(client) {
+							var downloadService = new DownloadService(dropboxService);
+							var dropboxFilePath = folderPath + '/' + downloadPath;
+							return downloadService.retrieveDownloadLink(dropboxFilePath);
+						});
+				});
+		});
 
 
-	function retrieveSiteCache(dataService, organizationAlias, siteAlias) {
+	function retrieveSiteDropboxPath(uid, siteAlias) {
 		return new Promise(function(resolve, reject) {
-			var query = { 'organization': organizationAlias, 'alias': siteAlias };
+			var query = { 'user': uid, 'alias': siteAlias };
+			var projection = { 'path': 1 };
+
+			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
+				function(error, siteModel) {
+					if (error) { return reject(error); }
+					if (!siteModel) {
+						return reject(new HttpError(404));
+					}
+					if (!siteModel.path) {
+						return reject(new HttpError(404));
+					}
+
+					var sitePath = siteModel.path;
+					return resolve(sitePath);
+				}
+			);
+		});
+	}
+};
+
+SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteAlias) {
+	var dataService = this.dataService;
+	return retrieveSiteAuthenticationDetails(dataService, uid, siteAlias);
+
+
+	function retrieveSiteAuthenticationDetails(dataService, uid, siteAlias) {
+		return new Promise(function(resolve, reject) {
+			var query = { 'user': uid, 'alias': siteAlias };
+			var projection = { 'public': 1, 'users': 1 };
+
+			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
+				function(error, siteModel) {
+					if (error) { return reject(error); }
+					if (!siteModel) {
+						return reject(new HttpError(404));
+					}
+
+					var authenticationDetails = {
+						'public': siteModel.public,
+						'users': siteModel.users
+					};
+
+					return resolve(authenticationDetails);
+				}
+			);
+		});
+	}
+};
+
+SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
+	var dataService = this.dataService;
+	return retrieveSiteCache(dataService, uid, siteAlias);
+
+
+	function retrieveSiteCache(dataService, uid, siteAlias) {
+		return new Promise(function(resolve, reject) {
+			var query = { 'user': uid, 'alias': siteAlias };
 			var projection = { 'cache': 1 };
 
 			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
@@ -247,15 +306,112 @@ SiteService.prototype.retrieveSiteCache = function(organizationAlias, siteAlias)
 	}
 };
 
-SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, cache) {
+SiteService.prototype.retrieveSitePathByDomain = function(domain) {
+	var dataService = this.dataService;
+	return retrieveSitePathByDomain(dataService, domain)
+		.then(function(siteModel) {
+			if (!siteModel) { return null; }
+			var uid = siteModel.user;
+			var siteAlias = siteModel.alias;
+			var userService = new UserService(dataService);
+			return userService.retrieveUser(uid)
+				.then(function(userModel) {
+					var userAlias = userModel.alias;
+					var siteInfo = {
+						user: userAlias,
+						site: siteAlias
+					};
+					return siteInfo;
+				});
+		});
+
+
+	function retrieveSitePathByDomain(dataService, domain) {
+		return new Promise(function(resolve, reject) {
+			var criteria = { 'domains': domain };
+			var projection = { 'user': 1, 'alias': 1 };
+			var options = { limit: 1 };
+
+			dataService.db.collection(DB_COLLECTION_SITES).find(criteria, projection, options,
+				function(error, siteModelsCursor) {
+					if (error) { return reject(error); }
+					siteModelsCursor.toArray(
+						function(error, siteModels) {
+							if (error) { return reject(error); }
+							var siteModel = siteModels[0] || null;
+							return resolve(siteModel);
+						}
+					);
+				}
+			);
+		});
+	}
+};
+
+SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
+	var dataService = this.dataService;
+	return parseSiteModel(updates)
+		.then(function(updates) {
+			return getSitePath(dataService, uid, siteAlias)
+				.then(function(currentSitePath) {
+					var sitePathHasChanged = (currentSitePath !== updates.path);
+					if (!sitePathHasChanged) {
+						delete updates.path;
+						delete updates.cache;
+					}
+					// TODO: Handle updating of site users
+					delete updates.users;
+					return updateSite(dataService, uid, siteAlias, updates);
+				});
+		});
+
+
+	function getSitePath(dataService, uid, siteAlias) {
+		return new Promise(function(resolve, reject) {
+			var query = { 'user': uid, 'alias': siteAlias };
+			var projection = { 'path': 1 };
+
+			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
+				function(error, siteModel) {
+					if (error) { return reject(error); }
+					if (!siteModel) {
+						return reject(new HttpError(404));
+					}
+					var sitePath = siteModel.path;
+					return resolve(sitePath);
+				}
+			);
+		});
+	}
+
+	function updateSite(dataService, uid, siteAlias, fields) {
+		return new Promise(function(resolve, reject) {
+			var criteria = { 'user': uid, 'alias': siteAlias };
+			var updates = { $set: fields };
+			var options = { safe: true };
+
+			dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
+				function(error, numRecords) {
+					if (error) { return reject(error); }
+					if (numRecords === 0) {
+						return reject(new HttpError(404));
+					}
+					return resolve();
+				}
+			);
+		});
+	}
+};
+
+SiteService.prototype.updateSiteCache = function(uid, siteAlias, cache) {
 	cache = cache || null;
 	var dataService = this.dataService;
-	return updateSiteCache(dataService, organizationAlias, siteAlias, cache);
+	return updateSiteCache(dataService, uid, siteAlias, cache);
 
 
-	function updateSiteCache(dataService, organizationAlias, siteAlias, cache) {
+	function updateSiteCache(dataService, uid, siteAlias, cache) {
 		return new Promise(function(resolve, reject) {
-			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var criteria = { 'user': uid, 'alias': siteAlias };
 			var update = { $set: { 'cache': cache } };
 			var options = { safe: true };
 
@@ -272,154 +428,19 @@ SiteService.prototype.updateSiteCache = function(organizationAlias, siteAlias, c
 	}
 };
 
-SiteService.prototype.createSite = function(siteModel) {
-	var dataService = this.dataService;
-	return parseSiteModel(siteModel)
-		.then(function(siteModel) {
-			return createSite(dataService, siteModel);
-		});
 
-
-	function createSite(dataService, siteModel) {
-		return new Promise(function(resolve, reject) {
-			var options = { safe: true };
-
-			dataService.db.collection(DB_COLLECTION_SITES).insert(siteModel, options,
-				function(error, records) {
-					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						return reject(new HttpError(409, 'A site already exists at that path'));
-					}
-					if (error) { return reject(error); }
-					return resolve(siteModel);
-				}
-			);
-		});
-	}
-};
-
-
-SiteService.prototype.updateSite = function(organizationAlias, siteAlias, siteModel) {
-	var dataService = this.dataService;
-	return parseSiteModel(siteModel)
-		.then(function(siteModelFields) {
-			return getSiteShareAlias(dataService, organizationAlias, siteAlias)
-				.then(function(currentShareAlias) {
-					var shareAliasHasChanged = (currentShareAlias !== siteModelFields.share);
-					if (!shareAliasHasChanged) {
-						delete siteModelFields.share;
-						delete siteModelFields.cache;
-					}
-					// TODO: Handle updating of site users
-					delete siteModelFields.users;
-					return updateSite(dataService, organizationAlias, siteAlias, siteModelFields);
-				});
-		});
-
-
-	function getSiteShareAlias(dataService, organizationAlias, siteAlias) {
-		return new Promise(function(resolve, reject) {
-			var query = { 'organization': organizationAlias, 'alias': siteAlias };
-			var projection = { 'share': 1 };
-
-			dataService.db.collection(DB_COLLECTION_SITES).findOne(query, projection,
-				function(error, siteModel) {
-					if (error) { return reject(error); }
-					if (!siteModel) {
-						return reject(new HttpError(404));
-					}
-					var shareAlias = siteModel.share;
-					return resolve(shareAlias);
-				}
-			);
-		});
-	}
-
-	function updateSite(dataService, organizationAlias, siteAlias, siteModelFields) {
-		return new Promise(function(resolve, reject) {
-			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
-			var updates = { $set: siteModelFields };
-			var options = { safe: true };
-
-			dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
-				function(error, numRecords) {
-					if (error) { return reject(error); }
-					if (numRecords === 0) {
-						return reject(new HttpError(404));
-					}
-					return resolve(siteModel);
-				}
-			);
-		});
-	}
-};
-
-
-SiteService.prototype.createSiteUser = function(organizationAlias, siteAlias, username, password) {
-	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!password) { return Promise.reject(new HttpError(400, 'No password specified')); }
-
-	// TODO: Validate site user details
-
-	var dataService = this.dataService;
-	return checkWhetherUserAlreadyExists(dataService, organizationAlias, siteAlias, username)
-		.then(function(userAlreadyExists) {
-			if (userAlreadyExists) {
-				throw new HttpError(409, 'A user already exists with this username');
-			}
-			return addSiteUser(dataService, organizationAlias, siteAlias, username, password);
-		});
-
-
-	function checkWhetherUserAlreadyExists(dataService, organizationAlias, siteAlias, username) {
-		return new Promise(function(resolve, reject) {
-			var query = { 'organization': organizationAlias, 'alias': siteAlias, 'users.username': username };
-			dataService.db.collection(DB_COLLECTION_SITES).count(query,
-				function(error, numRecords) {
-					if (error) { return reject(error); }
-					var userAlreadyExists = (numRecords > 0);
-					return resolve(userAlreadyExists);
-				}
-			);
-		});
-	}
-
-	function addSiteUser(dataService, organizationAlias, siteAlias, username, password) {
-		return new Promise(function(resolve, reject) {
-			var authenticationService = new AuthenticationService();
-			var userModel = authenticationService.create(username, password);
-
-			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
-			var updates = { $push: { 'users': userModel } };
-			var options = { safe: 1 };
-
-			dataService.db.collection(DB_COLLECTION_SITES).update(criteria, updates, options,
-				function(error, numRecords) {
-					if (error) { return reject(error); }
-					if (numRecords === 0) {
-						return reject(new HttpError(404));
-					}
-					return resolve(userModel);
-				}
-			);
-		});
-	}
-};
-
-
-SiteService.prototype.deleteSiteUser = function(organizationAlias, siteAlias, username) {
-	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+SiteService.prototype.deleteSiteUser = function(uid, siteAlias, username) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var dataService = this.dataService;
-	return deleteSiteUser(dataService, organizationAlias, siteAlias, username);
+	return deleteSiteUser(dataService, uid, siteAlias, username);
 
 
-	function deleteSiteUser(dataService, organizationAlias, shareAlias, username, callback) {
+	function deleteSiteUser(dataService, uid, shareAlias, username, callback) {
 		return new Promise(function(resolve, reject) {
-			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var criteria = { 'user': uid, 'alias': siteAlias };
 			var updates = { $pull: { 'users': { 'username': username } } };
 			var options = { safe: true };
 
@@ -436,9 +457,8 @@ SiteService.prototype.deleteSiteUser = function(organizationAlias, siteAlias, us
 	}
 };
 
-
-SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, domain) {
-	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+SiteService.prototype.createSiteDomain = function(uid, siteAlias, domain) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!domain) { return Promise.reject(new HttpError(400, 'No domain specified')); }
 
@@ -450,7 +470,7 @@ SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, 
 			if (domainAlreadyExists) {
 				throw new HttpError(409, 'A site is already registered to this domain');
 			}
-			return addSiteDomain(dataService, organizationAlias, siteAlias, domain);
+			return addSiteDomain(dataService, uid, siteAlias, domain);
 		});
 
 
@@ -467,9 +487,9 @@ SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, 
 		});
 	}
 
-	function addSiteDomain(dataService, organizationAlias, siteAlias, domain) {
+	function addSiteDomain(dataService, uid, siteAlias, domain) {
 		return new Promise(function(resolve, reject) {
-			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var criteria = { 'user': uid, 'alias': siteAlias };
 			var updates = { $push: { 'domains': domain } };
 			var options = { safe: 1 };
 
@@ -487,18 +507,74 @@ SiteService.prototype.createSiteDomain = function(organizationAlias, siteAlias, 
 };
 
 
-SiteService.prototype.deleteSiteDomain = function(organizationAlias, siteAlias, domain) {
-	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
+SiteService.prototype.deleteSite = function(uid, siteAlias) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+
+	// TODO: Validate site delete requests
+
+	var dataService = this.dataService;
+	return checkWhetherSiteisUserDefaultSite(dataService, uid, siteAlias)
+		.then(function(isDefaultSite) {
+			return deleteSite(dataService, uid, siteAlias)
+				.then(function() {
+					if (isDefaultSite) {
+						return resetOrganizationDefaultSite(dataService, uid);
+					}
+				});
+		});
+
+
+	function checkWhetherSiteisUserDefaultSite(dataService, uid, siteAlias) {
+		return new Promise(function(resolve, reject) {
+			var query = { 'user': uid, 'default': siteAlias };
+			dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).count(query,
+				function(error, numRecords) {
+					if (error) { return reject(error); }
+					var isDefaultSite = (numRecords > 0);
+					return resolve(isDefaultSite);
+				}
+			);
+		});
+	}
+
+	function deleteSite(dataService, uid, siteAlias) {
+		return new Promise(function(resolve, reject) {
+			var selector = { 'user': uid, 'alias': siteAlias };
+			var options = { safe: true };
+
+			dataService.db.collection(DB_COLLECTION_SITES).remove(selector, options,
+				function(error, numRecords) {
+					if (error) { return reject(error); }
+					if (numRecords === 0) {
+						return reject(new HttpError(404));
+					}
+					return resolve();
+				}
+			);
+		});
+	}
+
+	function resetOrganizationDefaultSite(dataService, uid) {
+		var organizationService = new UserService(dataService);
+		return organizationService.updateOrganizationDefaultSiteAlias(uid, null)
+			.then(function(siteAlias) {});
+	}
+};
+
+
+SiteService.prototype.deleteSiteDomain = function(uid, siteAlias, domain) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!domain) { return Promise.reject(new HttpError(400, 'No domain specified')); }
 
 	var dataService = this.dataService;
-	return deleteSiteDomain(dataService, organizationAlias, siteAlias, domain);
+	return deleteSiteDomain(dataService, uid, siteAlias, domain);
 
 
-	function deleteSiteDomain(dataService, organizationAlias, shareAlias, domain) {
+	function deleteSiteDomain(dataService, uid, shareAlias, domain) {
 		return new Promise(function(resolve, reject) {
-			var criteria = { 'organization': organizationAlias, 'alias': siteAlias };
+			var criteria = { 'user': uid, 'alias': siteAlias };
 			var updates = { $pull: { 'domains': domain } };
 			var options = { safe: true };
 
@@ -515,63 +591,6 @@ SiteService.prototype.deleteSiteDomain = function(organizationAlias, siteAlias, 
 	}
 };
 
-
-SiteService.prototype.deleteSite = function(organizationAlias, siteAlias) {
-	if (!organizationAlias) { return Promise.reject(new HttpError(400, 'No organization specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
-
-	// TODO: Validate site delete requests
-
-	var dataService = this.dataService;
-	return checkWhetherSiteisOrganizationDefaultSite(dataService, organizationAlias, siteAlias)
-		.then(function(isDefaultSite) {
-			return deleteSite(dataService, organizationAlias, siteAlias)
-				.then(function() {
-					if (isDefaultSite) {
-						return resetOrganizationDefaultSite(dataService, organizationAlias);
-					}
-				});
-		});
-
-
-	function checkWhetherSiteisOrganizationDefaultSite(dataService, organizationAlias, siteAlias) {
-		return new Promise(function(resolve, reject) {
-			var query = { 'alias': organizationAlias, 'default': siteAlias };
-			dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).count(query,
-				function(error, numRecords) {
-					if (error) { return reject(error); }
-					var isDefaultSite = (numRecords > 0);
-					return resolve(isDefaultSite);
-				}
-			);
-		});
-	}
-
-	function deleteSite(dataService, organizationAlias, siteAlias) {
-		return new Promise(function(resolve, reject) {
-			var selector = { 'organization': organizationAlias, 'alias': siteAlias };
-			var options = { safe: true };
-
-			dataService.db.collection(DB_COLLECTION_SITES).remove(selector, options,
-				function(error, numRecords) {
-					if (error) { return reject(error); }
-					if (numRecords === 0) {
-						return reject(new HttpError(404));
-					}
-					return resolve();
-				}
-			);
-		});
-	}
-
-	function resetOrganizationDefaultSite(dataService, organizationAlias) {
-		var organizationService = new OrganizationService(dataService);
-		return organizationService.updateOrganizationDefaultSiteAlias(organizationAlias, null)
-			.then(function(siteAlias) {});
-	}
-};
-
-
 function parseSiteModel(siteModel) {
 	return validateSiteModel(siteModel)
 		.then(function(siteModel) {
@@ -583,7 +602,7 @@ function parseSiteModel(siteModel) {
 	function validateSiteModel(siteModel) {
 		return new Promise(function(resolve, reject) {
 			if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
-			if (!siteModel.organization) { throw new HttpError(400, 'No organization specified'); }
+			if (!siteModel.user) { throw new HttpError(400, 'No user specified'); }
 			if (!siteModel.alias) { throw new HttpError(400, 'No site alias specified'); }
 			if (!siteModel.name) { throw new HttpError(400, 'No site name specified'); }
 			if (!siteModel.title) { throw new HttpError(400, 'No site title specified'); }
@@ -594,7 +613,7 @@ function parseSiteModel(siteModel) {
 			// TODO: Validate name when validating site model
 			// TODO: Validate title when validating site model
 			// TODO: Validate template when validating site model
-			// TODO: Validate share when validating site model
+			// TODO: Validate path when validating site model
 
 			resolve(siteModel);
 		});
@@ -602,14 +621,15 @@ function parseSiteModel(siteModel) {
 
 	function parseModelFields(siteModel) {
 		return {
-			'organization': siteModel.organization,
+			'user': siteModel.user,
 			'alias': siteModel.alias,
 			'name': siteModel.name,
 			'title': siteModel.title,
 			'template': siteModel.template,
-			'share': siteModel.share || null,
+			'path': siteModel.path || null,
 			'public': Boolean(siteModel['public']),
 			'users': siteModel.users || [],
+			'domains': siteModel.domains || [],
 			'cache': null
 		};
 	}

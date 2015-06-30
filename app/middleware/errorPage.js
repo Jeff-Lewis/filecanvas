@@ -1,11 +1,12 @@
 'use strict';
 
 module.exports = function(options) {
-	var debugMode = Boolean(options.debug);
+	var templateName = options.template;
 
 	return function(err, req, res, next) {
-		var templateOptions = getErrorTemplateOptions(err, debugMode);
-		res.render('error/error', templateOptions);
+		var templateOptions = getErrorTemplateOptions(err);
+		res.status(err.status || 500);
+		res.render(templateName, templateOptions);
 
 
 		function getErrorTemplateOptions(error) {

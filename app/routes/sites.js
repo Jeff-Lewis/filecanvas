@@ -11,30 +11,27 @@ var HttpError = require('../errors/HttpError');
 
 var handlebarsEngine = require('../engines/handlebars');
 
-var OrganizationService = require('../services/OrganizationService');
+var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var AuthenticationService = require('../services/AuthenticationService');
 
-module.exports = function(dataService, dropboxService) {
+module.exports = function(dataService) {
 	var app = express();
 
-	passport.use('site/local', new LocalStrategy({ passReqToCallback: true }, siteAuth));
-	globals.passport.serializers['site'] = serializeSiteAuthUser;
-	globals.passport.deserializers['site'] = deserializeSiteAuthUser;
+	initAuth();
 
+	app.get('/:user', defaultRoute);
+	app.get('/:user/login', defaultLoginRoute);
+	app.post('/:user/login', defaultLoginRoute);
+	app.get('/:user/logout', defaultLogoutRoute);
+	app.get('/:user/download/*', defaultDownloadRoute);
 
-	app.get('/:organization', defaultRoute);
-	app.get('/:organization/login', defaultLoginRoute);
-	app.post('/:organization/login', defaultLoginRoute);
-	app.get('/:organization/logout', defaultLogoutRoute);
-	app.get('/:organization/download/*', defaultDownloadRoute);
+	app.get('/:user/:site/login', redirectIfLoggedIn, loginRoute);
+	app.post('/:user/:site/login', processLoginRoute);
+	app.get('/:user/:site/logout', processLogoutRoute);
 
-	app.get('/:organization/:site/login', loginAuthCheck, loginRoute);
-	app.post('/:organization/:site/login', processLoginRoute);
-	app.get('/:organization/:site/logout', processLogoutRoute);
-
-	app.get('/:organization/:site', ensureAuth, siteRoute);
-	app.get('/:organization/:site/download/*', ensureAuth, downloadRoute);
+	app.get('/:user/:site', ensureAuth, siteRoute);
+	app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
 
 	app.engine('hbs', handlebarsEngine);
 	app.set('views', './templates/sites');
@@ -42,6 +39,95 @@ module.exports = function(dataService, dropboxService) {
 
 	return app;
 
+
+
+	function initAuth() {
+		globals.passport.serializers['site'] = serializeSiteAuthUser;
+		globals.passport.deserializers['site'] = deserializeSiteAuthUser;
+
+		passport.use('site/local', new LocalStrategy({ passReqToCallback: true },
+			function(req, username, password, callback) {
+				var userAlias = req.params.user;
+				var siteAlias = req.params.site;
+
+				var userService = new UserService(dataService);
+				userService.retrieveUser(userAlias)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var siteService = new SiteService(dataService);
+						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+							.then(function(authenticationDetails) {
+								var isPublic = authenticationDetails.public;
+								if (isPublic) { return callback(null, true); }
+
+								var validUsers = authenticationDetails.users;
+								var authenticationService = new AuthenticationService();
+								var siteUserModel = authenticationService.authenticate(username, password, validUsers);
+
+								if (!siteUserModel) { return callback(null, false); }
+
+								var passportUser = {
+									type: 'site',
+									user: userAlias,
+									site: siteAlias,
+									model: siteUserModel
+								};
+								return callback(null, passportUser);
+							});
+					})
+					.catch(function(error) {
+						return callback(error);
+					});
+			})
+		);
+
+
+		function serializeSiteAuthUser(passportUser, callback) {
+			var serializedUser = JSON.stringify({
+				user: passportUser.user,
+				site: passportUser.site,
+				username: passportUser.model.username
+			});
+			return callback(null, serializedUser);
+		}
+
+		function deserializeSiteAuthUser(serializedUser, callback) {
+			var deserializedUser = JSON.parse(serializedUser);
+			var userAlias = deserializedUser.user;
+			var siteAlias = deserializedUser.site;
+			var username = deserializedUser.username;
+
+			var userService = new UserService(dataService);
+			userService.retrieveUser(userAlias)
+				.then(function(userModel) {
+					var uid = userModel.uid;
+					var siteService = new SiteService(dataService);
+					return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+						.then(function(authenticationDetails) {
+							var validUsers = authenticationDetails.users;
+							var matchedUsers = validUsers.filter(function(validUser) {
+								return validUser.username === username;
+							});
+
+							if (matchedUsers.length === 0) {
+								throw new Error('Username not found: "' + username + '"');
+							}
+
+							var siteUserModel = matchedUsers[0];
+							var passportUser = {
+								type: 'site',
+								user: userAlias,
+								site: siteAlias,
+								model: siteUserModel
+							};
+							return callback(null, passportUser);
+						});
+				})
+				.catch(function(error) {
+					return callback(error);
+				});
+		}
+	}
 
 	function processLoginRoute(req, res, next) {
 		passport.authenticate('site/local', function(error, user, info) {
@@ -68,42 +154,55 @@ module.exports = function(dataService, dropboxService) {
 		})(req, res, next);
 	}
 
+	function processLogoutRoute(req, res, next) {
+		req.logout();
+		req.session.destroy();
+		var requestPath = req.originalUrl.split('?')[0];
+		var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
+		res.redirect(redirectUrl);
+	}
+
 	function ensureAuth(req, res, next) {
 		if (req.isAuthenticated()) {
+			// TODO: Check to see whether the user is authenticated for this specific site
 			next();
 			return;
 		}
-
-		var organizationAlias = req.params.organization;
+		var userAlias = req.params.user;
 		var siteAlias = req.params.site;
 
-		var siteService = new SiteService(dataService, dropboxService);
-		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias)
-			.then(function(authenticationDetails) {
-				var isPublic = authenticationDetails.public;
-				if (isPublic) {
-					next();
-					return;
-				}
+		var userService = new UserService(dataService);
+		userService.retrieveUser(userAlias)
+			.then(function(userModel) {
+				var uid = userModel.uid;
+				var siteService = new SiteService(dataService);
+				return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+					.then(function(authenticationDetails) {
+						var isPublic = authenticationDetails.public;
+						if (isPublic) {
+							next();
+							return;
+						}
 
-				var requestPath = req.originalUrl.split('?')[0];
+						var requestPath = req.originalUrl.split('?')[0];
 
-				// TODO: Generate login link correctly for download URLs
-				var siteLoginUrl = '/login';
-				var isDownloadLink = (requestPath.indexOf('/download') === 0);
-				if (isDownloadLink) {
-					siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
-				} else {
-					siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
-				}
-				res.redirect(siteLoginUrl);
+						// TODO: Generate login link correctly for download URLs
+						var siteLoginUrl = '/login';
+						var isDownloadLink = (requestPath.indexOf('/download') === 0);
+						if (isDownloadLink) {
+							siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
+						} else {
+							siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
+						}
+						res.redirect(siteLoginUrl);
+					});
 			})
 			.catch(function(error) {
 				next(error);
 			});
 	}
 
-	function loginAuthCheck(req, res, next) {
+	function redirectIfLoggedIn(req, res, next) {
 		if (req.isAuthenticated()) {
 			var requestPath = req.originalUrl.split('?')[0];
 			var redirectParam = req.param('redirect');
@@ -113,89 +212,11 @@ module.exports = function(dataService, dropboxService) {
 		next();
 	}
 
-	function siteAuth(req, username, password, callback) {
-		var organizationAlias = req.params.organization;
-		var siteAlias = req.params.site;
-
-		var siteService = new SiteService(dataService, dropboxService);
-		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias)
-			.then(function(authenticationDetails) {
-				var isPublic = authenticationDetails.public;
-				if (isPublic) { return callback(null, true); }
-
-				var validUsers = authenticationDetails.users;
-				var authenticationService = new AuthenticationService();
-				var siteUserModel = authenticationService.authenticate(username, password, validUsers);
-
-				if (!siteUserModel) { return callback(null, false); }
-
-				var passportUser = {
-					type: 'site',
-					organization: organizationAlias,
-					site: siteAlias,
-					model: siteUserModel
-				};
-				return callback(null, passportUser);
-			})
-			.catch(function(error) {
-				return callback(error);
-			});
-	}
-
-	function serializeSiteAuthUser(passportUser, callback) {
-		var serializedUser = JSON.stringify({
-			organization: passportUser.organization,
-			site: passportUser.site,
-			username: passportUser.model.username
-		});
-		return callback(null, serializedUser);
-	}
-
-	function deserializeSiteAuthUser(serializedUser, callback) {
-		var deserializedUser = JSON.parse(serializedUser);
-		var organizationAlias = deserializedUser.organization;
-		var siteAlias = deserializedUser.site;
-		var username = deserializedUser.username;
-
-		var siteService = new SiteService(dataService, dropboxService);
-		siteService.retrieveAuthenticationDetails(organizationAlias, siteAlias)
-			.then(function(authenticationDetails) {
-				var validUsers = authenticationDetails.users;
-				var matchedUsers = validUsers.filter(function(validUser) {
-					return validUser.username === username;
-				});
-
-				if (matchedUsers.length === 0) {
-					throw new Error('Username not found: "' + username + '"');
-				}
-
-				var siteUserModel = matchedUsers[0];
-				var passportUser = {
-					type: 'site',
-					organization: organizationAlias,
-					site: siteAlias,
-					model: siteUserModel
-				};
-				return callback(null, passportUser);
-			})
-			.catch(function(error) {
-				return callback(error);
-			});
-	}
-
-	function processLogoutRoute(req, res, next) {
-		req.logout();
-		req.session.destroy();
-		var requestPath = req.originalUrl.split('?')[0];
-		var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
-		res.redirect(redirectUrl);
-	}
-
 	function defaultRoute(req, res, next) {
-		var organizationAlias = req.params.organization;
-		var organizationService = new OrganizationService(dataService);
+		var userAlias = req.params.user;
 
-		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
+		var userService = new UserService(dataService);
+		return userService.retrieveUserDefaultSiteAlias(userAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
 					throw new HttpError(404);
@@ -209,15 +230,15 @@ module.exports = function(dataService, dropboxService) {
 	}
 
 	function defaultLoginRoute(req, res, next) {
-		var organizationAlias = req.params.organization;
-		var organizationService = new OrganizationService(dataService);
+		var userAlias = req.params.user;
 
-		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
+		var userService = new UserService(dataService);
+		userService.retrieveUserDefaultSiteAlias(userAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
 					throw new HttpError(404);
 				}
-				req.url = '/' + organizationAlias + '/' + siteAlias + '/login';
+				req.url = '/' + userAlias + '/' + siteAlias + '/login';
 				next();
 			})
 			.catch(function(error) {
@@ -226,15 +247,15 @@ module.exports = function(dataService, dropboxService) {
 	}
 
 	function defaultLogoutRoute(req, res, next) {
-		var organizationAlias = req.params.organization;
-		var organizationService = new OrganizationService(dataService);
+		var userAlias = req.params.user;
 
-		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
+		var userService = new UserService(dataService);
+		userService.retrieveUserDefaultSiteAlias(userAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
 					throw new HttpError(404);
 				}
-				req.url = '/' + organizationAlias + '/' + siteAlias + '/logout';
+				req.url = '/' + userAlias + '/' + siteAlias + '/logout';
 				next();
 			})
 			.catch(function(error) {
@@ -243,16 +264,16 @@ module.exports = function(dataService, dropboxService) {
 	}
 
 	function defaultDownloadRoute(req, res, next) {
-		var organizationAlias = req.params.organization;
-		var organizationService = new OrganizationService(dataService);
+		var userAlias = req.params.user;
 		var downloadPath = req.params[0];
 
-		organizationService.retrieveOrganizationDefaultSiteAlias(organizationAlias)
+		var userService = new UserService(dataService);
+		userService.retrieveUserDefaultSiteAlias(userAlias)
 			.then(function(siteAlias) {
 				if (!siteAlias) {
 					throw new HttpError(404);
 				}
-				req.url = '/' + organizationAlias + '/' + siteAlias + '/download/' + downloadPath;
+				req.url = '/' + userAlias + '/' + siteAlias + '/download/' + downloadPath;
 				next();
 			})
 			.catch(function(error) {
@@ -261,37 +282,46 @@ module.exports = function(dataService, dropboxService) {
 	}
 
 	function downloadRoute(req, res, next) {
-		var organizationAlias = req.params.organization;
+		var userAlias = req.params.user;
 		var siteAlias = req.params.site;
 		var downloadPath = req.params[0];
 
-		var siteService = new SiteService(dataService, dropboxService);
-
-		siteService.retrieveDownloadLink(organizationAlias, siteAlias, downloadPath)
-			.then(function(downloadUrl) {
-				res.redirect(downloadUrl);
+		var userService = new UserService(dataService);
+		userService.retrieveUser(userAlias)
+			.then(function(userModel) {
+				var uid = userModel.uid;
+				var siteService = new SiteService(dataService);
+				return siteService.retrieveSiteDownloadLink(uid, siteAlias, downloadPath)
+					.then(function(downloadUrl) {
+						res.redirect(downloadUrl);
+					});
 			})
 			.catch(function(error) {
 				next(error);
 			});
+
 	}
 
 	function siteRoute(req, res, next) {
-		var organizationAlias = req.params.organization;
+		var userAlias = req.params.user;
 		var siteAlias = req.params.site;
 
-		var siteService = new SiteService(dataService, dropboxService);
-
-		var includeContents = true;
-		var includeUsers = false;
-		var includeDomains = false;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
-			.then(function(siteModel) {
-				var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
-				var requestPath = req.originalUrl.split('?')[0];
-				var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-				var templateOptions = getSiteTemplateOptions(siteModel, siteRoot, hostname);
-				res.render(siteModel.template + '/index', templateOptions);
+		var userService = new UserService(dataService);
+		userService.retrieveUser(userAlias)
+			.then(function(userModel) {
+				var uid = userModel.uid;
+				var siteService = new SiteService(dataService);
+				var includeContents = true;
+				var includeUsers = false;
+				var includeDomains = false;
+				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
+					.then(function(siteModel) {
+						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
+						var requestPath = req.originalUrl.split('?')[0];
+						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+						var templateOptions = getSiteTemplateOptions(siteModel, siteRoot, hostname);
+						res.render(siteModel.template + '/index', templateOptions);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -305,8 +335,9 @@ module.exports = function(dataService, dropboxService) {
 			var siteTemplateRoot = siteTemplatesRoot + siteModel.template + '/';
 
 			return {
-				title: title,
 				siteRoot: siteRoot,
+				site: siteModel,
+				title: title,
 				templateRoot: siteTemplateRoot,
 				contents: siteContents,
 				folders: siteContents.folders,
@@ -316,21 +347,25 @@ module.exports = function(dataService, dropboxService) {
 	}
 
 	function loginRoute(req, res, next) {
-		var organizationAlias = req.params.organization;
+		var userAlias = req.params.user;
 		var siteAlias = req.params.site;
 
-		var siteService = new SiteService(dataService, dropboxService);
-
-		var includeContents = false;
-		var includeUsers = false;
-		var includeDomains = false;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
-			.then(function(siteModel) {
-				var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
-				var requestPath = req.originalUrl.split('?')[0].replace(/\/login$/, '');
-				var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-				var templateOptions = getLoginTemplateOptions(siteModel, siteRoot, hostname);
-				res.render(siteModel.template + '/login', templateOptions);
+		var userService = new UserService(dataService);
+		userService.retrieveUser(userAlias)
+			.then(function(userModel) {
+				var uid = userModel.uid;
+				var siteService = new SiteService(dataService);
+				var includeContents = false;
+				var includeUsers = false;
+				var includeDomains = false;
+				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
+					.then(function(siteModel) {
+						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
+						var requestPath = req.originalUrl.split('?')[0].replace(/\/login$/, '');
+						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+						var templateOptions = getLoginTemplateOptions(siteModel, siteRoot, hostname);
+						res.render(siteModel.template + '/login', templateOptions);
+					});
 			})
 			.catch(function(error) {
 				next(error);
@@ -343,8 +378,9 @@ module.exports = function(dataService, dropboxService) {
 			var siteTemplateRoot = siteTemplatesRoot + siteModel.template + '/';
 
 			return {
-				title: title,
 				siteRoot: siteRoot,
+				site: siteModel,
+				title: title,
 				templateRoot: siteTemplateRoot
 			};
 		}

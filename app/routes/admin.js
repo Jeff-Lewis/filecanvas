@@ -4,17 +4,14 @@ var path = require('path');
 var Promise = require('promise');
 var express = require('express');
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
 var config = require('../../config');
 var globals = require('../globals');
 
-var HttpError = require('../errors/HttpError');
-
 var handlebarsEngine = require('../engines/handlebars');
 
-var AuthenticationService = require('../services/AuthenticationService');
-var OrganizationService = require('../services/OrganizationService');
+var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
 
@@ -29,34 +26,22 @@ module.exports = function(dataService) {
 	var assetsMiddleware = express.static(assetsRoot);
 	app.use('/assets', assetsMiddleware);
 
-	passport.use('admin/local', new LocalStrategy(adminAuth));
-	globals.passport.serializers['admin'] = serializeAdminAuthUser;
-	globals.passport.deserializers['admin'] = deserializeAdminAuthUser;
+	initAuth(dataService, config.dropbox.appKey, config.dropbox.appSecret, 'https://my.shunt.dev:5001/login/oauth2/callback');
 
-	app.get('/login', loginAuthCheck, initAdminSession, retrieveLoginRoute);
-	app.post('/login', passport.authenticate('admin/local', { successRedirect: '/', failureRedirect: '/login' }));
+	app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
+	app.get('/login/oauth2', passport.authenticate('admin/dropbox'));
+	app.get('/login/oauth2/callback', passport.authenticate('admin/dropbox', { successRedirect: '/', failureRedirect: '/login' }));
 	app.get('/logout', initAdminSession, retrieveLogoutRoute);
 
 
 	app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
+
 	app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
 	app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
+
 	app.get('/account', ensureAuth, initAdminSession, retrieveAccountSettingsRoute);
 
-
-	app.get('/organization', ensureAuth, initAdminSession, retrieveOrganizationSettingsRoute);
-	app.get('/organization/shares', ensureAuth, initAdminSession, retrieveOrganizationShareListRoute);
-	app.get('/organization/users', ensureAuth, initAdminSession, retrieveOrganizationUserListRoute);
-	app.get('/organization/users/add', ensureAuth, initAdminSession, retrieveOrganizationUserAddRoute);
-	app.get('/organization/users/edit/:username', ensureAuth, initAdminSession, retrieveOrganizationUserEditRoute);
-
-	app.put('/organization', ensureAuth, initAdminSession, updateOrganizationRoute);
-	app.del('/organization/shares/:share', ensureAuth, initAdminSession, deleteOrganizationShareRoute);
-	app.post('/organization/users', ensureAuth, initAdminSession, createOrganizationUserRoute);
-	app.put('/organization/users/:username', ensureAuth, initAdminSession, updateOrganizationUserRoute);
-	app.put('/organization/users/:username/change-password', ensureAuth, initAdminSession, updateOrganizationUserPasswordRoute);
-	app.del('/organization/users/:user', ensureAuth, initAdminSession, deleteOrganizationUserRoute);
-
+	app.put('/account', ensureAuth, initAdminSession, updateAccountSettingsRoute);
 
 	app.get('/sites', ensureAuth, initAdminSession, retrieveSiteListRoute);
 	app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
@@ -79,88 +64,96 @@ module.exports = function(dataService) {
 	return app;
 
 
-	function adminAuth(username, password, callback) {
-		retrieveAdministratorDetails(username)
-			.then(function(administratorModel) {
-				var isAuthenticated = authenticateAdministrator(username, password, administratorModel);
-				if (!isAuthenticated) {
-					return callback(null, false);
-				}
+	function initAuth(dataService, appKey, appSecret, callbackUrl) {
+		globals.passport.serializers['admin'] = serializeAdminAuthUser;
+		globals.passport.deserializers['admin'] = deserializeAdminAuthUser;
 
-				var passportUser = {
-					type: 'admin',
-					model: administratorModel
-				};
-				return callback(null, passportUser);
-			})
-			.catch(function(error) {
-				if (error.status === 404) {
-					return callback(null, false);
-				}
-			})
-			.catch(function(error) {
-				return callback(error);
-			});
+		passport.use('admin/dropbox', new DropboxOAuth2Strategy({
+			clientID: appKey,
+			clientSecret: appSecret,
+			callbackURL: callbackUrl
+		}, function(accessToken, refreshToken, profile, callback) {
+			var uid = profile.id;
+			var profileName = profile.displayName;
+			var profileEmail = profile.emails[0].value;
+			loadUserModel(uid, accessToken, profileName, profileEmail)
+				.then(function(userModel) {
+					var passportUser = {
+						type: 'admin',
+						model: userModel
+					};
+					callback(null, passportUser);
+				})
+				.catch(function(error) {
+					if (error.status === 404) {
+						// TODO: Return graceful error if user is not yet registered
+					}
+					callback(error);
+				});
 
 
-		function retrieveAdministratorDetails(username, callback) {
-			var organizationService = new OrganizationService(dataService);
-			return organizationService.retrieveAdministrator(username);
+			function loadUserModel(uid, accessToken, name, email) {
+				var userService = new UserService(dataService);
+				return userService.retrieveUser(uid)
+					.then(function(userModel) {
+						// TODO: Update Dropbox name/email if they have changed
+						var hasUpdatedAccessToken = userModel.token !== accessToken;
+						if (hasUpdatedAccessToken) {
+							return userService.updateUser(uid, { token: accessToken })
+								.then(function() {
+									userModel.token = accessToken;
+									return userModel;
+								});
+						}
+						return userModel;
+					});
+			}
+		}));
+
+
+		function serializeAdminAuthUser(passportUser, callback) {
+			var serializedUser = passportUser.model.uid;
+			return callback && callback(null, serializedUser);
 		}
 
-		function authenticateAdministrator(username, password, administratorModel) {
-			var validAuthenticationDetails = {
-				username: administratorModel.username,
-				password: administratorModel.password,
-				salt: administratorModel.salt
-			};
-			var validUsers = [validAuthenticationDetails];
-			var authenticationService = new AuthenticationService();
-			var isAuthenticated = authenticationService.authenticate(username, password, validUsers);
-			return isAuthenticated;
+		function deserializeAdminAuthUser(serializedUser, callback) {
+			var uid = Number(serializedUser);
+			var userService = new UserService(dataService);
+			return userService.retrieveUser(uid)
+				.then(function(administratorModel) {
+					var passportUser = {
+						type: 'admin',
+						model: administratorModel
+					};
+					return callback(null, passportUser);
+				})
+				.catch(function(error) {
+					return callback(error);
+				});
 		}
 	}
 
 	function ensureAuth(req, res, next) {
-		if (req.isAuthenticated()) {
-			next();
+		if (!req.isAuthenticated()) {
+			res.redirect('/login');
 			return;
-		}
-		res.redirect('/login');
-	}
-
-	function loginAuthCheck(req, res, next) {
-		if (req.isAuthenticated()) {
-			return res.redirect('/');
 		}
 		next();
 	}
 
-	function serializeAdminAuthUser(passportUser, callback) {
-		var serializedUser = passportUser.model.username;
-		return callback && callback(null, serializedUser);
-	}
-
-	function deserializeAdminAuthUser(serializedUser, callback) {
-		var username = serializedUser;
-		var organizationService = new OrganizationService(dataService);
-		return organizationService.retrieveAdministrator(username)
-			.then(function(administratorModel) {
-				var passportUser = {
-					type: 'admin',
-					model: administratorModel
-				};
-				return callback(null, passportUser);
-			})
-			.catch(function(error) {
-				return callback(error);
-			});
+	function redirectIfLoggedIn(req, res, next) {
+		if (!req.isAuthenticated()) {
+			return next();
+		}
+		res.redirect('/');
 	}
 
 	function initAdminSession(req, res, next) {
-		loadSessionModel(req)
-			.then(function(sessionModel) {
-				app.locals.session = sessionModel;
+		loadSessionData(req)
+			.then(function(sessionData) {
+				Object.keys(sessionData).forEach(function(key) {
+					req.session[key] = sessionData[key];
+				});
 				next();
 			})
 			.catch(function(error) {
@@ -168,86 +161,50 @@ module.exports = function(dataService) {
 			});
 
 
-		function loadSessionModel(req) {
-			if (req.user) {
-				var administratorModel = req.user.model;
-				return retrieveSessionData(req, administratorModel);
-			} else {
-				var sessionModel = getAnonymousSessionData();
-				return Promise.resolve(sessionModel);
-			}
-		}
-
-		function getAnonymousSessionData() {
-			var administratorModel = null;
-			var organizationModel = null;
-			var siteModels = null;
-			return getSessionData(req, administratorModel, organizationModel, siteModels);
-		}
-
-		function retrieveSessionData(req, administratorModel) {
-			var organizationAlias = administratorModel.organization;
-			return retrieveOrganizationDetails(organizationAlias)
-				.then(function(organizationModel) {
-					return retrieveOrganizationSites(organizationAlias)
-						.then(function(siteModels) {
-							var sessionModel = getSessionData(req, administratorModel, organizationModel, siteModels);
-							return sessionModel;
-						});
+		function loadSessionData(req) {
+			var userModel = req.user && req.user.model || null;
+			return Promise.resolve(userModel ? loadUserSites(userModel) : null)
+				.then(function(siteModels) {
+					var urlService = new UrlService(req);
+					var adminUrls = getAdminUrls(urlService, userModel);
+					return {
+						urls: adminUrls,
+						location: urlService.location,
+						sites: siteModels
+					};
 				});
 
 
-			function retrieveOrganizationDetails(organizationAlias) {
-				var organizationService = new OrganizationService(dataService);
-				var includeShares = true;
-				return organizationService.retrieveOrganization(organizationAlias, includeShares);
+			function loadUserSites(userModel) {
+				var uid = userModel.uid;
+				var userService = new UserService(dataService);
+				return userService.retrieveUserSites(uid);
 			}
 
-			function retrieveOrganizationSites(organizationAlias) {
-				var organizationService = new OrganizationService(dataService);
-				return organizationService.retrieveOrganizationSites(organizationAlias);
+			function getAdminUrls(urlService, userModel) {
+				return {
+					webroot: (userModel ? urlService.getSubdomainUrl(userModel.alias) : null),
+					domain: urlService.getSubdomainUrl('$0'),
+					admin: '/',
+					faq: '/faq',
+					support: '/support',
+					account: '/account',
+					login: '/login',
+					oauth: '/login/oauth2',
+					logout: '/logout',
+					sites: '/sites',
+					sitesAdd: '/sites/add',
+					sitesEdit: '/sites/edit'
+				};
 			}
-		}
-	}
-
-	function getSessionData(req, administratorModel, organizationModel, siteModels) {
-		var urlService = new UrlService(req);
-		var adminUrls = getAdminUrls(urlService, organizationModel);
-		return {
-			location: urlService.location,
-			urls: adminUrls,
-			user: administratorModel || null,
-			organization: organizationModel || null,
-			sites: siteModels || null
-		};
-
-
-		function getAdminUrls(urlService, organizationModel) {
-			return {
-				webroot: (organizationModel ? urlService.getSubdomainUrl(organizationModel.alias) : null),
-				domain: urlService.getSubdomainUrl('$0'),
-				admin: '/',
-				faq: '/faq',
-				support: '/support',
-				account: '/account',
-				login: '/login',
-				logout: '/logout',
-				sites: '/sites',
-				sitesAdd: '/sites/add',
-				sitesEdit: '/sites/edit',
-				organization: '/organization',
-				organizationShares: '/organization/shares',
-				organizationUsers: '/organization/users',
-				organizationUsersAdd: '/organization/users/add',
-				organizationUsersEdit: '/organization/users/edit'
-			};
 		}
 	}
 
 	function retrieveLoginRoute(req, res, next) {
 		var templateData = {
 			title: 'Login',
-			session: app.locals.session,
+			session: req.session,
+			user: null,
 			content: null
 		};
 		renderAdminPage(app, 'login', templateData)
@@ -272,7 +229,8 @@ module.exports = function(dataService) {
 	function retrieveFaqRoute(req, res, next) {
 		var templateData = {
 			title: 'FAQ',
-			session: app.locals.session,
+			session: req.session,
+			user: req.user.model,
 			content: {
 				questions: faqData
 			}
@@ -289,7 +247,8 @@ module.exports = function(dataService) {
 	function retrieveSupportRoute(req, res, next) {
 		var templateData = {
 			title: 'Support',
-			session: app.locals.session,
+			session: req.session,
+			user: req.user.model,
 			content: null
 		};
 		renderAdminPage(app, 'support', templateData)
@@ -304,10 +263,9 @@ module.exports = function(dataService) {
 	function retrieveAccountSettingsRoute(req, res, next) {
 		var templateData = {
 			title: 'Your account',
-			session: app.locals.session,
-			content: {
-				user: app.locals.session.user
-			}
+			session: req.session,
+			user: req.user.model,
+			content: null
 		};
 		renderAdminPage(app, 'account', templateData)
 			.then(function(data) {
@@ -318,215 +276,19 @@ module.exports = function(dataService) {
 			});
 	}
 
-	function retrieveOrganizationSettingsRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var organizationService = new OrganizationService(dataService);
-		organizationService.retrieveOrganizationAdministrators(organizationAlias)
-			.then(function(administratorModels) {
-				var templateData = {
-					title: 'Organization settings',
-					session: app.locals.session,
-					content: {
-						organization: app.locals.session.organization,
-						administrators: administratorModels
-					}
-				};
-				return renderAdminPage(app, 'organization', templateData)
-					.then(function(data) {
-						res.send(data);
-					});
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function retrieveOrganizationShareListRoute(req, res, next) {
-		var templateData = {
-			title: 'Linked Dropbox folders',
-			session: app.locals.session,
-			content: {
-				shares: app.locals.session.organization.shares
-			}
-		};
-		renderAdminPage(app, 'organization/shares', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function retrieveOrganizationUserListRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var organizationService = new OrganizationService(dataService);
-		organizationService.retrieveOrganizationAdministrators(organizationAlias)
-			.then(function(administratorModels) {
-				var templateData = {
-					title: 'Organization user accounts',
-					session: app.locals.session,
-					content: {
-						users: administratorModels
-					}
-				};
-				return renderAdminPage(app, 'organization/users', templateData)
-					.then(function(data) {
-						res.send(data);
-					});
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function retrieveOrganizationUserAddRoute(req, res, next) {
-		var templateData = {
-			title: 'Add a user',
-			session: app.locals.session,
-			content: null
-		};
-		renderAdminPage(app, 'organization/users/add', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function retrieveOrganizationUserEditRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var username = req.params.username;
-
-		var organizationService = new OrganizationService(dataService);
-		organizationService.retrieveOrganizationAdministrator(organizationAlias, username)
-			.then(function(administratorModel) {
-				var templateData = {
-					title: 'User account settings',
-					session: app.locals.session,
-					content: {
-						user: administratorModel
-					}
-				};
-				return renderAdminPage(app, 'organization/users/edit', templateData)
-					.then(function(data) {
-						res.send(data);
-					});
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function updateOrganizationRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var organizationModel = {
+	function updateAccountSettingsRoute(req, res, next) {
+		var userModel = req.user.model;
+		var uid = userModel.uid;
+		var updates = {
 			'alias': req.body.alias,
 			'name': req.body.name,
 			'email': req.body.email,
-			'default': req.body['default'] || null
+			'default': req.body.default || null
 		};
-		var organizationService = new OrganizationService(dataService);
-		organizationService.updateOrganization(organizationAlias, organizationModel)
-			.then(function(organizationModel) {
-				res.redirect(303, '/organization');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function createOrganizationUserRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var administratorModel = {
-			'organization': organizationAlias,
-			'username': req.body.email,
-			'email': req.body.email,
-			'name': req.body.name,
-			'password': req.body.password
-		};
-		var organizationService = new OrganizationService(dataService);
-		organizationService.createOrganizationAdministrator(administratorModel)
-			.then(function() {
-				res.redirect(303, '/organization/users');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function updateOrganizationUserRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var username = req.params.username;
-		var administratorModel = {
-			'organization': organizationAlias,
-			'username': req.body.email,
-			'email': req.body.email,
-			'name': req.body.name
-		};
-		var organizationService = new OrganizationService(dataService);
-		organizationService.updateOrganizationAdministrator(organizationAlias, username, administratorModel)
-			.then(function() {
-				res.redirect(303, '/organization/users');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function updateOrganizationUserPasswordRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var username = req.params.username;
-		var passwordCurrent = req.body['password-current'];
-		var passwordNew = req.body['password-new'];
-		var passwordConfirm = req.body['password-confirm'];
-		if (passwordNew !== passwordConfirm) {
-			return next(new HttpError(400, 'Supplied passwords do not match'));
-		}
-
-		var administratorModel = {
-			'username': username,
-			'password': passwordNew
-		};
-		var organizationService = new OrganizationService(dataService);
-		organizationService.updateOrganizationAdministratorPassword(organizationAlias, username, passwordCurrent, administratorModel)
-			.then(function() {
-				res.redirect(303, '/organization/users');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function deleteOrganizationShareRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var shareAlias = req.params.share;
-
-		var organizationService = new OrganizationService(dataService);
-		organizationService.deleteOrganizationShare(organizationAlias, shareAlias)
-			.then(function() {
-				res.redirect(303, '/organization/shares');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function deleteOrganizationUserRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
-		var username = req.params.user;
-
-		var isCurrentUser = (username === app.locals.session.user.username);
-		if (isCurrentUser) {
-			// TODO: Warn if deleting the current user account
-			return next(new HttpError(403, 'Cannot delete the currently logged-in user'));
-		}
-
-		var organizationService = new OrganizationService(dataService);
-		organizationService.deleteOrganizationAdministrator(organizationAlias, username)
-			.then(function() {
-				res.redirect(303, '/organization/users');
+		var userService = new UserService(dataService);
+		userService.updateUser(uid, updates)
+			.then(function(userModel) {
+				res.redirect(303, '/account');
 			})
 			.catch(function(error) {
 				next(error);
@@ -536,9 +298,10 @@ module.exports = function(dataService) {
 	function retrieveSiteListRoute(req, res, next) {
 		var templateData = {
 			title: 'Your sites',
-			session: app.locals.session,
+			session: req.session,
+			user: req.user.model,
 			content: {
-				sites: app.locals.session.sites
+				sites: req.session.sites
 			}
 		};
 		renderAdminPage(app, 'sites', templateData)
@@ -553,7 +316,8 @@ module.exports = function(dataService) {
 	function retrieveSiteAddRoute(req, res, next) {
 		var templateData = {
 			title: 'Add a site',
-			session: app.locals.session,
+			session: req.session,
+			user: req.user.model,
 			content: null
 		};
 		renderAdminPage(app, 'sites/add', templateData)
@@ -566,19 +330,20 @@ module.exports = function(dataService) {
 	}
 
 	function retrieveSiteEditRoute(req, res, next) {
-		var organizationModel = app.locals.session.organization;
-		var organizationAlias = organizationModel.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = true;
 		var includeDomains = true;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
+		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site: ' + siteModel.name,
-					session: app.locals.session,
+					session: req.session,
+					user: req.user.model,
 					content: {
 						site: siteModel
 					}
@@ -594,21 +359,20 @@ module.exports = function(dataService) {
 	}
 
 	function retrieveSiteUsersEditRoute(req, res, next) {
-		var session = app.locals.session;
-
-		var organizationModel = session.organization;
-		var organizationAlias = organizationModel.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = true;
 		var includeDomains = true;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
+		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site users: ' + siteModel.name,
-					session: app.locals.session,
+					session: req.session,
+					user: req.user.model,
 					content: {
 						site: siteModel
 					}
@@ -624,21 +388,20 @@ module.exports = function(dataService) {
 	}
 
 	function retrieveSiteDomainsEditRoute(req, res, next) {
-		var session = app.locals.session;
-
-		var organizationModel = session.organization;
-		var organizationAlias = organizationModel.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = false;
 		var includeDomains = true;
-		siteService.retrieveSite(organizationAlias, siteAlias, includeContents, includeUsers, includeDomains)
+		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site domains: ' + siteModel.name,
-					session: app.locals.session,
+					session: req.session,
+					user: req.user.model,
 					content: {
 						site: siteModel
 					}
@@ -654,18 +417,19 @@ module.exports = function(dataService) {
 	}
 
 	function createSiteRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 
 		// TODO: Allow user to set site theme when creating site
 		// TODO: Allow user to set site users when creating site
 
 		var siteModel = {
-			'organization': organizationAlias,
+			'user': uid,
 			'alias': req.body.alias,
 			'name': req.body.name,
 			'title': req.body.title,
 			'template': DEFAULT_SITE_TEMPLATE,
-			'share': req.body.share || null,
+			'path': req.body.path || null,
 			'public': (req.body['private'] !== 'true')
 		};
 
@@ -680,12 +444,13 @@ module.exports = function(dataService) {
 	}
 
 	function updateSiteRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 
 		var isPurgeRequest = (req.body._action === 'purge');
 		if (isPurgeRequest) {
-			purgeSite(organizationAlias, siteAlias)
+			purgeSite(uid, siteAlias)
 				.then(function() {
 					res.redirect(303, '/sites/edit/' + siteAlias);
 				})
@@ -696,18 +461,18 @@ module.exports = function(dataService) {
 
 			// TODO: Allow user to update site theme when updating site
 
-			var siteModel = {
-				'organization': organizationAlias,
+			var updates = {
+				'user': uid,
 				'alias': req.body.alias,
 				'name': req.body.name,
 				'title': req.body.title,
 				'template': DEFAULT_SITE_TEMPLATE,
-				'share': req.body.share || null,
+				'path': req.body.path || null,
 				'public': (req.body['private'] !== 'true')
 			};
-			updateSite(organizationAlias, siteAlias, siteModel)
-				.then(function(siteModel) {
-					res.redirect(303, '/sites/edit/' + siteModel.alias);
+			updateSite(uid, siteAlias, updates)
+				.then(function() {
+					res.redirect(303, '/sites/edit/' + updates.alias);
 				})
 				.catch(function(error) {
 					next(error);
@@ -715,24 +480,25 @@ module.exports = function(dataService) {
 		}
 
 
-		function purgeSite(organizationAlias, siteAlias) {
+		function purgeSite(uid, siteAlias) {
 			var cache = null;
 			var siteService = new SiteService(dataService);
-			return siteService.updateSiteCache(organizationAlias, siteAlias, cache);
+			return siteService.updateSiteCache(uid, siteAlias, cache);
 		}
 
-		function updateSite(organizationAlias, siteAlias, siteModel) {
+		function updateSite(uid, siteAlias, updates) {
 			var siteService = new SiteService(dataService);
-			return siteService.updateSite(organizationAlias, siteAlias, siteModel);
+			return siteService.updateSite(uid, siteAlias, updates);
 		}
 	}
 
 	function deleteSiteRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 
 		var siteService = new SiteService(dataService);
-		siteService.deleteSite(organizationAlias, siteAlias)
+		siteService.deleteSite(uid, siteAlias)
 			.then(function(siteModel) {
 				res.redirect(303, '/sites');
 			})
@@ -742,13 +508,14 @@ module.exports = function(dataService) {
 	}
 
 	function createSiteUserRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 		var username = req.body.username;
 		var password = req.body.password;
 
 		var siteService = new SiteService(dataService);
-		siteService.createSiteUser(organizationAlias, siteAlias, username, password)
+		siteService.createSiteUser(uid, siteAlias, username, password)
 			.then(function(userModel) {
 				res.redirect(303, '/sites/edit/' + siteAlias + '/users');
 			})
@@ -758,12 +525,13 @@ module.exports = function(dataService) {
 	}
 
 	function deleteSiteUserRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 		var username = req.params.username;
 
 		var siteService = new SiteService(dataService);
-		siteService.deleteSiteUser(organizationAlias, siteAlias, username)
+		siteService.deleteSiteUser(uid, siteAlias, username)
 			.then(function() {
 				res.redirect(303, '/sites/edit/' + siteAlias + '/users');
 			})
@@ -773,12 +541,13 @@ module.exports = function(dataService) {
 	}
 
 	function createSiteDomainRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 		var domain = req.body.domain;
 
 		var siteService = new SiteService(dataService);
-		siteService.createSiteDomain(organizationAlias, siteAlias, domain)
+		siteService.createSiteDomain(uid, siteAlias, domain)
 			.then(function(domain) {
 				res.redirect(303, '/sites/edit/' + siteAlias + '/domains');
 			})
@@ -788,12 +557,13 @@ module.exports = function(dataService) {
 	}
 
 	function deleteSiteDomainRoute(req, res, next) {
-		var organizationAlias = app.locals.session.organization.alias;
+		var userModel = req.user.model;
+		var uid = userModel.uid;
 		var siteAlias = req.params.site;
 		var domain = req.params.domain;
 
 		var siteService = new SiteService(dataService);
-		siteService.deleteSiteDomain(organizationAlias, siteAlias, domain)
+		siteService.deleteSiteDomain(uid, siteAlias, domain)
 			.then(function() {
 				res.redirect(303, '/sites/edit/' + siteAlias + '/domains');
 			})

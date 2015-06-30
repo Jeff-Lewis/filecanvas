@@ -2,7 +2,7 @@
 
 {{#if content.sites}}
 
-<p class="lead">The following sites have been registered within this organization:</p>
+<p class="lead">The following sites have been registered to this account:</p>
 <div class="row">
 	<div class="col-sm-8 col-lg-5">
 		<table class="table table-bordered table-condensed">
@@ -14,7 +14,7 @@
 							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/edit/{{ alias }}" title="Edit this site’s details"><span class="glyphicon glyphicon-pencil"></span> Edit site</a>
 							<button type="button" class="btn btn-success btn-xs"
 									title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
-									{{#unless share}}disabled="disabled"{{/unless}}
+									{{#unless path}}disabled="disabled"{{/unless}}
 									data-shunt-purge="{{ alias }}"
 								>
 								<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
@@ -23,7 +23,7 @@
 								<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
 							</button>
 						</div>
-						{{#unless share}}
+						{{#unless path}}
 						<span class="glyphicon glyphicon-exclamation-sign text-danger" title="This site has not yet been linked to a Dropbox folder."></span>
 						{{else}}
 						<span class="glyphicon"></span>

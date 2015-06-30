@@ -44,7 +44,7 @@
 						<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
 						{{/if}}
 						{{/each}}
-						<li><a href="{{ siteRoot }}logout">Log out</a></li>
+						{{#unless site.public}}<li><a href="{{ siteRoot }}logout">Log out</a></li>{{/unless}}
 					</ul>
 				</nav>
 				<!-- End Navigation -->

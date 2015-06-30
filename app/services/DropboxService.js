@@ -7,7 +7,7 @@ var Dropbox = require('dropbox');
 var HttpError = require('../errors/HttpError');
 
 var SECONDS = 1000;
-var DROPBOX_DELTA_CACHE_EXPIRY = 30 * SECONDS;
+var DROPBOX_DELTA_CACHE_EXPIRY = 5 * SECONDS;
 
 function DropboxService() {
 }
@@ -15,12 +15,12 @@ function DropboxService() {
 DropboxService.prototype.client = null;
 DropboxService.prototype.connecting = false;
 
-DropboxService.prototype.generateAppToken = function(config) {
+DropboxService.prototype.generateAccessToken = function(appKey, appSecret) {
 	var self = this;
 	return new Promise(function(resolve, reject) {
 		var client = new Dropbox.Client({
-			key: config.appKey,
-			secret: config.appSecret,
+			key: appKey,
+			secret: appSecret,
 			sandbox: false
 		});
 
@@ -28,13 +28,13 @@ DropboxService.prototype.generateAppToken = function(config) {
 
 		client.authenticate(function(error, client) {
 			if (error) { return reject(new HttpError(error.status, self.getErrorType(error))); }
-			var appToken = client._oauth._token;
-			return resolve(appToken);
+			var accessToken = client._oauth._token;
+			return resolve(accessToken);
 		});
 	});
 };
 
-DropboxService.prototype.connect = function(config) {
+DropboxService.prototype.connect = function(appKey, appSecret, accessToken) {
 	var self = this;
 	return new Promise(function(resolve, reject) {
 		if (self.connecting) { throw new Error('Connection attempt already in progress'); }
@@ -43,16 +43,10 @@ DropboxService.prototype.connect = function(config) {
 		self.connecting = true;
 
 		var client = new Dropbox.Client({
-			key: config.appKey,
-			secret: config.appSecret,
-			token: config.appToken,
+			key: appKey,
+			secret: appSecret,
+			token: accessToken,
 			sandbox: false
-		});
-
-
-		client.onError.addListener(function(error) {
-			if (error.status === 304) { return; }
-			process.stderr.write('Dropbox API error: ' + self.getErrorType(error) + '\n');
 		});
 
 		client.authenticate(function(error, client) {
@@ -159,7 +153,7 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 			});
 
 			if (pulledChanges.shouldPullAgain) {
-				client.delta(cacheCursor, folderPath, onDeltaLoaded);
+				client.delta(cacheCursor, { pathPrefix: folderPath }, onDeltaLoaded);
 			} else {
 				var updatedFolderCache = {
 					updated: new Date(),

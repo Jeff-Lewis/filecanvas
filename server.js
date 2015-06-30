@@ -1,15 +1,9 @@
 'use strict';
 
-if (process.env.NEW_RELIC_LICENSE_KEY) {
-	require('newrelic');
-}
-
-var Promise = require('promise');
+var http = require('http');
+var https = require('https');
 var express = require('express');
 var passport = require('passport');
-
-var config = require('./config');
-var globals = require('./app/globals');
 
 var HttpError = require('./app/errors/HttpError');
 
@@ -18,127 +12,63 @@ var handlebarsEngine = require('./app/engines/handlebars');
 var stripTrailingSlash = require('./app/middleware/stripTrailingSlash');
 var customDomain = require('./app/middleware/customDomain');
 var subdomain = require('./app/middleware/subdomain');
-var errorHandler = require('./app/middleware/errorHandler');
+var errorPage = require('./app/middleware/errorPage');
 
-var port = (process.argv[2] && Number(process.argv[2])) || process.env.PORT || process.env['npm_package_config_port'] || 80;
-var debugMode = (process.env.DEBUG === 'true');
+var config = require('./config');
+var globals = require('./app/globals');
 
+if (config.newRelic) {
+	require('newrelic');
+}
+
+var isProduction = (process.env.NODE_ENV !== 'production');
 
 if (!config.dropbox.appKey) { throw new Error('Missing Dropbox app key'); }
 if (!config.dropbox.appSecret) { throw new Error('Missing Dropbox app secret'); }
 if (!config.mongodb.uri) { throw new Error('Missing MongoDB connection URI'); }
-if (!config.templates['default']) { throw new Error('Missing default template name'); }
+if (!config.templates.default) { throw new Error('Missing default template name'); }
+
+run();
 
 
-loadDropboxAppToken(config)
-	.then(function(appToken) {
-		return initServices(config)
-			.then(function(services) {
-				return initServer(port, debugMode, services);
-			})
-			.catch(function(error) {
-				throw error;
-			});
-	});
-
-
-function loadDropboxAppToken(config) {
-	if (config.dropbox.appToken) {
-		return Promise.resolve(config.dropbox.appToken);
-	}
-	process.stderr.write('No Dropbox app token specified. Generating app token...' + '\n');
-	return generateDropboxToken(config)
-		.catch(function(error) {
-			process.stderr.write('Failed to generate Dropbox app token' + '\n');
-			throw error;
+function run() {
+	initDataService(config)
+		.then(function(dataService) {
+			var app = initApp(dataService, isProduction);
+			var httpPort = config.http.port;
+			var httpsPort = config.https.port;
+			var httpsOptions = config.https;
+			initServer(app, httpPort, httpsPort, httpsOptions);
+			process.stdout.write('Server listening' +
+				' on HTTP port ' + httpPort +
+				(httpsPort ? ', HTTPS port ' + httpsPort : '') +
+				'\n'
+			);
+			return app;
 		})
-		.then(function(appToken) {
-			process.stdout.write('Generated Dropbox app token: ' + appToken + '\n');
-			config.dropbox.appToken = appToken;
-			return appToken;
+		.catch(function(error) {
+			throw error;
 		});
 }
 
-function generateDropboxToken(config) {
-	var DropboxService = require('./app/services/DropboxService');
 
-	var dropboxService = new DropboxService();
+function initDataService(config) {
+	var DataService = require('./app/services/DataService');
 
-	return dropboxService.generateAppToken({
-		appKey: config.dropbox.appKey,
-		appSecret: config.dropbox.appSecret
-	});
+	var dataService = new DataService();
+
+	return dataService.connect({ uri: config.mongodb.uri })
+		.then(function(db) {
+			process.stdout.write('Mongodb connected' + '\n');
+			return dataService;
+		})
+		.catch(function(error) {
+			process.stderr.write('Mongodb connection error' + '\n');
+			throw error;
+		});
 }
 
-function initServices(config) {
-	return Promise.all([
-		initDataService(config),
-		initDropboxService(config)
-	]).then(function(services) {
-		var dataService = services[0];
-		var dropboxService = services[1];
-		return {
-			dataService: dataService,
-			dropboxService: dropboxService
-		};
-	});
-
-
-	function initDropboxService(config) {
-		var DropboxService = require('./app/services/DropboxService');
-
-		var dropboxService = new DropboxService();
-
-		return dropboxService.connect({
-				appKey: config.dropbox.appKey,
-				appSecret: config.dropbox.appSecret,
-				appToken: config.dropbox.appToken
-			})
-			.catch(function(error) {
-				process.stderr.write('Dropbox API connection error' + '\n');
-				throw error;
-			})
-			.then(function(client) {
-				process.stdout.write('Dropbox API connected' + '\n');
-				return client;
-			})
-			.then(function(client) {
-				return new Promise(function(resolve, reject) {
-						client.getAccountInfo(function(error, accountInfo) {
-							if (error) { return reject(error); }
-							process.stdout.write('Dropbox logged in as ' + accountInfo.name + '\n');
-							return resolve(dropboxService);
-						});
-					})
-					.catch(function(error) {
-						process.stderr.write('Dropbox login failed' + '\n');
-						throw error;
-					});
-			});
-	}
-
-	function initDataService(config) {
-		var DataService = require('./app/services/DataService');
-
-		var dataService = new DataService();
-
-		return dataService.connect({ uri: config.mongodb.uri })
-			.then(function(db) {
-				process.stdout.write('Mongodb connected' + '\n');
-				return dataService;
-			})
-			.catch(function(error) {
-				process.stderr.write('Mongodb connection error' + '\n');
-				throw error;
-			});
-	}
-}
-
-
-function initServer(port, debugMode, services) {
-	var dataService = services.dataService;
-	var dropboxService = services.dropboxService;
-
+function initApp(dataService, isProduction) {
 	var app = express();
 
 	initExpress(app);
@@ -146,10 +76,8 @@ function initServer(port, debugMode, services) {
 	initCustomDomains(app, dataService);
 	initSubdomains(app);
 	initViewEngine(app);
-	initRoutes(app, dataService, dropboxService);
-	initErrorHandling(app, debugMode);
-
-	startServer(app, port, debugMode);
+	initRoutes(app, dataService);
+	initErrorHandling(app, isProduction);
 
 	return app;
 
@@ -269,21 +197,31 @@ function initServer(port, debugMode, services) {
 	function initRoutes(app, dataService, dropboxService) {
 		app.use('/ping', require('./app/routes/ping'));
 		app.use('/templates', require('./app/routes/templates'));
-		app.use('/sites', require('./app/routes/sites')(dataService, dropboxService));
+		app.use('/sites', require('./app/routes/sites')(dataService));
 		app.use('/admin', require('./app/routes/admin')(dataService));
 		app.use('/', require('./app/routes/index'));
 	}
 
-	function initErrorHandling(app, debugMode) {
+	function initErrorHandling(app, isProduction) {
 		app.use(function(req, res, next) {
 			next(new HttpError(404));
 		});
-		app.use(errorHandler({ debug: debugMode }));
+		var isDebuggerAttached = (process.execArgv.indexOf('--debug') !== -1);
+		if (isDebuggerAttached) {
+			app.use(function(err, req, res, next) {
+				debugger;
+				next(err);
+			});
+		}
+		app.use(errorPage({
+			template: 'error/error'
+		}));
 	}
+}
 
-	function startServer(app, port, debugMode) {
-		app.listen(port);
-		process.stdout.write('Server listening on port ' + port + (debugMode ? ', debugging activated' : '') + '\n');
-		return app;
+function initServer(app, httpPort, httpsPort, httpsOptions) {
+	http.createServer(app).listen(httpPort);
+	if (httpsPort) {
+		https.createServer(httpsOptions, app).listen(httpsPort);
 	}
 }
