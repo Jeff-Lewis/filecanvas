@@ -4,8 +4,8 @@
   "description": "Share your files to the web instantly and securely",
   "main": "server.js",
   "scripts": {
-  	"postinstall": "cd node_modules/dropbox && npm install",
-    "start": ".mongodb/start & foreman start"
+    "postinstall": "cd node_modules/dropbox && npm install",
+    "start": "foreman start"
   },
   "repository": {
     "type": "git",

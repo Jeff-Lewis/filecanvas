@@ -1,1 +1,1 @@
-web: supervisor --watch . --extensions js,hbs --ignore .mongodb,templates/admin/assets,templates/sites --debug server.js
+web: supervisor --watch . --extensions js,hbs --ignore db,templates/admin/assets,templates/sites --debug server.js
