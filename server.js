@@ -210,7 +210,7 @@ function initApp(dataService, isProduction) {
 		var isDebuggerAttached = (process.execArgv.indexOf('--debug') !== -1);
 		if (isDebuggerAttached) {
 			app.use(function(err, req, res, next) {
-				debugger;
+				process.stderr.write(err.stack + '\n');
 				next(err);
 			});
 		}
