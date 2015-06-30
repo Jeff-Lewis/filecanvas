@@ -3,6 +3,7 @@
 var path = require('path');
 var Promise = require('promise');
 var Dropbox = require('dropbox');
+var objectAssign = require('object-assign');
 
 var HttpError = require('../errors/HttpError');
 
@@ -105,69 +106,115 @@ DropboxService.prototype.getErrorType = function(error) {
 DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) {
 	var self = this;
 	var client = this.client;
-	return new Promise(function(resolve, reject) {
-		var cacheCursor = (folderCache && folderCache.cursor) || null;
-		var cacheRoot = (folderCache && folderCache.data) || null;
-		var cacheUpdated = (folderCache && folderCache.updated) || null;
 
-		var needsUpdate = checkWhetherNeedsUpdate(cacheUpdated, DROPBOX_DELTA_CACHE_EXPIRY);
-		if (!needsUpdate) {
-			var folderCacheContents = getFileMetadata(folderCache.data);
-			return resolve({
-				contents: folderCacheContents,
-				cache: folderCache
+	var cacheCursor = (folderCache && folderCache.cursor) || null;
+	var cacheRoot = (folderCache && folderCache.data) || null;
+	var cacheUpdated = (folderCache && folderCache.updated) || null;
+
+	var needsUpdate = checkWhetherNeedsUpdate(cacheUpdated, DROPBOX_DELTA_CACHE_EXPIRY);
+	if (!needsUpdate) {
+		var folderModel = parseStatModel(folderCache.data);
+		return Promise.resolve({
+			contents: folderModel,
+			cache: folderCache
+		});
+	}
+
+	var cursor = cacheCursor || 0;
+	var options = {
+		pathPrefix: folderPath
+	};
+	return loadFolder(client, cursor, options, cacheRoot);
+
+
+	function loadFolder(client, cursor, options, cache) {
+		var rootPath = options.pathPrefix || '/';
+		return new Promise(function(resolve, reject) {
+			client.delta(cursor, options, function(error, pulledChanges) {
+				if (error) { return reject(new HttpError(error.status, self.getErrorType(error))); }
+				return resolve(pulledChanges);
 			});
-		}
+		})
+		.then(function(pulledChanges) {
+			var updatedCursor = pulledChanges.cursorTag;
 
-		client.delta(cacheCursor || 0, { pathPrefix: folderPath }, onDeltaLoaded);
-
-
-		function onDeltaLoaded(error, pulledChanges) {
-			if (error) { return reject(new HttpError(error.status, self.getErrorType(error))); }
-
-			cacheCursor = pulledChanges.cursorTag;
-
-			var cachePathLookupTable = getCacheDictionary(cacheRoot, pulledChanges, folderPath);
-			cacheRoot = cachePathLookupTable[folderPath.toLowerCase()];
+			var cacheRoot = getUpdatedCacheRoot(cache, pulledChanges, rootPath);
+			var cacheDictionary = buildCacheDictionary(cacheRoot);
 
 			pulledChanges.changes.forEach(function(changeModel) {
-				var changePath = changeModel.path.toLowerCase();
-
-				var parentPath = changePath.substr(0, changePath.lastIndexOf('/')).toLowerCase();
-				var parentFolder = cachePathLookupTable[parentPath] || null;
+				var itemPath = changeModel.path.toLowerCase();
+				var parentPath = path.dirname(itemPath);
+				var parentFolder = cacheDictionary[parentPath] || null;
 
 				if (changeModel.wasRemoved) {
 					if (parentFolder && parentFolder.contents) {
-						parentFolder.contents = parentFolder.contents.filter(function(siblingFolder) {
-							return siblingFolder.path.toLowerCase() !== changePath;
+						parentFolder.contents = parentFolder.contents.filter(function(siblingItem) {
+							return siblingItem.path.toLowerCase() !== itemPath;
 						});
 					}
 				} else {
 					var fileModel = changeModel.stat.json();
 					if (fileModel.is_dir) { fileModel.contents = []; }
-					if (parentFolder) {
+					if (parentFolder && parentFolder.contents) {
+						parentFolder.contents = parentFolder.contents.filter(function(siblingItem) {
+							return siblingItem.path.toLowerCase() !== itemPath;
+						});
 						parentFolder.contents.push(fileModel);
 					}
-					cachePathLookupTable[changePath] = fileModel;
+					cacheDictionary[itemPath] = fileModel;
 				}
 			});
 
 			if (pulledChanges.shouldPullAgain) {
-				client.delta(cacheCursor, { pathPrefix: folderPath }, onDeltaLoaded);
+				return loadFolder(client, updatedCursor, options, cacheRoot);
 			} else {
-				var updatedFolderCache = {
-					updated: new Date(),
-					cursor: cacheCursor,
-					data: cacheRoot
+				var itemModel = parseStatModel(cacheRoot);
+				var itemCache = {
+					cursor: updatedCursor,
+					data: cacheRoot,
+					updated: new Date()
 				};
-				var folderCacheContents = getFileMetadata(updatedFolderCache.data);
-				return resolve({
-					contents: folderCacheContents,
-					cache: updatedFolderCache
-				});
+				return {
+					contents: itemModel,
+					cache: itemCache
+				};
 			}
-		}
-	});
+
+
+			function getUpdatedCacheRoot(cacheRoot, pulledChanges, rootPath) {
+				if (pulledChanges.blankSlate) { cacheRoot = null; }
+				pulledChanges.changes.forEach(function(changeModel) {
+					var isRootFolder = (changeModel.path.toLowerCase() === rootPath.toLowerCase());
+					if (isRootFolder) {
+						if (changeModel.wasRemoved) {
+							cacheRoot = null;
+						} else {
+							var fileModel = changeModel.stat.json();
+							if (fileModel.is_dir) { fileModel.contents = []; }
+							cacheRoot = fileModel;
+						}
+					}
+				});
+				return cacheRoot;
+			}
+
+			function buildCacheDictionary(cacheItem) {
+				var dictionary = {};
+				if (!cacheItem) { return dictionary; }
+				var key = cacheItem.path.toLowerCase();
+				dictionary[key] = cacheItem;
+				if (cacheItem.contents) {
+					var childEntries = cacheItem.contents.reduce(function(childEntries, cacheItem) {
+						var childDictionary = buildCacheDictionary(cacheItem);
+						objectAssign(childEntries, childDictionary);
+						return childEntries;
+					}, {});
+					objectAssign(dictionary, childEntries);
+				}
+				return dictionary;
+			}
+		});
+	}
 
 
 	function checkWhetherNeedsUpdate(lastUpdated, cacheDuration) {
@@ -176,60 +223,7 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 		return (delta > cacheDuration);
 	}
 
-
-	function getCacheDictionary(cacheRoot, pulledChanges, folderPath) {
-		var cacheDictionary;
-		cacheRoot = updateCacheRoot(cacheRoot, pulledChanges, folderPath);
-		cacheDictionary = buildCacheDictionary(cacheRoot);
-		addItemToCache(cacheRoot, cacheDictionary);
-
-		return cacheDictionary;
-
-
-		function buildCacheDictionary(cacheRoot, cacheDictionary) {
-			cacheDictionary = cacheDictionary || {};
-			if (!cacheRoot) { return cacheDictionary; }
-			addItemToCache(cacheRoot, cacheDictionary);
-			if (cacheRoot.contents) {
-				cacheDictionary = cacheRoot.contents.reduce(function(cacheDictionary, cacheEntry) {
-					return buildCacheDictionary(cacheEntry, cacheDictionary);
-				}, cacheDictionary);
-			}
-			return cacheDictionary;
-		}
-	}
-
-
-	function updateCacheRoot(cacheRoot, pulledChanges, folderPath) {
-		if (pulledChanges.blankSlate) { cacheRoot = null; }
-		pulledChanges.changes.forEach(function(changeModel) {
-			var isRootFolder = checkWhetherIsRootFolder(changeModel, folderPath);
-			if (!isRootFolder) { return; }
-			if (changeModel.wasRemoved) {
-				cacheRoot = null;
-			} else {
-				cacheRoot = getFileModel(changeModel);
-			}
-		});
-		return cacheRoot;
-	}
-
-	function addItemToCache(cacheItem, cacheDictionary) {
-		cacheDictionary[cacheItem.path.toLowerCase()] = cacheItem;
-		return cacheItem;
-	}
-
-	function checkWhetherIsRootFolder(changeModel, folderPath) {
-		return (changeModel.path.toLowerCase() === folderPath.toLowerCase());
-	}
-
-	function getFileModel(changeModel) {
-		var fileModel = changeModel.stat.json();
-		if (fileModel.is_dir) { fileModel.contents = []; }
-		return fileModel;
-	}
-
-	function getFileMetadata(statModel) {
+	function parseStatModel(statModel) {
 		var fileMetadata = Object.keys(statModel)
 			.filter(function(property) {
 				return (property.charAt(0) !== '_') && (property !== 'contents');
@@ -248,7 +242,7 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 		if (fileMetadata.is_dir) {
 			fileMetadata.label = stripLeadingNumber(fileMetadata.name);
 			fileMetadata.contents = statModel.contents.map(function(childStatModel) {
-				return getFileMetadata(childStatModel);
+				return parseStatModel(childStatModel);
 			});
 		} else {
 			fileMetadata.label = stripLeadingNumber(stripFileExtension(fileMetadata.name));

@@ -26,6 +26,7 @@
     "method-override": "^2.3.3",
     "mongodb": "^2.0.35",
     "newrelic": "^1.20.2",
+    "object-assign": "^3.0.0",
     "passport": "^0.2.2",
     "passport-dropbox-oauth2": "^0.1.6",
     "passport-local": "^1.0.0",
