@@ -117,10 +117,10 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 				.then(function(userModel) {
 					var accessToken = userModel.token;
 					return loadSiteContents(siteModel, accessToken)
-						.then(function(data) {
-							siteModel.contents = processFileMetadata(data.contents, siteModel.path);
+						.then(function(folder) {
+							siteModel.contents = parseFileModel(folder.contents, siteModel.path);
 							delete siteModel.cache;
-							self.updateSiteCache(uid, siteAlias, data.cache);
+							self.updateSiteCache(uid, siteAlias, folder.cache);
 							return siteModel;
 						});
 				});
@@ -159,7 +159,9 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			});
 	}
 
-	function processFileMetadata(fileMetadata, rootFolderPath) {
+	function parseFileModel(fileMetadata, rootFolderPath) {
+		if (!fileMetadata) { return null; }
+
 		fileMetadata.url = getFileUrl(fileMetadata.path, rootFolderPath);
 
 		Object.defineProperty(fileMetadata, 'folders', {
@@ -190,7 +192,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 
 		if (fileMetadata.is_dir) {
 			fileMetadata.contents = fileMetadata.contents.map(function(fileMetadata) {
-				return processFileMetadata(fileMetadata, rootFolderPath);
+				return parseFileModel(fileMetadata, rootFolderPath);
 			});
 		}
 

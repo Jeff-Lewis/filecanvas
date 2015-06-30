@@ -224,6 +224,7 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 	}
 
 	function parseStatModel(statModel) {
+		if (!statModel) { return null; }
 		var fileMetadata = Object.keys(statModel)
 			.filter(function(property) {
 				return (property.charAt(0) !== '_') && (property !== 'contents');
