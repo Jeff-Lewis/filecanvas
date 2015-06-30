@@ -1,2 +1,2 @@
-.mongodb/data/
 .env
+db/data/
