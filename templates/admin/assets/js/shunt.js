@@ -9,7 +9,10 @@
 			var url = '/sites/' + siteAlias;
 			var settings = {
 				type: 'POST',
-				data: { '_method': 'PUT', '_action': 'purge' },
+				beforeSend: function(xhr){
+					xhr.setRequestHeader('X-HTTP-Method-Override', 'PUT');
+				},
+				data: { '_action': 'purge' },
 				success: onCachePurgeCompleted,
 				error: onCachePurgeFailed
 			};
