@@ -163,13 +163,19 @@ module.exports = function(dataService) {
 	}
 
 	function ensureAuth(req, res, next) {
-		if (req.isAuthenticated()) {
-			// TODO: Check to see whether the user is authenticated for this specific site
-			next();
-			return;
-		}
 		var userAlias = req.params.user;
 		var siteAlias = req.params.site;
+
+		if (req.isAuthenticated()) {
+			var isLoggedIntoDifferentSite = (req.params.user !== req.user.user) || (req.params.site !== req.user.site);
+			if (isLoggedIntoDifferentSite) {
+				req.logout();
+				req.session.destroy();
+			} else {
+				next();
+				return;
+			}
+		}
 
 		var userService = new UserService(dataService);
 		userService.retrieveUser(userAlias)
