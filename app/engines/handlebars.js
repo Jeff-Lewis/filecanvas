@@ -31,7 +31,7 @@ module.exports = function(filePath, options, callback) {
 	loadTemplate(filePath, function(error, template) {
 		if (error) { return callback(error); }
 		var context = options;
-		var templateOptions = options._ || null;
+		var templateOptions = options._ || {};
 		var output = template(context, templateOptions);
 		callback(null, output);
 	});
