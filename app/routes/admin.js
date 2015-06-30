@@ -5,6 +5,7 @@ var Promise = require('promise');
 var express = require('express');
 var passport = require('passport');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
+var objectAssign = require('object-assign');
 
 var config = require('../../config');
 var globals = require('../globals');
@@ -152,7 +153,7 @@ module.exports = function(dataService) {
 		loadSessionData(req)
 			.then(function(sessionData) {
 				Object.keys(sessionData).forEach(function(key) {
-					req.session[key] = sessionData[key];
+					res.locals[key] = sessionData[key];
 				});
 				next();
 			})
@@ -203,14 +204,9 @@ module.exports = function(dataService) {
 	function retrieveLoginRoute(req, res, next) {
 		var templateData = {
 			title: 'Login',
-			session: req.session,
-			user: null,
 			content: null
 		};
-		renderAdminPage(app, 'login', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
+		renderAdminPage(req, res, 'login', templateData)
 			.catch(function(error) {
 				next(error);
 			});
@@ -229,16 +225,11 @@ module.exports = function(dataService) {
 	function retrieveFaqRoute(req, res, next) {
 		var templateData = {
 			title: 'FAQ',
-			session: req.session,
-			user: req.user.model,
 			content: {
 				questions: faqData
 			}
 		};
-		renderAdminPage(app, 'faq', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
+		renderAdminPage(req, res, 'faq', templateData)
 			.catch(function(error) {
 				next(error);
 			});
@@ -247,14 +238,9 @@ module.exports = function(dataService) {
 	function retrieveSupportRoute(req, res, next) {
 		var templateData = {
 			title: 'Support',
-			session: req.session,
-			user: req.user.model,
 			content: null
 		};
-		renderAdminPage(app, 'support', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
+		renderAdminPage(req, res, 'support', templateData)
 			.catch(function(error) {
 				next(error);
 			});
@@ -263,14 +249,9 @@ module.exports = function(dataService) {
 	function retrieveAccountSettingsRoute(req, res, next) {
 		var templateData = {
 			title: 'Your account',
-			session: req.session,
-			user: req.user.model,
 			content: null
 		};
-		renderAdminPage(app, 'account', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
+		renderAdminPage(req, res, 'account', templateData)
 			.catch(function(error) {
 				next(error);
 			});
@@ -298,16 +279,11 @@ module.exports = function(dataService) {
 	function retrieveSiteListRoute(req, res, next) {
 		var templateData = {
 			title: 'Your sites',
-			session: req.session,
-			user: req.user.model,
 			content: {
-				sites: req.session.sites
+				sites: res.locals.sites
 			}
 		};
-		renderAdminPage(app, 'sites', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
+		renderAdminPage(req, res, 'sites', templateData)
 			.catch(function(error) {
 				next(error);
 			});
@@ -316,14 +292,9 @@ module.exports = function(dataService) {
 	function retrieveSiteAddRoute(req, res, next) {
 		var templateData = {
 			title: 'Add a site',
-			session: req.session,
-			user: req.user.model,
 			content: null
 		};
-		renderAdminPage(app, 'sites/add', templateData)
-			.then(function(data) {
-				res.send(data);
-			})
+		renderAdminPage(req, res, 'sites/add', templateData)
 			.catch(function(error) {
 				next(error);
 			});
@@ -342,16 +313,11 @@ module.exports = function(dataService) {
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site: ' + siteModel.name,
-					session: req.session,
-					user: req.user.model,
 					content: {
 						site: siteModel
 					}
 				};
-				return renderAdminPage(app, 'sites/edit', templateData)
-					.then(function(data) {
-						res.send(data);
-					});
+				return renderAdminPage(req, res, 'sites/edit', templateData);
 			})
 			.catch(function(error) {
 				next(error);
@@ -371,16 +337,11 @@ module.exports = function(dataService) {
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site users: ' + siteModel.name,
-					session: req.session,
-					user: req.user.model,
 					content: {
 						site: siteModel
 					}
 				};
-				return renderAdminPage(app, 'sites/edit/users', templateData)
-					.then(function(data) {
-						res.send(data);
-					});
+				return renderAdminPage(req, res, 'sites/edit/users', templateData);
 			})
 			.catch(function(error) {
 				next(error);
@@ -400,16 +361,11 @@ module.exports = function(dataService) {
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site domains: ' + siteModel.name,
-					session: req.session,
-					user: req.user.model,
 					content: {
 						site: siteModel
 					}
 				};
-				return renderAdminPage(app, 'sites/edit/domains', templateData)
-					.then(function(data) {
-						res.send(data);
-					});
+				return renderAdminPage(req, res, 'sites/edit/domains', templateData);
 			})
 			.catch(function(error) {
 				next(error);
@@ -572,30 +528,40 @@ module.exports = function(dataService) {
 			});
 	}
 
-	function renderAdminPage(app, templateName, context) {
+	function renderAdminPage(req, res, templateName, context) {
 		return new Promise(function(resolve, reject) {
-			app.render(templateName, context, function(error, pageContent) {
+			var templateData = getTemplateData(req, res, context);
+			res.render(templateName, templateData, function(error, pageContent) {
 				if (error) { return reject(error); }
 				var templateOptions = {
 					partials: {
 						'page': pageContent
 					}
 				};
-				var templateData = getTemplateData(context, templateOptions);
-				app.render('index', templateData, function(error, data) {
+				var templateData = getTemplateData(req, res, context, templateOptions);
+				res.render('index', templateData, function(error, data) {
 					if (error) { return reject(error); }
+					res.send(data);
 					resolve(data);
 				});
 			});
 		});
 
 
-		function getTemplateData(object, templateOptions) {
-			var templateData = { _: templateOptions };
-			return Object.keys(object).reduce(function(templateData, key) {
-				templateData[key] = object[key];
-				return templateData;
-			}, templateData);
+		function getTemplateData(req, res, context, templateOptions) {
+			templateOptions = templateOptions || null;
+			var templateData = {
+				_: templateOptions,
+				session: getTemplateSessionData(req, res)
+			};
+			return objectAssign({}, context, templateData);
+		}
+
+		function getTemplateSessionData(req, res) {
+			var session = {
+				user: req.user ? req.user.model : null
+			};
+			return objectAssign({}, res.locals, session);
 		}
 	}
 };
