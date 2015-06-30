@@ -54,7 +54,7 @@
 					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
 					<div class="col-sm-6 col-lg-4">
 						<div class="row">
-							<div class="{{#if content.site.path}}col-xs-8{{else}}col-xs-12{{/if}}">
+							<div class="{{#if content.site.path}}col-xs-9{{else}}col-xs-12{{/if}}">
 								<input type="text" name="path" class="form-control" id="input-site-path"
 									title="Choose the Dropbox folder that this site syncs from"
 									placeholder="Dropbox folder"
@@ -63,16 +63,16 @@
 								/>
 							</div>
 							{{#if content.site.path}}
-							<div class="col-xs-4">
+							<div class="col-xs-3">
 								<button type="button" class="btn btn-success col-xs-12"
 									title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
 									data-bind-value="site-path"
 									data-shunt-purge="{{ content.site.alias }}"
 								>
-									<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync</span>
+									<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span></span>
 									<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span></span>
-									<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span> Done</span>
-									<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Failed</span>
+									<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span></span>
+									<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span></span>
 								</button>
 							</div>
 							{{/if}}
