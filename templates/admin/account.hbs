@@ -3,7 +3,7 @@
 		<h2>Your account</h2>
 		<p class="lead">Use the fields below to edit your account settings.</p>
 		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.userUsers }}/{{ session.user.username }}" method="POST" autocomplete="off">
+		<form class="form-horizontal" role="form" action="{{ session.urls.userUsers }}/{{ content.user.username }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="PUT"/>
 			<fieldset>
 				<div class="form-group">
@@ -13,7 +13,7 @@
 							name="name"
 							title="This is used to identify you in the Shunt admin area and in any email communication"
 							placeholder="Full name"
-							value="{{ session.user.name }}"
+							value="{{ content.user.name }}"
 							data-validate="notEmpty"
 							data-trigger="focus"
 						/>
@@ -26,7 +26,7 @@
 						 	name="email"
 							title="This is used as your login to the Shunt admin area and the address for any email communication"
 							placeholder="Email address"
-							value="{{ session.user.email }}"
+							value="{{ content.user.email }}"
 							data-validate="email"
 							data-trigger="focus"
 						/>
@@ -39,13 +39,13 @@
 						 	name="alias"
 							title="This determines your Shunt web root, where your sites are located"
 							placeholder="Organizations path"
-							value="{{ session.user.alias }}"
+							value="{{ content.user.alias }}"
 							data-bind-id="user-alias"
 							data-parser="slug"
 							data-validate="slug"
 							data-trigger="focus"
 						/>
-						<p class="help-block">{{#replace '$0' session.user.alias}}{{#replace '$0' '<strong data-bind-value="user-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+						<p class="help-block">{{#replace '$0' content.user.alias}}{{#replace '$0' '<strong data-bind-value="user-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
 					</div>
 				</div>
 				<div class="form-group">
@@ -57,9 +57,29 @@
 						>
 							<option value="">No default site selected</option>
 							{{#each session.sites}}
-							<option value="{{ alias }}"{{#ifequals alias ../session.user.default }} selected="selected"{{/ifequals}}>{{ name }}</option>
+							<option value="{{ alias }}"{{#ifequals alias ../content.user.default }} selected="selected"{{/ifequals}}>{{ name }}</option>
 							{{/each}}
 						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Domain names</label>
+					<div class="col-sm-6 col-lg-4">
+						{{#if content.domains}}
+						<p class="form-control-static">
+							{{#ifequals content.domains.length 1}}
+							1 custom domain name
+							{{else}}
+							{{ content.domains.length }} registered domain names
+							{{/ifequals}}
+							(<a href="{{ session.urls.account }}/domains">edit</a>)
+						</p>
+						{{else}}
+						<p class="form-control-static" title="You have not yet registered any custom domain names for this site">
+							No custom domain names
+							(<a href="{{ session.urls.account }}/domains">edit</a>)
+						</p>
+						{{/if}}
 					</div>
 				</div>
 				<div class="form-group">
