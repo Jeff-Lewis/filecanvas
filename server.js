@@ -22,7 +22,7 @@ if (config.newRelic) {
 	require('newrelic');
 }
 
-var isProduction = (process.env.NODE_ENV !== 'production');
+var isProduction = (process.env.NODE_ENV === 'production');
 
 if (!config.dropbox.appKey) { throw new Error('Missing Dropbox app key'); }
 if (!config.dropbox.appSecret) { throw new Error('Missing Dropbox app secret'); }
@@ -211,14 +211,14 @@ function initApp(dataService, isProduction) {
 	}
 
 	function initErrorHandling(app, isProduction) {
-		app.use(function(req, res, next) {
-			next(new HttpError(404));
-		});
 		var isDebuggerAttached = (process.execArgv.indexOf('--debug') !== -1);
 		if (isDebuggerAttached) {
-			app.use(function(err, req, res, next) {
-				process.stderr.write(err.stack + '\n');
-				next(err);
+			app.use(function(req, res, next) {
+				next(new HttpError(404, req.url));
+			});
+		} else {
+			app.use(function(req, res, next) {
+				next(new HttpError(404));
 			});
 		}
 		app.use(errorPage({
