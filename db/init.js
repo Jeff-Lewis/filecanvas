@@ -1,4 +1,3 @@
-/* global db:true */
 print('');
 print('Initialising database:');
 print('');
