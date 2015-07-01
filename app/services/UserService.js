@@ -26,9 +26,7 @@ UserService.prototype.createUser = function(userModel) {
 
 	function createUser(dataService, userModel) {
 		return new Promise(function(resolve, reject) {
-			var options = { safe: true };
-
-			dataService.db.collection(DB_COLLECTION_USERS).insert(userModel, options,
+			dataService.db.collection(DB_COLLECTION_USERS).insertOne(userModel,
 				function(error, records) {
 					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
 						return reject(new HttpError(409, 'A user already exists for this account'));
@@ -42,20 +40,25 @@ UserService.prototype.createUser = function(userModel) {
 };
 
 UserService.prototype.retrieveUser = function(user) {
-	var self = this;
-	return new Promise(function(resolve, reject) {
-		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+	var dataService = this.dataService;
+	return retrieveUser(dataService, user);
 
-		self.dataService.db.collection(DB_COLLECTION_USERS).findOne(query,
-			function(error, userModel) {
-				if (error) { return reject(error); }
-				if (!userModel) {
-					return reject(new HttpError(404));
+
+	function retrieveUser(dataService, user) {
+		return new Promise(function(resolve, reject) {
+			var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+
+			dataService.db.collection(DB_COLLECTION_USERS).findOne(query,
+				function(error, userModel) {
+					if (error) { return reject(error); }
+					if (!userModel) {
+						return reject(new HttpError(404));
+					}
+					return resolve(userModel);
 				}
-				return resolve(userModel);
-			}
-		);
-	});
+			);
+		});
+	}
 };
 
 UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
@@ -66,9 +69,9 @@ UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
 	function retrieveUserDefaultSiteAlias(dataService, user) {
 		return new Promise(function(resolve, reject) {
 			var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-			var projection = { 'default': 1 };
+			var options = { fields: { 'default': 1 } };
 
-			dataService.db.collection(DB_COLLECTION_USERS).findOne(query, projection,
+			dataService.db.collection(DB_COLLECTION_USERS).findOne(query, options,
 				function(error, userModel) {
 					if (error) { return reject(error); }
 					if (!userModel) {
@@ -90,17 +93,12 @@ UserService.prototype.retrieveUserSites = function(uid) {
 	function retrieveUserSites(dataService, uid) {
 		return new Promise(function(resolve, reject) {
 			var query = { 'user': uid };
-			var projection = { '_id': 0, 'public': 0, 'users': 0, 'cache': 0 };
+			var options = { fields: { '_id': 0, 'public': 0, 'users': 0, 'cache': 0 } };
 
-			dataService.db.collection(DB_COLLECTION_SITES).find(query, projection,
-				function(error, siteModelsCursor) {
+			dataService.db.collection(DB_COLLECTION_SITES).find(query, options).toArray(
+				function(error, siteModels) {
 					if (error) { return reject(error); }
-					siteModelsCursor.toArray(
-						function(error, siteModels) {
-							if (error) { return reject(error); }
-							return resolve(siteModels);
-						}
-					);
+					return resolve(siteModels);
 				}
 			);
 		});
@@ -121,16 +119,16 @@ UserService.prototype.updateUser = function(user, updates) {
 
 	function updateUser(dataService, user, fields) {
 		return new Promise(function(resolve, reject) {
-			var criteria = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+			var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
 			var updates = { $set: fields };
-			var options = { safe: true };
 
-			dataService.db.collection(DB_COLLECTION_USERS).update(criteria, updates, options,
-				function(error, numRecords) {
+			dataService.db.collection(DB_COLLECTION_USERS).updateOne(filter, updates,
+				function(error, results) {
 					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						return reject(new HttpError(409, 'A user already exists for this account'));
+						return reject(new HttpError(409, 'A user already exists with this alias'));
 					}
 					if (error) { return reject(error); }
+					var numRecords = results.result.n;
 					if (numRecords === 0) {
 						return reject(new HttpError(404));
 					}
@@ -151,13 +149,14 @@ UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 
 	function updateUserDefaultSiteAlias(dataService, user, siteAlias) {
 		return new Promise(function(resolve, reject) {
-			var criteria = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+			var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
 			var updates = { $set: { 'default': siteAlias } };
 			var options = { 'safe': true };
 
-			dataService.db.collection(DB_COLLECTION_USERS).update(criteria, updates, options,
-				function(error, numRecords) {
+			dataService.db.collection(DB_COLLECTION_USERS).updateOne(filter, updates, options,
+				function(error, results) {
 					if (error) { return reject(error); }
+					var numRecords = results.result.n;
 					if (numRecords === 0) {
 						return reject(new HttpError(404));
 					}
@@ -168,21 +167,21 @@ UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 	}
 };
 
-UserService.prototype.deleteUser = function(user) {
-	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
+UserService.prototype.deleteUser = function(uid) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var dataService = this.dataService;
 	return deleteUser(dataService, user);
 
 
-	function deleteUser(dataService, user) {
+	function deleteUser(dataService, uid) {
 		return new Promise(function(resolve, reject) {
-			var selector = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-			var options = { safe: true };
+			var filter = { 'uid': uid };
 
-			dataService.db.collection(DB_COLLECTION_USERS).remove(selector, options,
-				function(error, numRecords) {
+			dataService.db.collection(DB_COLLECTION_USERS).deleteOne(filter,
+				function(error, results) {
 					if (error) { return reject(error); }
+					var numRecords = results.result.n;
 					if (numRecords === 0) {
 						return reject(new HttpError(404));
 					}
