@@ -22,7 +22,7 @@ config.mongodb.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || proc
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.urls = {};
-config.urls.templates = '//templates.${HOST}/';
+config.urls.templates = process.env.TEMPLATES_ROOT || '//templates.${HOST}/';
 
 config.templates = {};
 config.templates.default = 'fathom';
