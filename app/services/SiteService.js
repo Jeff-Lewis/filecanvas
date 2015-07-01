@@ -14,7 +14,7 @@ var config = require('../../config');
 var MONGO_ERROR_CODE_DUPLICATE_KEY = 11000;
 
 var DB_COLLECTION_SITES = 'sites';
-var DB_COLLECTION_ORGANIZATIONS = 'organizations';
+var DB_COLLECTION_USERS = 'users';
 
 var DROPBOX_APP_KEY = config.dropbox.appKey;
 var DROPBOX_APP_SECRET = config.dropbox.appSecret;
@@ -526,11 +526,10 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 				});
 		});
 
-
 	function checkWhetherSiteisUserDefaultSite(dataService, uid, siteAlias) {
 		return new Promise(function(resolve, reject) {
 			var query = { 'user': uid, 'default': siteAlias };
-			dataService.db.collection(DB_COLLECTION_ORGANIZATIONS).count(query,
+			dataService.db.collection(DB_COLLECTION_USERS).count(query,
 				function(error, numRecords) {
 					if (error) { return reject(error); }
 					var isDefaultSite = (numRecords > 0);
