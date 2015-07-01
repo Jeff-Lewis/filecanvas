@@ -3,16 +3,15 @@
 		"node": true
 	},
 	"rules": {
-		"strict": [2, "global"],
 		"quotes": [2, "single"],
-		"dot-notation": false,
-		"no-underscore-dangle": false,
-		"no-shadow": false,
+		"dot-notation": 0,
+		"no-underscore-dangle": 0,
+		"no-shadow": 0,
 		"no-use-before-define": [2, "nofunc"],
 		"no-unused-vars": [2, {
 			"vars": "all",
 			"args": "none"
 		}],
-		"no-console": 2
+		"consistent-return": 0
 	}
 }
