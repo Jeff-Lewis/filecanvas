@@ -1,6 +1,7 @@
 'use strict';
 
 var DB_COLLECTION_USERS = 'users';
+var DB_COLLECTION_DOMAINS = 'domains';
 var DB_COLLECTION_SITES = 'sites';
 
 var Promise = require('promise');
@@ -33,6 +34,31 @@ UserService.prototype.createUser = function(userModel) {
 					}
 					if (error) { return reject(error); }
 					return resolve(userModel);
+				}
+			);
+		});
+	}
+};
+
+UserService.prototype.createUserDomain = function(uid, domain) {
+	var dataService = this.dataService;
+	var domainModel = {
+		name: domain,
+		user: uid,
+		site: null
+	};
+	return createUserDomain(dataService, domainModel);
+
+
+	function createUserDomain(dataService, domainModel) {
+		return new Promise(function(resolve, reject) {
+			dataService.db.collection(DB_COLLECTION_DOMAINS).insertOne(domainModel,
+				function(error, records) {
+					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
+						return reject(new HttpError(409, 'A site is already registered to this domain'));
+					}
+					if (error) { return reject(error); }
+					return resolve(domainModel);
 				}
 			);
 		});
@@ -139,6 +165,26 @@ UserService.prototype.updateUser = function(user, updates) {
 	}
 };
 
+UserService.prototype.retrieveUserDomains = function(uid) {
+	var dataService = this.dataService;
+	return retrieveUserDomains(dataService, uid);
+
+
+	function retrieveUserDomains(dataService, uid) {
+		return new Promise(function(resolve, reject) {
+			var query = { 'user': uid, 'site': null };
+			var options = { fields: { '_id': 0 } };
+
+			dataService.db.collection(DB_COLLECTION_DOMAINS).find(query, options).toArray(
+				function(error, domainModels) {
+					if (error) { return reject(error); }
+					return resolve(domainModels);
+				}
+			);
+		});
+	}
+};
+
 UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
@@ -171,7 +217,10 @@ UserService.prototype.deleteUser = function(uid) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var dataService = this.dataService;
-	return deleteUser(dataService, user);
+	return deleteUser(dataService, uid)
+		.then(function() {
+			return deleteUserDomains(dataService, uid);
+		});
 
 
 	function deleteUser(dataService, uid) {
@@ -179,6 +228,42 @@ UserService.prototype.deleteUser = function(uid) {
 			var filter = { 'uid': uid };
 
 			dataService.db.collection(DB_COLLECTION_USERS).deleteOne(filter,
+				function(error, results) {
+					if (error) { return reject(error); }
+					var numRecords = results.result.n;
+					if (numRecords === 0) {
+						return reject(new HttpError(404));
+					}
+					return resolve();
+				}
+			);
+		});
+	}
+
+	function deleteUserDomains(dataService, uid) {
+		return new Promise(function(resolve, reject) {
+			var filter = { 'user': uid, 'site': null };
+
+			dataService.db.collection(DB_COLLECTION_USERS).deleteMany(filter,
+				function(error, results) {
+					if (error) { return reject(error); }
+					return resolve();
+				}
+			);
+		});
+	}
+};
+
+UserService.prototype.deleteUserDomain = function(uid, domain) {
+	var dataService = this.dataService;
+	return deleteUserDomain(dataService, uid, domain);
+
+
+	function deleteUserDomain(dataService, uid, domain) {
+		return new Promise(function(resolve, reject) {
+			var filter = { 'user': uid, 'site': null, 'name': domain };
+
+			dataService.db.collection(DB_COLLECTION_DOMAINS).deleteOne(filter,
 				function(error, results) {
 					if (error) { return reject(error); }
 					var numRecords = results.result.n;

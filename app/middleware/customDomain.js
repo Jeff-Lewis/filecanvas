@@ -7,9 +7,11 @@ module.exports = function(dataService) {
 		var domain = req.host;
 		var siteService = new SiteService(dataService);
 		siteService.retrieveSitePathByDomain(domain)
-			.then(function(siteInfo) {
-				if (siteInfo) {
-					req.url = getRedirectedUrl(req, siteInfo.user, siteInfo.site);
+			.then(function(sitePath) {
+				if (sitePath) {
+					var userAlias = sitePath.user;
+					var siteAlias = sitePath.site;
+					req.url = getRedirectedUrl(req, userAlias, siteAlias);
 					res.locals.domainResolved = true;
 				}
 				next();
@@ -21,6 +23,6 @@ module.exports = function(dataService) {
 
 
 	function getRedirectedUrl(req, userAlias, siteAlias) {
-		return '/sites/' + userAlias + '/' + siteAlias + req.path;
+		return '/sites/' + userAlias + (siteAlias ? '/' + siteAlias : '') + (req.path === '/' ? '' : req.path);
 	}
 };
