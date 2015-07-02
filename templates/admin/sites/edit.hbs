@@ -132,19 +132,16 @@
 					<div class="col-sm-6 col-lg-4">
 						{{#if content.site.domains}}
 						<p class="form-control-static">
-							{{#ifequals content.site.domains.length 1}}
-							1 custom domain name
-							{{else}}
-							{{ content.site.domains.length }} registered domain names
-							{{/ifequals}}
-							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/domains">edit</a>)
+							{{#each content.site.domains}}{{ this }}<br/>{{/each}}
 						</p>
 						{{else}}
 						<p class="form-control-static" title="You have not yet registered any custom domain names for this site">
 							No custom domain names
-							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/domains">edit</a>)
 						</p>
 						{{/if}}
+						<p class="form-control-static">
+							<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/domains">Edit domain names</a>
+						</p>
 					</div>
 				</div>
 			</fieldset>
