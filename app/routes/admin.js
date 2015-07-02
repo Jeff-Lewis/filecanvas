@@ -27,7 +27,7 @@ module.exports = function(dataService) {
 	var assetsMiddleware = express.static(assetsRoot);
 	app.use('/assets', assetsMiddleware);
 
-	initAuth(dataService, config.dropbox.appKey, config.dropbox.appSecret, 'https://my.shunt.dev:5001/login/oauth2/callback');
+	initAuth(dataService, config.dropbox.appKey, config.dropbox.appSecret, config.dropbox.callbackUrl);
 
 	app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
 	app.get('/login/oauth2', passport.authenticate('admin/dropbox'));
