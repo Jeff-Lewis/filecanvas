@@ -3,6 +3,7 @@
 var http = require('http');
 var https = require('https');
 var express = require('express');
+var forceSsl = require('express-force-ssl');
 var passport = require('passport');
 var methodOverride = require('method-override');
 
@@ -35,10 +36,10 @@ run();
 function run() {
 	initDataService(config)
 		.then(function(dataService) {
-			var app = initApp(dataService, isProduction);
 			var httpPort = config.http.port;
 			var httpsPort = config.https.port;
 			var httpsOptions = config.https;
+			var app = initApp(dataService, httpPort, httpsPort, isProduction);
 			initServer(app, httpPort, httpsPort, httpsOptions);
 			process.stdout.write('Server listening' +
 				' on HTTP port ' + httpPort +
@@ -69,10 +70,10 @@ function initDataService(config) {
 		});
 }
 
-function initApp(dataService, isProduction) {
+function initApp(dataService, httpPort, httpsPort, isProduction) {
 	var app = express();
 
-	initExpress(app);
+	initExpress(app, httpPort, httpsPort);
 	initPassport(app);
 	initCustomDomains(app, dataService);
 	initSubdomains(app);
@@ -83,8 +84,13 @@ function initApp(dataService, isProduction) {
 	return app;
 
 
-	function initExpress(app) {
+	function initExpress(app, httpPort, httpsPort) {
 		var sessionSecret = generateRandomString(128);
+
+		if (httpsPort) {
+			app.set('httpsPort', httpsPort);
+			app.use(forceSsl);
+		}
 
 		app.use(express.compress());
 		app.use(express.cookieParser());

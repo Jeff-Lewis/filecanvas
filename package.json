@@ -21,6 +21,7 @@
   "dependencies": {
     "dropbox": "ehfeng/dropbox-js#stable",
     "express": "^3.21.0",
+    "express-force-ssl": "^0.2.13",
     "handlebars": "^3.0.3",
     "jshashes": "^1.0.5",
     "method-override": "^2.3.3",
