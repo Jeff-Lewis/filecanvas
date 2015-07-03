@@ -402,7 +402,7 @@ module.exports = function(dataService) {
 	function getTemplatesRoot(req, httpPort, httpsPort) {
 		var shouldUseHttps = Boolean(httpsPort);
 		var protocol = (shouldUseHttps ? 'https:' : 'http:');
-		var hostname = getHostname(req);
+		var hostname = getTopLevelHostname(req);
 		var port = (shouldUseHttps ? httpsPort : httpPort);
 		var isDefaultPort = (shouldUseHttps ? port === 443 : port === 80);
 		var host = (isDefaultPort ? hostname : hostname + ':' + port);
@@ -413,7 +413,7 @@ module.exports = function(dataService) {
 			.replace(/\$\{host\}/g, host);
 
 
-		function getHostname(req) {
+		function getTopLevelHostname(req) {
 			return req.host.split('.').slice(req.subdomains.length).join('.');
 		}
 	}
