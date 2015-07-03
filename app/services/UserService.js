@@ -135,7 +135,7 @@ UserService.prototype.updateUser = function(user, updates) {
 			return updateUser(dataService, user, updates)
 				.catch(function(error) {
 					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
-						throw new HttpError(409, 'This alias is in use by another user');
+						throw new HttpError(409, 'This username is being used by another user');
 					}
 				});
 		});
