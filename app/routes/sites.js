@@ -409,10 +409,10 @@ module.exports = function(dataService) {
 		var isDefaultPort = (shouldUseHttps ? port === 443 : port === 80);
 		var host = (isDefaultPort ? hostname : hostname + ':' + port);
 		return config.urls.templates
-			.replace(/\$\{PROTOCOL\}/g, protocol)
-			.replace(/\$\{HOSTNAME\}/g, hostname)
-			.replace(/\$\{PORT\}/g, port)
-			.replace(/\$\{HOST\}/g, host);
+			.replace(/\$\{protocol\}/g, protocol)
+			.replace(/\$\{hostname\}/g, hostname)
+			.replace(/\$\{port\}/g, port)
+			.replace(/\$\{host\}/g, host);
 
 
 		function getHostname(req) {
