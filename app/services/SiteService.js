@@ -11,9 +11,9 @@ var AuthenticationService = require('../services/AuthenticationService');
 
 var config = require('../../config');
 
-var DB_COLLECTION_SITES = 'sites';
-var DB_COLLECTION_DOMAINS = 'domains';
-var DB_COLLECTION_USERS = 'users';
+var DB_COLLECTION_SITES = config.db.collections.sites;
+var DB_COLLECTION_DOMAINS = config.db.collections.domains;
+var DB_COLLECTION_USERS = config.db.collections.users;
 
 var DROPBOX_APP_KEY = config.dropbox.appKey;
 var DROPBOX_APP_SECRET = config.dropbox.appSecret;

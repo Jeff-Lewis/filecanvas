@@ -27,7 +27,7 @@ var isProduction = (process.env.NODE_ENV === 'production');
 
 if (!config.dropbox.appKey) { throw new Error('Missing Dropbox app key'); }
 if (!config.dropbox.appSecret) { throw new Error('Missing Dropbox app secret'); }
-if (!config.mongodb.uri) { throw new Error('Missing MongoDB connection URI'); }
+if (!config.db.uri) { throw new Error('Missing MongoDB connection URI'); }
 if (!config.templates.default) { throw new Error('Missing default template name'); }
 
 run();
@@ -59,7 +59,7 @@ function initDataService(config) {
 
 	var dataService = new DataService();
 
-	var mongodbUri = config.mongodb.uri;
+	var mongodbUri = config.db.uri;
 	return dataService.connect(mongodbUri)
 		.then(function(db) {
 			process.stdout.write('Mongodb connected' + '\n');

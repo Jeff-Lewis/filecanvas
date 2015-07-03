@@ -1,12 +1,14 @@
 'use strict';
 
-var DB_COLLECTION_USERS = 'users';
-var DB_COLLECTION_DOMAINS = 'domains';
-var DB_COLLECTION_SITES = 'sites';
-
 var Promise = require('promise');
 
 var HttpError = require('../errors/HttpError');
+
+var config = require('../../config');
+
+var DB_COLLECTION_USERS = config.db.collections.users;
+var DB_COLLECTION_DOMAINS = config.db.collections.domains;
+var DB_COLLECTION_SITES = config.db.collections.sites;
 
 function UserService(dataService) {
 	this.dataService = dataService;

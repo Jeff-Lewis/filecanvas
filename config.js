@@ -17,8 +17,12 @@ config.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
 config.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
 config.dropbox.callbackUrl = process.env.DROPBOX_OAUTH2_CALLBACK || null;
 
-config.mongodb = {};
-config.mongodb.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URI || null;
+config.db = {};
+config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URI || null;
+config.db.collections = {};
+config.db.collections.sites = 'sites';
+config.db.collections.users = 'users';
+config.db.collections.domains = 'domains';
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
