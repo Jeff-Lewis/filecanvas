@@ -88,6 +88,8 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 	function initExpress(app, httpPort, httpsPort) {
 		var sessionSecret = generateRandomString(128);
 
+		app.set('httpPort', httpPort);
+
 		if (httpsPort) {
 			app.set('httpsPort', httpsPort);
 			app.use(forceSsl);
