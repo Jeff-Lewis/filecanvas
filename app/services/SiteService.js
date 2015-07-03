@@ -157,10 +157,18 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 
 	function retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers, includeDomains) {
 		var query = { 'user': uid, 'alias': siteAlias };
-		var options = { fields: { '_id': 0 } };
-		if (!includeUsers) { options.fields['users'] = 0; }
-		if (!includeContents) { options.fields['cache'] = 0; }
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, options)
+		var fields = [
+			'user',
+			'alias',
+			'name',
+			'title',
+			'template',
+			'path',
+			'public'
+		];
+		if (includeUsers) { fields.push('users'); }
+		if (includeContents) { fields.push('cache'); }
+		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				return siteModel;
@@ -169,8 +177,12 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 
 	function retrieveSiteDomains(dataService, uid, siteAlias) {
 		var filter = { 'user': uid, 'site': siteAlias };
-		var options = { fields: { '_id': 0 } };
-		return dataService.collection(DB_COLLECTION_DOMAINS).find(filter, options);
+		var fields = [
+			'name',
+			'user',
+			'site'
+		];
+		return dataService.collection(DB_COLLECTION_DOMAINS).find(filter, fields);
 	}
 
 	function loadSiteContents(siteModel, accessToken) {
@@ -259,8 +271,10 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 
 	function retrieveSiteDropboxPath(dataService, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
-		var options = { fields: { 'path': 1 } };
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, options)
+		var fields = [
+			'path'
+		];
+		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				if (!siteModel.path) { throw new HttpError(404); }
@@ -277,8 +291,11 @@ SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteAlia
 
 	function retrieveSiteAuthenticationDetails(dataService, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
-		var options = { fields: { 'public': 1, 'users': 1 } };
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, options)
+		var fields = [
+			'public',
+			'users'
+		];
+		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				var authenticationDetails = {
@@ -297,8 +314,10 @@ SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
 
 	function retrieveSiteCache(dataService, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
-		var options = { fields: { 'cache': 1 } };
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, options)
+		var fields = [
+			'cache'
+		];
+		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				var siteCache = siteModel.cache;
@@ -329,8 +348,12 @@ SiteService.prototype.retrieveSitePathByDomain = function(domain) {
 
 	function retrieveDomain(dataService, domain) {
 		var query = { 'name': domain };
-		var options = { fields: { '_id': 0 } };
-		return dataService.collection(DB_COLLECTION_DOMAINS).findOne(query, options);
+		var fields = [
+			'name',
+			'user',
+			'site'
+		];
+		return dataService.collection(DB_COLLECTION_DOMAINS).findOne(query, fields);
 	}
 };
 
@@ -354,8 +377,10 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 
 	function getSitePath(dataService, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
-		var options = { fields: { 'path': 1 } };
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, options)
+		var fields = [
+			'path'
+		];
+		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				var sitePath = siteModel.path;

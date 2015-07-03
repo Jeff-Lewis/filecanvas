@@ -83,8 +83,10 @@ UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
 
 	function retrieveUserDefaultSiteAlias(dataService, user) {
 		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-		var options = { fields: { 'default': 1 } };
-		return dataService.collection(DB_COLLECTION_USERS).findOne(query, options)
+		var fields = [
+			'default'
+		];
+		return dataService.collection(DB_COLLECTION_USERS).findOne(query, fields)
 			.then(function(userModel) {
 				if (!userModel) { throw new HttpError(404); }
 				var defaultSiteAlias = userModel.default;
@@ -100,8 +102,15 @@ UserService.prototype.retrieveUserSites = function(uid) {
 
 	function retrieveUserSites(dataService, uid) {
 		var query = { 'user': uid };
-		var options = { fields: { '_id': 0, 'public': 0, 'users': 0, 'cache': 0 } };
-		return dataService.collection(DB_COLLECTION_SITES).find(query, options);
+		var fields = [
+			'user',
+			'alias',
+			'name',
+			'title',
+			'template',
+			'path'
+		];
+		return dataService.collection(DB_COLLECTION_SITES).find(query, fields);
 	}
 };
 
@@ -139,8 +148,12 @@ UserService.prototype.retrieveUserDomains = function(uid) {
 
 	function retrieveUserDomains(dataService, uid) {
 		var query = { 'user': uid, 'site': null };
-		var options = { fields: { '_id': 0 } };
-		return dataService.collection(DB_COLLECTION_DOMAINS).find(query, options);
+		var fields = [
+			'name',
+			'user',
+			'site'
+		];
+		return dataService.collection(DB_COLLECTION_DOMAINS).find(query, fields);
 	}
 };
 

@@ -3,6 +3,7 @@
 var Promise = require('promise');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
+var objectAssign = require('object-assign');
 
 function DataService() {
 }
@@ -52,8 +53,13 @@ Collection.prototype.insertOne = function(document, options) {
 	});
 };
 
-Collection.prototype.find = function(filter, options) {
-	options = options || {};
+Collection.prototype.find = function(filter, fields, options) {
+	fields = fields || [];
+	var fieldOptions = fields.reduce(function(fieldOptions, field) {
+		fieldOptions[field] = 1;
+		return fieldOptions;
+	}, {});
+	options = objectAssign({}, { fields: fieldOptions }, options);
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.find(filter, options).toArray(
@@ -65,8 +71,13 @@ Collection.prototype.find = function(filter, options) {
 	});
 };
 
-Collection.prototype.findOne = function(query, options) {
-	options = options || {};
+Collection.prototype.findOne = function(query, fields, options) {
+	fields = fields || [];
+	var fieldOptions = fields.reduce(function(fieldOptions, field) {
+		fieldOptions[field] = 1;
+		return fieldOptions;
+	}, {});
+	options = objectAssign({}, { fields: fieldOptions }, options);
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.findOne(query, options,
