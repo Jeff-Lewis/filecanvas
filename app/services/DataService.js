@@ -13,7 +13,7 @@ DataService.prototype.ERROR_CODE_DUPLICATE_KEY = 11000;
 DataService.prototype.db = null;
 DataService.prototype.connecting = false;
 
-DataService.prototype.connect = function(config) {
+DataService.prototype.connect = function(uri) {
 	var self = this;
 	return new Promise(function(resolve, reject) {
 		if (self.connecting) { throw new Error('Connection attempt already in progress'); }
@@ -21,7 +21,7 @@ DataService.prototype.connect = function(config) {
 
 		self.connecting = true;
 
-		MongoClient.connect(config.uri, function(error, db) {
+		MongoClient.connect(uri, function(error, db) {
 			self.connecting = false;
 			if (error) { return reject(error); }
 			self.db = db;

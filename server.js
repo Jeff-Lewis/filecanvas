@@ -59,7 +59,8 @@ function initDataService(config) {
 
 	var dataService = new DataService();
 
-	return dataService.connect({ uri: config.mongodb.uri })
+	var mongodbUri = config.mongodb.uri;
+	return dataService.connect(mongodbUri)
 		.then(function(db) {
 			process.stdout.write('Mongodb connected' + '\n');
 			return dataService;
