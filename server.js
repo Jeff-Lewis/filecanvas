@@ -73,8 +73,9 @@ function initDataService(config) {
 function initApp(dataService, httpPort, httpsPort, isProduction) {
 	var app = express();
 
-	initExpress(app, httpPort, httpsPort);
+	initExpress(app);
 	initPassport(app);
+	initProtocols(app, httpPort, httpsPort);
 	initSubdomains(app);
 	initViewEngine(app);
 	initRoutes(app, dataService);
@@ -83,15 +84,8 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 	return app;
 
 
-	function initExpress(app, httpPort, httpsPort) {
+	function initExpress(app) {
 		var sessionSecret = generateRandomString(128);
-
-		app.set('httpPort', httpPort);
-
-		if (httpsPort) {
-			app.set('httpsPort', httpsPort);
-			app.use(forceSsl);
-		}
 
 		app.use(express.compress());
 		app.use(express.cookieParser());
@@ -165,6 +159,15 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 				return callback && callback(null, passportUser);
 			}
 		});
+	}
+
+	function initProtocols(app, httpPort, httpsPort) {
+		app.set('httpPort', httpPort);
+
+		if (httpsPort) {
+			app.set('httpsPort', httpsPort);
+			app.use(forceSsl);
+		}
 	}
 
 	function initSubdomains(app) {
