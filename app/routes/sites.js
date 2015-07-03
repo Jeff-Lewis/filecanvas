@@ -322,10 +322,11 @@ module.exports = function(dataService) {
 				var includeDomains = false;
 				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
 					.then(function(siteModel) {
-						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
-						var requestPath = req.originalUrl.split('?')[0];
-						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-						var templateOptions = getSiteTemplateOptions(siteModel, siteRoot, hostname);
+						var siteRoot = getSiteRoot(req);
+						var httpPort = app.get('httpPort');
+						var httpsPort = app.get('httpsPort');
+						var templatesRoot = getTemplatesRoot(req, httpPort, httpsPort);
+						var templateOptions = getSiteTemplateOptions(siteModel, siteRoot, templatesRoot);
 						res.render(siteModel.template + '/index', templateOptions);
 					});
 			})
@@ -334,11 +335,10 @@ module.exports = function(dataService) {
 			});
 
 
-		function getSiteTemplateOptions(siteModel, siteRoot, hostname) {
-			var siteTemplatesRoot = config.urls.templates.replace(/\$\{HOST\}/g, hostname);
+		function getSiteTemplateOptions(siteModel, siteRoot, templatesRoot) {
 			var title = siteModel.title;
 			var siteContents = siteModel.contents || { folders: null, files: null };
-			var siteTemplateRoot = siteTemplatesRoot + siteModel.template + '/';
+			var siteTemplateRoot = templatesRoot + siteModel.template + '/';
 
 			return {
 				siteRoot: siteRoot,
@@ -366,10 +366,11 @@ module.exports = function(dataService) {
 				var includeDomains = false;
 				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
 					.then(function(siteModel) {
-						var hostname = req.get('host').split('.').slice(req.subdomains.length).join('.');
-						var requestPath = req.originalUrl.split('?')[0].replace(/\/login$/, '');
-						var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-						var templateOptions = getLoginTemplateOptions(siteModel, siteRoot, hostname);
+						var siteRoot = getSiteRoot(req, '/login');
+						var httpPort = app.get('httpPort');
+						var httpsPort = app.get('httpsPort');
+						var templatesRoot = getTemplatesRoot(req, httpPort, httpsPort);
+						var templateOptions = getLoginTemplateOptions(siteModel, siteRoot, templatesRoot);
 						res.render(siteModel.template + '/login', templateOptions);
 					});
 			})
@@ -378,10 +379,9 @@ module.exports = function(dataService) {
 			});
 
 
-		function getLoginTemplateOptions(siteModel, siteRoot, hostname) {
-			var siteTemplatesRoot = config.urls.templates.replace(/\$\{HOST\}/g, hostname);
+		function getLoginTemplateOptions(siteModel, siteRoot, templatesRoot) {
 			var title = siteModel.title;
-			var siteTemplateRoot = siteTemplatesRoot + siteModel.template + '/';
+			var siteTemplateRoot = templatesRoot + siteModel.template + '/';
 
 			return {
 				siteRoot: siteRoot,
@@ -389,6 +389,34 @@ module.exports = function(dataService) {
 				title: title,
 				templateRoot: siteTemplateRoot
 			};
+		}
+	}
+
+	function getSiteRoot(req, trimUriSegment) {
+		var requestPath = req.originalUrl.split('?')[0];
+		if (trimUriSegment) {
+			requestPath = requestPath.replace(new RegExp(trimUriSegment + '$'), '');
+		}
+		var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+		return siteRoot;
+	}
+
+	function getTemplatesRoot(req, httpPort, httpsPort) {
+		var shouldUseHttps = Boolean(httpsPort);
+		var protocol = (shouldUseHttps ? 'https:' : 'http:');
+		var hostname = getHostname(req);
+		var port = (shouldUseHttps ? httpsPort : httpPort);
+		var isDefaultPort = (shouldUseHttps ? port === 443 : port === 80);
+		var host = (isDefaultPort ? hostname : hostname + ':' + port);
+		return config.urls.templates
+			.replace(/\$\{PROTOCOL\}/g, protocol)
+			.replace(/\$\{HOSTNAME\}/g, hostname)
+			.replace(/\$\{PORT\}/g, port)
+			.replace(/\$\{HOST\}/g, host);
+
+
+		function getHostname(req) {
+			return req.get('host').split('.').slice(req.subdomains.length).join('.').replace(/:\d+$/, '');
 		}
 	}
 };

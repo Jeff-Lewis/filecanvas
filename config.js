@@ -28,7 +28,7 @@ config.db.collections.domains = 'domains';
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.urls = {};
-config.urls.templates = process.env.TEMPLATES_ROOT || '//templates.${HOST}/';
+config.urls.templates = process.env.TEMPLATES_ROOT || '${PROTOCOL}//templates.${HOST}/';
 
 config.templates = {};
 config.templates.default = 'fathom';
