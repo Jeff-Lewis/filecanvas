@@ -63,9 +63,9 @@ Collection.prototype.find = function(filter, fields, options) {
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.find(filter, options).toArray(
-			function(error, domainModels) {
+			function(error, documents) {
 				if (error) { return reject(error); }
-				return resolve(domainModels);
+				return resolve(documents);
 			}
 		);
 	});
