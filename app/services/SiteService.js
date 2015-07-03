@@ -446,7 +446,7 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 				})
 				.then(function() {
 					if (isDefaultSite) {
-						return resetOrganizationDefaultSite(dataService, uid);
+						return resetUserDefaultSite(dataService, uid);
 					}
 				});
 		});
@@ -474,9 +474,9 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 			.then(function(numRecords) {});
 	}
 
-	function resetOrganizationDefaultSite(dataService, uid) {
-		var organizationService = new UserService(dataService);
-		return organizationService.updateOrganizationDefaultSiteAlias(uid, null)
+	function resetUserDefaultSite(dataService, uid) {
+		var userService = new UserService(dataService);
+		return userService.updateUserDefaultSiteAlias(uid, null)
 			.then(function(siteAlias) {});
 	}
 };
