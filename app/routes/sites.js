@@ -416,7 +416,7 @@ module.exports = function(dataService) {
 
 
 		function getHostname(req) {
-			return req.get('host').split('.').slice(req.subdomains.length).join('.').replace(/:\d+$/, '');
+			return req.host.split('.').slice(req.subdomains.length).join('.');
 		}
 	}
 };
