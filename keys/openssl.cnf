@@ -17,3 +17,4 @@ subjectAltName = @alt_names
 [alt_names]
 DNS.1 = shunt.dev
 DNS.2 = *.shunt.dev
+DNS.3 = *.*.shunt.dev

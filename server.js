@@ -192,7 +192,11 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 			},
 			{
 				subdomain: /([a-z0-9_\-]+)/,
-				path: '/sites/$0'
+				path: '/sites/$1'
+			},
+			{
+				subdomain: /([a-z0-9_\-]+)\.([a-z0-9_\-]+)/,
+				path: '/sites/$2/$1'
 			}
 		];
 

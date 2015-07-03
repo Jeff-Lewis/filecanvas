@@ -27,9 +27,7 @@ module.exports = function(options) {
 	});
 
 	app.use(function(req, res, next) {
-		var reqSubdomains = req.subdomains.slice();
-		reqSubdomains.reverse();
-		var subdomain = reqSubdomains.join('.');
+		var subdomain = req.subdomains.slice().reverse().join('.');
 
 		var matchedMapping = mappings.filter(function(mapping) {
 			return (mapping.subdomain instanceof RegExp ? mapping.subdomain.test(subdomain) : mapping.subdomain === subdomain);
@@ -43,8 +41,7 @@ module.exports = function(options) {
 		var pathPrefix = '';
 
 		if (matchedMapping.subdomain instanceof RegExp) {
-			var replacementString = matchedMapping.path.replace('$0', '$$&');
-			pathPrefix = subdomain.replace(matchedMapping.subdomain, replacementString);
+			pathPrefix = subdomain.replace(matchedMapping.subdomain, matchedMapping.path);
 		} else {
 			pathPrefix = matchedMapping.path;
 		}
