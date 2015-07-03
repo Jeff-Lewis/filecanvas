@@ -3,7 +3,7 @@
 		<h2>Your account</h2>
 		<p class="lead">Use the fields below to edit your account settings.</p>
 		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.userUsers }}/{{ content.user.username }}" method="POST" autocomplete="off">
+		<form class="form-horizontal" role="form" action="{{ session.urls.account }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="PUT"/>
 			<fieldset>
 				<div class="form-group">
