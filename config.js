@@ -4,6 +4,8 @@ var fs = require('fs');
 
 var config = {};
 
+config.host = process.env.HOST || 'localhost';
+
 config.http = {};
 config.http.port = process.env.PORT || 80;
 

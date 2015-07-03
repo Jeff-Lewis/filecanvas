@@ -12,6 +12,7 @@ var HttpError = require('./app/errors/HttpError');
 var handlebarsEngine = require('./app/engines/handlebars');
 
 var stripTrailingSlash = require('./app/middleware/stripTrailingSlash');
+var customDomain = require('./app/middleware/customDomain');
 var subdomain = require('./app/middleware/subdomain');
 var errorPage = require('./app/middleware/errorPage');
 
@@ -75,6 +76,7 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 
 	initExpress(app);
 	initPassport(app);
+	initCustomDomains(app);
 	initProtocols(app, httpPort, httpsPort);
 	initSubdomains(app);
 	initViewEngine(app);
@@ -161,12 +163,26 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 		});
 	}
 
+	function initCustomDomains(app) {
+		app.use(customDomain(config.host));
+	}
+
 	function initProtocols(app, httpPort, httpsPort) {
 		app.set('httpPort', httpPort);
 
 		if (httpsPort) {
 			app.set('httpsPort', httpsPort);
-			app.use(forceSsl);
+			app.use(forceSslIfNotCustomDomain);
+		}
+
+
+		function forceSslIfNotCustomDomain(req, res, next) {
+			var isCustomDomain = Boolean(res.locals.originalHost);
+			if (isCustomDomain) {
+				return next();
+			} else {
+				forceSsl(req, res, next);
+			}
 		}
 	}
 
