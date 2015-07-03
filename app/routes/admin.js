@@ -6,6 +6,7 @@ var objectAssign = require('object-assign');
 var express = require('express');
 var passport = require('passport');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
+var slug = require('slug');
 
 var handlebarsEngine = require('../engines/handlebars');
 var HttpError = require('../errors/HttpError');
@@ -28,11 +29,18 @@ module.exports = function(dataService) {
 	var assetsMiddleware = express.static(assetsRoot);
 	app.use('/assets', assetsMiddleware);
 
-	initAuth(dataService, config.dropbox.appKey, config.dropbox.appSecret, config.dropbox.callbackUrl);
-
+	initAuth(
+		dataService,
+		config.dropbox.appKey,
+		config.dropbox.appSecret,
+		config.dropbox.loginCallbackUrl,
+		config.dropbox.registerCallbackUrl
+	);
 	app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
 	app.get('/login/oauth2', passport.authenticate('admin/dropbox'));
 	app.get('/login/oauth2/callback', passport.authenticate('admin/dropbox', { successRedirect: '/', failureRedirect: '/login' }));
+	app.get('/register/oauth2', passport.authenticate('admin/register'));
+	app.get('/register/oauth2/callback', passport.authenticate('admin/register', { successRedirect: '/', failureRedirect: '/login' }));
 	app.get('/logout', initAdminSession, retrieveLogoutRoute);
 
 
@@ -69,58 +77,118 @@ module.exports = function(dataService) {
 	return app;
 
 
-	function initAuth(dataService, appKey, appSecret, callbackUrl) {
+	function initAuth(dataService, appKey, appSecret, loginCallbackUrl, registerCallbackUrl) {
 		globals.passport.serializers['admin'] = serializeAdminAuthUser;
 		globals.passport.deserializers['admin'] = deserializeAdminAuthUser;
 
-		passport.use('admin/dropbox', new DropboxOAuth2Strategy({
-			clientID: appKey,
-			clientSecret: appSecret,
-			callbackURL: callbackUrl
-		}, function(accessToken, refreshToken, profile, callback) {
-			var uid = profile.id;
-			var profileName = profile.displayName;
-			var profileEmail = profile.emails[0].value;
-			loadUserModel(uid, accessToken, profileName, profileEmail)
-				.then(function(userModel) {
-					var passportUser = {
-						type: 'admin',
-						model: userModel
-					};
-					return passportUser;
-				})
+		passport.use('admin/dropbox', new DropboxOAuth2Strategy(
+			{
+				clientID: appKey,
+				clientSecret: appSecret,
+				callbackURL: loginCallbackUrl
+			},
+			function(accessToken, refreshToken, profile, callback) {
+				var uid = profile.id;
+				var profileName = profile.displayName;
+				var profileEmail = profile.emails[0].value;
+				return loginUser(dataService, uid, accessToken, profileName, profileEmail)
+					.then(function(passportUser) {
+						callback(null, passportUser);
+					})
+					.catch(function(error) {
+						callback(error);
+					});
+			}
+		));
+
+		passport.use('admin/register', new DropboxOAuth2Strategy(
+			{
+				clientID: appKey,
+				clientSecret: appSecret,
+				callbackURL: registerCallbackUrl
+			},
+			function(accessToken, refreshToken, profile, callback) {
+				var uid = profile.id;
+				var profileName = profile.displayName;
+				var profileEmail = profile.emails[0].value;
+				return registerUser(dataService, uid, accessToken, profileName, profileEmail)
+					.then(function(passportUser) {
+						callback(null, passportUser);
+					})
+					.catch(function(error) {
+						callback(error);
+					});
+			}
+		));
+
+
+		function loginUser(dataService, uid, accessToken, profileName, profileEmail) {
+			return loadUserModel(dataService, uid, accessToken, profileName, profileEmail)
 				.catch(function(error) {
 					if (error.status === 404) {
 						throw new HttpError(403, profileEmail + ' is not a registered user');
 					}
 					throw error;
 				})
-				.then(function(passportUser) {
-					callback(null, passportUser);
+				.then(function(userModel) {
+					var hasUpdatedAccessToken = userModel.token !== accessToken;
+					if (hasUpdatedAccessToken) {
+						return updateUserToken(dataService, uid, accessToken)
+							.then(function() {
+								userModel.token = accessToken;
+								return userModel;
+							});
+					}
+					return userModel;
 				})
-				.catch(function(error) {
-					callback(error);
+				.then(function(userModel) {
+					var passportUser = {
+						type: 'admin',
+						model: userModel
+					};
+					return passportUser;
 				});
 
 
-			function loadUserModel(uid, accessToken, name, email) {
+			function loadUserModel(dataService, uid, accessToken, name, email) {
 				var userService = new UserService(dataService);
-				return userService.retrieveUser(uid)
-					.then(function(userModel) {
-						// TODO: Update Dropbox name/email if they have changed
-						var hasUpdatedAccessToken = userModel.token !== accessToken;
-						if (hasUpdatedAccessToken) {
-							return userService.updateUser(uid, { token: accessToken })
-								.then(function() {
-									userModel.token = accessToken;
-									return userModel;
-								});
-						}
-						return userModel;
+				return userService.retrieveUser(uid);
+			}
+
+			function updateUserToken(dataService, uid, accessToken) {
+				var userService = new UserService(dataService);
+				return userService.updateUser(uid, { token: accessToken });
+			}
+		}
+
+		function registerUser(dataService, uid, accessToken, profileName, profileEmail) {
+			return createUserModel(dataService, uid, accessToken, profileName, profileEmail)
+				.then(function(userModel) {
+					var passportUser = {
+						type: 'admin',
+						model: userModel
+					};
+					return passportUser;
+				});
+
+
+			function createUserModel(dataService, uid, accessToken, name, email) {
+				var userService = new UserService(dataService);
+				var alias = slug(name, { lower: true });
+				return userService.generateUniqueAlias(alias)
+					.then(function(alias) {
+						var userModel = {
+							uid: uid,
+							token: accessToken,
+							alias: alias,
+							name: name,
+							email: email,
+							default: null
+						};
+						return userService.createUser(userModel);
 					});
 			}
-		}));
-
+		}
 
 		function serializeAdminAuthUser(passportUser, callback) {
 			var serializedUser = passportUser.model.uid;
@@ -201,7 +269,8 @@ module.exports = function(dataService) {
 					support: '/support',
 					account: '/account',
 					login: '/login',
-					oauth: '/login/oauth2',
+					loginAuth: '/login/oauth2',
+					registerAuth: '/register/oauth2',
 					logout: '/logout',
 					sites: '/sites',
 					sitesAdd: '/sites/add',

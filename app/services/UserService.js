@@ -1,6 +1,7 @@
 'use strict';
 
 var Promise = require('promise');
+var escapeRegExp = require('escape-regexp');
 
 var HttpError = require('../errors/HttpError');
 
@@ -15,6 +16,49 @@ function UserService(dataService) {
 }
 
 UserService.prototype.dataService = null;
+
+UserService.prototype.generateUniqueAlias = function(alias) {
+	var dataService = this.dataService;
+	return checkWhetherAliasExists(dataService, alias)
+		.then(function(aliasExists) {
+			if (!aliasExists) { return alias; }
+			return generateUniqueAlias(dataService, alias);
+		});
+
+
+	function checkWhetherAliasExists(dataService, alias) {
+		var query = { 'alias': alias };
+		return dataService.collection(DB_COLLECTION_USERS).count(query)
+			.then(function(numRecords) {
+				var aliasExists = numRecords > 0;
+				return aliasExists;
+			});
+	}
+
+	function generateUniqueAlias(dataService, alias) {
+		return getRegisteredAliases(dataService, alias)
+			.then(function(registeredAliases) {
+				var index = 1;
+				while (registeredAliases.indexOf(alias + index) !== -1) { index++; }
+				return alias + index;
+			});
+	}
+
+	function getRegisteredAliases(dataService, alias) {
+		var pattern = new RegExp('^' + escapeRegExp(alias) + '\d+$');
+		var query = { alias: pattern };
+		var fields = [
+			'alias'
+		];
+		return dataService.collection(DB_COLLECTION_USERS).find(query, fields)
+			.then(function(userModels) {
+				var userAliases = userModels.map(function(userModel) {
+					return userModel.alias;
+				});
+				return userAliases;
+			});
+	}
+};
 
 UserService.prototype.createUser = function(userModel) {
 	var dataService = this.dataService;

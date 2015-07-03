@@ -15,7 +15,8 @@ config.https.cert = process.env.HTTPS_CERT ? fs.readFileSync(process.env.HTTPS_C
 config.dropbox = {};
 config.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
 config.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
-config.dropbox.callbackUrl = process.env.DROPBOX_OAUTH2_CALLBACK || null;
+config.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
+config.dropbox.registerCallbackUrl = process.env.DROPBOX_OAUTH2_REGISTER_CALLBACK || null;
 
 config.db = {};
 config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URI || null;

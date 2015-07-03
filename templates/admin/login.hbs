@@ -1,9 +1,10 @@
-<form class="form-signin" role="form" action="{{ session.urls.oauth }}" method="GET" autocomplete="off">
+<div class="form-signin">
 	<h2 class="form-signin-heading">Sign in to Shunt</h2>
 	<!--
 	<label class="checkbox">
 		<input type="checkbox" value="remember-me"> Remember me
 	</label>
 	-->
-	<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in using Dropbox</button>
+	<a class="btn btn-lg btn-primary btn-block" href="{{ session.urls.loginAuth }}">Sign in using Dropbox</a>
+	<a class="btn btn-lg btn-primary btn-block" href="{{ session.urls.registerAuth }}">Sign up</a>
 </form>
