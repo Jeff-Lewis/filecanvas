@@ -4,6 +4,7 @@ var path = require('path');
 var Promise = require('promise');
 var Dropbox = require('dropbox');
 var objectAssign = require('object-assign');
+var slug = require('slug');
 
 var HttpError = require('../errors/HttpError');
 
@@ -234,7 +235,7 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 			}, {});
 
 		fileMetadata.name = path.basename(fileMetadata.path);
-		fileMetadata.alias = slugify(fileMetadata.name);
+		fileMetadata.alias = slug(fileMetadata.name, { lower: true });
 
 		var modifiedDate = new Date(fileMetadata.modified);
 		fileMetadata.date = formatDate(modifiedDate);
@@ -250,10 +251,6 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 			fileMetadata.extension = getFileExtension(fileMetadata.name);
 		}
 		return fileMetadata;
-	}
-
-	function slugify(string) {
-		return string.toLowerCase().replace(/[^a-z0-9_]+/g, '-');
 	}
 
 	function getTimestamp(date) {

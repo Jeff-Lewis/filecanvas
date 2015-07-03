@@ -32,6 +32,7 @@
     "passport-dropbox-oauth2": "^0.1.6",
     "passport-local": "^1.0.0",
     "promise": "^7.0.3",
+    "slug": "^0.9.1",
     "tldjs": "^1.5.3"
   }
 }
