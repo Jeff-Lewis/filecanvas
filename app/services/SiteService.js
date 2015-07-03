@@ -105,7 +105,7 @@ SiteService.prototype.createSiteDomain = function(uid, siteAlias, domain) {
 	return createSiteDomain(dataService, domainModel)
 		.catch(function(error) {
 			if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
-				throw new HttpError(409, 'A site is already registered to this domain');
+				throw new HttpError(409, 'This domain is already in use');
 			}
 			throw error;
 		});

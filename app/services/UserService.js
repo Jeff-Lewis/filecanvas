@@ -24,7 +24,7 @@ UserService.prototype.createUser = function(userModel) {
 			return createUser(dataService, userModel)
 				.catch(function(error) {
 					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
-						throw new HttpError(409, 'A user already exists for this account');
+						throw new HttpError(409, 'This account has already been registered');
 					}
 					throw error;
 				});
@@ -49,7 +49,7 @@ UserService.prototype.createUserDomain = function(uid, domain) {
 	return createUserDomain(dataService, domainModel)
 		.catch(function(error) {
 			if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
-				throw new HttpError(409, 'A user already exists for this account');
+				throw new HttpError(409, 'This domain is already in use');
 			}
 			throw error;
 		});
@@ -127,7 +127,7 @@ UserService.prototype.updateUser = function(user, updates) {
 			return updateUser(dataService, user, updates)
 				.catch(function(error) {
 					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
-						throw new HttpError(409, 'A user already exists with this alias');
+						throw new HttpError(409, 'This alias is in use by another user');
 					}
 				});
 		});
