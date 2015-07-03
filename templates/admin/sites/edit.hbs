@@ -125,26 +125,6 @@
 				</div>
 			</fieldset>
 			{{/unless}}
-			<fieldset>
-				<legend>Custom domain names</legend>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Domain names</label>
-					<div class="col-sm-6 col-lg-4">
-						{{#if content.site.domains}}
-						<p class="form-control-static">
-							{{#each content.site.domains}}{{ this }}<br/>{{/each}}
-						</p>
-						{{else}}
-						<p class="form-control-static" title="You have not yet registered any custom domain names for this site">
-							No custom domain names
-						</p>
-						{{/if}}
-						<p class="form-control-static">
-							<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/domains">Edit domain names</a>
-						</p>
-					</div>
-				</div>
-			</fieldset>
 			<!--
 			<fieldset>
 				<legend>Display options</legend>
@@ -173,25 +153,6 @@
 								/> Show file extensions
 							</label>
 						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-success">Save changes</button>
-					</div>
-				</div>
-			</fieldset>
-			<fieldset>
-				<legend>Custom domain names</legend>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Domain names<br/><h6>This requires that you <a href="/faq#dns">point your DNS to Shunt</a></h6></label>
-					<div class="col-sm-6 col-lg-4">
-						<textarea class="form-control" rows="3"
-							name="dns"
-							title="Enter all the domain names which you want to point to this Shunt site (e.g. ‘my-extranet.com’ or ‘extranet.my-domain.com’). If entering multiple domain names, enter one per line. You must already own these domain names for this to work."
-							placeholder="my-domain.com"
-							data-trigger="focus"
-						></textarea>
 					</div>
 				</div>
 				<div class="form-group">

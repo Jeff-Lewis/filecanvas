@@ -12,7 +12,6 @@ var HttpError = require('./app/errors/HttpError');
 var handlebarsEngine = require('./app/engines/handlebars');
 
 var stripTrailingSlash = require('./app/middleware/stripTrailingSlash');
-var customDomain = require('./app/middleware/customDomain');
 var subdomain = require('./app/middleware/subdomain');
 var errorPage = require('./app/middleware/errorPage');
 
@@ -76,7 +75,6 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 
 	initExpress(app, httpPort, httpsPort);
 	initPassport(app);
-	initCustomDomains(app, dataService);
 	initSubdomains(app);
 	initViewEngine(app);
 	initRoutes(app, dataService);
@@ -167,10 +165,6 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 				return callback && callback(null, passportUser);
 			}
 		});
-	}
-
-	function initCustomDomains(app, dataService) {
-		app.use('/', customDomain(dataService));
 	}
 
 	function initSubdomains(app) {

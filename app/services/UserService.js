@@ -8,7 +8,6 @@ var HttpError = require('../errors/HttpError');
 var config = require('../../config');
 
 var DB_COLLECTION_USERS = config.db.collections.users;
-var DB_COLLECTION_DOMAINS = config.db.collections.domains;
 var DB_COLLECTION_SITES = config.db.collections.sites;
 
 function UserService(dataService) {
@@ -79,30 +78,6 @@ UserService.prototype.createUser = function(userModel) {
 		return dataService.collection(DB_COLLECTION_USERS).insertOne(userModel)
 			.then(function() {
 				return userModel;
-			});
-	}
-};
-
-UserService.prototype.createUserDomain = function(uid, domain) {
-	var dataService = this.dataService;
-	var domainModel = {
-		name: domain,
-		user: uid,
-		site: null
-	};
-	return createUserDomain(dataService, domainModel)
-		.catch(function(error) {
-			if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
-				throw new HttpError(409, 'This domain is already in use');
-			}
-			throw error;
-		});
-
-
-	function createUserDomain(dataService, domainModel) {
-		return dataService.collection(DB_COLLECTION_DOMAINS).insertOne(domainModel)
-			.then(function() {
-				return domainModel;
 			});
 	}
 };
@@ -195,22 +170,6 @@ UserService.prototype.updateUser = function(user, updates) {
 	}
 };
 
-UserService.prototype.retrieveUserDomains = function(uid) {
-	var dataService = this.dataService;
-	return retrieveUserDomains(dataService, uid);
-
-
-	function retrieveUserDomains(dataService, uid) {
-		var query = { 'user': uid, 'site': null };
-		var fields = [
-			'name',
-			'user',
-			'site'
-		];
-		return dataService.collection(DB_COLLECTION_DOMAINS).find(query, fields);
-	}
-};
-
 UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
@@ -233,35 +192,12 @@ UserService.prototype.deleteUser = function(uid) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var dataService = this.dataService;
-	return deleteUser(dataService, uid)
-		.then(function() {
-			return deleteUserDomains(dataService, uid);
-		});
+	return deleteUser(dataService, uid);
 
 
 	function deleteUser(dataService, uid) {
 		var filter = { 'uid': uid };
 		return dataService.collection(DB_COLLECTION_USERS).deleteOne(filter)
-			.then(function(numRecords) {
-				if (numRecords === 0) { throw new HttpError(404); }
-			});
-	}
-
-	function deleteUserDomains(dataService, uid) {
-		var filter = { 'user': uid, 'site': null };
-		return dataService.collection(DB_COLLECTION_USERS).deleteMany(filter)
-			.then(function(numRecords) {});
-	}
-};
-
-UserService.prototype.deleteUserDomain = function(uid, domain) {
-	var dataService = this.dataService;
-	return deleteUserDomain(dataService, uid, domain);
-
-
-	function deleteUserDomain(dataService, uid, domain) {
-		var filter = { 'user': uid, 'site': null, 'name': domain };
-		return dataService.collection(DB_COLLECTION_DOMAINS).deleteOne(filter)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});

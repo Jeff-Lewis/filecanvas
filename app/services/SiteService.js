@@ -13,7 +13,6 @@ var AuthenticationService = require('../services/AuthenticationService');
 var config = require('../../config');
 
 var DB_COLLECTION_SITES = config.db.collections.sites;
-var DB_COLLECTION_DOMAINS = config.db.collections.domains;
 var DB_COLLECTION_USERS = config.db.collections.users;
 
 var DROPBOX_APP_KEY = config.dropbox.appKey;
@@ -89,52 +88,11 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, username, passwo
 	}
 };
 
-SiteService.prototype.createSiteDomain = function(uid, siteAlias, domain) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!domain) { return Promise.reject(new HttpError(400, 'No domain specified')); }
-
-	// TODO: Validate site domain details
-
-	var dataService = this.dataService;
-	var domainModel = {
-		name: domain,
-		user: uid,
-		site: siteAlias
-	};
-	return createSiteDomain(dataService, domainModel)
-		.catch(function(error) {
-			if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
-				throw new HttpError(409, 'This domain is already in use');
-			}
-			throw error;
-		});
-
-
-	function createSiteDomain(dataService, domainModel) {
-		return dataService.collection(DB_COLLECTION_DOMAINS).insertOne(domainModel)
-			.then(function() {
-				return domainModel;
-			});
-	}
-};
-
-SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, includeUsers, includeDomains) {
+SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, includeUsers) {
 	var dataService = this.dataService;
 	var userService = new UserService(dataService);
 	var self = this;
 	return retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers)
-		.then(function(siteModel) {
-			if (!includeDomains) { return siteModel; }
-			return retrieveSiteDomains(dataService, uid, siteAlias)
-				.then(function(domainModels) {
-					var domainNames = domainModels.map(function(domainModel) {
-						return domainModel.name;
-					});
-					siteModel.domains = domainNames;
-					return siteModel;
-				});
-		})
 		.then(function(siteModel) {
 			if (!includeContents) { return siteModel; }
 
@@ -156,7 +114,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 		});
 
 
-	function retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers, includeDomains) {
+	function retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
 			'user',
@@ -174,16 +132,6 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 				if (!siteModel) { throw new HttpError(404); }
 				return siteModel;
 			});
-	}
-
-	function retrieveSiteDomains(dataService, uid, siteAlias) {
-		var filter = { 'user': uid, 'site': siteAlias };
-		var fields = [
-			'name',
-			'user',
-			'site'
-		];
-		return dataService.collection(DB_COLLECTION_DOMAINS).find(filter, fields);
 	}
 
 	function loadSiteContents(siteModel, accessToken) {
@@ -322,37 +270,6 @@ SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
 	}
 };
 
-SiteService.prototype.retrieveSitePathByDomain = function(domain) {
-	var dataService = this.dataService;
-	return retrieveDomain(dataService, domain)
-		.then(function(domainModel) {
-			if (!domainModel) { return null; }
-			var uid = domainModel.user;
-			var siteAlias = domainModel.site;
-			var userService = new UserService(dataService);
-			return userService.retrieveUser(uid)
-				.then(function(userModel) {
-					var userAlias = userModel.alias;
-					var sitePath = {
-						user: userAlias,
-						site: siteAlias
-					};
-					return sitePath;
-				});
-		});
-
-
-	function retrieveDomain(dataService, domain) {
-		var query = { 'name': domain };
-		var fields = [
-			'name',
-			'user',
-			'site'
-		];
-		return dataService.collection(DB_COLLECTION_DOMAINS).findOne(query, fields);
-	}
-};
-
 SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 	var dataService = this.dataService;
 	return parseSiteModel(updates)
@@ -442,9 +359,6 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 		.then(function(isDefaultSite) {
 			return deleteSite(dataService, uid, siteAlias)
 				.then(function() {
-					return deleteSiteDomains(dataService, uid, siteAlias);
-				})
-				.then(function() {
 					if (isDefaultSite) {
 						return resetUserDefaultSite(dataService, uid);
 					}
@@ -468,35 +382,10 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 			});
 	}
 
-	function deleteSiteDomains(dataService, uid, siteAlias) {
-		var filter = { 'user': uid, 'site': siteAlias };
-		return dataService.collection(DB_COLLECTION_DOMAINS).deleteMany(filter)
-			.then(function(numRecords) {});
-	}
-
 	function resetUserDefaultSite(dataService, uid) {
 		var userService = new UserService(dataService);
 		return userService.updateUserDefaultSiteAlias(uid, null)
 			.then(function(siteAlias) {});
-	}
-};
-
-
-SiteService.prototype.deleteSiteDomain = function(uid, siteAlias, domain) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!domain) { return Promise.reject(new HttpError(400, 'No domain specified')); }
-
-	var dataService = this.dataService;
-	return deleteSiteDomain(dataService, uid, siteAlias, domain);
-
-
-	function deleteSiteDomain(dataService, uid, shareAlias, domain) {
-		var filter = { 'name': domain, 'user': uid, 'site': siteAlias };
-		return dataService.collection(DB_COLLECTION_DOMAINS).deleteOne(filter)
-			.then(function(numRecords) {
-				if (numRecords === 0) { throw new HttpError(404); }
-			});
 	}
 };
 

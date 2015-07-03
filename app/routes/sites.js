@@ -319,8 +319,7 @@ module.exports = function(dataService) {
 				var siteService = new SiteService(dataService);
 				var includeContents = true;
 				var includeUsers = false;
-				var includeDomains = false;
-				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
+				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var siteRoot = getSiteRoot(req);
 						var httpPort = app.get('httpPort');
@@ -363,8 +362,7 @@ module.exports = function(dataService) {
 				var siteService = new SiteService(dataService);
 				var includeContents = false;
 				var includeUsers = false;
-				var includeDomains = false;
-				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
+				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var siteRoot = getSiteRoot(req, '/login');
 						var httpPort = app.get('httpPort');

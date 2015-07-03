@@ -23,7 +23,6 @@ config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.e
 config.db.collections = {};
 config.db.collections.sites = 'sites';
 config.db.collections.users = 'users';
-config.db.collections.domains = 'domains';
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 

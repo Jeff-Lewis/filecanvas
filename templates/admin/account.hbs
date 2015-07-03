@@ -68,26 +68,6 @@
 					</div>
 				</div>
 			</fieldset>
-			<fieldset>
-				<legend>Custom domain names</legend>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Domain names</label>
-					<div class="col-sm-6 col-lg-4">
-						{{#if content.domains}}
-						<p class="form-control-static">
-							{{#each content.domains}}{{ this }}<br/>{{/each}}
-						</p>
-						{{else}}
-						<p class="form-control-static" title="You have not yet registered any custom domain names for this site">
-							No custom domain names
-						</p>
-						{{/if}}
-						<p class="form-control-static">
-							<a href="{{ session.urls.account }}/domains">Edit domain names</a>
-						</p>
-					</div>
-				</div>
-			</fieldset>
 		</form>
 	</div>
 </div>

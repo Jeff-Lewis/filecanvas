@@ -50,25 +50,19 @@ module.exports = function(dataService) {
 	app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
 
 	app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
-	app.get('/account/domains', ensureAuth, initAdminSession, retrieveUserDomainsRoute);
 
 	app.put('/account', ensureAuth, initAdminSession, updateUserAccountRoute);
-	app.post('/account/domains', ensureAuth, initAdminSession, createUserDomainRoute);
-	app.delete('/account/domains/:domain', ensureAuth, initAdminSession, deleteUserDomainRoute);
 
 	app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 	app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
 	app.get('/sites/edit/:site', ensureAuth, initAdminSession, retrieveSiteEditRoute);
 	app.get('/sites/edit/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersEditRoute);
-	app.get('/sites/edit/:site/domains', ensureAuth, initAdminSession, retrieveSiteDomainsEditRoute);
 
 	app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 	app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 	app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
 	app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUserRoute);
 	app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
-	app.post('/sites/:site/domains', ensureAuth, initAdminSession, createSiteDomainRoute);
-	app.delete('/sites/:site/domains/:domain', ensureAuth, initAdminSession, deleteSiteDomainRoute);
 
 	app.engine('hbs', handlebarsEngine);
 	app.set('views', './templates/admin');
@@ -327,25 +321,13 @@ module.exports = function(dataService) {
 
 	function retrieveUserAccountRoute(req, res, next) {
 		var userModel = req.user.model;
-		var uid = userModel.uid;
-		var userService = new UserService(dataService);
-		userService.retrieveUserDomains(uid)
-			.then(function(domainModels) {
-				var domainNames = domainModels.map(function(domainModel) {
-					return domainModel.name;
-				});
-				var templateData = {
-					title: 'Your account',
-					content: {
-						user: userModel,
-						domains: domainNames
-					}
-				};
-				return renderAdminPage(req, res, 'account', templateData);
-			})
-			.catch(function(error) {
-				next(error);
-			});
+		var templateData = {
+			title: 'Your account',
+			content: {
+				user: userModel
+			}
+		};
+		return renderAdminPage(req, res, 'account', templateData);
 	}
 
 	function updateUserAccountRoute(req, res, next) {
@@ -361,28 +343,6 @@ module.exports = function(dataService) {
 		userService.updateUser(uid, updates)
 			.then(function(userModel) {
 				res.redirect(303, '/account');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function retrieveUserDomainsRoute(req, res, next) {
-		var userModel = req.user.model;
-		var uid = userModel.uid;
-		var userService = new UserService(dataService);
-		userService.retrieveUserDomains(uid)
-			.then(function(domainModels) {
-				var domainNames = domainModels.map(function(domainModel) {
-					return domainModel.name;
-				});
-				var templateData = {
-					title: 'Your account',
-					content: {
-						domains: domainNames
-					}
-				};
-				return renderAdminPage(req, res, 'account/domains', templateData);
 			})
 			.catch(function(error) {
 				next(error);
@@ -421,8 +381,7 @@ module.exports = function(dataService) {
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = true;
-		var includeDomains = true;
-		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
+		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site: ' + siteModel.name,
@@ -445,8 +404,7 @@ module.exports = function(dataService) {
 		var siteService = new SiteService(dataService);
 		var includeContents = false;
 		var includeUsers = true;
-		var includeDomains = true;
-		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
+		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
 			.then(function(siteModel) {
 				var templateData = {
 					title: 'Edit site users: ' + siteModel.name,
@@ -455,30 +413,6 @@ module.exports = function(dataService) {
 					}
 				};
 				return renderAdminPage(req, res, 'sites/edit/users', templateData);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function retrieveSiteDomainsEditRoute(req, res, next) {
-		var userModel = req.user.model;
-		var uid = userModel.uid;
-		var siteAlias = req.params.site;
-
-		var siteService = new SiteService(dataService);
-		var includeContents = false;
-		var includeUsers = false;
-		var includeDomains = true;
-		siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers, includeDomains)
-			.then(function(siteModel) {
-				var templateData = {
-					title: 'Edit site domains: ' + siteModel.name,
-					content: {
-						site: siteModel
-					}
-				};
-				return renderAdminPage(req, res, 'sites/edit/domains', templateData);
 			})
 			.catch(function(error) {
 				next(error);
@@ -603,68 +537,6 @@ module.exports = function(dataService) {
 		siteService.deleteSiteUser(uid, siteAlias, username)
 			.then(function() {
 				res.redirect(303, '/sites/edit/' + siteAlias + '/users');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function createUserDomainRoute(req, res, next) {
-		var userModel = req.user.model;
-		var uid = userModel.uid;
-		var domain = req.body.domain;
-
-		var userService = new UserService(dataService);
-		userService.createUserDomain(uid, domain)
-			.then(function(domain) {
-				res.redirect(303, '/account/domains');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function deleteUserDomainRoute(req, res, next) {
-		var userModel = req.user.model;
-		var uid = userModel.uid;
-		var domain = req.params.domain;
-
-		var userService = new UserService(dataService);
-		userService.deleteUserDomain(uid, domain)
-			.then(function() {
-				res.redirect(303, '/account/domains');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function createSiteDomainRoute(req, res, next) {
-		var userModel = req.user.model;
-		var uid = userModel.uid;
-		var siteAlias = req.params.site;
-		var domain = req.body.domain;
-
-		var siteService = new SiteService(dataService);
-		siteService.createSiteDomain(uid, siteAlias, domain)
-			.then(function(domain) {
-				res.redirect(303, '/sites/edit/' + siteAlias + '/domains');
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function deleteSiteDomainRoute(req, res, next) {
-		var userModel = req.user.model;
-		var uid = userModel.uid;
-		var siteAlias = req.params.site;
-		var domain = req.params.domain;
-
-		var siteService = new SiteService(dataService);
-		siteService.deleteSiteDomain(uid, siteAlias, domain)
-			.then(function() {
-				res.redirect(303, '/sites/edit/' + siteAlias + '/domains');
 			})
 			.catch(function(error) {
 				next(error);
