@@ -2,19 +2,20 @@
 
 var path = require('path');
 var Promise = require('promise');
+var objectAssign = require('object-assign');
 var express = require('express');
 var passport = require('passport');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
-var objectAssign = require('object-assign');
-
-var config = require('../../config');
-var globals = require('../globals');
 
 var handlebarsEngine = require('../engines/handlebars');
+var HttpError = require('../errors/HttpError');
 
 var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
+
+var config = require('../../config');
+var globals = require('../globals');
 
 var faqData = require('../../templates/admin/faq.json');
 
@@ -86,12 +87,18 @@ module.exports = function(dataService) {
 						type: 'admin',
 						model: userModel
 					};
-					callback(null, passportUser);
+					return passportUser;
 				})
 				.catch(function(error) {
 					if (error.status === 404) {
-						// TODO: Return graceful error if user is not yet registered
+						throw new HttpError(403, profileEmail + ' is not a registered user');
 					}
+					throw error;
+				})
+				.then(function(passportUser) {
+					callback(null, passportUser);
+				})
+				.catch(function(error) {
 					callback(error);
 				});
 
