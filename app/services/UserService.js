@@ -70,7 +70,15 @@ UserService.prototype.retrieveUser = function(user) {
 
 	function retrieveUser(dataService, user) {
 		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-		return dataService.collection(DB_COLLECTION_USERS).findOne(query)
+		var fields = [
+			'uid',
+			'token',
+			'alias',
+			'name',
+			'email',
+			'default'
+		];
+		return dataService.collection(DB_COLLECTION_USERS).findOne(query, fields)
 			.then(function(userModel) {
 				if (!userModel) { throw new HttpError(404); }
 				return userModel;
