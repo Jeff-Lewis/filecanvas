@@ -1,6 +1,7 @@
 'use strict';
 
 var Promise = require('promise');
+var escapeRegExp = require('escape-regexp');
 
 var HttpError = require('../errors/HttpError');
 
@@ -237,14 +238,9 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 
 	function getFileUrl(path, rootFolderPath) {
 		var rootFolderRegExp = new RegExp('^' + escapeRegExp(rootFolderPath), 'i');
-		var isExternalPath = !rootFolderRegExp.test(path);
+		var isExternalPath = path.toLowerCase().indexOf(rootFolderPath.toLowerCase()) !== 0;
 		if (isExternalPath) { throw new Error('Invalid file path: "' + path + '"'); }
 		return path.replace(rootFolderRegExp, '').split('/').map(encodeURIComponent).join('/');
-
-
-		function escapeRegExp(string) {
-			return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-		}
 	}
 };
 

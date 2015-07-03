@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "dropbox": "ehfeng/dropbox-js#stable",
+    "escape-regexp": "0.0.1",
     "express": "^3.21.0",
     "express-force-ssl": "^0.2.13",
     "handlebars": "^3.0.3",
