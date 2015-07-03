@@ -8,8 +8,6 @@ var Promise = require('promise');
 
 var HttpError = require('../errors/HttpError');
 
-var MONGO_ERROR_CODE_DUPLICATE_KEY = 11000;
-
 function UserService(dataService) {
 	this.dataService = dataService;
 }
@@ -21,22 +19,21 @@ UserService.prototype.createUser = function(userModel) {
 	var requireFullModel = true;
 	return validateUserModel(userModel, requireFullModel)
 		.then(function(userModel) {
-			return createUser(dataService, userModel);
+			return createUser(dataService, userModel)
+				.catch(function(error) {
+					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
+						throw new HttpError(409, 'A user already exists for this account');
+					}
+					throw error;
+				});
 		});
 
 
 	function createUser(dataService, userModel) {
-		return new Promise(function(resolve, reject) {
-			dataService.db.collection(DB_COLLECTION_USERS).insertOne(userModel,
-				function(error, records) {
-					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						return reject(new HttpError(409, 'A user already exists for this account'));
-					}
-					if (error) { return reject(error); }
-					return resolve(userModel);
-				}
-			);
-		});
+		return dataService.collection(DB_COLLECTION_USERS).insertOne(userModel)
+			.then(function() {
+				return userModel;
+			});
 	}
 };
 
@@ -47,21 +44,20 @@ UserService.prototype.createUserDomain = function(uid, domain) {
 		user: uid,
 		site: null
 	};
-	return createUserDomain(dataService, domainModel);
+	return createUserDomain(dataService, domainModel)
+		.catch(function(error) {
+			if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
+				throw new HttpError(409, 'A user already exists for this account');
+			}
+			throw error;
+		});
 
 
 	function createUserDomain(dataService, domainModel) {
-		return new Promise(function(resolve, reject) {
-			dataService.db.collection(DB_COLLECTION_DOMAINS).insertOne(domainModel,
-				function(error, records) {
-					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						return reject(new HttpError(409, 'A site is already registered to this domain'));
-					}
-					if (error) { return reject(error); }
-					return resolve(domainModel);
-				}
-			);
-		});
+		return dataService.collection(DB_COLLECTION_DOMAINS).insertOne(domainModel)
+			.then(function() {
+				return domainModel;
+			});
 	}
 };
 
@@ -71,19 +67,12 @@ UserService.prototype.retrieveUser = function(user) {
 
 
 	function retrieveUser(dataService, user) {
-		return new Promise(function(resolve, reject) {
-			var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-
-			dataService.db.collection(DB_COLLECTION_USERS).findOne(query,
-				function(error, userModel) {
-					if (error) { return reject(error); }
-					if (!userModel) {
-						return reject(new HttpError(404));
-					}
-					return resolve(userModel);
-				}
-			);
-		});
+		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		return dataService.collection(DB_COLLECTION_USERS).findOne(query)
+			.then(function(userModel) {
+				if (!userModel) { throw new HttpError(404); }
+				return userModel;
+			});
 	}
 };
 
@@ -93,21 +82,14 @@ UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
 
 
 	function retrieveUserDefaultSiteAlias(dataService, user) {
-		return new Promise(function(resolve, reject) {
-			var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-			var options = { fields: { 'default': 1 } };
-
-			dataService.db.collection(DB_COLLECTION_USERS).findOne(query, options,
-				function(error, userModel) {
-					if (error) { return reject(error); }
-					if (!userModel) {
-						return reject(new HttpError(404));
-					}
-					var defaultSiteAlias = userModel.default;
-					return resolve(defaultSiteAlias);
-				}
-			);
-		});
+		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		var options = { fields: { 'default': 1 } };
+		return dataService.collection(DB_COLLECTION_USERS).findOne(query, options)
+			.then(function(userModel) {
+				if (!userModel) { throw new HttpError(404); }
+				var defaultSiteAlias = userModel.default;
+				return defaultSiteAlias;
+			});
 	}
 };
 
@@ -117,17 +99,9 @@ UserService.prototype.retrieveUserSites = function(uid) {
 
 
 	function retrieveUserSites(dataService, uid) {
-		return new Promise(function(resolve, reject) {
-			var query = { 'user': uid };
-			var options = { fields: { '_id': 0, 'public': 0, 'users': 0, 'cache': 0 } };
-
-			dataService.db.collection(DB_COLLECTION_SITES).find(query, options).toArray(
-				function(error, siteModels) {
-					if (error) { return reject(error); }
-					return resolve(siteModels);
-				}
-			);
-		});
+		var query = { 'user': uid };
+		var options = { fields: { '_id': 0, 'public': 0, 'users': 0, 'cache': 0 } };
+		return dataService.collection(DB_COLLECTION_SITES).find(query, options);
 	}
 };
 
@@ -139,29 +113,22 @@ UserService.prototype.updateUser = function(user, updates) {
 	var requireFullModel = false;
 	return validateUserModel(updates, requireFullModel)
 		.then(function(updates) {
-			return updateUser(dataService, user, updates);
+			return updateUser(dataService, user, updates)
+				.catch(function(error) {
+					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
+						throw new HttpError(409, 'A user already exists with this alias');
+					}
+				});
 		});
 
 
 	function updateUser(dataService, user, fields) {
-		return new Promise(function(resolve, reject) {
-			var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-			var updates = { $set: fields };
-
-			dataService.db.collection(DB_COLLECTION_USERS).updateOne(filter, updates,
-				function(error, results) {
-					if (error && (error.code === MONGO_ERROR_CODE_DUPLICATE_KEY)) {
-						return reject(new HttpError(409, 'A user already exists with this alias'));
-					}
-					if (error) { return reject(error); }
-					var numRecords = results.result.n;
-					if (numRecords === 0) {
-						return reject(new HttpError(404));
-					}
-					return resolve();
-				}
-			);
-		});
+		var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		var updates = { $set: fields };
+		return dataService.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
+			.then(function(numRecords) {
+				if (numRecords === 0) { throw new HttpError(404); }
+			});
 	}
 };
 
@@ -171,17 +138,9 @@ UserService.prototype.retrieveUserDomains = function(uid) {
 
 
 	function retrieveUserDomains(dataService, uid) {
-		return new Promise(function(resolve, reject) {
-			var query = { 'user': uid, 'site': null };
-			var options = { fields: { '_id': 0 } };
-
-			dataService.db.collection(DB_COLLECTION_DOMAINS).find(query, options).toArray(
-				function(error, domainModels) {
-					if (error) { return reject(error); }
-					return resolve(domainModels);
-				}
-			);
-		});
+		var query = { 'user': uid, 'site': null };
+		var options = { fields: { '_id': 0 } };
+		return dataService.collection(DB_COLLECTION_DOMAINS).find(query, options);
 	}
 };
 
@@ -194,22 +153,12 @@ UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 
 
 	function updateUserDefaultSiteAlias(dataService, user, siteAlias) {
-		return new Promise(function(resolve, reject) {
-			var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
-			var updates = { $set: { 'default': siteAlias } };
-			var options = { 'safe': true };
-
-			dataService.db.collection(DB_COLLECTION_USERS).updateOne(filter, updates, options,
-				function(error, results) {
-					if (error) { return reject(error); }
-					var numRecords = results.result.n;
-					if (numRecords === 0) {
-						return reject(new HttpError(404));
-					}
-					return resolve(siteAlias);
-				}
-			);
-		});
+		var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		var updates = { $set: { 'default': siteAlias } };
+		return dataService.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
+			.then(function(numRecords) {
+				if (numRecords === 0) { throw new HttpError(404); }
+			});
 	}
 };
 
@@ -224,33 +173,17 @@ UserService.prototype.deleteUser = function(uid) {
 
 
 	function deleteUser(dataService, uid) {
-		return new Promise(function(resolve, reject) {
-			var filter = { 'uid': uid };
-
-			dataService.db.collection(DB_COLLECTION_USERS).deleteOne(filter,
-				function(error, results) {
-					if (error) { return reject(error); }
-					var numRecords = results.result.n;
-					if (numRecords === 0) {
-						return reject(new HttpError(404));
-					}
-					return resolve();
-				}
-			);
-		});
+		var filter = { 'uid': uid };
+		return dataService.collection(DB_COLLECTION_USERS).deleteOne(filter)
+			.then(function(numRecords) {
+				if (numRecords === 0) { throw new HttpError(404); }
+			});
 	}
 
 	function deleteUserDomains(dataService, uid) {
-		return new Promise(function(resolve, reject) {
-			var filter = { 'user': uid, 'site': null };
-
-			dataService.db.collection(DB_COLLECTION_USERS).deleteMany(filter,
-				function(error, results) {
-					if (error) { return reject(error); }
-					return resolve();
-				}
-			);
-		});
+		var filter = { 'user': uid, 'site': null };
+		return dataService.collection(DB_COLLECTION_USERS).deleteMany(filter)
+			.then(function(numRecords) {});
 	}
 };
 
@@ -260,20 +193,11 @@ UserService.prototype.deleteUserDomain = function(uid, domain) {
 
 
 	function deleteUserDomain(dataService, uid, domain) {
-		return new Promise(function(resolve, reject) {
-			var filter = { 'user': uid, 'site': null, 'name': domain };
-
-			dataService.db.collection(DB_COLLECTION_DOMAINS).deleteOne(filter,
-				function(error, results) {
-					if (error) { return reject(error); }
-					var numRecords = results.result.n;
-					if (numRecords === 0) {
-						return reject(new HttpError(404));
-					}
-					return resolve();
-				}
-			);
-		});
+		var filter = { 'user': uid, 'site': null, 'name': domain };
+		return dataService.collection(DB_COLLECTION_DOMAINS).deleteOne(filter)
+			.then(function(numRecords) {
+				if (numRecords === 0) { throw new HttpError(404); }
+			});
 	}
 };
 
