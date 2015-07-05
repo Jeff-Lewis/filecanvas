@@ -61,6 +61,23 @@ DropboxService.prototype.connect = function(appKey, appSecret, accessToken, uid)
 	});
 };
 
+DropboxService.prototype.getFileMetadata = function(filePath) {
+	if (!this.client) { return Promise.resolve(new Error('Not connected')); }
+	var client = this.client;
+	return getFileMetadata(client, filePath);
+
+
+	function getFileMetadata(client, filePath) {
+		return new Promise(function(resolve, reject) {
+			var options = {};
+			client.stat(filePath, options, function(error, stat) {
+				if (error) { return reject(error); }
+				resolve(stat);
+			});
+		});
+	}
+};
+
 DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) {
 	if (!this.client) { return Promise.resolve(new Error('Not connected')); }
 	var self = this;

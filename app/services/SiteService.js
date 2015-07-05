@@ -59,11 +59,28 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 		var dropboxService = new DropboxService();
 		return dropboxService.connect(appKey, appSecret, accessToken, uid)
 			.then(function(client) {
-				return copySiteFiles(sitePath, siteContents);
+				return checkWhetherFileExists(dropboxService, sitePath);
+			})
+			.then(function(folderExists) {
+				if (folderExists) { return; }
+				return copySiteFiles(dropboxService, sitePath, siteContents);
 			});
 
 
-		function copySiteFiles(sitePath, dirContents) {
+		function checkWhetherFileExists(dropboxService, filePath) {
+			return dropboxService.getFileMetadata(filePath)
+				.then(function(stat) {
+					return true;
+				})
+				.catch(function(error) {
+					if (error.status === 404) {
+						return false;
+					}
+					throw error;
+				});
+		}
+
+		function copySiteFiles(dropboxService, sitePath, dirContents) {
 			var files = getFileListing(dirContents, sitePath);
 			var writeOptions = {};
 			return Promise.resolve(mapSeries(files, function(fileMetaData) {
