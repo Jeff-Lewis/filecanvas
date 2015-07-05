@@ -450,7 +450,6 @@ module.exports = function(dataService) {
 	function updateSiteRoute(req, res, next) {
 		var userModel = req.user.model;
 		var uid = userModel.uid;
-		var accessToken = userModel.token;
 		var siteAlias = req.params.site;
 
 		var isPurgeRequest = (req.body._action === 'purge');
@@ -475,7 +474,7 @@ module.exports = function(dataService) {
 				'path': req.body.path || null,
 				'public': (req.body['private'] !== 'true')
 			};
-			updateSite(uid, siteAlias, accessToken, updates)
+			updateSite(uid, siteAlias, updates)
 				.then(function() {
 					res.redirect(303, '/sites/edit/' + updates.alias);
 				})
@@ -491,9 +490,9 @@ module.exports = function(dataService) {
 			return siteService.updateSiteCache(uid, siteAlias, cache);
 		}
 
-		function updateSite(uid, siteAlias, accessToken, updates) {
+		function updateSite(uid, siteAlias, updates) {
 			var siteService = new SiteService(dataService);
-			return siteService.updateSite(uid, siteAlias, accessToken, updates);
+			return siteService.updateSite(uid, siteAlias, updates);
 		}
 	}
 
