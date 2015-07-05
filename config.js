@@ -1,6 +1,9 @@
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
+
+var readDirFiles = require('read-dir-files');
 
 var config = {};
 
@@ -35,8 +38,6 @@ config.templates = {};
 config.templates.default = 'fathom';
 
 config.site = {};
-config.site.files = {
-	'hello.txt': new Buffer('Hello, world!')
-};
+config.site.files = readDirFiles.readSync(path.join(__dirname, 'templates/sites/files'));
 
 module.exports = config;
