@@ -62,6 +62,7 @@ DropboxService.prototype.connect = function(appKey, appSecret, accessToken, uid)
 };
 
 DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) {
+	if (!this.client) { return Promise.resolve(new Error('Not connected')); }
 	var self = this;
 	var client = this.client;
 
