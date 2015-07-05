@@ -36,7 +36,7 @@ DropboxService.prototype.generateAccessToken = function(appKey, appSecret) {
 	});
 };
 
-DropboxService.prototype.connect = function(appKey, appSecret, accessToken) {
+DropboxService.prototype.connect = function(appKey, appSecret, accessToken, uid) {
 	var self = this;
 	return new Promise(function(resolve, reject) {
 		if (self.connecting) { throw new Error('Connection attempt already in progress'); }
@@ -48,6 +48,7 @@ DropboxService.prototype.connect = function(appKey, appSecret, accessToken) {
 			key: appKey,
 			secret: appSecret,
 			token: accessToken,
+			uid: uid,
 			sandbox: false
 		});
 

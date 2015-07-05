@@ -102,7 +102,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			return userService.retrieveUser(uid)
 				.then(function(userModel) {
 					var accessToken = userModel.token;
-					return loadSiteContents(siteModel, accessToken)
+					return loadSiteContents(siteModel, accessToken, uid)
 						.then(function(folder) {
 							self.updateSiteCache(uid, siteAlias, folder.cache);
 							var contents = parseFileModel(folder.contents, siteModel.path);
@@ -134,11 +134,11 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			});
 	}
 
-	function loadSiteContents(siteModel, accessToken) {
+	function loadSiteContents(siteModel, accessToken, uid) {
 		var appKey = DROPBOX_APP_KEY;
 		var appSecret = DROPBOX_APP_SECRET;
 		var dropboxService = new DropboxService();
-		return dropboxService.connect(appKey, appSecret, accessToken)
+		return dropboxService.connect(appKey, appSecret, accessToken, uid)
 			.then(function(client) {
 				return dropboxService.loadFolderContents(siteModel.path, siteModel.cache);
 			});
