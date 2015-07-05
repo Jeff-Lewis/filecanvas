@@ -34,7 +34,7 @@ module.exports = function(dataService) {
 	app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
 
 	app.engine('hbs', handlebarsEngine);
-	app.set('views', './templates/sites');
+	app.set('views', './templates/sites/themes');
 	app.set('view engine', 'hbs');
 
 	return app;
