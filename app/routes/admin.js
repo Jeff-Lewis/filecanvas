@@ -424,9 +424,6 @@ module.exports = function(dataService) {
 		var uid = userModel.uid;
 		var accessToken = userModel.token;
 
-		// TODO: Allow user to set site theme when creating site
-		// TODO: Allow user to set site users when creating site
-
 		var siteModel = {
 			'user': uid,
 			'alias': req.body.alias,
@@ -462,8 +459,6 @@ module.exports = function(dataService) {
 					next(error);
 				});
 		} else {
-
-			// TODO: Allow user to update site theme when updating site
 
 			var updates = {
 				'user': uid,

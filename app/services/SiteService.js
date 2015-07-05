@@ -120,8 +120,6 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, username, passwo
 	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!password) { return Promise.reject(new HttpError(400, 'No password specified')); }
 
-	// TODO: Validate site user details
-
 	var dataService = this.dataService;
 	return checkWhetherUserAlreadyExists(dataService, uid, siteAlias, username)
 		.then(function(userAlreadyExists) {
@@ -349,8 +347,6 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 						delete updates.path;
 						delete updates.cache;
 					}
-					// TODO: Handle updating of site users
-					delete updates.users;
 					return updateSite(dataService, uid, siteAlias, updates);
 				});
 		});
@@ -419,8 +415,6 @@ SiteService.prototype.deleteSiteUser = function(uid, siteAlias, username) {
 SiteService.prototype.deleteSite = function(uid, siteAlias) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
-
-	// TODO: Validate site delete requests
 
 	var dataService = this.dataService;
 	return checkWhetherSiteisUserDefaultSite(dataService, uid, siteAlias)

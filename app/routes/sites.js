@@ -192,10 +192,10 @@ module.exports = function(dataService) {
 
 						var requestPath = req.originalUrl.split('?')[0];
 
-						// TODO: Generate login link correctly for download URLs
 						var siteLoginUrl = '/login';
 						var isDownloadLink = (requestPath.indexOf('/download') === 0);
 						if (isDownloadLink) {
+							// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
 							siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
 						} else {
 							siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
