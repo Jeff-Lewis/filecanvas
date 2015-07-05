@@ -235,6 +235,22 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 	}
 };
 
+DropboxService.prototype.writeFile = function(path, data, options) {
+	if (!this.client) { return Promise.resolve(new Error('Not connected')); }
+	var client = this.client;
+	return writeFile(client, path, data, options);
+
+
+	function writeFile(client, path, data, options) {
+		return new Promise(function(resolve, reject) {
+			client.writeFile(path, data, options, function(error, stat) {
+				if (error) { return reject(error); }
+				resolve(stat);
+			});
+		});
+	}
+};
+
 DropboxService.prototype.getErrorType = function(error) {
 	switch (error.status) {
 	case Dropbox.ApiError.INVALID_TOKEN:

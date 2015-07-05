@@ -34,4 +34,9 @@ config.urls.templates = process.env.TEMPLATES_ROOT || '${protocol}//templates.${
 config.templates = {};
 config.templates.default = 'fathom';
 
+config.site = {};
+config.site.files = {
+	'hello.txt': new Buffer('Hello, world!')
+};
+
 module.exports = config;

@@ -422,6 +422,7 @@ module.exports = function(dataService) {
 	function createSiteRoute(req, res, next) {
 		var userModel = req.user.model;
 		var uid = userModel.uid;
+		var accessToken = userModel.token;
 
 		// TODO: Allow user to set site theme when creating site
 		// TODO: Allow user to set site users when creating site
@@ -437,7 +438,7 @@ module.exports = function(dataService) {
 		};
 
 		var siteService = new SiteService(dataService);
-		siteService.createSite(siteModel)
+		siteService.createSite(siteModel, accessToken)
 			.then(function(siteModel) {
 				res.redirect(303, '/sites/edit/' + siteModel.alias);
 			})
@@ -449,6 +450,7 @@ module.exports = function(dataService) {
 	function updateSiteRoute(req, res, next) {
 		var userModel = req.user.model;
 		var uid = userModel.uid;
+		var accessToken = userModel.token;
 		var siteAlias = req.params.site;
 
 		var isPurgeRequest = (req.body._action === 'purge');
@@ -473,7 +475,7 @@ module.exports = function(dataService) {
 				'path': req.body.path || null,
 				'public': (req.body['private'] !== 'true')
 			};
-			updateSite(uid, siteAlias, updates)
+			updateSite(uid, siteAlias, accessToken, updates)
 				.then(function() {
 					res.redirect(303, '/sites/edit/' + updates.alias);
 				})
@@ -489,9 +491,9 @@ module.exports = function(dataService) {
 			return siteService.updateSiteCache(uid, siteAlias, cache);
 		}
 
-		function updateSite(uid, siteAlias, updates) {
+		function updateSite(uid, siteAlias, accessToken, updates) {
 			var siteService = new SiteService(dataService);
-			return siteService.updateSite(uid, siteAlias, updates);
+			return siteService.updateSite(uid, siteAlias, accessToken, updates);
 		}
 	}
 

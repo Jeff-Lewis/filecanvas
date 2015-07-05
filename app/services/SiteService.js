@@ -1,6 +1,7 @@
 'use strict';
 
 var Promise = require('promise');
+var mapSeries = require('promise-map-series');
 var escapeRegExp = require('escape-regexp');
 
 var HttpError = require('../errors/HttpError');
@@ -24,7 +25,7 @@ function SiteService(dataService) {
 
 SiteService.prototype.dataService = null;
 
-SiteService.prototype.createSite = function(siteModel) {
+SiteService.prototype.createSite = function(siteModel, accessToken) {
 	var dataService = this.dataService;
 	return parseSiteModel(siteModel)
 		.then(function(siteModel) {
@@ -35,14 +36,21 @@ SiteService.prototype.createSite = function(siteModel) {
 					}
 					throw error;
 				});
+		})
+		.then(function() {
+			if (!siteModel.path) { return; }
+			var uid = siteModel.user;
+			var sitePath = siteModel.path;
+			var siteContents = config.site.files;
+			return initSiteFolder(uid, accessToken, sitePath, siteContents);
+		})
+		.then(function() {
+			return siteModel;
 		});
 
 
 	function createSite(siteModel) {
-		return dataService.collection(DB_COLLECTION_SITES).insertOne(siteModel)
-			.then(function() {
-				return siteModel;
-			});
+		return dataService.collection(DB_COLLECTION_SITES).insertOne(siteModel);
 	}
 };
 
@@ -270,20 +278,26 @@ SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
 	}
 };
 
-SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
+SiteService.prototype.updateSite = function(uid, siteAlias, accessToken, updates) {
 	var dataService = this.dataService;
 	return parseSiteModel(updates)
 		.then(function(updates) {
 			return getSitePath(dataService, uid, siteAlias)
-				.then(function(currentSitePath) {
-					var sitePathHasChanged = (currentSitePath !== updates.path);
+				.then(function(existingSitePath) {
+					var sitePathHasChanged = (existingSitePath !== updates.path);
 					if (!sitePathHasChanged) {
 						delete updates.path;
 						delete updates.cache;
 					}
 					// TODO: Handle updating of site users
 					delete updates.users;
-					return updateSite(dataService, uid, siteAlias, updates);
+					return updateSite(dataService, uid, siteAlias, updates)
+						.then(function() {
+							if (!sitePathHasChanged) { return; }
+							var sitePath = updates.path;
+							var siteContents = config.site.files;
+							return initSiteFolder(uid, accessToken, sitePath, siteContents);
+						});
 				});
 		});
 
@@ -429,6 +443,49 @@ function parseSiteModel(siteModel) {
 			'users': siteModel.users || [],
 			'cache': null
 		};
+	}
+}
+
+function initSiteFolder(uid, accessToken, sitePath, siteContents) {
+	var appKey = DROPBOX_APP_KEY;
+	var appSecret = DROPBOX_APP_SECRET;
+	var dropboxService = new DropboxService();
+	return dropboxService.connect(appKey, appSecret, accessToken, uid)
+		.then(function(client) {
+			return copySiteFiles(sitePath, siteContents);
+		});
+
+
+	function copySiteFiles(sitePath, dirContents) {
+		var files = getFileListing(dirContents, sitePath);
+		var writeOptions = {};
+		return Promise.resolve(mapSeries(files, function(fileMetaData) {
+			var filePath = fileMetaData.path;
+			var fileContents = fileMetaData.contents;
+			return dropboxService.writeFile(filePath, fileContents, writeOptions);
+		}).then(function(results) {}));
+
+
+		function getFileListing(dirContents, pathPrefix) {
+			var files = Object.keys(dirContents).reduce(function(files, filename) {
+				var file = dirContents[filename];
+				var filePath = pathPrefix + '/' + filename;
+				var isFile = file instanceof Buffer || file instanceof String;
+				if (isFile) {
+					files.push({
+						path: filePath,
+						contents: file
+					});
+				} else {
+					var childDirContents = file;
+					var childDirPath = filePath;
+					var childDirFiles = getFileListing(childDirContents, childDirPath);
+					files = files.concat(childDirFiles);
+				}
+				return files;
+			}, []);
+			return files;
+		}
 	}
 }
 
