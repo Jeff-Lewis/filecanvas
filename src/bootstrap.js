@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var http = require('http');
 var https = require('https');
 var express = require('express');
@@ -230,7 +231,7 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 
 	function initViewEngine(app) {
 		app.engine('hbs', handlebarsEngine);
-		app.set('views', './templates');
+		app.set('views', path.resolve(__dirname, '../templates'));
 		app.set('view engine', 'hbs');
 	}
 

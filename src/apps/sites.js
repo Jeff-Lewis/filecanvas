@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var express = require('express');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
@@ -34,7 +35,7 @@ module.exports = function(dataService) {
 	app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
 
 	app.engine('hbs', handlebarsEngine);
-	app.set('views', './templates/sites/themes');
+	app.set('views', path.resolve(__dirname, '../../templates/sites/themes'));
 	app.set('view engine', 'hbs');
 
 	return app;

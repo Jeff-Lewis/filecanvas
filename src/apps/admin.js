@@ -65,7 +65,7 @@ module.exports = function(dataService) {
 	app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
 	app.engine('hbs', handlebarsEngine);
-	app.set('views', './templates/admin');
+	app.set('views', path.resolve(__dirname, '../../templates/admin'));
 	app.set('view engine', 'hbs');
 
 	return app;
