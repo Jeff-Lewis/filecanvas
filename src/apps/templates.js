@@ -1,10 +1,22 @@
 'use strict';
 
-var path = require('path');
 var express = require('express');
 
-var templatesRoot = path.resolve(__dirname, '../../templates/sites/themes');
+var invalidRoute = require('../middleware/invalidRoute');
+var errorHandler = require('../middleware/errorHandler');
 
-var app = express.static(templatesRoot);
+module.exports = function(options) {
+	options = options || {};
+	var templatesPath = options.templatesPath;
 
-module.exports = app;
+	var app = express();
+
+	app.use(express.static(templatesPath));
+
+	app.use(invalidRoute());
+	app.use(errorHandler({
+		template: 'error'
+	}));
+
+	return app;
+};

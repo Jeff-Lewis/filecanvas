@@ -5,6 +5,7 @@
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="PUT"/>
+			<input type="hidden" name="template" value="{{ content.site.template }}"/>
 			{{#unless content.site.path}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> This site has not yet been linked to a Dropbox folder.</p>

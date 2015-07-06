@@ -2,97 +2,59 @@
 
 var path = require('path');
 var express = require('express');
-var passport = require('passport');
+var Passport = require('passport').Passport;
 var LocalStrategy = require('passport-local').Strategy;
 
-var config = require('../config');
-var globals = require('../globals');
-
-var HttpError = require('../errors/HttpError');
+var transport = require('../middleware/transport');
+var invalidRoute = require('../middleware/invalidRoute');
+var errorHandler = require('../middleware/errorHandler');
 
 var handlebarsEngine = require('../engines/handlebars');
+
+var HttpError = require('../errors/HttpError');
 
 var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var AuthenticationService = require('../services/AuthenticationService');
 
-module.exports = function(dataService) {
+module.exports = function(dataService, options) {
+	options = options || {};
+	var templatesUrl = options.templatesUrl;
+
+	if (!templatesUrl) { throw new Error('Missing templates root URL'); }
+
 	var app = express();
+	var passport = new Passport();
 
-	initAuth();
-
-	app.get('/:user', defaultRoute);
-	app.get('/:user/login', defaultLoginRoute);
-	app.post('/:user/login', defaultLoginRoute);
-	app.get('/:user/logout', defaultLogoutRoute);
-	app.get('/:user/download/*', defaultDownloadRoute);
-
-	app.get('/:user/:site/login', redirectIfLoggedIn, loginRoute);
-	app.post('/:user/:site/login', processLoginRoute);
-	app.get('/:user/:site/logout', processLogoutRoute);
-
-	app.get('/:user/:site', ensureAuth, siteRoute);
-	app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
-
-	app.engine('hbs', handlebarsEngine);
-	app.set('views', path.resolve(__dirname, '../../templates/sites/themes'));
-	app.set('view engine', 'hbs');
+	initAuth(app, passport, dataService);
+	initViewEngine(app, {
+		templatesPath: path.resolve(__dirname, '../../templates/sites')
+	});
+	initRoutes(app, passport, dataService, {
+		templatesUrl: templatesUrl
+	});
+	initErrorHandler(app, {
+		template: 'error'
+	});
 
 	return app;
 
 
+	function initAuth(app, passport, dataService) {
+		app.use(transport());
+		app.use(passport.initialize());
+		app.use(passport.session());
 
-	function initAuth() {
-		globals.passport.serializers['site'] = serializeSiteAuthUser;
-		globals.passport.deserializers['site'] = deserializeSiteAuthUser;
-
-		passport.use('site/local', new LocalStrategy({ passReqToCallback: true },
-			function(req, username, password, callback) {
-				var userAlias = req.params.user;
-				var siteAlias = req.params.site;
-
-				var userService = new UserService(dataService);
-				userService.retrieveUser(userAlias)
-					.then(function(userModel) {
-						var uid = userModel.uid;
-						var siteService = new SiteService(dataService);
-						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
-							.then(function(authenticationDetails) {
-								var isPublic = authenticationDetails.public;
-								if (isPublic) { return callback(null, true); }
-
-								var validUsers = authenticationDetails.users;
-								var authenticationService = new AuthenticationService();
-								var siteUserModel = authenticationService.authenticate(username, password, validUsers);
-
-								if (!siteUserModel) { return callback(null, false); }
-
-								var passportUser = {
-									type: 'site',
-									user: userAlias,
-									site: siteAlias,
-									model: siteUserModel
-								};
-								return callback(null, passportUser);
-							});
-					})
-					.catch(function(error) {
-						return callback(error);
-					});
-			})
-		);
-
-
-		function serializeSiteAuthUser(passportUser, callback) {
+		passport.serializeUser(function(passportUser, callback) {
 			var serializedUser = JSON.stringify({
 				user: passportUser.user,
 				site: passportUser.site,
 				username: passportUser.model.username
 			});
 			return callback(null, serializedUser);
-		}
+		});
 
-		function deserializeSiteAuthUser(serializedUser, callback) {
+		passport.deserializeUser(function(serializedUser, callback) {
 			var deserializedUser = JSON.parse(serializedUser);
 			var userAlias = deserializedUser.user;
 			var siteAlias = deserializedUser.site;
@@ -116,7 +78,6 @@ module.exports = function(dataService) {
 
 							var siteUserModel = matchedUsers[0];
 							var passportUser = {
-								type: 'site',
 								user: userAlias,
 								site: siteAlias,
 								model: siteUserModel
@@ -127,295 +88,324 @@ module.exports = function(dataService) {
 				.catch(function(error) {
 					return callback(error);
 				});
-		}
+		});
+
+		passport.use('site/local', new LocalStrategy({ passReqToCallback: true },
+			function(req, username, password, callback) {
+				var userAlias = req.params.user;
+				var siteAlias = req.params.site;
+
+				var userService = new UserService(dataService);
+				userService.retrieveUser(userAlias)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var siteService = new SiteService(dataService);
+						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+							.then(function(authenticationDetails) {
+								var isPublic = authenticationDetails.public;
+								if (isPublic) { return callback(null, true); }
+
+								var validUsers = authenticationDetails.users;
+								var authenticationService = new AuthenticationService();
+								var siteUserModel = authenticationService.authenticate(username, password, validUsers);
+
+								if (!siteUserModel) { return callback(null, false); }
+
+								var passportUser = {
+									user: userAlias,
+									site: siteAlias,
+									model: siteUserModel
+								};
+								return callback(null, passportUser);
+							});
+					})
+					.catch(function(error) {
+						return callback(error);
+					});
+			})
+		);
 	}
 
-	function processLoginRoute(req, res, next) {
-		passport.authenticate('site/local', function(error, user, info) {
-			if (error) {
-				next(error);
-				return;
-			}
-			var loginWasSuccessful = Boolean(user);
+	function initViewEngine(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+
+		app.engine('hbs', handlebarsEngine);
+		app.set('views', templatesPath);
+		app.set('view engine', 'hbs');
+	}
+
+	function initErrorHandler(app, options) {
+		options = options || {};
+		var template = options.template;
+
+		app.use(errorHandler({
+			template: template
+		}));
+	}
+
+	function initRoutes(app, passport, dataService, options) {
+		options = options || {};
+		var templatesUrl = options.templatesUrl;
+
+		initPublicRoutes(app, templatesUrl);
+		initPrivateRoutes(app, templatesUrl);
+		app.use(invalidRoute());
+
+
+		function getSiteRootUrl(req, currentPath) {
 			var requestPath = req.originalUrl.split('?')[0];
-			if (loginWasSuccessful) {
-				req.logIn(user, function(error) {
-					if (error) {
-						next(error);
-						return;
-					}
-					var redirectParam = req.param('redirect');
-					var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
-					res.redirect(redirectUrl);
-				});
-			} else {
-				var siteLoginUrl = requestPath;
-				res.redirect(siteLoginUrl);
+			if (currentPath) {
+				requestPath = requestPath.replace(new RegExp(currentPath + '$'), '');
 			}
-		})(req, res, next);
-	}
+			var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+			return siteRoot;
+		}
 
-	function processLogoutRoute(req, res, next) {
-		req.logout();
-		req.session.destroy();
-		var requestPath = req.originalUrl.split('?')[0];
-		var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
-		res.redirect(redirectUrl);
-	}
+		function initPublicRoutes(app, templatesUrl) {
+			app.get('/:user', defaultUserSiteRoute);
+			app.get('/:user/login', defaultUserSiteLoginRoute);
+			app.post('/:user/login', defaultUserSiteLoginRoute);
+			app.get('/:user/logout', defaultUserSiteLogoutRoute);
+			app.get('/:user/download/*', defaultUserSiteDownloadRoute);
 
-	function ensureAuth(req, res, next) {
-		var userAlias = req.params.user;
-		var siteAlias = req.params.site;
+			app.get('/:user/:site/login', redirectIfLoggedIn, loginRoute);
+			app.post('/:user/:site/login', processLoginRoute);
+			app.get('/:user/:site/logout', processLogoutRoute);
 
-		if (req.isAuthenticated()) {
-			var isLoggedIntoDifferentSite = (req.params.user !== req.user.user) || (req.params.site !== req.user.site);
-			if (isLoggedIntoDifferentSite) {
+
+			function defaultUserSiteRoute(req, res, next) {
+				var userAlias = req.params.user;
+
+				var userService = new UserService(dataService);
+				return userService.retrieveUserDefaultSiteAlias(userAlias)
+					.then(function(siteAlias) {
+						if (!siteAlias) {
+							throw new HttpError(404);
+						}
+						req.url += '/' + siteAlias;
+						next();
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function defaultUserSiteLoginRoute(req, res, next) {
+				var userAlias = req.params.user;
+
+				var userService = new UserService(dataService);
+				userService.retrieveUserDefaultSiteAlias(userAlias)
+					.then(function(siteAlias) {
+						if (!siteAlias) {
+							throw new HttpError(404);
+						}
+						req.url = '/' + userAlias + '/' + siteAlias + '/login';
+						next();
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function defaultUserSiteLogoutRoute(req, res, next) {
+				var userAlias = req.params.user;
+
+				var userService = new UserService(dataService);
+				userService.retrieveUserDefaultSiteAlias(userAlias)
+					.then(function(siteAlias) {
+						if (!siteAlias) {
+							throw new HttpError(404);
+						}
+						req.url = '/' + userAlias + '/' + siteAlias + '/logout';
+						next();
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function defaultUserSiteDownloadRoute(req, res, next) {
+				var userAlias = req.params.user;
+				var downloadPath = req.params[0];
+
+				var userService = new UserService(dataService);
+				userService.retrieveUserDefaultSiteAlias(userAlias)
+					.then(function(siteAlias) {
+						if (!siteAlias) {
+							throw new HttpError(404);
+						}
+						req.url = '/' + userAlias + '/' + siteAlias + '/download/' + downloadPath;
+						next();
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function redirectIfLoggedIn(req, res, next) {
+				if (req.isAuthenticated()) {
+					var requestPath = req.originalUrl.split('?')[0];
+					var redirectParam = req.param('redirect');
+					var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
+					return res.redirect(redirectUrl);
+				}
+				next();
+			}
+
+			function loginRoute(req, res, next) {
+				var userAlias = req.params.user;
+				var siteAlias = req.params.site;
+
+				var userService = new UserService(dataService);
+				userService.retrieveUser(userAlias)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var siteService = new SiteService(dataService);
+						var includeContents = false;
+						var includeUsers = false;
+						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
+							.then(function(siteModel) {
+								var context = {
+									title: siteModel.title,
+									site: siteModel,
+									siteRoot: getSiteRootUrl(req, '/login'),
+									templateRoot: templatesUrl + siteModel.template + '/'
+								};
+								var templateName = 'themes/' + siteModel.template + '/login';
+								res.render(templateName, context);
+							});
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function processLoginRoute(req, res, next) {
+				passport.authenticate('site/local', function(error, user, info) {
+					if (error) { return next(error); }
+					var loginWasSuccessful = Boolean(user);
+					var requestPath = req.originalUrl.split('?')[0];
+					if (loginWasSuccessful) {
+						req.logIn(user, function(error) {
+							if (error) { return next(error); }
+							var redirectParam = req.param('redirect');
+							var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
+							res.redirect(redirectUrl);
+						});
+					} else {
+						var siteLoginUrl = requestPath;
+						res.redirect(siteLoginUrl);
+					}
+				})(req, res, next);
+			}
+
+			function processLogoutRoute(req, res, next) {
 				req.logout();
 				req.session.destroy();
-			} else {
-				next();
-				return;
+				var requestPath = req.originalUrl.split('?')[0];
+				var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
+				res.redirect(redirectUrl);
 			}
 		}
 
-		var userService = new UserService(dataService);
-		userService.retrieveUser(userAlias)
-			.then(function(userModel) {
-				var uid = userModel.uid;
-				var siteService = new SiteService(dataService);
-				return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
-					.then(function(authenticationDetails) {
-						var isPublic = authenticationDetails.public;
-						if (isPublic) {
-							next();
-							return;
-						}
+		function initPrivateRoutes(app, templatesUrl) {
+			app.get('/:user/:site', ensureAuth, siteRoute);
+			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
 
-						var requestPath = req.originalUrl.split('?')[0];
 
-						var siteLoginUrl = '/login';
-						var isDownloadLink = (requestPath.indexOf('/download') === 0);
-						if (isDownloadLink) {
-							// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
-							siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
-						} else {
-							siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
-						}
-						res.redirect(siteLoginUrl);
-					});
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
+			function ensureAuth(req, res, next) {
+				var userAlias = req.params.user;
+				var siteAlias = req.params.site;
 
-	function redirectIfLoggedIn(req, res, next) {
-		if (req.isAuthenticated()) {
-			var requestPath = req.originalUrl.split('?')[0];
-			var redirectParam = req.param('redirect');
-			var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
-			return res.redirect(redirectUrl);
-		}
-		next();
-	}
-
-	function defaultRoute(req, res, next) {
-		var userAlias = req.params.user;
-
-		var userService = new UserService(dataService);
-		return userService.retrieveUserDefaultSiteAlias(userAlias)
-			.then(function(siteAlias) {
-				if (!siteAlias) {
-					throw new HttpError(404);
+				if (req.isAuthenticated()) {
+					var isLoggedIntoDifferentSite = (req.params.user !== req.user.user) || (req.params.site !== req.user.site);
+					if (isLoggedIntoDifferentSite) {
+						req.logout();
+						req.session.destroy();
+					} else {
+						return next();
+					}
 				}
-				req.url += '/' + siteAlias;
-				next();
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
 
-	function defaultLoginRoute(req, res, next) {
-		var userAlias = req.params.user;
+				var userService = new UserService(dataService);
+				userService.retrieveUser(userAlias)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var siteService = new SiteService(dataService);
+						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+							.then(function(authenticationDetails) {
+								var isPublic = authenticationDetails.public;
+								if (isPublic) { return next(); }
 
-		var userService = new UserService(dataService);
-		userService.retrieveUserDefaultSiteAlias(userAlias)
-			.then(function(siteAlias) {
-				if (!siteAlias) {
-					throw new HttpError(404);
-				}
-				req.url = '/' + userAlias + '/' + siteAlias + '/login';
-				next();
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
+								var requestPath = req.originalUrl.split('?')[0];
 
-	function defaultLogoutRoute(req, res, next) {
-		var userAlias = req.params.user;
-
-		var userService = new UserService(dataService);
-		userService.retrieveUserDefaultSiteAlias(userAlias)
-			.then(function(siteAlias) {
-				if (!siteAlias) {
-					throw new HttpError(404);
-				}
-				req.url = '/' + userAlias + '/' + siteAlias + '/logout';
-				next();
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function defaultDownloadRoute(req, res, next) {
-		var userAlias = req.params.user;
-		var downloadPath = req.params[0];
-
-		var userService = new UserService(dataService);
-		userService.retrieveUserDefaultSiteAlias(userAlias)
-			.then(function(siteAlias) {
-				if (!siteAlias) {
-					throw new HttpError(404);
-				}
-				req.url = '/' + userAlias + '/' + siteAlias + '/download/' + downloadPath;
-				next();
-			})
-			.catch(function(error) {
-				next(error);
-			});
-	}
-
-	function downloadRoute(req, res, next) {
-		var userAlias = req.params.user;
-		var siteAlias = req.params.site;
-		var downloadPath = req.params[0];
-
-		var userService = new UserService(dataService);
-		userService.retrieveUser(userAlias)
-			.then(function(userModel) {
-				var uid = userModel.uid;
-				var siteService = new SiteService(dataService);
-				return siteService.retrieveSiteDownloadLink(uid, siteAlias, downloadPath)
-					.then(function(downloadUrl) {
-						res.redirect(downloadUrl);
+								var siteLoginUrl = '/login';
+								var isDownloadLink = (requestPath.indexOf('/download') === 0);
+								if (isDownloadLink) {
+									// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
+									siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
+								} else {
+									siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
+								}
+								res.redirect(siteLoginUrl);
+							});
+					})
+					.catch(function(error) {
+						next(error);
 					});
-			})
-			.catch(function(error) {
-				next(error);
-			});
+			}
 
-	}
+			function siteRoute(req, res, next) {
+				var userAlias = req.params.user;
+				var siteAlias = req.params.site;
 
-	function siteRoute(req, res, next) {
-		var userAlias = req.params.user;
-		var siteAlias = req.params.site;
-
-		var userService = new UserService(dataService);
-		userService.retrieveUser(userAlias)
-			.then(function(userModel) {
-				var uid = userModel.uid;
-				var siteService = new SiteService(dataService);
-				var includeContents = true;
-				var includeUsers = false;
-				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
-					.then(function(siteModel) {
-						var siteRoot = getSiteRoot(req);
-						var httpPort = app.get('httpPort');
-						var httpsPort = app.get('httpsPort');
-						var templatesRoot = getTemplatesRoot(req, httpPort, httpsPort);
-						var templateOptions = getSiteTemplateOptions(siteModel, siteRoot, templatesRoot);
-						res.render(siteModel.template + '/index', templateOptions);
+				var userService = new UserService(dataService);
+				userService.retrieveUser(userAlias)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var siteService = new SiteService(dataService);
+						var includeContents = true;
+						var includeUsers = false;
+						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
+							.then(function(siteModel) {
+								var siteContents = siteModel.contents || { folders: null, files: null };
+								var context = {
+									title: siteModel.title,
+									site: siteModel,
+									siteRoot: getSiteRootUrl(req),
+									templateRoot: templatesUrl + siteModel.template + '/',
+									contents: siteContents
+								};
+								var templateName = 'themes/' + siteModel.template + '/index';
+								res.render(templateName, context);
+							});
+					})
+					.catch(function(error) {
+						next(error);
 					});
-			})
-			.catch(function(error) {
-				next(error);
-			});
+			}
 
+			function downloadRoute(req, res, next) {
+				var userAlias = req.params.user;
+				var siteAlias = req.params.site;
+				var downloadPath = req.params[0];
 
-		function getSiteTemplateOptions(siteModel, siteRoot, templatesRoot) {
-			var title = siteModel.title;
-			var siteContents = siteModel.contents || { folders: null, files: null };
-			var siteTemplateRoot = templatesRoot + siteModel.template + '/';
-
-			return {
-				siteRoot: siteRoot,
-				site: siteModel,
-				title: title,
-				templateRoot: siteTemplateRoot,
-				contents: siteContents,
-				folders: siteContents.folders,
-				files: siteContents.files
-			};
-		}
-	}
-
-	function loginRoute(req, res, next) {
-		var userAlias = req.params.user;
-		var siteAlias = req.params.site;
-
-		var userService = new UserService(dataService);
-		userService.retrieveUser(userAlias)
-			.then(function(userModel) {
-				var uid = userModel.uid;
-				var siteService = new SiteService(dataService);
-				var includeContents = false;
-				var includeUsers = false;
-				return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
-					.then(function(siteModel) {
-						var siteRoot = getSiteRoot(req, '/login');
-						var httpPort = app.get('httpPort');
-						var httpsPort = app.get('httpsPort');
-						var templatesRoot = getTemplatesRoot(req, httpPort, httpsPort);
-						var templateOptions = getLoginTemplateOptions(siteModel, siteRoot, templatesRoot);
-						res.render(siteModel.template + '/login', templateOptions);
+				var userService = new UserService(dataService);
+				userService.retrieveUser(userAlias)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var siteService = new SiteService(dataService);
+						return siteService.retrieveSiteDownloadLink(uid, siteAlias, downloadPath)
+							.then(function(downloadUrl) {
+								res.redirect(downloadUrl);
+							});
+					})
+					.catch(function(error) {
+						next(error);
 					});
-			})
-			.catch(function(error) {
-				next(error);
-			});
 
-
-		function getLoginTemplateOptions(siteModel, siteRoot, templatesRoot) {
-			var title = siteModel.title;
-			var siteTemplateRoot = templatesRoot + siteModel.template + '/';
-
-			return {
-				siteRoot: siteRoot,
-				site: siteModel,
-				title: title,
-				templateRoot: siteTemplateRoot
-			};
-		}
-	}
-
-	function getSiteRoot(req, trimUriSegment) {
-		var requestPath = req.originalUrl.split('?')[0];
-		if (trimUriSegment) {
-			requestPath = requestPath.replace(new RegExp(trimUriSegment + '$'), '');
-		}
-		var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-		return siteRoot;
-	}
-
-	function getTemplatesRoot(req, httpPort, httpsPort) {
-		var shouldUseHttps = Boolean(httpsPort);
-		var protocol = (shouldUseHttps ? 'https:' : 'http:');
-		var hostname = getTopLevelHostname(req);
-		var port = (shouldUseHttps ? httpsPort : httpPort);
-		var isDefaultPort = (shouldUseHttps ? port === 443 : port === 80);
-		var host = (isDefaultPort ? hostname : hostname + ':' + port);
-		return config.urls.templates
-			.replace(/\$\{protocol\}/g, protocol)
-			.replace(/\$\{hostname\}/g, hostname)
-			.replace(/\$\{port\}/g, port)
-			.replace(/\$\{host\}/g, host);
-
-
-		function getTopLevelHostname(req) {
-			return req.host.split('.').slice(req.subdomains.length).join('.');
+			}
 		}
 	}
 };

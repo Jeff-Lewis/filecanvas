@@ -2,10 +2,20 @@
 
 var express = require('express');
 
-var app = express();
+var invalidRoute = require('../middleware/invalidRoute');
+var errorHandler = require('../middleware/errorHandler');
 
-app.get('/', function(req, res) {
-	res.send(204);
-});
+module.exports = function() {
+	var app = express();
 
-module.exports = app;
+	app.get('/', function(req, res) {
+		res.send(204);
+	});
+
+	app.use(invalidRoute());
+	app.use(errorHandler({
+		template: 'error'
+	}));
+
+	return app;
+};

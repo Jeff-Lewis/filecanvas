@@ -5,6 +5,7 @@
 		<hr/>
 		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST" autocomplete="off">
 			<input type="hidden" name="_method" value="POST"/>
+			<input type="hidden" name="template" value="{{ content.site.template }}"/>
 			<fieldset>
 				<div class="form-group">
 					<label for="input-site-name" class="col-sm-3 col-lg-2 control-label">Name</label>
@@ -13,6 +14,7 @@
 							name="name"
 							title="This helps you identify the site in the Shunt admin area"
 							placeholder="Site name"
+							value="{{ content.site.name }}"
 							data-bind-id="site-name"
 							data-validate="notEmpty"
 							data-trigger="focus"
@@ -27,6 +29,7 @@
 							title="This determines the site’s web address"
 							placeholder="Site path"
 							data-bind-id="site-alias"
+							value="{{ content.site.alias }}"
 							data-bind-value="site-name|slug"
 							data-parser="slug"
 							data-validate="slug"
@@ -42,6 +45,7 @@
 							name="title"
 							title="This determines what is shown in the title of the user’s browser window"
 							placeholder="Page title"
+							value="{{ content.site.title }}"
 							data-bind-value="site-name"
 							data-validate="notEmpty"
 							data-trigger="focus"
@@ -55,6 +59,7 @@
 						 	name="path"
 							title="Choose the Dropbox folder that this site syncs from"
 							placeholder="Dropbox folder"
+							value="{{ content.site.path }}"
 							data-bind-value="site-alias|format:'/shunt/$0'"
 							data-trigger="focus"
 						/>
@@ -68,6 +73,7 @@
 								<input type="checkbox"
 									name="private"
 									value="true"
+									{{#unless content.site.public}}checked="checked"{{/unless}}
 								/> Password protect this site
 							</label>
 						</div>

@@ -32,10 +32,10 @@ config.db.collections.users = 'users';
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.urls = {};
-config.urls.templates = process.env.TEMPLATES_ROOT || '${protocol}//templates.${host}/';
 
 config.templates = {};
 config.templates.default = 'fathom';
+config.templates.url = process.env.TEMPLATES_URL || null;
 
 config.site = {};
 config.site.files = readDirFiles.readSync(path.join(__dirname, '../templates/sites/files'));

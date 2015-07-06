@@ -39,7 +39,7 @@
 				<nav id="topnav" class="span8">
 					<ul id="fixed-nav" class="visible-desktop">
 						<li><a class="scroll-link" href="#home">Home</a></li>
-						{{#each folders}}
+						{{#each contents.folders}}
 						{{#if contents}}
 						<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
 						{{/if}}
@@ -70,7 +70,7 @@
 					<div class="span8">
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
 							<li><a class="scroll-link" href="#home">Home</a></li>
-							{{#each folders}}
+							{{#each contents.folders}}
 							{{#if contents}}
 							<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
 							{{/if}}
@@ -83,7 +83,7 @@
 		<!-- End Sticky Navigation -->
 
 
-		{{#each folders}}
+		{{#each contents.folders}}
 		{{#if contents}}
 		<section id="{{ alias }}" class="page">
 			<div class="container">
