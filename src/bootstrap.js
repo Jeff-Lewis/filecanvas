@@ -98,6 +98,9 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 
 		app.use(express.compress());
 		app.use(express.cookieParser());
+		app.use(express.session({ secret: sessionSecret }));
+		app.use(stripTrailingSlash);
+
 		app.use(express.json());
 		app.use(express.urlencoded());
 		app.use(methodOverride(function(req, res) {
@@ -108,9 +111,6 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 			}
 		}));
 		app.use(methodOverride('X-HTTP-Method-Override'));
-		app.use(express.session({ secret: sessionSecret }));
-
-		app.use('/', stripTrailingSlash);
 
 
 		function generateRandomString(length, characters) {
