@@ -191,7 +191,7 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 		var subdomainMappings = [
 			{
 				subdomain: 'www',
-				path: '/'
+				path: '/www'
 			},
 			{
 				subdomain: 'ping',
@@ -229,11 +229,16 @@ function initApp(dataService, httpPort, httpsPort, isProduction) {
 	}
 
 	function initRoutes(app, dataService, dropboxService) {
-		app.use('/ping', require('./app/routes/ping'));
-		app.use('/templates', require('./app/routes/templates'));
-		app.use('/sites', require('./app/routes/sites')(dataService));
-		app.use('/admin', require('./app/routes/admin')(dataService));
-		app.use('/', require('./app/routes/index'));
+		app.get('/', function(req, res, next) {
+			req.url = '/www';
+			next('route');
+		});
+
+		app.use('/ping', require('./app/apps/ping'));
+		app.use('/templates', require('./app/apps/templates'));
+		app.use('/sites', require('./app/apps/sites')(dataService));
+		app.use('/admin', require('./app/apps/admin')(dataService));
+		app.use('/www', require('./app/apps/www'));
 	}
 
 	function initErrorHandling(app, isProduction) {
