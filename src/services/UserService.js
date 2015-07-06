@@ -5,7 +5,7 @@ var escapeRegExp = require('escape-regexp');
 
 var HttpError = require('../errors/HttpError');
 
-var config = require('../../config');
+var config = require('../config');
 
 var DB_COLLECTION_USERS = config.db.collections.users;
 var DB_COLLECTION_SITES = config.db.collections.sites;

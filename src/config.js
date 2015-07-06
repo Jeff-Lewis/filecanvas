@@ -38,6 +38,6 @@ config.templates = {};
 config.templates.default = 'fathom';
 
 config.site = {};
-config.site.files = readDirFiles.readSync(path.join(__dirname, 'templates/sites/files'));
+config.site.files = readDirFiles.readSync(path.join(__dirname, '../templates/sites/files'));
 
 module.exports = config;

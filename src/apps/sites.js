@@ -4,7 +4,7 @@ var express = require('express');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
-var config = require('../../config');
+var config = require('../config');
 var globals = require('../globals');
 
 var HttpError = require('../errors/HttpError');

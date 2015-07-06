@@ -15,7 +15,7 @@ var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
 
-var config = require('../../config');
+var config = require('../config');
 var globals = require('../globals');
 
 var faqData = require('../../templates/admin/faq.json');

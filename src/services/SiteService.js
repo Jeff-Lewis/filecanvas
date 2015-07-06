@@ -11,7 +11,7 @@ var DownloadService = require('../services/DownloadService');
 var UserService = require('../services/UserService');
 var AuthenticationService = require('../services/AuthenticationService');
 
-var config = require('../../config');
+var config = require('../config');
 
 var DB_COLLECTION_SITES = config.db.collections.sites;
 var DB_COLLECTION_USERS = config.db.collections.users;
