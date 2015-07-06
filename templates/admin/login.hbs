@@ -1,10 +1,5 @@
-<div class="form-signin">
+<form class="form-signin" action="{{ session.urls.loginAuth }}" method="GET">
 	<h2 class="form-signin-heading">Sign in to Shunt</h2>
-	<!--
-	<label class="checkbox">
-		<input type="checkbox" value="remember-me"> Remember me
-	</label>
-	-->
-	<a class="btn btn-lg btn-primary btn-block" href="{{ session.urls.loginAuth }}">Sign in using Dropbox</a>
-	<a class="btn btn-lg btn-primary btn-block" href="{{ session.urls.registerAuth }}">Create an account</a>
+	<button type="submit" class="btn btn-lg btn-primary btn-block">Sign in using Dropbox</button>
+	<button type="submit" class="btn btn-lg btn-primary btn-block" formaction="{{ session.urls.registerAuth }}">Create an account</button>
 </form>

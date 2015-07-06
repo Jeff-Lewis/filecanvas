@@ -2,12 +2,23 @@
 	'use strict';
 
 	$(function() {
+		initSubmitButtons();
 		initInputParsers();
 		initDataBindings();
 		initInputValidators();
 		initShunt();
 	});
 
+
+	function initSubmitButtons() {
+		var $formElements = $('form');
+
+		$formElements.on('submit', function(event) {
+			var $formElement = $(event.currentTarget);
+			var $submitElements = $formElement.find('input[type="submit"],button[type="submit"]');
+			$submitElements.prop('disabled', true);
+		});
+	}
 
 	function initInputParsers() {
 		var attributeName = 'data-parser';
