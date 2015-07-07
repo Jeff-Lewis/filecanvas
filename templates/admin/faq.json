@@ -1,7 +1,52 @@
 [
 	{
-		"id": "test",
-		"question": "Test question",
-		"answer": "Test answer"
+		"id": "share-link",
+		"title": "Will people need to sign up for Shunt or Dropbox to access my Shunt sites?",
+		"body": "<p>No. For others to view your site, all they need is the web address of the Shunt site.</p><p>The web address for a Shunt site takes the form <b>https://${username}.shunt.io/${sitename}</b>, where <b>${username}</b> is your Shunt username and <b>${sitename}</b> is the path to your Shunt site (as specified in your <a href=\"/account\">account settings</a> page and the site's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
+	},
+	{
+		"id": "share-folder",
+		"title": "Can I invite others to collaborate on a Shunt site?",
+		"body": "<p>Absolutely. You can use Dropbox's <a href=\"https://www.dropbox.com/en/help/19\">shared folders</a> feature to share a Shunt site's site folder with other Dropbox users. Any changes they make to the site folder contents will be reflected in the Shunt site.</p>"
+	},
+	{
+		"id": "site-limit",
+		"title": "Is there a limit to how many Shunt sites I can create from one account?",
+		"body": "<p>No. You can create as many Shunt sites as you want.</p>"
+	},
+	{
+		"id": "password-protection",
+		"title": "Can I password-protect my Shunt sites?",
+		"body": "<p>Yes. Follow these steps to restrict access to a Shunt site:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Edit site\" link for to the site that you want to password-protect</li><li>Check the \"Password-protect this site\" checkbox</li><li>Under the \"Password protection\" section, you can edit the list of username/password combinations that can be used to access this site</li></ol>"
+	},
+	{
+		"id": "retrieve-site-user-password",
+		"title": "Can I retrieve the password for a password-protected Shunt site?",
+		"body": "<p>For security reasons, Shunt only stores an encrypted version of the passwords for the users on your password-protected Shunt sites. This means that it's impossible to retrieve a user's password if it has been forgotten. It's very easy to reset a user's password though – you just need to delete the old user and create a new user with the same username:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Edit site\" link for to the site that you want to password-protect</li><li>Under the \"Password protection\" section, you can edit the list of username/password combinations that can be used to access this site</li><li>Remove the existing user, and add a new user with the same username and a password</li></ol>"
+	},
+	{
+		"id": "default-site",
+		"title": "Can I set a default site to display at my Shunt web root?",
+		"body": "<p>Yes. You can choose which site shows up as the default site for your Shunt web root (i.e. at <b>https://${username}.shunt.io/</b>) by changing the \"Default site\" setting in your <a href=\"/account\">account settings</a>.</p>"
+	},
+	{
+		"id": "change-username",
+		"title": "Can I change the username for my Shunt web root?",
+		"body": "<p>Yes. You can change your Shunt username in your <a href=\"/account\">account settings</a>. Your web root address will update instantly, and any existing sites will now be accessible from your new web root address.</p>"
+	},
+	{
+		"id": "custom-domain",
+		"title": "Can I use my own domain name (e.g. http://www.example.com/) with Shunt?",
+		"body": "<p>Yes. You can point your own domain names to your main Shunt web root, or to individual Shunt sites. And don't worry: if you use your own custom domain name, the Shunt web address won't be displayed to the user.</p><p>To use a custom domain name, set up a CNAME alias as follows:</p><blockquote class=\"faq-example\"><h5><b>Example 1:</b> Pointing your domain to your main Shunt web root</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt web root</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from <code>www.example.com.</code> to <code>${username}.shunt.io.</code> (including all the <code>.</code> characters)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your web root at <b>http://${username}.shunt.io/</b>. This means that you will be able to access your Shunt sites at <b>http://www.example.com/${sitename}</b> (where <b>${sitename}</b> is the path to one of your Shunt sites).</b></aside></blockquote><blockquote class=\"faq-example\"><h5><b>Example 2:</b> Pointing your domain to an individual Shunt site</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you have a Shunt site with its path set to <b>${sitename}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt site</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from <code>www.example.com.</code> to <code>${sitename}.${username}.shunt.io.</code> (including all the <code>.</code> characters)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your site at <b>http://${username}.shunt.io/${sitename}</b></aside></blockquote><p>The examples above use the <code>www</code> subdomain, however you can set up a CNAME record for whichever subdomain you like (e.g. <code>my.other.example.com.</code>). You can also use multiple CNAME records if you want to serve the site from multiple addresses.</p>"
+	},
+	{
+		"id": "custom-root-domain",
+		"title": "Can I point my root domain (e.g. http://example.com/) to Shunt?",
+		"body": "<p>It depends on your DNS provider. Some DNS providers don't allow you to create a CNAME record for your root domain, so you might be better off setting up a CNAME record for <code>www.example.com.</code> that points to your Shunt site (see the <a href=\"#custom-domain\">instructions above</a>), and using your DNS provider to set up a redirect from <code>example.com</code> to <code>www.example.com</code>. Alternatively, you can switch to a different DNS provider such as <a href=\"https://www.cloudflare.com/dns\">CloudFlare</a> that allows you to set up a CNAME record on your root domain."
+	},
+	{
+		"id": "custom-https-domain",
+		"title": "Can I use SSL for custom domains?",
+		"body": "All Shunt sites on <b>shunt.io</b> are served via https, however the Shunt SSL certificate won't be valid for your custom domain names. <a href=\"mailto:info@shunt.io?subject=Custom%20domain%20SSL%20certificate\">Get in touch</a> if you need SSL support for custom domains."
 	}
 ]

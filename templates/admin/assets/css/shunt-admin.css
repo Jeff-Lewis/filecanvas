@@ -30,6 +30,27 @@ legend {
 	margin-top: 15px;
 }
 
+.faq-toc {}
+.faq-anchor {
+	display: block;
+	position: relative;
+	top: -75px;
+}
+.faq-item {
+	margin-bottom: 30px;
+}
+.faq-example {}
+.faq-example aside {
+	margin-bottom: 15px;
+	font-style: italic;
+}
+.faq-example aside b {
+	font-style: normal;
+}
+.faq-example blockquote p {
+	font-style: normal;
+}
+
 .shunt-delete-button[disabled] { opacity: 0.5; }
 
 .shunt-sync-idle { }

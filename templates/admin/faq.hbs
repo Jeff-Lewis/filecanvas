@@ -2,15 +2,21 @@
 <p class="lead">Below you will find answers to our most frequently asked questions.</p>
 <p class="lead">For anything not in this list, contact us via the <a href="/support">Support</a> page.</p>
 
-<ul>
-	{{#each content.questions}}
-	<li><a href="#{{ id }}">{{ question }}</a></li>
-	{{/each}}
-</ul>
+<section class="faq-toc">
+	<ul>
+		{{#each content.questions}}
+		<li>
+			<a href="#{{ id }}">{{ title }}</a>
+		</li>
+		{{/each}}
+	</ul>
+</section>
 
 <hr/>
 
 {{#each content.questions}}
-<h4 id="{{ id }}">{{ question }}</h4>
-<p>{{ answer }}</p>
+<a class="faq-anchor" id="{{ id }}"></a>
+<section class="faq-item">
+	<h4>{{ title }}</h4>{{{ body }}}
+</section>
 {{/each}}

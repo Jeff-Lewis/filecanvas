@@ -373,16 +373,32 @@ module.exports = function(dataService, options) {
 			}
 
 			function retrieveFaqRoute(req, res, next) {
+				var username = req.user.alias;
+				var siteAlias = (res.locals.sites.length > 0 ? res.locals.sites[0].alias : 'site-name');
+				var faqs = replaceFaqPlaceholders(faqData, {
+					username: username,
+					sitename: siteAlias
+				});
 				var templateData = {
 					title: 'FAQ',
 					content: {
-						questions: faqData
+						questions: faqs
 					}
 				};
 				renderAdminPage(req, res, 'faq', templateData)
 					.catch(function(error) {
 						next(error);
 					});
+
+
+				function replaceFaqPlaceholders(faqData, options) {
+					var username = options.username;
+					var sitename = options.sitename;
+					return JSON.parse(JSON.stringify(faqData)
+						.replace(/\$\{username\}/g, username)
+						.replace(/\$\{sitename\}/g, sitename)
+					);
+				}
 			}
 
 			function retrieveSupportRoute(req, res, next) {
