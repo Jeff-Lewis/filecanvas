@@ -5,12 +5,13 @@ var escapeRegExp = require('escape-regexp');
 
 var HttpError = require('../errors/HttpError');
 
-var config = require('../config');
+var constants = require('../constants');
 
-var DB_COLLECTION_USERS = config.db.collections.users;
-var DB_COLLECTION_SITES = config.db.collections.sites;
+var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
+var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 
-function UserService(dataService) {
+function UserService(dataService, options) {
+	options = options || null;
 	this.dataService = dataService;
 }
 

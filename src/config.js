@@ -1,9 +1,6 @@
 'use strict';
 
 var fs = require('fs');
-var path = require('path');
-
-var readDirFiles = require('read-dir-files');
 
 var config = {};
 
@@ -25,19 +22,11 @@ config.dropbox.registerCallbackUrl = process.env.DROPBOX_OAUTH2_REGISTER_CALLBAC
 
 config.db = {};
 config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URI || null;
-config.db.collections = {};
-config.db.collections.sites = 'sites';
-config.db.collections.users = 'users';
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
-config.urls = {};
-
 config.templates = {};
-config.templates.default = 'fathom';
 config.templates.url = process.env.TEMPLATES_URL || null;
-
-config.site = {};
-config.site.files = readDirFiles.readSync(path.join(__dirname, '../templates/sites/files'));
+config.templates.default = process.env.TEMPLATES_DEFAULT || null;
 
 module.exports = config;

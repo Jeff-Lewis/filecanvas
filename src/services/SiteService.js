@@ -11,22 +11,28 @@ var DownloadService = require('../services/DownloadService');
 var UserService = require('../services/UserService');
 var AuthenticationService = require('../services/AuthenticationService');
 
-var config = require('../config');
+var constants = require('../constants');
 
-var DB_COLLECTION_SITES = config.db.collections.sites;
-var DB_COLLECTION_USERS = config.db.collections.users;
+var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
+var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
+var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 
-var DROPBOX_APP_KEY = config.dropbox.appKey;
-var DROPBOX_APP_SECRET = config.dropbox.appSecret;
+function SiteService(dataService, options) {
+	options = options || {};
+	var appKey = options.appKey;
+	var appSecret = options.appKey;
 
-function SiteService(dataService) {
 	this.dataService = dataService;
+	this.appKey = appKey;
+	this.appSecret = appSecret;
 }
 
 SiteService.prototype.dataService = null;
 
 SiteService.prototype.createSite = function(siteModel, accessToken) {
 	var dataService = this.dataService;
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
 	return parseSiteModel(siteModel)
 		.then(function(siteModel) {
 			return createSite(siteModel)
@@ -41,8 +47,8 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 			if (!siteModel.path) { return; }
 			var uid = siteModel.user;
 			var sitePath = siteModel.path;
-			var siteContents = config.site.files;
-			return initSiteFolder(uid, accessToken, sitePath, siteContents);
+			var siteContents = SITE_TEMPLATE_FILES;
+			return initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteContents);
 		})
 		.then(function() {
 			return siteModel;
@@ -53,9 +59,7 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 		return dataService.collection(DB_COLLECTION_SITES).insertOne(siteModel);
 	}
 
-	function initSiteFolder(uid, accessToken, sitePath, siteContents) {
-		var appKey = DROPBOX_APP_KEY;
-		var appSecret = DROPBOX_APP_SECRET;
+	function initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteContents) {
 		var dropboxService = new DropboxService();
 		return dropboxService.connect(appKey, appSecret, accessToken, uid)
 			.then(function(client) {
@@ -156,6 +160,8 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, username, passwo
 
 SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, includeUsers) {
 	var dataService = this.dataService;
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
 	var userService = new UserService(dataService);
 	var self = this;
 	return retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers)
@@ -168,7 +174,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			return userService.retrieveUser(uid)
 				.then(function(userModel) {
 					var accessToken = userModel.token;
-					return loadSiteContents(siteModel, accessToken, uid)
+					return loadSiteContents(siteModel, appKey, appSecret, accessToken, uid)
 						.then(function(folder) {
 							self.updateSiteCache(uid, siteAlias, folder.cache);
 							var contents = parseFileModel(folder.contents, siteModel.path);
@@ -200,9 +206,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			});
 	}
 
-	function loadSiteContents(siteModel, accessToken, uid) {
-		var appKey = DROPBOX_APP_KEY;
-		var appSecret = DROPBOX_APP_SECRET;
+	function loadSiteContents(siteModel, appKey, appSecret, accessToken, uid) {
 		var dropboxService = new DropboxService();
 		return dropboxService.connect(appKey, appSecret, accessToken, uid)
 			.then(function(client) {
@@ -260,14 +264,14 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 
 SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downloadPath) {
 	var dataService = this.dataService;
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
 	var userService = new UserService(dataService);
 	return retrieveSiteDropboxPath(dataService, uid, siteAlias)
 		.then(function(folderPath) {
 			return userService.retrieveUser(uid)
 				.then(function(userModel) {
 					var accessToken = userModel.token;
-					var appKey = DROPBOX_APP_KEY;
-					var appSecret = DROPBOX_APP_SECRET;
 					var dropboxService = new DropboxService();
 					return dropboxService.connect(appKey, appSecret, accessToken)
 						.then(function(client) {
