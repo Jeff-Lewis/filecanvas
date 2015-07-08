@@ -74,6 +74,7 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 		function checkWhetherFileExists(dropboxService, filePath) {
 			return dropboxService.getFileMetadata(filePath)
 				.then(function(stat) {
+					if (stat.isRemoved) { return false; }
 					return true;
 				})
 				.catch(function(error) {
