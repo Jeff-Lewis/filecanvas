@@ -20,7 +20,7 @@ For anything not explained here, try the **FAQ** and **Support** sections at [ht
 
 - If a filename starts with a number (e.g. `01 Invoice.pdf`), this number will be used to determine the file ordering.
 
-- File ordering numbers won't be shown in the Shunt site.
+- These numbers won't be visible to users viewing the Shunt site.
 
 
 ## Categorising your files
