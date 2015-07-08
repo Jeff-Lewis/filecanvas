@@ -117,7 +117,9 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 			var cacheRoot = getUpdatedCacheRoot(cache, pulledChanges, rootPath);
 			var cacheDictionary = buildCacheDictionary(cacheRoot);
 
-			pulledChanges.changes.forEach(function(changeModel) {
+			pulledChanges.changes.sort(function(changeModel1, changeModel2) {
+				return (changeModel1.path.toLowerCase() < changeModel2.path.toLowerCase() ? -1 : 1);
+			}).forEach(function(changeModel) {
 				var itemPath = changeModel.path.toLowerCase();
 				var parentPath = path.dirname(itemPath);
 				var parentFolder = cacheDictionary[parentPath] || null;
