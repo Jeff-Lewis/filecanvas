@@ -457,7 +457,8 @@ module.exports = function(dataService, options) {
 
 			function retrieveSiteAddRoute(req, res, next) {
 				var siteModel = {
-					template: defaultSiteTemplate
+					template: defaultSiteTemplate,
+					public: true
 				};
 				var templateData = {
 					title: 'Add a site',
