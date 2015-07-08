@@ -25,6 +25,7 @@
     "express-force-ssl": "^0.2.13",
     "handlebars": "^3.0.3",
     "jshashes": "^1.0.5",
+    "junk": "^1.0.2",
     "method-override": "^2.3.3",
     "mongodb": "^2.0.35",
     "newrelic": "^1.20.2",
@@ -34,7 +35,6 @@
     "passport-local": "^1.0.0",
     "promise": "^7.0.3",
     "promise-map-series": "^0.2.1",
-    "read-dir-files": "^0.1.1",
     "slug": "^0.9.1"
   }
 }
