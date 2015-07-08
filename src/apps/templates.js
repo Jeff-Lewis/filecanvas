@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var express = require('express');
 
 var invalidRoute = require('../middleware/invalidRoute');
@@ -11,7 +12,12 @@ module.exports = function(options) {
 
 	var app = express();
 
-	app.use(express.static(templatesPath));
+	var staticMiddleware = express.static(templatesPath);
+	app.use(function(req, res, next) {
+		var isHiddenFile = getIsPageTemplateFile(req.url);
+		if (isHiddenFile) { return next(); }
+		staticMiddleware(req, res, next);
+	});
 
 	app.use(invalidRoute());
 	app.use(errorHandler({
@@ -19,4 +25,9 @@ module.exports = function(options) {
 	}));
 
 	return app;
+
+
+	function getIsPageTemplateFile(url) {
+		return path.extname(url) === '.hbs';
+	}
 };
