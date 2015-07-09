@@ -4,7 +4,7 @@
   "description": "Share your files to the web instantly and securely",
   "main": "server.js",
   "scripts": {
-    "postinstall": "cd node_modules/dropbox && npm install --dev",
+    "postinstall": "./install.sh",
     "start": "foreman start"
   },
   "repository": {
