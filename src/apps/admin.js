@@ -1,7 +1,6 @@
 'use strict';
 
 var path = require('path');
-var Promise = require('promise');
 var objectAssign = require('object-assign');
 var express = require('express');
 var Passport = require('passport').Passport;

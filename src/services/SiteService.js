@@ -1,6 +1,5 @@
 'use strict';
 
-var Promise = require('promise');
 var mapSeries = require('promise-map-series');
 var escapeRegExp = require('escape-regexp');
 

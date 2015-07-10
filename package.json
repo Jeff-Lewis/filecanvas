@@ -37,7 +37,6 @@
     "passport": "^0.2.2",
     "passport-dropbox-oauth2": "^0.1.6",
     "passport-local": "^1.0.0",
-    "promise": "^7.0.3",
     "promise-map-series": "^0.2.1",
     "slug": "^0.9.1",
     "trace": "^1.2.0"

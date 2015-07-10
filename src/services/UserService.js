@@ -1,6 +1,5 @@
 'use strict';
 
-var Promise = require('promise');
 var escapeRegExp = require('escape-regexp');
 
 var HttpError = require('../errors/HttpError');

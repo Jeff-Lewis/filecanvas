@@ -1,6 +1,5 @@
 'use strict';
 
-var Promise = require('promise');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 var objectAssign = require('object-assign');

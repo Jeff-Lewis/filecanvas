@@ -1,7 +1,6 @@
 'use strict';
 
 var path = require('path');
-var Promise = require('promise');
 var Dropbox = require('dropbox');
 var objectAssign = require('object-assign');
 var slug = require('slug');

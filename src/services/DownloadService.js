@@ -1,7 +1,5 @@
 'use strict';
 
-var Promise = require('promise');
-
 function DownloadService(dropboxService) {
 	this.dropboxService = dropboxService;
 }

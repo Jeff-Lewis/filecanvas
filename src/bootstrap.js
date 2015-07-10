@@ -46,7 +46,11 @@ dataService.connect(config.db.uri)
 			'\n'
 		);
 	})
-	.done();
+	.catch(function(error) {
+		process.nextTick(function() {
+			throw error;
+		});
+	});
 
 
 function initAnalytics(options) {
