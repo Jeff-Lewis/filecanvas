@@ -24,7 +24,10 @@ module.exports = function(dataService, config) {
 
 	var app = express();
 
-	initMiddleware(app);
+	initMiddleware(app, {
+		host: config.host,
+		https: Boolean(config.https.port)
+	});
 	initCustomDomains(app, {
 		host: config.host
 	});
@@ -49,10 +52,17 @@ module.exports = function(dataService, config) {
 	return app;
 
 
-	function initMiddleware(app) {
+	function initMiddleware(app, options) {
+		options = options || {};
+		var host = options.host;
+		var https = options.https;
+
 		app.use(stripTrailingSlash());
 		app.use(express.compress());
-		app.use(forceSsl({ host: host }));
+
+		if (https) {
+			app.use(forceSsl({ host: host }));
+		}
 	}
 
 	function initCustomDomains(app, options) {
