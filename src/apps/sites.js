@@ -181,7 +181,7 @@ module.exports = function(database, options) {
 				return userService.retrieveUserDefaultSiteAlias(userAlias)
 					.then(function(siteAlias) {
 						if (!siteAlias) {
-							throw new HttpError(404);
+							throw new HttpError(403);
 						}
 						req.url += '/' + siteAlias;
 						next();
