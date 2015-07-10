@@ -5,6 +5,11 @@
 		"body": "<p>No. For others to view your site, all they need is the web address of the Shunt site.</p><p>The web address for a Shunt site takes the form <b>https://${username}.shunt.io/${sitename}</b>, where <b>${username}</b> is your Shunt username and <b>${sitename}</b> is the path to your Shunt site (as specified in your <a href=\"/account\">account settings</a> page and the site's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
 	},
 	{
+		"id": "site-folder",
+		"title": "Where are my Shunt sites stored?",
+		"body": "<p>By default, whenever you create a Shunt site, Shunt will create a new <b>site folder</b> within a folder named <code>shunt</code> inside your Dropbox. Your Shunt site will then stay in sync with the contents of this folder.</p><p>Shunt does <b>not</b> store copies of any your files. All the files in your Shunt site folder are located on Dropbox's secure file servers.</p>"
+	},
+	{
 		"id": "share-folder",
 		"title": "Can I invite others to collaborate on a Shunt site?",
 		"body": "<p>Absolutely. You can use Dropbox's <a href=\"https://www.dropbox.com/en/help/19\">shared folders</a> feature to share a Shunt site's site folder with other Dropbox users. Any changes they make to the site folder contents will be reflected in the Shunt site.</p>"
@@ -13,6 +18,16 @@
 		"id": "site-limit",
 		"title": "Is there a limit to how many Shunt sites I can create from one account?",
 		"body": "<p>No. You can create as many Shunt sites as you want.</p>"
+	},
+	{
+		"id": "missing-all-files",
+		"title": "Where did my files go? My Shunt site is suddenly empty!",
+		"body": "<p>Sounds like you've moved or renamed your site folder within your Dropbox.</p><p>You can either move the site folder back to its original location (within the <code>shunt</code> folder in your Dropbox), or you can update your site's <b>Dropbox folder</b> setting in the site settings page to match the folder's new location.</p>"
+	},
+	{
+		"id": "missing-some-files",
+		"title": "I've added some files to my site folder, but I can't see them. Why aren't they showing up?",
+		"body": "<p>It could be because the files are too deeply nested within subfolders. Shunt only shows files up to three levels deep within your site folder, so make sure you don't have any unnecessary levels of folders in there.</p>"
 	},
 	{
 		"id": "password-protection",
@@ -35,9 +50,19 @@
 		"body": "<p>Yes. You can change your Shunt username in your <a href=\"/account\">account settings</a>. Your web root address will update instantly, and any existing sites will now be accessible from your new web root address.</p>"
 	},
 	{
+		"id": "move-rename-site-folder",
+		"title": "Can I move/rename my site folder within my Dropbox?",
+		"body": "<p>Yes, however make sure to update the <b>Dropbox folder</b> path in your site settings accordingly, or it will appear as if there are no files in your site.</p><p>You can put your sites anywhere in your Dropbox, however it's recommended that Shunt site folders should be kept in a folder named <code>shunt</code> in your Dropbox root.</p>"
+	},
+	{
+		"id": "existing-site-folder",
+		"title": "Can I use an existing folder as a Shunt site folder?",
+		"body": "<p>Yes. Make sure the folder is somewhere inside your Dropbox, and then create a new Shunt site, setting the <b>Dropbox folder</b> to the path of your site folder (relative to your Dropbox root, e.g. <code>/shunt/${sitename}</code>).</p><p>You can add a site from anywhere in your Dropbox, however it's recommended that Shunt site folders should be kept in a folder named <code>shunt</code> in your Dropbox root.</p>"
+	},
+	{
 		"id": "custom-domain",
 		"title": "Can I use my own domain name (e.g. http://www.example.com/) with Shunt?",
-		"body": "<p>Yes. You can point your own domain names to your main Shunt web root, or to individual Shunt sites. And don't worry: if you use your own custom domain name, the Shunt web address won't be displayed to the user.</p><p>To use a custom domain name, set up a CNAME alias as follows:</p><blockquote class=\"faq-example\"><h5><b>Example 1:</b> Pointing your domain to your main Shunt web root</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt web root</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${username}.shunt.io.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your web root at <b>http://${username}.shunt.io/</b>. This means that you will be able to access your Shunt sites at <b>http://www.example.com/${sitename}</b> (where <b>${sitename}</b> is the path to one of your Shunt sites).</b></aside></blockquote><blockquote class=\"faq-example\"><h5><b>Example 2:</b> Pointing your domain to an individual Shunt site</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you have a Shunt site with its path set to <b>${sitename}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt site</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${sitename}.${username}.shunt.io.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your site at <b>http://${username}.shunt.io/${sitename}</b></aside></blockquote><p>The examples above use the <code>www</code> subdomain, however you can set up a CNAME record for whichever subdomain you like (e.g. <code>my.other.example.com.</code>). You can also use multiple CNAME records if you want to serve the site from multiple addresses.</p>"
+		"body": "<p>Yes. You can point your own domain names to your main Shunt web root, or to individual Shunt sites. And don't worry: if you use your own custom domain name, the Shunt web address won't be displayed to the user.</p><p>To use a custom domain name, set up a CNAME alias as follows:</p><blockquote class=\"faq-example\"><h5><b>Example 1:</b> Pointing your domain to your main Shunt web root</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt web root</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${username}.shunt.io.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your web root at <b>http://${username}.shunt.io/</b>. This means that you will be able to access your Shunt sites at <b>http://www.example.com/${sitename}</b> (where <b>${sitename}</b> is the path to one of your Shunt sites).</b></aside></blockquote><blockquote class=\"faq-example\"><h5><b>Example 2:</b> Pointing your domain to an individual Shunt site</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you have a Shunt site with its path set to <b>${sitename}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt site</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${sitename}.${username}.shunt.io.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your site at <b>http://${username}.shunt.io/${sitename}</b></aside></blockquote><p>The examples above use the <code>www</code> subdomain, however you can set up a CNAME record for whichever subdomain you like (e.g. <code>extranet</code> or <code>my.nested.subdomain</code>). You can also use multiple CNAME records if you want to serve the site from multiple addresses.</p>"
 	},
 	{
 		"id": "custom-root-domain",
