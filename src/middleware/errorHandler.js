@@ -8,11 +8,13 @@ module.exports = function(options) {
 	options = options || {};
 	var template = options.template;
 	var templatesPath = path.resolve(__dirname, '../../templates/error');
+	var isProduction = process.env.NODE_ENV === 'production';
 
 	return function(err, req, res, next) {
 		var templatePath = path.join(templatesPath, template + '.hbs');
 		var context = {
-			error: err
+			error: err,
+			debug: !isProduction
 		};
 		err.url = req.method + ' ' + req.protocol + '://' + req.get('host') + req.originalUrl;
 		handlebarsEngine(templatePath, context, function(error, output) {

@@ -19,7 +19,7 @@
 				<p class="lead">{{ error.description }}</p>
 				{{/if}}
 			</div>
-			<pre>{{ error.stack }}</pre>
+			{{#if debug}}<pre>{{ error.stack }}</pre>{{/if}}
 		</div>
 	</div>
 </body>
