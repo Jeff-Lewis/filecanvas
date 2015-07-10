@@ -312,10 +312,20 @@ module.exports = function(database, options) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
 			app.get('/logout', initAdminSession, retrieveLogoutRoute);
 			app.get('/login/oauth2', passport.authenticate('admin/dropbox'));
-			app.get('/login/oauth2/callback', passport.authenticate('admin/dropbox', { successRedirect: '/', failureRedirect: '/login' }));
+			app.get('/login/oauth2/callback', passport.authenticate('admin/dropbox', { failureRedirect: '/login' }), onLoggedIn);
 			app.get('/register/oauth2', passport.authenticate('admin/register'));
-			app.get('/register/oauth2/callback', passport.authenticate('admin/register', { successRedirect: '/', failureRedirect: '/login' }));
+			app.get('/register/oauth2/callback', passport.authenticate('admin/register', { failureRedirect: '/login' }), onLoggedIn);
 
+
+			function onLoggedIn(req, res) {
+				if (req.session.loginRedirect) {
+					var redirectUrl = req.session.loginRedirect;
+					delete req.session.loginRedirect;
+					res.redirect(redirectUrl);
+				} else {
+					res.redirect('/');
+				}
+			}
 
 			function redirectIfLoggedIn(req, res, next) {
 				if (!req.isAuthenticated()) {
@@ -361,6 +371,8 @@ module.exports = function(database, options) {
 
 			function ensureAuth(req, res, next) {
 				if (!req.isAuthenticated()) {
+					var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
+					if (redirectUrl) { req.session.loginRedirect = redirectUrl; }
 					res.redirect('/login');
 					return;
 				}
