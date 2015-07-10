@@ -12,12 +12,12 @@ var serve = require('./serve');
 
 var dataService = new DataService();
 dataService.connect(config.db.uri)
-	.then(function(db) {
+	.then(function(database) {
 		process.stdout.write('Database connected' + '\n');
-		return dataService;
+		return database;
 	})
-	.then(function(dataService) {
-		return routerApp(dataService, config);
+	.then(function(database) {
+		return routerApp(database, config);
 	})
 	.then(function(app) {
 		process.stdout.write('Express app initialized' + '\n');

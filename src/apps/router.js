@@ -17,7 +17,7 @@ var forceSsl = require('../middleware/forceSsl');
 var useSubdomainAsPathPrefix = require('../middleware/useSubdomainAsPathPrefix');
 var errorHandler = require('../middleware/errorHandler');
 
-module.exports = function(dataService, config) {
+module.exports = function(database, config) {
 	var host = config.host;
 
 	if (!host) { throw new Error('Missing host name'); }
@@ -31,7 +31,7 @@ module.exports = function(dataService, config) {
 	initCustomDomains(app, {
 		host: config.host
 	});
-	initNamedSubdomains(app, dataService, {
+	initNamedSubdomains(app, database, {
 		host: config.host,
 		appKey: config.dropbox.appKey,
 		appSecret: config.dropbox.appSecret,
@@ -72,7 +72,7 @@ module.exports = function(dataService, config) {
 		app.use(customDomain({ host: host }));
 	}
 
-	function initNamedSubdomains(app, dataService, options) {
+	function initNamedSubdomains(app, database, options) {
 		options = options || {};
 		var host = options.host;
 		var appKey = options.appKey;
@@ -88,7 +88,7 @@ module.exports = function(dataService, config) {
 		app.use(subdomain('templates', templatesApp({
 			templatesPath: path.resolve(__dirname, '../../templates/sites/themes')
 		})));
-		app.use(subdomain('my', adminApp(dataService, {
+		app.use(subdomain('my', adminApp(database, {
 			appKey: appKey,
 			appSecret: appSecret,
 			loginCallbackUrl: loginCallbackUrl,
@@ -111,7 +111,7 @@ module.exports = function(dataService, config) {
 		var templatesUrl = options.templatesUrl;
 
 		app.use(useSubdomainAsPathPrefix());
-		app.use(sitesApp(dataService, {
+		app.use(sitesApp(database, {
 			templatesUrl: templatesUrl
 		}));
 	}

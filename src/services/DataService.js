@@ -8,30 +8,42 @@ var objectAssign = require('object-assign');
 function DataService() {
 }
 
-DataService.prototype.ERROR_CODE_DUPLICATE_KEY = 11000;
-
-DataService.prototype.db = null;
-DataService.prototype.connecting = false;
+DataService.prototype.database = null;
+DataService.prototype.connectionAttempt = null;
 
 DataService.prototype.connect = function(uri) {
+	if (this.database) { return Promise.resolve(this.database); }
+	if (this.connectionAttempt) { return Promise.resolve(this.connectionAttempt); }
 	var self = this;
-	return new Promise(function(resolve, reject) {
-		if (self.connecting) { throw new Error('Connection attempt already in progress'); }
-		if (self.db) { throw new Error('Already connected'); }
-
-		self.connecting = true;
-
-		MongoClient.connect(uri, function(error, db) {
-			self.connecting = false;
-			if (error) { return reject(error); }
-			self.db = db;
-			return resolve(db);
+	this.connectionAttempt =
+		new Promise(function(resolve, reject) {
+			MongoClient.connect(uri, function(error, db) {
+				if (error) { return reject(error); }
+				var database = new Database(db);
+				return resolve(database);
+			});
+		})
+		.then(function(database) {
+			self.database = database;
+			self.connectionAttempt = null;
+			return database;
+		})
+		.catch(function() {
+			self.database = null;
+			self.connectionAttempt = null;
 		});
-	});
+	return this.connectionAttempt;
 };
 
-DataService.prototype.collection = function(collectionName) {
-	if (!this.db) { throw new Error('Not connected'); }
+function Database(db) {
+	this.db = db;
+}
+
+Database.prototype.db = null;
+
+Database.prototype.ERROR_CODE_DUPLICATE_KEY = 11000;
+
+Database.prototype.collection = function(collectionName) {
 	return new Collection(this.db, collectionName);
 };
 

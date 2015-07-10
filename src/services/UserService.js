@@ -10,33 +10,33 @@ var constants = require('../constants');
 var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 
-function UserService(dataService, options) {
+function UserService(database, options) {
 	options = options || null;
-	this.dataService = dataService;
+	this.database = database;
 }
 
-UserService.prototype.dataService = null;
+UserService.prototype.database = null;
 
 UserService.prototype.generateUniqueAlias = function(alias) {
-	var dataService = this.dataService;
-	return checkWhetherAliasExists(dataService, alias)
+	var database = this.database;
+	return checkWhetherAliasExists(database, alias)
 		.then(function(aliasExists) {
 			if (!aliasExists) { return alias; }
-			return generateUniqueAlias(dataService, alias);
+			return generateUniqueAlias(database, alias);
 		});
 
 
-	function checkWhetherAliasExists(dataService, alias) {
+	function checkWhetherAliasExists(database, alias) {
 		var query = { 'alias': alias };
-		return dataService.collection(DB_COLLECTION_USERS).count(query)
+		return database.collection(DB_COLLECTION_USERS).count(query)
 			.then(function(numRecords) {
 				var aliasExists = numRecords > 0;
 				return aliasExists;
 			});
 	}
 
-	function generateUniqueAlias(dataService, alias) {
-		return getRegisteredAliases(dataService, alias)
+	function generateUniqueAlias(database, alias) {
+		return getRegisteredAliases(database, alias)
 			.then(function(registeredAliases) {
 				var index = 1;
 				while (registeredAliases.indexOf(alias + index) !== -1) { index++; }
@@ -44,13 +44,13 @@ UserService.prototype.generateUniqueAlias = function(alias) {
 			});
 	}
 
-	function getRegisteredAliases(dataService, alias) {
+	function getRegisteredAliases(database, alias) {
 		var pattern = new RegExp('^' + escapeRegExp(alias) + '\d+$');
 		var query = { alias: pattern };
 		var fields = [
 			'alias'
 		];
-		return dataService.collection(DB_COLLECTION_USERS).find(query, fields)
+		return database.collection(DB_COLLECTION_USERS).find(query, fields)
 			.then(function(userModels) {
 				var userAliases = userModels.map(function(userModel) {
 					return userModel.alias;
@@ -61,13 +61,13 @@ UserService.prototype.generateUniqueAlias = function(alias) {
 };
 
 UserService.prototype.createUser = function(userModel) {
-	var dataService = this.dataService;
+	var database = this.database;
 	var requireFullModel = true;
 	return validateUserModel(userModel, requireFullModel)
 		.then(function(userModel) {
-			return createUser(dataService, userModel)
+			return createUser(database, userModel)
 				.catch(function(error) {
-					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
+					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
 						throw new HttpError(409, 'This account has already been registered');
 					}
 					throw error;
@@ -75,8 +75,8 @@ UserService.prototype.createUser = function(userModel) {
 		});
 
 
-	function createUser(dataService, userModel) {
-		return dataService.collection(DB_COLLECTION_USERS).insertOne(userModel)
+	function createUser(database, userModel) {
+		return database.collection(DB_COLLECTION_USERS).insertOne(userModel)
 			.then(function() {
 				return userModel;
 			});
@@ -84,11 +84,11 @@ UserService.prototype.createUser = function(userModel) {
 };
 
 UserService.prototype.retrieveUser = function(user) {
-	var dataService = this.dataService;
-	return retrieveUser(dataService, user);
+	var database = this.database;
+	return retrieveUser(database, user);
 
 
-	function retrieveUser(dataService, user) {
+	function retrieveUser(database, user) {
 		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
 		var fields = [
 			'uid',
@@ -98,7 +98,7 @@ UserService.prototype.retrieveUser = function(user) {
 			'email',
 			'default'
 		];
-		return dataService.collection(DB_COLLECTION_USERS).findOne(query, fields)
+		return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 			.then(function(userModel) {
 				if (!userModel) { throw new HttpError(404); }
 				return userModel;
@@ -107,16 +107,16 @@ UserService.prototype.retrieveUser = function(user) {
 };
 
 UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
-	var dataService = this.dataService;
-	return retrieveUserDefaultSiteAlias(dataService, user);
+	var database = this.database;
+	return retrieveUserDefaultSiteAlias(database, user);
 
 
-	function retrieveUserDefaultSiteAlias(dataService, user) {
+	function retrieveUserDefaultSiteAlias(database, user) {
 		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
 		var fields = [
 			'default'
 		];
-		return dataService.collection(DB_COLLECTION_USERS).findOne(query, fields)
+		return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 			.then(function(userModel) {
 				if (!userModel) { throw new HttpError(404); }
 				var defaultSiteAlias = userModel.default;
@@ -126,11 +126,11 @@ UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
 };
 
 UserService.prototype.retrieveUserSites = function(uid) {
-	var dataService = this.dataService;
-	return retrieveUserSites(dataService, uid);
+	var database = this.database;
+	return retrieveUserSites(database, uid);
 
 
-	function retrieveUserSites(dataService, uid) {
+	function retrieveUserSites(database, uid) {
 		var query = { 'user': uid };
 		var fields = [
 			'user',
@@ -140,7 +140,7 @@ UserService.prototype.retrieveUserSites = function(uid) {
 			'template',
 			'path'
 		];
-		return dataService.collection(DB_COLLECTION_SITES).find(query, fields);
+		return database.collection(DB_COLLECTION_SITES).find(query, fields);
 	}
 };
 
@@ -148,23 +148,23 @@ UserService.prototype.updateUser = function(user, updates) {
 	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!updates) { return Promise.reject(new HttpError(400, 'No updates specified')); }
 
-	var dataService = this.dataService;
+	var database = this.database;
 	var requireFullModel = false;
 	return validateUserModel(updates, requireFullModel)
 		.then(function(updates) {
-			return updateUser(dataService, user, updates)
+			return updateUser(database, user, updates)
 				.catch(function(error) {
-					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
+					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
 						throw new HttpError(409, 'This username is being used by another user');
 					}
 				});
 		});
 
 
-	function updateUser(dataService, user, fields) {
+	function updateUser(database, user, fields) {
 		var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
 		var updates = { $set: fields };
-		return dataService.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
+		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});
@@ -174,15 +174,15 @@ UserService.prototype.updateUser = function(user, updates) {
 UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
-	var dataService = this.dataService;
+	var database = this.database;
 	siteAlias = siteAlias || null;
-	return updateUserDefaultSiteAlias(dataService, user, siteAlias);
+	return updateUserDefaultSiteAlias(database, user, siteAlias);
 
 
-	function updateUserDefaultSiteAlias(dataService, user, siteAlias) {
+	function updateUserDefaultSiteAlias(database, user, siteAlias) {
 		var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
 		var updates = { $set: { 'default': siteAlias } };
-		return dataService.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
+		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});
@@ -192,13 +192,13 @@ UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 UserService.prototype.deleteUser = function(uid) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
-	var dataService = this.dataService;
-	return deleteUser(dataService, uid);
+	var database = this.database;
+	return deleteUser(database, uid);
 
 
-	function deleteUser(dataService, uid) {
+	function deleteUser(database, uid) {
 		var filter = { 'uid': uid };
-		return dataService.collection(DB_COLLECTION_USERS).deleteOne(filter)
+		return database.collection(DB_COLLECTION_USERS).deleteOne(filter)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});

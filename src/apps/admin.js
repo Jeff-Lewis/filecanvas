@@ -21,7 +21,7 @@ var UserService = require('../services/UserService');
 
 var faqData = require('../../templates/admin/faq.json');
 
-module.exports = function(dataService, options) {
+module.exports = function(database, options) {
 	options = options || {};
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
@@ -41,7 +41,7 @@ module.exports = function(dataService, options) {
 	initStaticAssets(app, {
 		assetsRoot: path.resolve(__dirname, '../../templates/admin/assets')
 	});
-	initAuth(app, passport, dataService, {
+	initAuth(app, passport, database, {
 		appKey: appKey,
 		appSecret: appSecret,
 		loginCallbackUrl: loginCallbackUrl,
@@ -50,7 +50,7 @@ module.exports = function(dataService, options) {
 	initViewEngine(app, {
 		templatesPath: path.resolve(__dirname, '../../templates/admin')
 	});
-	initRoutes(app, passport, dataService, {
+	initRoutes(app, passport, database, {
 		defaultSiteTemplate: defaultSiteTemplate,
 		faqData: faqData
 	});
@@ -68,7 +68,7 @@ module.exports = function(dataService, options) {
 		app.use('/assets', express.static(assetsRoot));
 	}
 
-	function initAuth(app, passport, dataService, options) {
+	function initAuth(app, passport, database, options) {
 		options = options || {};
 		var appKey = options.appKey;
 		var appSecret = options.appSecret;
@@ -85,7 +85,7 @@ module.exports = function(dataService, options) {
 		});
 
 		passport.deserializeUser(function(uid, callback) {
-			var userService = new UserService(dataService);
+			var userService = new UserService(database);
 			return userService.retrieveUser(uid)
 				.then(function(userModel) {
 					return callback(null, userModel);
@@ -105,7 +105,7 @@ module.exports = function(dataService, options) {
 				var uid = profile.id;
 				var profileName = profile.displayName;
 				var profileEmail = profile.emails[0].value;
-				return loginUser(dataService, uid, accessToken, profileName, profileEmail)
+				return loginUser(database, uid, accessToken, profileName, profileEmail)
 					.then(function(userModel) {
 						callback(null, userModel);
 					})
@@ -125,7 +125,7 @@ module.exports = function(dataService, options) {
 				var uid = profile.id;
 				var profileName = profile.displayName;
 				var profileEmail = profile.emails[0].value;
-				return registerUser(dataService, uid, accessToken, profileName, profileEmail)
+				return registerUser(database, uid, accessToken, profileName, profileEmail)
 					.then(function(userModel) {
 						callback(null, userModel);
 					})
@@ -136,8 +136,8 @@ module.exports = function(dataService, options) {
 		));
 
 
-		function loginUser(dataService, uid, accessToken, profileName, profileEmail) {
-			return loadUserModel(dataService, uid, accessToken, profileName, profileEmail)
+		function loginUser(database, uid, accessToken, profileName, profileEmail) {
+			return loadUserModel(database, uid, accessToken, profileName, profileEmail)
 				.catch(function(error) {
 					if (error.status === 404) {
 						throw new HttpError(403, profileEmail + ' is not a registered user');
@@ -147,7 +147,7 @@ module.exports = function(dataService, options) {
 				.then(function(userModel) {
 					var hasUpdatedAccessToken = userModel.token !== accessToken;
 					if (hasUpdatedAccessToken) {
-						return updateUserToken(dataService, uid, accessToken)
+						return updateUserToken(database, uid, accessToken)
 							.then(function() {
 								userModel.token = accessToken;
 								return userModel;
@@ -157,23 +157,23 @@ module.exports = function(dataService, options) {
 				});
 
 
-			function loadUserModel(dataService, uid, accessToken, name, email) {
-				var userService = new UserService(dataService);
+			function loadUserModel(database, uid, accessToken, name, email) {
+				var userService = new UserService(database);
 				return userService.retrieveUser(uid);
 			}
 
-			function updateUserToken(dataService, uid, accessToken) {
-				var userService = new UserService(dataService);
+			function updateUserToken(database, uid, accessToken) {
+				var userService = new UserService(database);
 				return userService.updateUser(uid, { token: accessToken });
 			}
 		}
 
-		function registerUser(dataService, uid, accessToken, profileName, profileEmail) {
-			return createUserModel(dataService, uid, accessToken, profileName, profileEmail);
+		function registerUser(database, uid, accessToken, profileName, profileEmail) {
+			return createUserModel(database, uid, accessToken, profileName, profileEmail);
 
 
-			function createUserModel(dataService, uid, accessToken, name, email) {
-				var userService = new UserService(dataService);
+			function createUserModel(database, uid, accessToken, name, email) {
+				var userService = new UserService(database);
 				var alias = slug(name, { lower: true });
 				return userService.generateUniqueAlias(alias)
 					.then(function(alias) {
@@ -209,7 +209,7 @@ module.exports = function(dataService, options) {
 		}));
 	}
 
-	function initRoutes(app, passport, dataService, options) {
+	function initRoutes(app, passport, database, options) {
 		options = options || {};
 		var defaultSiteTemplate = options.defaultSiteTemplate;
 		var faqData = options.faqData;
@@ -234,7 +234,7 @@ module.exports = function(dataService, options) {
 
 			function loadSessionData(req) {
 				var userModel = req.user || null;
-				return Promise.resolve(userModel ? getUserSites(dataService, userModel) : null)
+				return Promise.resolve(userModel ? getUserSites(database, userModel) : null)
 					.then(function(siteModels) {
 						var urlService = new UrlService(req);
 						var adminUrls = getAdminUrls(urlService, userModel);
@@ -246,9 +246,9 @@ module.exports = function(dataService, options) {
 					});
 
 
-				function getUserSites(dataService, userModel) {
+				function getUserSites(database, userModel) {
 					var uid = userModel.uid;
-					var userService = new UserService(dataService);
+					var userService = new UserService(database);
 					return userService.retrieveUserSites(uid);
 				}
 
@@ -432,7 +432,7 @@ module.exports = function(dataService, options) {
 					'email': req.body.email,
 					'default': req.body.default || null
 				};
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.updateUser(uid, updates)
 					.then(function(userModel) {
 						res.redirect(303, '/account');
@@ -477,7 +477,7 @@ module.exports = function(dataService, options) {
 				var uid = userModel.uid;
 				var siteAlias = req.params.site;
 
-				var siteService = new SiteService(dataService);
+				var siteService = new SiteService(database);
 				var includeContents = false;
 				var includeUsers = true;
 				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -500,7 +500,7 @@ module.exports = function(dataService, options) {
 				var uid = userModel.uid;
 				var siteAlias = req.params.site;
 
-				var siteService = new SiteService(dataService);
+				var siteService = new SiteService(database);
 				var includeContents = false;
 				var includeUsers = true;
 				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -533,7 +533,7 @@ module.exports = function(dataService, options) {
 					'public': (req.body['private'] !== 'true')
 				};
 
-				var siteService = new SiteService(dataService);
+				var siteService = new SiteService(database);
 				siteService.createSite(siteModel, accessToken)
 					.then(function(siteModel) {
 						res.redirect(303, '/sites/edit/' + siteModel.alias);
@@ -580,12 +580,12 @@ module.exports = function(dataService, options) {
 
 				function purgeSite(uid, siteAlias) {
 					var cache = null;
-					var siteService = new SiteService(dataService);
+					var siteService = new SiteService(database);
 					return siteService.updateSiteCache(uid, siteAlias, cache);
 				}
 
 				function updateSite(uid, siteAlias, updates) {
-					var siteService = new SiteService(dataService);
+					var siteService = new SiteService(database);
 					return siteService.updateSite(uid, siteAlias, updates);
 				}
 			}
@@ -595,7 +595,7 @@ module.exports = function(dataService, options) {
 				var uid = userModel.uid;
 				var siteAlias = req.params.site;
 
-				var siteService = new SiteService(dataService);
+				var siteService = new SiteService(database);
 				siteService.deleteSite(uid, siteAlias)
 					.then(function(siteModel) {
 						res.redirect(303, '/sites');
@@ -612,7 +612,7 @@ module.exports = function(dataService, options) {
 				var username = req.body.username;
 				var password = req.body.password;
 
-				var siteService = new SiteService(dataService);
+				var siteService = new SiteService(database);
 				siteService.createSiteUser(uid, siteAlias, username, password)
 					.then(function(userModel) {
 						res.redirect(303, '/sites/edit/' + siteAlias + '/users');
@@ -628,7 +628,7 @@ module.exports = function(dataService, options) {
 				var siteAlias = req.params.site;
 				var username = req.params.username;
 
-				var siteService = new SiteService(dataService);
+				var siteService = new SiteService(database);
 				siteService.deleteSiteUser(uid, siteAlias, username)
 					.then(function() {
 						res.redirect(303, '/sites/edit/' + siteAlias + '/users');

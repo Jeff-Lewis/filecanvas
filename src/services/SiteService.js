@@ -17,27 +17,27 @@ var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
 var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 
-function SiteService(dataService, options) {
+function SiteService(database, options) {
 	options = options || {};
 	var appKey = options.appKey;
 	var appSecret = options.appKey;
 
-	this.dataService = dataService;
+	this.database = database;
 	this.appKey = appKey;
 	this.appSecret = appSecret;
 }
 
-SiteService.prototype.dataService = null;
+SiteService.prototype.database = null;
 
 SiteService.prototype.createSite = function(siteModel, accessToken) {
-	var dataService = this.dataService;
+	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	return parseSiteModel(siteModel)
 		.then(function(siteModel) {
 			return createSite(siteModel)
 				.catch(function(error) {
-					if (error.code === dataService.ERROR_CODE_DUPLICATE_KEY) {
+					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
 						throw new HttpError(409, 'A site already exists at that path');
 					}
 					throw error;
@@ -56,7 +56,7 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 
 
 	function createSite(siteModel) {
-		return dataService.collection(DB_COLLECTION_SITES).insertOne(siteModel);
+		return database.collection(DB_COLLECTION_SITES).insertOne(siteModel);
 	}
 
 	function initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteContents) {
@@ -125,31 +125,31 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, username, passwo
 	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!password) { return Promise.reject(new HttpError(400, 'No password specified')); }
 
-	var dataService = this.dataService;
-	return checkWhetherUserAlreadyExists(dataService, uid, siteAlias, username)
+	var database = this.database;
+	return checkWhetherUserAlreadyExists(database, uid, siteAlias, username)
 		.then(function(userAlreadyExists) {
 			if (userAlreadyExists) {
 				throw new HttpError(409, 'A user already exists with this username');
 			}
-			return addSiteUser(dataService, uid, siteAlias, username, password);
+			return addSiteUser(database, uid, siteAlias, username, password);
 		});
 
 
-	function checkWhetherUserAlreadyExists(dataService, uid, siteAlias, username) {
+	function checkWhetherUserAlreadyExists(database, uid, siteAlias, username) {
 		var query = { 'user': uid, 'alias': siteAlias, 'users.username': username };
-		return dataService.collection(DB_COLLECTION_SITES).count(query)
+		return database.collection(DB_COLLECTION_SITES).count(query)
 			.then(function(numRecords) {
 				var userAlreadyExists = (numRecords > 0);
 				return userAlreadyExists;
 			});
 	}
 
-	function addSiteUser(dataService, uid, siteAlias, username, password) {
+	function addSiteUser(database, uid, siteAlias, username, password) {
 		var authenticationService = new AuthenticationService();
 		var userModel = authenticationService.create(username, password);
 		var filter = { 'user': uid, 'alias': siteAlias };
 		var updates = { $push: { 'users': userModel } };
-		return dataService.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
+		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) {
 					throw new HttpError(404);
@@ -160,12 +160,12 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, username, passwo
 };
 
 SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, includeUsers) {
-	var dataService = this.dataService;
+	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var userService = new UserService(dataService);
+	var userService = new UserService(database);
 	var self = this;
-	return retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers)
+	return retrieveSite(database, uid, siteAlias, includeContents, includeUsers)
 		.then(function(siteModel) {
 			if (!includeContents) { return siteModel; }
 
@@ -187,7 +187,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 		});
 
 
-	function retrieveSite(dataService, uid, siteAlias, includeContents, includeUsers) {
+	function retrieveSite(database, uid, siteAlias, includeContents, includeUsers) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
 			'user',
@@ -200,7 +200,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 		];
 		if (includeUsers) { fields.push('users'); }
 		if (includeContents) { fields.push('cache'); }
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
+		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				return siteModel;
@@ -264,11 +264,11 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 };
 
 SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downloadPath) {
-	var dataService = this.dataService;
+	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var userService = new UserService(dataService);
-	return retrieveSiteDropboxPath(dataService, uid, siteAlias)
+	var userService = new UserService(database);
+	return retrieveSiteDropboxPath(database, uid, siteAlias)
 		.then(function(folderPath) {
 			return userService.retrieveUser(uid)
 				.then(function(userModel) {
@@ -284,12 +284,12 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 		});
 
 
-	function retrieveSiteDropboxPath(dataService, uid, siteAlias) {
+	function retrieveSiteDropboxPath(database, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
 			'path'
 		];
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
+		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				if (!siteModel.path) { throw new HttpError(404); }
@@ -300,17 +300,17 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 };
 
 SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteAlias) {
-	var dataService = this.dataService;
-	return retrieveSiteAuthenticationDetails(dataService, uid, siteAlias);
+	var database = this.database;
+	return retrieveSiteAuthenticationDetails(database, uid, siteAlias);
 
 
-	function retrieveSiteAuthenticationDetails(dataService, uid, siteAlias) {
+	function retrieveSiteAuthenticationDetails(database, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
 			'public',
 			'users'
 		];
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
+		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				var authenticationDetails = {
@@ -323,16 +323,16 @@ SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteAlia
 };
 
 SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
-	var dataService = this.dataService;
-	return retrieveSiteCache(dataService, uid, siteAlias);
+	var database = this.database;
+	return retrieveSiteCache(database, uid, siteAlias);
 
 
-	function retrieveSiteCache(dataService, uid, siteAlias) {
+	function retrieveSiteCache(database, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
 			'cache'
 		];
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
+		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				var siteCache = siteModel.cache;
@@ -342,27 +342,27 @@ SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
 };
 
 SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
-	var dataService = this.dataService;
+	var database = this.database;
 	return parseSiteModel(updates)
 		.then(function(updates) {
-			return getSitePath(dataService, uid, siteAlias)
+			return getSitePath(database, uid, siteAlias)
 				.then(function(existingSitePath) {
 					var sitePathHasChanged = (existingSitePath !== updates.path);
 					if (!sitePathHasChanged) {
 						delete updates.path;
 						delete updates.cache;
 					}
-					return updateSite(dataService, uid, siteAlias, updates);
+					return updateSite(database, uid, siteAlias, updates);
 				});
 		});
 
 
-	function getSitePath(dataService, uid, siteAlias) {
+	function getSitePath(database, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
 			'path'
 		];
-		return dataService.collection(DB_COLLECTION_SITES).findOne(query, fields)
+		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				var sitePath = siteModel.path;
@@ -370,10 +370,10 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 			});
 	}
 
-	function updateSite(dataService, uid, siteAlias, fields) {
+	function updateSite(database, uid, siteAlias, fields) {
 		var filter = { 'user': uid, 'alias': siteAlias };
 		var updates = { $set: fields };
-		return dataService.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
+		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});
@@ -382,14 +382,14 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 
 SiteService.prototype.updateSiteCache = function(uid, siteAlias, cache) {
 	cache = cache || null;
-	var dataService = this.dataService;
-	return updateSiteCache(dataService, uid, siteAlias, cache);
+	var database = this.database;
+	return updateSiteCache(database, uid, siteAlias, cache);
 
 
-	function updateSiteCache(dataService, uid, siteAlias, cache) {
+	function updateSiteCache(database, uid, siteAlias, cache) {
 		var filter = { 'user': uid, 'alias': siteAlias };
 		var updates = { $set: { 'cache': cache } };
-		return dataService.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
+		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});
@@ -402,14 +402,14 @@ SiteService.prototype.deleteSiteUser = function(uid, siteAlias, username) {
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
-	var dataService = this.dataService;
-	return deleteSiteUser(dataService, uid, siteAlias, username);
+	var database = this.database;
+	return deleteSiteUser(database, uid, siteAlias, username);
 
 
-	function deleteSiteUser(dataService, uid, shareAlias, username, callback) {
+	function deleteSiteUser(database, uid, shareAlias, username, callback) {
 		var filter = { 'user': uid, 'alias': siteAlias };
 		var updates = { $pull: { 'users': { 'username': username } } };
-		return dataService.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
+		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});
@@ -421,36 +421,36 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
 
-	var dataService = this.dataService;
-	return checkWhetherSiteisUserDefaultSite(dataService, uid, siteAlias)
+	var database = this.database;
+	return checkWhetherSiteisUserDefaultSite(database, uid, siteAlias)
 		.then(function(isDefaultSite) {
-			return deleteSite(dataService, uid, siteAlias)
+			return deleteSite(database, uid, siteAlias)
 				.then(function() {
 					if (isDefaultSite) {
-						return resetUserDefaultSite(dataService, uid);
+						return resetUserDefaultSite(database, uid);
 					}
 				});
 		});
 
-	function checkWhetherSiteisUserDefaultSite(dataService, uid, siteAlias) {
+	function checkWhetherSiteisUserDefaultSite(database, uid, siteAlias) {
 		var query = { 'user': uid, 'default': siteAlias };
-		return dataService.collection(DB_COLLECTION_USERS).count(query)
+		return database.collection(DB_COLLECTION_USERS).count(query)
 			.then(function(numRecords) {
 				var isDefaultSite = (numRecords > 0);
 				return isDefaultSite;
 			});
 	}
 
-	function deleteSite(dataService, uid, siteAlias) {
+	function deleteSite(database, uid, siteAlias) {
 		var filter = { 'user': uid, 'alias': siteAlias };
-		return dataService.collection(DB_COLLECTION_SITES).deleteOne(filter)
+		return database.collection(DB_COLLECTION_SITES).deleteOne(filter)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
 			});
 	}
 
-	function resetUserDefaultSite(dataService, uid) {
-		var userService = new UserService(dataService);
+	function resetUserDefaultSite(database, uid) {
+		var userService = new UserService(database);
 		return userService.updateUserDefaultSiteAlias(uid, null)
 			.then(function(siteAlias) {});
 	}

@@ -17,7 +17,7 @@ var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var AuthenticationService = require('../services/AuthenticationService');
 
-module.exports = function(dataService, options) {
+module.exports = function(database, options) {
 	options = options || {};
 	var templatesUrl = options.templatesUrl;
 
@@ -26,11 +26,11 @@ module.exports = function(dataService, options) {
 	var app = express();
 	var passport = new Passport();
 
-	initAuth(app, passport, dataService);
+	initAuth(app, passport, database);
 	initViewEngine(app, {
 		templatesPath: path.resolve(__dirname, '../../templates/sites')
 	});
-	initRoutes(app, passport, dataService, {
+	initRoutes(app, passport, database, {
 		templatesUrl: templatesUrl
 	});
 	initErrorHandler(app, {
@@ -40,7 +40,7 @@ module.exports = function(dataService, options) {
 	return app;
 
 
-	function initAuth(app, passport, dataService) {
+	function initAuth(app, passport, database) {
 		app.use(transport());
 		app.use(passport.initialize());
 		app.use(passport.session());
@@ -60,11 +60,11 @@ module.exports = function(dataService, options) {
 			var siteAlias = deserializedUser.site;
 			var username = deserializedUser.username;
 
-			var userService = new UserService(dataService);
+			var userService = new UserService(database);
 			userService.retrieveUser(userAlias)
 				.then(function(userModel) {
 					var uid = userModel.uid;
-					var siteService = new SiteService(dataService);
+					var siteService = new SiteService(database);
 					return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 						.then(function(authenticationDetails) {
 							var validUsers = authenticationDetails.users;
@@ -95,11 +95,11 @@ module.exports = function(dataService, options) {
 				var userAlias = req.params.user;
 				var siteAlias = req.params.site;
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(dataService);
+						var siteService = new SiteService(database);
 						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 							.then(function(authenticationDetails) {
 								var isPublic = authenticationDetails.public;
@@ -144,7 +144,7 @@ module.exports = function(dataService, options) {
 		}));
 	}
 
-	function initRoutes(app, passport, dataService, options) {
+	function initRoutes(app, passport, database, options) {
 		options = options || {};
 		var templatesUrl = options.templatesUrl;
 
@@ -177,7 +177,7 @@ module.exports = function(dataService, options) {
 			function defaultUserSiteRoute(req, res, next) {
 				var userAlias = req.params.user;
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				return userService.retrieveUserDefaultSiteAlias(userAlias)
 					.then(function(siteAlias) {
 						if (!siteAlias) {
@@ -194,7 +194,7 @@ module.exports = function(dataService, options) {
 			function defaultUserSiteLoginRoute(req, res, next) {
 				var userAlias = req.params.user;
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUserDefaultSiteAlias(userAlias)
 					.then(function(siteAlias) {
 						if (!siteAlias) {
@@ -211,7 +211,7 @@ module.exports = function(dataService, options) {
 			function defaultUserSiteLogoutRoute(req, res, next) {
 				var userAlias = req.params.user;
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUserDefaultSiteAlias(userAlias)
 					.then(function(siteAlias) {
 						if (!siteAlias) {
@@ -229,7 +229,7 @@ module.exports = function(dataService, options) {
 				var userAlias = req.params.user;
 				var downloadPath = req.params[0];
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUserDefaultSiteAlias(userAlias)
 					.then(function(siteAlias) {
 						if (!siteAlias) {
@@ -257,11 +257,11 @@ module.exports = function(dataService, options) {
 				var userAlias = req.params.user;
 				var siteAlias = req.params.site;
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(dataService);
+						var siteService = new SiteService(database);
 						var includeContents = false;
 						var includeUsers = false;
 						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -328,11 +328,11 @@ module.exports = function(dataService, options) {
 					}
 				}
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(dataService);
+						var siteService = new SiteService(database);
 						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 							.then(function(authenticationDetails) {
 								var isPublic = authenticationDetails.public;
@@ -360,11 +360,11 @@ module.exports = function(dataService, options) {
 				var userAlias = req.params.user;
 				var siteAlias = req.params.site;
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(dataService);
+						var siteService = new SiteService(database);
 						var includeContents = true;
 						var includeUsers = false;
 						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -391,11 +391,11 @@ module.exports = function(dataService, options) {
 				var siteAlias = req.params.site;
 				var downloadPath = req.params[0];
 
-				var userService = new UserService(dataService);
+				var userService = new UserService(database);
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(dataService);
+						var siteService = new SiteService(database);
 						return siteService.retrieveSiteDownloadLink(uid, siteAlias, downloadPath)
 							.then(function(downloadUrl) {
 								res.redirect(downloadUrl);
