@@ -385,7 +385,8 @@ module.exports = function(database, options) {
 
 			function retrieveFaqRoute(req, res, next) {
 				var username = req.user.alias;
-				var siteAlias = (res.locals.sites.length > 0 ? res.locals.sites[0].alias : 'site-name');
+				var siteModels = res.locals.sites;
+				var siteAlias = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].alias : 'site-name');
 				var faqs = replaceFaqPlaceholders(faqData, {
 					username: username,
 					sitename: siteAlias
