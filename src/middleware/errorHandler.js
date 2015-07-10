@@ -14,6 +14,7 @@ module.exports = function(options) {
 		var context = {
 			error: err
 		};
+		err.url = req.method + ' ' + req.protocol + '://' + req.get('host') + req.originalUrl;
 		handlebarsEngine(templatePath, context, function(error, output) {
 			if (error) { return next(err); }
 			res.status(err.status || 500);
