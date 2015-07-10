@@ -7,8 +7,7 @@ initAnalytics({ newRelic: config.newRelic });
 var DataService = require('./services/DataService');
 var routerApp = require('./apps/router');
 var serve = require('./serve');
-
-initErrors();
+var captureErrors = require('./utils/captureErrors');
 
 var dataService = new DataService();
 dataService.connect(config.db.uri)
@@ -21,6 +20,10 @@ dataService.connect(config.db.uri)
 	})
 	.then(function(app) {
 		process.stdout.write('Express app initialized' + '\n');
+		return app;
+	})
+	.then(function(app) {
+		captureErrors();
 		return app;
 	})
 	.then(function(app) {
@@ -45,18 +48,6 @@ dataService.connect(config.db.uri)
 	})
 	.done();
 
-
-function initErrors() {
-	require('trace');
-	require('clarify');
-	require('clarify/node_modules/stack-chain').filter.attach(function (error, frames) {
-		return frames.filter(function (callSite) {
-			var name = callSite && callSite.getFileName();
-			return (name && name.indexOf('node_modules') === -1);
-		});
-	});
-	Error.stackTraceLimit = Infinity;
-}
 
 function initAnalytics(options) {
 	options = options || {};
