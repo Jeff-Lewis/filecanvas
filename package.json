@@ -7,6 +7,9 @@
     "postinstall": "./install.sh",
     "start": "foreman start"
   },
+  "engines": {
+    "node": "0.12.x"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/timkendrick/shunt"
@@ -19,6 +22,7 @@
     "url": "https://github.com/timkendrick/shunt/issues"
   },
   "dependencies": {
+    "clarify": "^1.0.5",
     "dropbox": "ehfeng/dropbox-js#stable",
     "escape-regexp": "0.0.1",
     "express": "^3.21.0",
@@ -35,6 +39,7 @@
     "passport-local": "^1.0.0",
     "promise": "^7.0.3",
     "promise-map-series": "^0.2.1",
-    "slug": "^0.9.1"
+    "slug": "^0.9.1",
+    "trace": "^1.2.0"
   }
 }
