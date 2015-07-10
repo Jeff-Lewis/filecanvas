@@ -2,9 +2,7 @@
 
 var config = require('./config');
 
-if (config.newRelic) {
-	require('newrelic');
-}
+initAnalytics({ newRelic: config.newRelic });
 
 var DataService = require('./services/DataService');
 var routerApp = require('./apps/router');
@@ -44,3 +42,13 @@ dataService.connect(config.db.uri)
 		);
 	})
 	.done();
+
+
+function initAnalytics(options) {
+	options = options || {};
+	var newRelic = options.newRelic;
+
+	if (newRelic) {
+		require('newrelic');
+	}
+}
