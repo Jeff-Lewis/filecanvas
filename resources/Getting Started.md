@@ -2,7 +2,7 @@
 
 This guide contains everything you need to make the most out of Shunt.
 
-For anything not explained here, try the **FAQ** and **Support** sections at [https://my.shunt.io/](https://my.shunt.io/)
+For anything not explained here, try the [FAQ](https://my.shunt.io/faq) and [Support](https://my.shunt.io/support) pages.
 
 
 ## Basic usage
@@ -71,4 +71,4 @@ For anything not explained here, try the **FAQ** and **Support** sections at [ht
 
 ## Using a custom domain name
 
-- See the **FAQ** section at [https://my.shunt.io/](https://my.shunt.io/) to learn how to set up a custom domain name for this site.
+- See the [FAQ](https://my.shunt.io/faq) page to learn how to set up a custom domain name for this site.
