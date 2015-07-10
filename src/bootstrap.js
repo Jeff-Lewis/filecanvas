@@ -1,14 +1,14 @@
 'use strict';
 
-var DataService = require('./services/DataService');
-var routerApp = require('./apps/router');
-var serve = require('./serve');
-
 var config = require('./config');
 
 if (config.newRelic) {
 	require('newrelic');
 }
+
+var DataService = require('./services/DataService');
+var routerApp = require('./apps/router');
+var serve = require('./serve');
 
 var dataService = new DataService();
 dataService.connect(config.db.uri)
