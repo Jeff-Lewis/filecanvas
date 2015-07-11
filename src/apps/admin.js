@@ -452,12 +452,11 @@ module.exports = function(database, options) {
 			function updateUserAccountRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
-				var updates = {
-					'alias': req.body.alias,
-					'name': req.body.name,
-					'email': req.body.email,
-					'default': req.body.default || null
-				};
+				var updates = {};
+				if ('alias' in req.body) { updates.alias = req.body.alias; }
+				if ('name' in req.body) { updates.name = req.body.name; }
+				if ('email' in req.body) { updates.email = req.body.email; }
+				if ('default' in req.body) { updates.default = req.body.default || null; }
 				var userService = new UserService(database);
 				userService.updateUser(uid, updates)
 					.then(function(userModel) {
