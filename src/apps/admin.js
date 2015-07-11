@@ -259,6 +259,7 @@ module.exports = function(database, options) {
 						faq: '/faq',
 						support: '/support',
 						account: '/account',
+						profile: '/profile',
 						login: '/login',
 						loginAuth: '/login/oauth2',
 						registerAuth: '/register/oauth2',
@@ -314,7 +315,7 @@ module.exports = function(database, options) {
 			app.get('/login/oauth2', passport.authenticate('admin/dropbox'));
 			app.get('/login/oauth2/callback', passport.authenticate('admin/dropbox', { failureRedirect: '/login' }), onLoggedIn);
 			app.get('/register/oauth2', passport.authenticate('admin/register'));
-			app.get('/register/oauth2/callback', passport.authenticate('admin/register', { failureRedirect: '/login' }), onLoggedIn);
+			app.get('/register/oauth2/callback', passport.authenticate('admin/register', { failureRedirect: '/login' }), onRegistered);
 
 
 			function onLoggedIn(req, res) {
@@ -324,6 +325,16 @@ module.exports = function(database, options) {
 					res.redirect(redirectUrl);
 				} else {
 					res.redirect('/');
+				}
+			}
+
+			function onRegistered(req, res) {
+				if (req.session.loginRedirect) {
+					var redirectUrl = req.session.loginRedirect;
+					delete req.session.loginRedirect;
+					res.redirect(redirectUrl);
+				} else {
+					res.redirect('/profile');
 				}
 			}
 
@@ -358,6 +369,8 @@ module.exports = function(database, options) {
 			app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
 			app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
 			app.put('/account', ensureAuth, initAdminSession, updateUserAccountRoute);
+			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
+			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 			app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
 			app.get('/sites/edit/:site', ensureAuth, initAdminSession, retrieveSiteEditRoute);
@@ -448,6 +461,35 @@ module.exports = function(database, options) {
 				userService.updateUser(uid, updates)
 					.then(function(userModel) {
 						res.redirect(303, '/account');
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function retrieveUserProfileRoute(req, res, next) {
+				var userModel = req.user;
+				var templateData = {
+					title: 'Your profile',
+					content: {
+						user: userModel
+					}
+				};
+				return renderAdminPage(req, res, 'profile', templateData);
+			}
+
+			function updateUserProfileRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+				var updates = {
+					'alias': req.body.alias,
+					'name': req.body.name,
+					'email': req.body.email
+				};
+				var userService = new UserService(database);
+				userService.updateUser(uid, updates)
+					.then(function(userModel) {
+						res.redirect(303, '/sites');
 					})
 					.catch(function(error) {
 						next(error);
