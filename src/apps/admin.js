@@ -369,6 +369,7 @@ module.exports = function(database, options) {
 			app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
 			app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
 			app.put('/account', ensureAuth, initAdminSession, updateUserAccountRoute);
+			app.delete('/account', ensureAuth, initAdminSession, deleteUserAccountRoute);
 			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
 			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
@@ -461,6 +462,22 @@ module.exports = function(database, options) {
 				userService.updateUser(uid, updates)
 					.then(function(userModel) {
 						res.redirect(303, '/account');
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function deleteUserAccountRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+
+				var userService = new UserService(database);
+				userService.deleteUser(uid)
+					.then(function(siteModel) {
+						req.logout();
+						req.session.destroy();
+						res.redirect(303, '/');
 					})
 					.catch(function(error) {
 						next(error);

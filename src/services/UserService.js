@@ -192,8 +192,16 @@ UserService.prototype.deleteUser = function(uid) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var database = this.database;
-	return deleteUser(database, uid);
+	return deleteUserSites(database, uid)
+		.then(function(numRecords) {
+			return deleteUser(database, uid);
+		});
 
+
+	function deleteUserSites(database, uid) {
+		var filter = { 'user': uid };
+		return database.collection(DB_COLLECTION_SITES).deleteMany(filter);
+	}
 
 	function deleteUser(database, uid) {
 		var filter = { 'uid': uid };
