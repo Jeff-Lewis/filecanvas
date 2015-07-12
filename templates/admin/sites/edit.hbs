@@ -3,129 +3,155 @@
 		<h2>Edit Site: {{ content.site.name }} <a href="{{ session.urls.webroot }}{{ content.site.alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a></h2>
 		<p class="lead">Use the fields below to make changes to this Shunt site.</p>
 		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
-			<input type="hidden" name="_method" value="PUT"/>
-			<input type="hidden" name="template" value="{{ content.site.template }}"/>
 			{{#unless content.site.path}}
 			<div class="alert alert-danger">
 				<p><strong>Warning:</strong> This site has not yet been linked to a Dropbox folder.</p>
 			</div>
 			{{/unless}}
 			<fieldset>
-				<div class="form-group">
-					<label for="input-site-name" class="col-sm-3 col-lg-2 control-label">Name</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="name" class="form-control" id="input-site-name"
-							title="This helps you identify the site in the Shunt admin area"
-							placeholder="Site name"
-							value="{{ content.site.name }}"
-							data-validate="notEmpty"
-							data-trigger="focus"
-						/>
+				<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
+					<input type="hidden" name="_method" value="PUT"/>
+					<div class="form-group">
+						<label for="input-site-name" class="col-sm-3 col-lg-2 control-label">Name</label>
+						<div class="col-sm-6 col-lg-4">
+							<input type="text" name="name" class="form-control" id="input-site-name"
+								title="This helps you identify the site in the Shunt admin area"
+								placeholder="Site name"
+								value="{{ content.site.name }}"
+								data-validate="notEmpty"
+								data-trigger="focus"
+							/>
+						</div>
 					</div>
-				</div>
-				<div class="form-group">
-					<label for="input-site-alias" class="col-sm-3 col-lg-2 control-label">Site ID</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="alias" class="form-control" id="input-site-alias"
-							title="This determines the site’s web address"
-							placeholder="Site ID"
-							value="{{ content.site.alias }}"
-							data-bind-id="site-alias"
-							data-parser="slug"
-							data-validate="slug"
-							data-trigger="focus"
-						/>
-						<p class="help-block">{{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ content.site.alias }}</strong></p>
+					<div class="form-group">
+						<label for="input-site-alias" class="col-sm-3 col-lg-2 control-label">Site ID</label>
+						<div class="col-sm-6 col-lg-4">
+							<input type="text" name="alias" class="form-control" id="input-site-alias"
+								title="This determines the site’s web address"
+								placeholder="Site ID"
+								value="{{ content.site.alias }}"
+								data-bind-id="site-alias"
+								data-parser="slug"
+								data-validate="slug"
+								data-trigger="focus"
+							/>
+							<p class="help-block">{{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ content.site.alias }}</strong></p>
+						</div>
 					</div>
-				</div>
-				<div class="form-group">
-					<label for="input-site-title" class="col-sm-3 col-lg-2 control-label">Page title</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" name="title" class="form-control" id="input-site-title"
-							title="This determines what is shown in the title of the user’s browser window"
-							placeholder="Page title"
-							value="{{ content.site.title }}"
-							data-validate="notEmpty"
-							data-trigger="focus"
-						/>
+					<div class="form-group">
+						<label for="input-site-title" class="col-sm-3 col-lg-2 control-label">Page title</label>
+						<div class="col-sm-6 col-lg-4">
+							<input type="text" name="title" class="form-control" id="input-site-title"
+								title="This determines what is shown in the title of the user’s browser window"
+								placeholder="Page title"
+								value="{{ content.site.title }}"
+								data-validate="notEmpty"
+								data-trigger="focus"
+							/>
+						</div>
 					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
-					<div class="col-sm-6 col-lg-4">
-						<div class="row">
-							<div class="{{#if content.site.path}}col-xs-9{{else}}col-xs-12{{/if}}">
-								<input type="text" name="path" class="form-control" id="input-site-path"
-									title="Choose the Dropbox folder that this site syncs from"
-									placeholder="Dropbox folder"
-									value="{{ content.site.path }}"
-									data-bind-id="site-path"
-								/>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+							<button type="submit" class="btn btn-success">Save changes</button>
+						</div>
+					</div>
+				</form>
+			</fieldset>
+			<fieldset>
+				<legend>Site folder</legend>
+				<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
+					<input type="hidden" name="_method" value="PUT"/>
+					<div class="form-group">
+						<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
+						<div class="col-sm-6 col-lg-4">
+							<div class="row">
+								<div class="col-xs-12">
+									<input type="text" name="path" class="form-control" id="input-site-path"
+										title="Choose the Dropbox folder that this site syncs from"
+										placeholder="Dropbox folder"
+										value="{{ content.site.path }}"
+										data-bind-id="site-path"
+									/>
+								</div>
+								<div class="col-xs-12">
+									<p class="help-block"
+										data-bind-dropbox-folder-check="site-path"
+									>
+										<strong class="shunt-dropbox-check-loading text-muted"><span class="glyphicon glyphicon-refresh"></span> Checking site folder…</strong>
+										<strong class="shunt-dropbox-check-valid text-success"><span class="glyphicon glyphicon-ok"></span> Site folder is valid</strong>
+										<strong class="shunt-dropbox-check-invalid text-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> No site folder exists at this path</strong>
+									</p>
+								</div>
 							</div>
-							{{#if content.site.path}}
-							<div class="col-xs-3">
-								<button type="button" class="btn btn-success col-xs-12"
-									title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
-									data-bind-value="site-path"
-									data-shunt-purge="{{ content.site.alias }}"
-								>
-									<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span></span>
-									<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span></span>
-									<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span></span>
-									<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span></span>
-								</button>
+						</div>
+						{{#if content.site.path}}
+						<div class="col-sm-3 col-lg-6">
+							<button type="button" class="btn btn-success"
+								title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
+								data-shunt-purge="{{ content.site.alias }}"
+							>
+								<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
+								<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span> Syncing…</span>
+								<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span> Sync done</span>
+								<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
+							</button>
+						</div>
+						{{/if}}
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+							<button type="submit" class="btn btn-success">Save changes</button>
+						</div>
+					</div>
+				</form>
+			</fieldset>
+			<fieldset>
+				<legend>Password protection</legend>
+				<form class="form-horizontal" role="form" action="{{ session.urls.sites }}/{{ content.site.alias }}" method="POST" autocomplete="off">
+					<input type="hidden" name="_method" value="PUT"/>
+					<div class="form-group">
+						<label class="col-sm-3 col-lg-2 control-label">Site access</label>
+						<div class="col-sm-9">
+							<div class="checkbox">
+								<label title="Only allow users with a valid username and password to see the Shunt site">
+									<input type="hidden" name="private" value="false"/>
+									<input type="checkbox" name="private" value="true"
+										{{#unless content.site.public}}checked="checked"{{/unless}}
+									/>
+									Password protect this site
+								</label>
 							</div>
+						</div>
+					</div>
+					{{#unless content.site.public}}
+					<div class="form-group">
+						<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
+						<div class="col-sm-6 col-lg-4">
+							{{#if content.site.users}}
+							<p class="form-control-static">
+								{{#ifequals content.site.users.length 1}}
+								1 registered user
+								{{else}}
+								{{content.site.users.length}} registered users
+								{{/ifequals}}
+								(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
+							</p>
+							{{else}}
+							<p class="form-control-static" title="Password protection is enabled, but you have not yet registered any users">
+								<strong class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Nobody is allowed to access this site</strong>
+								(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
+							</p>
 							{{/if}}
 						</div>
 					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Site access</label>
-					<div class="col-sm-9">
-						<div class="checkbox">
-							<label title="Only allow users with a valid username and password to see the Shunt site">
-								<input type="checkbox"
-									name="private"
-									value="true"
-									{{#unless content.site.public}}checked="checked"{{/unless}}
-								/>
-								Password protect this site
-							</label>
+					{{/unless}}
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
+							<button type="submit" class="btn btn-success">Save changes</button>
 						</div>
 					</div>
-				</div>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-success">Save changes</button>
-					</div>
-				</div>
+				</form>
 			</fieldset>
-			{{#unless content.site.public}}
-			<fieldset>
-				<legend>Password protection</legend>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
-					<div class="col-sm-6 col-lg-4">
-						{{#if content.site.users}}
-						<p class="form-control-static">
-							{{#ifequals content.site.users.length 1}}
-							1 registered user
-							{{else}}
-							{{content.site.users.length}} registered users
-							{{/ifequals}}
-							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
-						</p>
-						{{else}}
-						<p class="form-control-static" title="Password protection is enabled, but you have not yet registered any users">
-							<strong class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Nobody is allowed to access this site</strong>
-							(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
-						</p>
-						{{/if}}
-					</div>
-				</div>
-			</fieldset>
-			{{/unless}}
 			<!--
 			<fieldset>
 				<legend>Display options</legend>

@@ -382,6 +382,8 @@ module.exports = function(database, options) {
 			app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUserRoute);
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
+			app.get('/dropbox/metadata/*', ensureAuth, initAdminSession, retrieveDropboxMetadataRoute);
+
 
 			function ensureAuth(req, res, next) {
 				if (!req.isAuthenticated()) {
@@ -600,7 +602,7 @@ module.exports = function(database, options) {
 					'title': req.body.title,
 					'template': req.body.template,
 					'path': req.body.path || null,
-					'public': (req.body['private'] !== 'true')
+					'public': (req.body.private !== 'true')
 				};
 
 				var siteService = new SiteService(database);
@@ -630,17 +632,17 @@ module.exports = function(database, options) {
 				} else {
 
 					var updates = {
-						'user': uid,
-						'alias': req.body.alias,
-						'name': req.body.name,
-						'title': req.body.title,
-						'template': req.body.template,
-						'path': req.body.path || null,
-						'public': (req.body['private'] !== 'true')
+						'user': uid
 					};
+					if (req.body.alias) { updates.alias = req.body.alias; }
+					if (req.body.name) { updates.name = req.body.name; }
+					if (req.body.title) { updates.title = req.body.title; }
+					if (req.body.template) { updates.template = req.body.template; }
+					if (req.body.path) { updates.path = req.body.path || null; }
+					if (req.body.private) { updates.public = !((req.body.private === 'true') || (Array.isArray(req.body.private) && req.body.private[req.body.private.length - 1] === 'true')); }
 					updateSite(uid, siteAlias, updates)
 						.then(function() {
-							res.redirect(303, '/sites/edit/' + updates.alias);
+							res.redirect(303, '/sites/edit/' + siteAlias);
 						})
 						.catch(function(error) {
 							next(error);
@@ -704,6 +706,26 @@ module.exports = function(database, options) {
 						res.redirect(303, '/sites/edit/' + siteAlias + '/users');
 					})
 					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function retrieveDropboxMetadataRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+				var accessToken = userModel.token;
+				var dropboxPath = req.params[0];
+
+				var siteService = new SiteService(database);
+				siteService.getDropboxFileMetadata(uid, dropboxPath, accessToken)
+					.then(function(metadata) {
+						res.json(metadata);
+					})
+					.catch(function(error) {
+						if (error.status === 404) {
+							res.json(null);
+							return;
+						}
 						next(error);
 					});
 			}

@@ -32,7 +32,8 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	return parseSiteModel(siteModel)
+	var requireFullModel = true;
+	return validateSiteModel(siteModel, requireFullModel)
 		.then(function(siteModel) {
 			return createSite(siteModel)
 				.catch(function(error) {
@@ -342,7 +343,8 @@ SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
 
 SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 	var database = this.database;
-	return parseSiteModel(updates)
+	var requireFullModel = false;
+	return validateSiteModel(updates, requireFullModel)
 		.then(function(updates) {
 			return getSitePath(database, uid, siteAlias)
 				.then(function(existingSitePath) {
@@ -455,47 +457,38 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 	}
 };
 
-function parseSiteModel(siteModel) {
-	return validateSiteModel(siteModel)
-		.then(function(siteModel) {
-			var parsedModelFields = parseModelFields(siteModel);
-			return parsedModelFields;
+SiteService.prototype.getDropboxFileMetadata = function(uid, filePath, accessToken) {
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
+	var dropboxService = new DropboxService();
+
+	return dropboxService.connect(appKey, appSecret, accessToken, uid)
+		.then(function(client) {
+			return dropboxService.getFileMetadata(filePath)
+				.then(function(stat) {
+					return stat.json();
+				});
 		});
+};
 
+function validateSiteModel(siteModel, requireFullModel) {
+	return new Promise(function(resolve, reject) {
+		if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
+		if ((requireFullModel || ('user' in siteModel)) && !siteModel.user) { throw new HttpError(400, 'No user specified'); }
+		if ((requireFullModel || ('alias' in siteModel)) && !siteModel.alias) { throw new HttpError(400, 'No site alias specified'); }
+		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site name specified'); }
+		if ((requireFullModel || ('title' in siteModel)) && !siteModel.title) { throw new HttpError(400, 'No site title specified'); }
+		if ((requireFullModel || ('template' in siteModel)) && !siteModel.template) { throw new HttpError(400, 'No site template specified'); }
 
-	function validateSiteModel(siteModel) {
-		return new Promise(function(resolve, reject) {
-			if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
-			if (!siteModel.user) { throw new HttpError(400, 'No user specified'); }
-			if (!siteModel.alias) { throw new HttpError(400, 'No site alias specified'); }
-			if (!siteModel.name) { throw new HttpError(400, 'No site name specified'); }
-			if (!siteModel.title) { throw new HttpError(400, 'No site title specified'); }
-			if (!siteModel.template) { throw new HttpError(400, 'No site template specified'); }
+		// TODO: Validate organization when validating site model
+		// TODO: Validate alias when validating site model
+		// TODO: Validate name when validating site model
+		// TODO: Validate title when validating site model
+		// TODO: Validate template when validating site model
+		// TODO: Validate path when validating site model
 
-			// TODO: Validate organization when validating site model
-			// TODO: Validate alias when validating site model
-			// TODO: Validate name when validating site model
-			// TODO: Validate title when validating site model
-			// TODO: Validate template when validating site model
-			// TODO: Validate path when validating site model
-
-			resolve(siteModel);
-		});
-	}
-
-	function parseModelFields(siteModel) {
-		return {
-			'user': siteModel.user,
-			'alias': siteModel.alias,
-			'name': siteModel.name,
-			'title': siteModel.title,
-			'template': siteModel.template,
-			'path': siteModel.path || null,
-			'public': Boolean(siteModel['public']),
-			'users': siteModel.users || [],
-			'cache': null
-		};
-	}
+		resolve(siteModel);
+	});
 }
 
 module.exports = SiteService;

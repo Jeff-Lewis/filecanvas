@@ -72,3 +72,13 @@ legend {
 .-shunt-sync-error .shunt-sync-loading { display: none; }
 .-shunt-sync-error .shunt-sync-success { display: none; }
 .-shunt-sync-error .shunt-sync-error { display: inline }
+
+
+.shunt-dropbox-check-loading { display: none; }
+.shunt-dropbox-check-valid { display: none; }
+.shunt-dropbox-check-invalid { display: none; }
+
+.-shunt-dropbox-check-loading .shunt-dropbox-check-loading { display: inline; }
+.-shunt-dropbox-check-valid .shunt-dropbox-check-valid { display: inline; }
+.-shunt-dropbox-check-invalid .shunt-dropbox-check-invalid { display: inline; }
+

@@ -2,68 +2,22 @@
 	'use strict';
 
 	$(function() {
-		initSubmitButtons();
-		initInputParsers();
-		initDataBindings();
-		initInputValidators();
-		initShunt();
-	});
 
-
-	function initSubmitButtons() {
-		var $formElements = $('form');
-
-		$formElements.on('submit', function(event) {
-			var $formElement = $(event.currentTarget);
-			var $submitElements = $formElement.find('input[type="submit"],button[type="submit"]');
-			$submitElements.prop('disabled', true);
-		});
-	}
-
-	function initInputParsers() {
-		var attributeName = 'data-parser';
-
-		var $inputElements = $('[' + attributeName + ']');
+		var bindingFilters = {
+			'slug': function(value) {
+				return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
+			},
+			'format': function(value, formatString, emptyString) {
+				if (!value && (arguments.length >= 3)) { return emptyString; }
+				return formatString.replace(/\$0/g, value);
+			}
+		};
 
 		var parsers = {
 			'slug': function(value) {
 				return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
 			}
 		};
-
-		createInputParsers($inputElements, attributeName, parsers);
-
-
-		function createInputParsers($inputElements, attributeName, parsers) {
-			$inputElements.each(function(index, inputElement) {
-				var $inputElement = $(inputElement);
-
-				var parserId = $inputElement.attr(attributeName);
-				if (!(parserId in parsers)) { throw new Error('Invalid parser specified: "' + parserId + '"'); }
-
-				var parser = parsers[parserId];
-				addParserListeners($inputElement, parser);
-			});
-
-			function addParserListeners($inputElement, parser) {
-				$inputElement.on('input change', onInputUpdated);
-
-
-				function onInputUpdated(event) {
-					var inputValue = $inputElement.val();
-					var parsedValue = parser(inputValue);
-					if (parsedValue === inputValue) { return; }
-					$inputElement.val(parsedValue);
-					$inputElement.change();
-				}
-			}
-		}
-	}
-
-	function initInputValidators() {
-		var attributeName = 'data-validate';
-
-		var $inputElements = $('[' + attributeName + ']');
 
 		var validators = {
 			'notEmpty': function(value) {
@@ -80,19 +34,72 @@
 			}
 		};
 
-		createInputValidators($inputElements, attributeName, validators);
+		initSubmitButtons();
+		initInputParsers(parsers);
+		var bindingSources = initBindingSources();
+		initBindingTargets(bindingSources, bindingFilters);
+		initShunt(bindingSources, bindingFilters);
+		updateBindings(bindingSources);
+		initInputValidators(validators);
+	});
 
 
-		function createInputValidators($inputElements, attributeName, validators) {
-			$inputElements.each(function(index, inputElement) {
-				var $inputElement = $(inputElement);
+	function initSubmitButtons() {
+		var $formElements = $('form');
 
-				var validatorId = $inputElement.attr(attributeName);
-				if (!(validatorId in validators)) { throw new Error('Invalid validator specified: "' + validatorId + '"'); }
+		$formElements.on('submit', function(event) {
+			var $formElement = $(event.currentTarget);
+			var $submitElements = $formElement.find('input[type="submit"],button[type="submit"]');
+			$submitElements.prop('disabled', true);
+		});
+	}
 
-				var validator = validators[validatorId];
-				addParserListeners($inputElement, validator);
-			});
+	function initInputParsers(parsers) {
+		var attributeName = 'data-parser';
+		var $inputElements = $('[' + attributeName + ']');
+
+		$inputElements.each(function(index, inputElement) {
+			var $inputElement = $(inputElement);
+
+			var parserId = $inputElement.attr(attributeName);
+			if (!(parserId in parsers)) { throw new Error('Invalid parser specified: "' + parserId + '"'); }
+
+			var parser = parsers[parserId];
+			addParserListeners($inputElement, parser);
+		});
+
+
+		function addParserListeners($inputElement, parser) {
+			$inputElement.on('input change', onInputUpdated);
+
+
+			function onInputUpdated(event) {
+				var inputValue = $inputElement.val();
+				var parsedValue = parser(inputValue);
+				if (parsedValue === inputValue) { return; }
+				$inputElement.val(parsedValue);
+				$inputElement.change();
+			}
+		}
+	}
+
+	function initInputValidators(validators) {
+		var attributeName = 'data-validate';
+		var $inputElements = $('[' + attributeName + ']');
+
+		$inputElements.each(function(index, inputElement) {
+			var $inputElement = $(inputElement);
+			createValidator($inputElement, attributeName, validators);
+		});
+
+
+		function createValidator($inputElement, attributeName, validators) {
+			var validatorId = $inputElement.attr(attributeName);
+			if (!(validatorId in validators)) { throw new Error('Invalid validator specified: "' + validatorId + '"'); }
+
+			var validator = validators[validatorId];
+			addParserListeners($inputElement, validator);
+
 
 			function addParserListeners($inputElement, validator) {
 				$inputElement.on('input change blur', onInputUpdated);
@@ -107,248 +114,210 @@
 		}
 	}
 
-	function initDataBindings() {
+	function initBindingSources() {
 		var sourceAttributeName = 'data-bind-id';
-		var targetAttributeName = 'data-bind-value';
-
 		var $sourceElements = $('[' + sourceAttributeName + ']');
-		var $targetElements = $('[' + targetAttributeName + ']');
 
-		var filters = {
-			'slug': function(value) {
-				return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
-			},
-			'format': function(value, formatString, emptyString) {
-				if (!value && (arguments.length >= 3)) { return emptyString; }
-				return formatString.replace(/\$0/g, value);
-			}
-		};
-
-		var dataBindings = createDataBindings($sourceElements, $targetElements, sourceAttributeName, targetAttributeName, filters);
-		return dataBindings;
+		var bindingSources = {};
+		$sourceElements.each(function(index, sourceElement) {
+			var $sourceElement = $(sourceElement);
+			var sourceIdentifier = $sourceElement.attr(sourceAttributeName);
+			bindingSources[sourceIdentifier] = createBindingSource($sourceElement, sourceIdentifier);
+		});
+		return bindingSources;
 
 
-		function createDataBindings($sourceElements, $targetElements, sourceAttributeName, targetAttributeName, filters) {
-			var bindings = createBindingSources($sourceElements, sourceAttributeName);
-			assignBindingTargets(bindings, $targetElements, targetAttributeName, filters);
-			updateAllBindings(bindings);
-
-			return bindings;
-
-
-			function createBindingSources($sourceElements, sourceAttributeName) {
-				var bindingSources = {};
-				$sourceElements.each(function(index, sourceElement) {
-					var $sourceElement = $(sourceElement);
-					var sourceIdentifier = $sourceElement.attr(sourceAttributeName);
-					bindingSources[sourceIdentifier] = createDataBindingSource($sourceElement, sourceIdentifier);
-				});
-				return bindingSources;
-			}
-
-			function assignBindingTargets(bindingSources, $targetElements, targetAttributeName, filters) {
-				$targetElements.each(function(index, targetElement) {
-					var $targetElement = $(targetElement);
-
-					var bindingExpression = $targetElement.attr(targetAttributeName);
-					var bindingExpressionSegments = /^\s*(!?)\s*\s*(.*?)(?:\s*\|\s*(.*?))?\s*$/.exec(bindingExpression);
-
-					var bindingSourceInverted = Boolean(bindingExpressionSegments[1]);
-					var bindingSourceId = bindingExpressionSegments[2];
-					var bindingSource = bindingSources[bindingSourceId];
-					if (!bindingSource) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
-
-					var bindingFilterNames = bindingExpressionSegments[3] ? bindingExpressionSegments[3].split('|') : null;
-
-					var filter = getBindingFilter(bindingFilterNames, bindingExpression, filters);
-					if (bindingSourceInverted) { filter = invertBindingFilter(filter); }
-
-					bindingSource.bind($targetElement, filter);
-
-
-					function getBindingFilter(filterExpressions, bindingExpression, filters) {
-						if (!filterExpressions || filterExpressions.length === 0) { return null; }
-
-						var filterFunctions = filterExpressions.map(function(filterName) {
-							var filterId = parseFilterName(filterName);
-							var filterArguments = parseFilterArguments(filterName);
-
-							var filterExists = (filterId in filters);
-							if (!filterExists) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
-
-							return getFilter(filterId, filterArguments, filters);
-						});
-
-						if (filterFunctions.length === 1) { return filterFunctions[0]; }
-
-						var combinedFilter = filterFunctions.reduce(function(combinedFilter, filter) {
-							return function(value) {
-								return filter(combinedFilter(value));
-							};
-						});
-
-						return combinedFilter;
-
-
-						function parseFilterName(filterName) {
-							return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[1];
-						}
-
-						function parseFilterArguments(filterName) {
-							var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[2];
-							if (!argumentsString) { return null; }
-							var filterArguments = argumentsString.split(/\s*:\s*/);
-							return filterArguments.map(function(filterArgument) {
-								if (filterArgument === 'null') {
-									return null;
-								} else if (filterArgument === 'true') {
-									return true;
-								} else if (filterArgument === 'false') {
-									return false;
-								} else if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(filterArgument)) {
-									return Number(filterArgument);
-								} else if (/^'.*'$/.test(filterArgument)) {
-									return filterArgument.substr(1, filterArgument.length - 1 - 1);
-								}
-							});
-						}
-
-						function getFilter(filterId, filterArguments, filters) {
-							var filter = filters[filterId];
-							if (!filterArguments || (filterArguments.length === 0)) { return filter; }
-							var partiallyAppliedFunction = function(value) {
-								return filter.apply(null, [value].concat(filterArguments));
-							};
-							return partiallyAppliedFunction;
-						}
-					}
-
-					function invertBindingFilter(bindingFilter) {
-						if (!bindingFilter) {
-							return function(value) {
-								return !value;
-							};
-						}
-
-						return function(value) {
-							var invertedValue = !value;
-							return bindingFilter(invertedValue);
-						};
-					}
-				});
-			}
-
-			function updateAllBindings(bindingSources) {
-				for (var bindingId in bindingSources) {
-					var bindingSource = bindingSources[bindingId];
-					bindingSource.update();
-				}
-			}
-
-			function createDataBindingSource($sourceElement, sourceIdentifier) {
-				var value = getCurrentValue($sourceElement);
-				var bindingSource = {
-					value: value,
-					observers: [],
-					bind: bindTarget,
-					unbind: unbindTarget,
-					update: updateBindingValue
-				};
-
-				addBindingListeners($sourceElement, bindingSource);
-
-				return bindingSource;
-
-
-				function bindTarget($targetElement, filter) {
-					var observers = bindingSource.observers;
-					var observer = createObserver($targetElement, filter);
-					observers.push(observer);
-				}
-
-				function unbindTarget($targetElement) {
-					var observers = bindingSource.observers;
-
-					if (!$targetElement) {
-						observers.length = 0;
+		function createBindingSource($sourceElement, sourceIdentifier) {
+			var value = getCurrentValue($sourceElement);
+			var bindingSource = {
+				value: value,
+				listeners: [],
+				bind: function(handler) {
+					this.listeners.push(handler);
+				},
+				unbind: function(handler) {
+					if (!handler) {
+						this.listeners.length = 0;
 						return;
 					}
-
-					for (var i = 0; i < observers.length; i++) {
-						var observer = observers[i];
-						if (observer.element.is($targetElement)) {
-							observers.splice(i--, 1);
-						}
-					}
-				}
-
-				function updateBindingValue(value) {
+					var index = this.listeners.indexOf(handler);
+					if (index !== -1) { this.listeners.splice(index, 1); }
+				},
+				update: function(value) {
 					var valueWasSpecified = (arguments.length > 0);
 					if (valueWasSpecified) {
-						if (bindingSource.value === value) { return; }
-						bindingSource.value = value;
+						if (this.value === value) { return; }
+						this.value = value;
 					}
-
-					bindingSource.observers.forEach(function(observer) {
-						var value = bindingSource.value;
-						if (observer.filter) { value = observer.filter(value); }
-						updateBindingTarget(observer.$element, value);
+					var value = this.value;
+					bindingSource.listeners.forEach(function(handler) {
+						handler(value);
 					});
 				}
+			};
 
-				function createObserver($targetElement, filter) {
-					return {
-						$element: $targetElement,
-						filter: filter || null
-					};
+			addBindingListeners($sourceElement, bindingSource);
+
+			return bindingSource;
+
+
+			function addBindingListeners($sourceElement, bindingSource) {
+				if ($sourceElement.is('input')) {
+					$sourceElement.on('input change', onBindingUpdated);
+				} else if ($sourceElement.is('textarea,select,option,button')) {
+					$sourceElement.on('change', onBindingUpdated);
 				}
 
-				function addBindingListeners($sourceElement, bindingSource) {
-					if ($sourceElement.is('input')) {
-						$sourceElement.on('input change', onBindingUpdated);
-					} else if ($sourceElement.is('textarea,select,option,button')) {
-						$sourceElement.on('change', onBindingUpdated);
-					}
 
-
-					function onBindingUpdated() {
-						var value = getCurrentValue($sourceElement);
-						bindingSource.update(value);
-					}
+				function onBindingUpdated() {
+					var value = getCurrentValue($sourceElement);
+					bindingSource.update(value);
 				}
+			}
 
-				function getCurrentValue($sourceElement) {
-					if ($sourceElement.is('input[type="radio"],input[type="checkbox"]')) {
-						return $sourceElement.prop('checked');
-					} else if ($sourceElement.is('button,input[type="submit"],input[type="reset"]')) {
-						return !$sourceElement.prop('disabled');
-					} else if ($sourceElement.is('input,textarea,select,option')) {
-						return $sourceElement.val();
-					} else {
-						return $sourceElement.text();
-					}
-				}
-
-				function updateBindingTarget($targetElement, value) {
-					if ($targetElement.is('input[type="radio"],input[type="checkbox"]')) {
-						$targetElement.prop('checked', value && (value !== 'false'));
-					} else if ($targetElement.is('button,input[type="submit"],input[type="reset"]')) {
-						$targetElement.prop('disabled', !(value && (value !== 'false')));
-					} else if ($targetElement.is('input,textarea,select,option')) {
-						$targetElement.val(value);
-						$targetElement.change();
-					} else {
-						$targetElement.text(value);
-					}
+			function getCurrentValue($sourceElement) {
+				if ($sourceElement.is('input[type="radio"],input[type="checkbox"]')) {
+					return $sourceElement.prop('checked');
+				} else if ($sourceElement.is('button,input[type="submit"],input[type="reset"]')) {
+					return !$sourceElement.prop('disabled');
+				} else if ($sourceElement.is('input,textarea,select,option')) {
+					return $sourceElement.val();
+				} else {
+					return $sourceElement.text();
 				}
 			}
 		}
 	}
 
-	function initShunt() {
+	function parseBindingExpression(bindingExpression, bindingSources, bindingFilters) {
+		var bindingExpressionSegments = /^\s*(!?)\s*\s*(.*?)(?:\s*\|\s*(.*?))?\s*$/.exec(bindingExpression);
+		var isBindingSourceInverted = Boolean(bindingExpressionSegments[1]);
+		var bindingSourceId = bindingExpressionSegments[2];
+		var bindingSource = bindingSources[bindingSourceId];
+		if (!bindingSource) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
+
+		var filterExpressions = bindingExpressionSegments[3] ? bindingExpressionSegments[3].split('|') : null;
+		var hasFilters = Boolean(filterExpressions) && (filterExpressions.length > 0);
+
+		var filter = function(value) { return value; }
+		if (hasFilters) { filter = getFilteredBindingFunction(filter, bindingFilters); }
+		if (isBindingSourceInverted) { filter = invertBindingFilter(filter); }
+
+		return {
+			source: bindingSource,
+			filter: filter
+		};
+
+
+		function getFilteredBindingFunction(bindingFunction, bindingFilters) {
+			var filterFunctions = filterExpressions.map(function(filterName) {
+				var filterId = parseFilterName(filterName);
+				var filterArguments = parseFilterArguments(filterName);
+
+				var filterExists = (filterId in bindingFilters);
+				if (!filterExists) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
+
+				return getFilter(filterId, filterArguments, bindingFilters);
+			});
+
+			var combinedFilter = filterFunctions.reduce(function(combinedFilter, filter) {
+				return function(value) {
+					return filter(combinedFilter(value));
+				};
+			}, bindingFunction);
+
+			return combinedFilter;
+
+
+			function parseFilterName(filterName) {
+				return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[1];
+			}
+
+			function parseFilterArguments(filterName) {
+				var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[2];
+				if (!argumentsString) { return null; }
+				var filterArguments = argumentsString.split(/\s*:\s*/);
+				return filterArguments.map(function(filterArgument) {
+					if (filterArgument === 'null') {
+						return null;
+					} else if (filterArgument === 'true') {
+						return true;
+					} else if (filterArgument === 'false') {
+						return false;
+					} else if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(filterArgument)) {
+						return Number(filterArgument);
+					} else if (/^'.*'$/.test(filterArgument)) {
+						return filterArgument.substr(1, filterArgument.length - 1 - 1);
+					}
+				});
+			}
+
+			function getFilter(filterId, filterArguments, filters) {
+				var filter = filters[filterId];
+				if (!filterArguments || (filterArguments.length === 0)) { return filter; }
+				var partiallyAppliedFunction = function(value) {
+					return filter.apply(null, [value].concat(filterArguments));
+				};
+				return partiallyAppliedFunction;
+			}
+		}
+
+		function invertBindingFilter(filter) {
+			return function(value) {
+				var invertedValue = !value;
+				return filter(invertedValue);
+			};
+		}
+	}
+
+	function initBindingTargets(bindingSources, bindingFilters) {
+		var targetAttributeName = 'data-bind-value';
+		var $targetElements = $('[' + targetAttributeName + ']');
+
+		$targetElements.each(function(index, targetElement) {
+			var $targetElement = $(targetElement);
+			var bindingExpression = $targetElement.attr(targetAttributeName);
+			assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters);
+		});
+
+
+		function assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters) {
+			var binding = parseBindingExpression(bindingExpression, bindingSources, bindingFilters);
+			var bindingSource = binding.source;
+			var bindingFilter = binding.filter;
+
+			bindingSource.bind(function(value) {
+				value = bindingFilter(value);
+				updateBindingTarget($targetElement, value);
+			});
+		}
+
+		function updateBindingTarget($targetElement, value) {
+			if ($targetElement.is('input[type="radio"],input[type="checkbox"]')) {
+				$targetElement.prop('checked', value && (value !== 'false'));
+			} else if ($targetElement.is('button,input[type="submit"],input[type="reset"]')) {
+				$targetElement.prop('disabled', !(value && (value !== 'false')));
+			} else if ($targetElement.is('input,textarea,select,option')) {
+				$targetElement.val(value);
+				$targetElement.change();
+			} else {
+				$targetElement.text(value);
+			}
+		}
+	}
+
+	function updateBindings(bindingSources) {
+		for (var bindingId in bindingSources) {
+			var bindingSource = bindingSources[bindingId];
+			bindingSource.update();
+		}
+	}
+
+	function initShunt(bindingSources, bindingFilters) {
 		var shunt = window.shunt;
 
 		initPurgeLinks(shunt);
+		initDropboxFolderChecks(shunt, bindingSources, bindingFilters);
 
 
 		function initPurgeLinks(shunt) {
@@ -368,32 +337,87 @@
 					var siteAlias = $purgeButtonElement.attr(attributeName);
 					$purgeButtonElement.prop('disabled', true);
 					$purgeButtonElement.addClass('-shunt-sync-loading');
-					shunt.purgeSiteCache(siteAlias, onSiteCachePurged);
-
-
-					function onSiteCachePurged(error) {
-						$purgeButtonElement.prop('disabled', false);
-						$purgeButtonElement.removeClass('-shunt-sync-loading');
-
-						if (error) {
+					shunt.purgeSiteCache(siteAlias)
+						.always(function() {
+							$purgeButtonElement.prop('disabled', false);
+							$purgeButtonElement.removeClass('-shunt-sync-loading');
+						})
+						.done(function() {
+							var successTimeoutDuration = 3000;
+							setButtonState($purgeButtonElement, '-shunt-sync-success', successTimeoutDuration);
+						})
+						.fail(function(error) {
 							var errorTimeoutDuration = 3000;
 							setButtonState($purgeButtonElement, '-shunt-sync-error', errorTimeoutDuration);
 							return;
-						}
+						});
+				}
 
-						var successTimeoutDuration = 3000;
-						setButtonState($purgeButtonElement, '-shunt-sync-success', successTimeoutDuration);
+				function setButtonState($element, className, timeoutDuration) {
+					$element.prop('disabled', true);
+					$element.addClass(className);
+					setTimeout(function() {
+						$element.prop('disabled', false);
+						$element.removeClass(className);
+					}, 3000);
+				}
+			}
+		}
+
+		function initDropboxFolderChecks(shunt, bindingSources, bindingFilters) {
+			var targetAttributeName = 'data-bind-dropbox-folder-check';
+			var $targetElements = $('[' + targetAttributeName + ']');
+
+			$targetElements.each(function(index, targetElement) {
+				var $targetElement = $(targetElement);
+				var bindingExpression = $targetElement.attr(targetAttributeName);
+				assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters);
+			});
 
 
-						function setButtonState($element, className, timeoutDuration) {
-							$element.prop('disabled', true);
-							$element.addClass(className);
-							setTimeout(function() {
-								$element.prop('disabled', false);
-								$element.removeClass(className);
-							}, 3000);
-						}
+			function assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters) {
+				var binding = parseBindingExpression(bindingExpression, bindingSources, bindingFilters);
+				var bindingSource = binding.source;
+				var bindingFilter = binding.filter;
+				var currentState = null;
+				var currentRequest = null;
+				var classPrefix = '-shunt-dropbox-check-';
+
+				bindingSource.bind(function(value) {
+					value = bindingFilter(value);
+					updateBindingTarget($targetElement, value);
+				});
+
+
+				function updateBindingTarget($targetElement, path) {
+					setCurrentState($targetElement, 'loading');
+					var request = delay(500)
+						.then(function() {
+							if (currentRequest !== request) { return; }
+							return shunt.validateDropboxFolder(path);
+						})
+						.done(function(isValid) {
+							if (currentRequest !== request) { return; }
+							setCurrentState($targetElement, isValid ? 'valid' : 'invalid');
+						})
+						.fail(function(error) {
+							if (currentRequest !== request) { return; }
+							setCurrentState($targetElement, 'error');
+						});
+					currentRequest = request;
+
+
+					function delay(duration) {
+						var deferred = new $.Deferred();
+						setTimeout(function() { deferred.resolve(); }, duration);
+						return deferred.promise();
 					}
+				}
+
+				function setCurrentState($targetElement, state) {
+					if (currentState) { $targetElement.removeClass(classPrefix + currentState); }
+					currentState = state;
+					$targetElement.addClass(classPrefix + currentState);
 				}
 			}
 		}
