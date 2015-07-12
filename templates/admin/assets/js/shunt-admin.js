@@ -158,33 +158,44 @@
 					var bindingSource = bindingSources[bindingSourceId];
 					if (!bindingSource) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
 
-					var bindingFilterExpression = bindingExpressionSegments[3] || null;
+					var bindingFilterNames = bindingExpressionSegments[3] ? bindingExpressionSegments[3].split('|') : null;
 
-					var filter = getBindingFilter(bindingFilterExpression);
+					var filter = getBindingFilter(bindingFilterNames, bindingExpression, filters);
 					if (bindingSourceInverted) { filter = invertBindingFilter(filter); }
 
 					bindingSource.bind($targetElement, filter);
 
 
-					function getBindingFilter(filterExpression) {
-						if (!filterExpression) { return null; }
+					function getBindingFilter(filterExpressions, bindingExpression, filters) {
+						if (!filterExpressions || filterExpressions.length === 0) { return null; }
 
-						var bindingFilterId = null;
-						bindingFilterId = parseFilterId(bindingFilterExpression);
+						var filterFunctions = filterExpressions.map(function(filterName) {
+							var filterId = parseFilterName(filterName);
+							var filterArguments = parseFilterArguments(filterName);
 
-						var bindingFilterExists = (bindingFilterId in filters);
-						if (!bindingFilterExists) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
+							var filterExists = (filterId in filters);
+							if (!filterExists) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
 
-						var bindingFilterArguments = parseFilterArguments(bindingFilterExpression);
-						return getFilter(bindingFilterId, bindingFilterArguments, filters);
+							return getFilter(filterId, filterArguments, filters);
+						});
+
+						if (filterFunctions.length === 1) { return filterFunctions[0]; }
+
+						var combinedFilter = filterFunctions.reduce(function(combinedFilter, filter) {
+							return function(value) {
+								return filter(combinedFilter(value));
+							};
+						});
+
+						return combinedFilter;
 
 
-						function parseFilterId(filterExpression) {
-							return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[1];
+						function parseFilterName(filterName) {
+							return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[1];
 						}
 
-						function parseFilterArguments(filterExpression) {
-							var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[2];
+						function parseFilterArguments(filterName) {
+							var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[2];
 							if (!argumentsString) { return null; }
 							var filterArguments = argumentsString.split(/\s*:\s*/);
 							return filterArguments.map(function(filterArgument) {
@@ -203,11 +214,12 @@
 						}
 
 						function getFilter(filterId, filterArguments, filters) {
-							var filter = filters[bindingFilterId];
+							var filter = filters[filterId];
 							if (!filterArguments || (filterArguments.length === 0)) { return filter; }
-							return function(value) {
+							var partiallyAppliedFunction = function(value) {
 								return filter.apply(null, [value].concat(filterArguments));
 							};
+							return partiallyAppliedFunction;
 						}
 					}
 
