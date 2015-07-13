@@ -39,6 +39,19 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
+					<div class="col-sm-6 col-lg-4">
+						<input type="text" class="form-control" id="input-site-path"
+						 	name="path"
+							title="Choose the Dropbox folder that this site syncs from. If the folder does not exist, it will be created."
+							placeholder="Dropbox folder"
+							value="{{ content.site.path }}"
+							data-bind-value="site-alias|format:'/shunt/$0'"
+							data-trigger="focus"
+						/>
+					</div>
+				</div>
+				<div class="form-group">
 					<label for="input-site-title" class="col-sm-3 col-lg-2 control-label">Page title</label>
 					<div class="col-sm-6 col-lg-4">
 						<input type="text" class="form-control" id="input-site-title"
@@ -48,19 +61,6 @@
 							value="{{ content.site.title }}"
 							data-bind-value="site-name"
 							data-validate="notEmpty"
-							data-trigger="focus"
-						/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-site-path"
-						 	name="path"
-							title="Choose the Dropbox folder that this site syncs from"
-							placeholder="Dropbox folder"
-							value="{{ content.site.path }}"
-							data-bind-value="site-alias|format:'/shunt/$0'"
 							data-trigger="focus"
 						/>
 					</div>
