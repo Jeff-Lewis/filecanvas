@@ -14,7 +14,8 @@
 					<div class="form-group">
 						<label for="input-site-name" class="col-sm-3 col-lg-2 control-label">Name</label>
 						<div class="col-sm-6 col-lg-4">
-							<input type="text" name="name" class="form-control" id="input-site-name"
+							<input type="text" class="form-control" id="input-site-name"
+							 	name="name"
 								title="This helps you identify the site in the Shunt admin area"
 								placeholder="Site name"
 								value="{{ content.site.name }}"
@@ -26,7 +27,8 @@
 					<div class="form-group">
 						<label for="input-site-alias" class="col-sm-3 col-lg-2 control-label">Site ID</label>
 						<div class="col-sm-6 col-lg-4">
-							<input type="text" name="alias" class="form-control" id="input-site-alias"
+							<input type="text" class="form-control" id="input-site-alias"
+							 	name="alias"
 								title="This determines the site’s web address"
 								placeholder="Site ID"
 								value="{{ content.site.alias }}"
@@ -43,7 +45,8 @@
 						<div class="col-sm-6 col-lg-4">
 							<div class="row">
 								<div class="col-xs-12">
-									<input type="text" name="path" class="form-control" id="input-site-path"
+									<input type="text" class="form-control" id="input-site-path"
+									 	name="path"
 										title="Choose the Dropbox folder that this site syncs from"
 										placeholder="Dropbox folder"
 										value="{{ content.site.path }}"
@@ -89,7 +92,8 @@
 					<div class="form-group">
 						<label for="input-site-title" class="col-sm-3 col-lg-2 control-label">Page title</label>
 						<div class="col-sm-6 col-lg-4">
-							<input type="text" name="title" class="form-control" id="input-site-title"
+							<input type="text" class="form-control" id="input-site-title"
+								name="title"
 								title="This determines what is shown in the title of the user’s browser window"
 								placeholder="Page title"
 								value="{{ content.site.title }}"
