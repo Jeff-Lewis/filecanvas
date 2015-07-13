@@ -19,18 +19,21 @@ function SiteService(database, options) {
 	options = options || {};
 	var appKey = options.appKey;
 	var appSecret = options.appKey;
+	var accessToken = options.accessToken;
 
 	this.database = database;
 	this.appKey = appKey;
 	this.appSecret = appSecret;
+	this.accessToken = accessToken;
 }
 
 SiteService.prototype.database = null;
 
-SiteService.prototype.createSite = function(siteModel, accessToken) {
+SiteService.prototype.createSite = function(siteModel) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
+	var accessToken = this.accessToken;
 	var requireFullModel = true;
 	return validateSiteModel(siteModel, requireFullModel)
 		.then(function(siteModel) {
@@ -161,7 +164,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var userService = new UserService(database);
+	var accessToken = this.accessToken;
 	var self = this;
 	return retrieveSite(database, uid, siteAlias, includeContents, includeUsers)
 		.then(function(siteModel) {
@@ -170,17 +173,13 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			var hasSiteFolder = (siteModel.path !== null);
 			if (!hasSiteFolder) { return null; }
 
-			return userService.retrieveUser(uid)
-				.then(function(userModel) {
-					var accessToken = userModel.token;
-					return loadSiteContents(siteModel, appKey, appSecret, accessToken, uid)
-						.then(function(folder) {
-							self.updateSiteCache(uid, siteAlias, folder.cache);
-							var contents = parseFileModel(folder.contents, siteModel.path);
-							siteModel.contents = contents;
-							siteModel.cache = folder.cache;
-							return siteModel;
-						});
+			return loadSiteContents(siteModel, appKey, appSecret, accessToken, uid)
+				.then(function(folder) {
+					self.updateSiteCache(uid, siteAlias, folder.cache);
+					var contents = parseFileModel(folder.contents, siteModel.path);
+					siteModel.contents = contents;
+					siteModel.cache = folder.cache;
+					return siteModel;
 				});
 		});
 
@@ -264,17 +263,13 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var userService = new UserService(database);
+	var accessToken = this.accessToken;
 	return retrieveSiteDropboxPath(database, uid, siteAlias)
 		.then(function(folderPath) {
-			return userService.retrieveUser(uid)
-				.then(function(userModel) {
-					var accessToken = userModel.token;
-					return new DropboxService().connect(appKey, appSecret, accessToken)
-						.then(function(dropboxClient) {
-							var dropboxFilePath = folderPath + '/' + downloadPath;
-							return dropboxClient.generateDownloadLink(dropboxFilePath);
-						});
+			return new DropboxService().connect(appKey, appSecret, accessToken)
+				.then(function(dropboxClient) {
+					var dropboxFilePath = folderPath + '/' + downloadPath;
+					return dropboxClient.generateDownloadLink(dropboxFilePath);
 				});
 		});
 
@@ -452,9 +447,10 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 	}
 };
 
-SiteService.prototype.getDropboxFileMetadata = function(uid, filePath, accessToken) {
+SiteService.prototype.getDropboxFileMetadata = function(uid, filePath) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
+	var accessToken = this.accessToken;
 
 	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 		.then(function(dropboxClient) {

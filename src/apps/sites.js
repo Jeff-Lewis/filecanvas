@@ -19,6 +19,8 @@ var AuthenticationService = require('../services/AuthenticationService');
 
 module.exports = function(database, options) {
 	options = options || {};
+	var appKey = options.appKey;
+	var appSecret = options.appSecret;
 	var templatesUrl = options.templatesUrl;
 
 	if (!templatesUrl) { throw new Error('Missing templates root URL'); }
@@ -64,7 +66,12 @@ module.exports = function(database, options) {
 			userService.retrieveUser(userAlias)
 				.then(function(userModel) {
 					var uid = userModel.uid;
-					var siteService = new SiteService(database);
+					var accessToken = userModel.token;
+					var siteService = new SiteService(database, {
+						appKey: appKey,
+						appSecret: appSecret,
+						accessToken: accessToken
+					});
 					return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 						.then(function(authenticationDetails) {
 							var validUsers = authenticationDetails.users;
@@ -99,7 +106,12 @@ module.exports = function(database, options) {
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(database);
+						var accessToken = userModel.token;
+						var siteService = new SiteService(database, {
+							appKey: appKey,
+							appSecret: appSecret,
+							accessToken: accessToken
+						});
 						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 							.then(function(authenticationDetails) {
 								var isPublic = authenticationDetails.public;
@@ -261,7 +273,12 @@ module.exports = function(database, options) {
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(database);
+						var accessToken = userModel.token;
+						var siteService = new SiteService(database, {
+							appKey: appKey,
+							appSecret: appSecret,
+							accessToken: accessToken
+						});
 						var includeContents = false;
 						var includeUsers = false;
 						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -332,7 +349,12 @@ module.exports = function(database, options) {
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(database);
+						var accessToken = userModel.token;
+						var siteService = new SiteService(database, {
+							appKey: appKey,
+							appSecret: appSecret,
+							accessToken: accessToken
+						});
 						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 							.then(function(authenticationDetails) {
 								var isPublic = authenticationDetails.public;
@@ -364,7 +386,12 @@ module.exports = function(database, options) {
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(database);
+						var accessToken = userModel.token;
+						var siteService = new SiteService(database, {
+							appKey: appKey,
+							appSecret: appSecret,
+							accessToken: accessToken
+						});
 						var includeContents = true;
 						var includeUsers = false;
 						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -395,7 +422,12 @@ module.exports = function(database, options) {
 				userService.retrieveUser(userAlias)
 					.then(function(userModel) {
 						var uid = userModel.uid;
-						var siteService = new SiteService(database);
+						var accessToken = userModel.token;
+						var siteService = new SiteService(database, {
+							appKey: appKey,
+							appSecret: appSecret,
+							accessToken: accessToken
+						});
 						return siteService.retrieveSiteDownloadLink(uid, siteAlias, downloadPath)
 							.then(function(downloadUrl) {
 								res.redirect(downloadUrl);

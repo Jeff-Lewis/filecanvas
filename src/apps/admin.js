@@ -547,9 +547,14 @@ module.exports = function(database, options) {
 			function retrieveSiteEditRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var accessToken = userModel.token;
 				var siteAlias = req.params.site;
 
-				var siteService = new SiteService(database);
+				var siteService = new SiteService(database, {
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
 				var includeContents = false;
 				var includeUsers = true;
 				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -570,9 +575,14 @@ module.exports = function(database, options) {
 			function retrieveSiteUsersEditRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var accessToken = userModel.token;
 				var siteAlias = req.params.site;
 
-				var siteService = new SiteService(database);
+				var siteService = new SiteService(database, {
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
 				var includeContents = false;
 				var includeUsers = true;
 				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
@@ -605,8 +615,12 @@ module.exports = function(database, options) {
 					'public': (req.body.private !== 'true')
 				};
 
-				var siteService = new SiteService(database);
-				siteService.createSite(siteModel, accessToken)
+				var siteService = new SiteService(database, {
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
+				siteService.createSite(siteModel)
 					.then(function(siteModel) {
 						res.redirect(303, '/sites/edit/' + siteModel.alias);
 					})
@@ -618,11 +632,12 @@ module.exports = function(database, options) {
 			function updateSiteRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var accessToken = userModel.token;
 				var siteAlias = req.params.site;
 
 				var isPurgeRequest = (req.body._action === 'purge');
 				if (isPurgeRequest) {
-					purgeSite(uid, siteAlias)
+					purgeSite(uid, accessToken, siteAlias)
 						.then(function() {
 							res.redirect(303, '/sites/edit/' + siteAlias);
 						})
@@ -640,7 +655,7 @@ module.exports = function(database, options) {
 					if (req.body.template) { updates.template = req.body.template; }
 					if (req.body.path) { updates.path = req.body.path || null; }
 					if (req.body.private) { updates.public = !((req.body.private === 'true') || (Array.isArray(req.body.private) && req.body.private[req.body.private.length - 1] === 'true')); }
-					updateSite(uid, siteAlias, updates)
+					updateSite(uid, accessToken, siteAlias, updates)
 						.then(function() {
 							res.redirect(303, '/sites/edit/' + siteAlias);
 						})
@@ -650,14 +665,22 @@ module.exports = function(database, options) {
 				}
 
 
-				function purgeSite(uid, siteAlias) {
+				function purgeSite(uid, accessToken, siteAlias) {
 					var cache = null;
-					var siteService = new SiteService(database);
+					var siteService = new SiteService(database, {
+						appKey: appKey,
+						appSecret: appSecret,
+						accessToken: accessToken
+					});
 					return siteService.updateSiteCache(uid, siteAlias, cache);
 				}
 
-				function updateSite(uid, siteAlias, updates) {
-					var siteService = new SiteService(database);
+				function updateSite(uid, accessToken, siteAlias, updates) {
+					var siteService = new SiteService(database, {
+						appKey: appKey,
+						appSecret: appSecret,
+						accessToken: accessToken
+					});
 					return siteService.updateSite(uid, siteAlias, updates);
 				}
 			}
@@ -665,9 +688,14 @@ module.exports = function(database, options) {
 			function deleteSiteRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var accessToken = userModel.token;
 				var siteAlias = req.params.site;
 
-				var siteService = new SiteService(database);
+				var siteService = new SiteService(database, {
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
 				siteService.deleteSite(uid, siteAlias)
 					.then(function(siteModel) {
 						res.redirect(303, '/sites');
@@ -680,11 +708,16 @@ module.exports = function(database, options) {
 			function createSiteUserRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var accessToken = userModel.token;
 				var siteAlias = req.params.site;
 				var username = req.body.username;
 				var password = req.body.password;
 
-				var siteService = new SiteService(database);
+				var siteService = new SiteService(database, {
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
 				siteService.createSiteUser(uid, siteAlias, username, password)
 					.then(function(userModel) {
 						res.redirect(303, '/sites/edit/' + siteAlias + '/users');
@@ -697,10 +730,15 @@ module.exports = function(database, options) {
 			function deleteSiteUserRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var accessToken = userModel.token;
 				var siteAlias = req.params.site;
 				var username = req.params.username;
 
-				var siteService = new SiteService(database);
+				var siteService = new SiteService(database, {
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
 				siteService.deleteSiteUser(uid, siteAlias, username)
 					.then(function() {
 						res.redirect(303, '/sites/edit/' + siteAlias + '/users');
@@ -716,8 +754,12 @@ module.exports = function(database, options) {
 				var accessToken = userModel.token;
 				var dropboxPath = req.params[0];
 
-				var siteService = new SiteService(database);
-				siteService.getDropboxFileMetadata(uid, dropboxPath, accessToken)
+				var siteService = new SiteService(database, {
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
+				siteService.getDropboxFileMetadata(uid, dropboxPath)
 					.then(function(metadata) {
 						res.json(metadata);
 					})
