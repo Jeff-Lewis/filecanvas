@@ -611,7 +611,7 @@ module.exports = function(database, options) {
 					'title': req.body.title,
 					'template': req.body.template,
 					'path': req.body.path || null,
-					'private': (req.body.private === 'true')
+					'private': req.body.private === 'true'
 				};
 
 				var siteService = new SiteService(database, {
@@ -653,7 +653,7 @@ module.exports = function(database, options) {
 					if (req.body.title) { updates.title = req.body.title; }
 					if (req.body.template) { updates.template = req.body.template; }
 					if (req.body.path) { updates.path = req.body.path || null; }
-					if (req.body.private) { updates.private = (req.body.private === 'true') || (Array.isArray(req.body.private) && req.body.private[req.body.private.length - 1] === 'true'); }
+					if (req.body.private) { updates.private = req.body.private === 'true'; }
 					updateSite(uid, accessToken, siteAlias, updates)
 						.then(function() {
 							res.redirect(303, '/sites/edit/' + siteAlias);

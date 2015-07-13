@@ -104,6 +104,10 @@
 						<div class="col-sm-9">
 							<div class="checkbox">
 								<label title="You can choose to keep your Dropbox files in order by preceding their filenames with numbers (e.g. ‘01 - Latest Designs’). Use this checkbox if you don’t want your users to see these numbers in the Shunt site (i.e. display this as ‘Latest Designs’)">
+									<input type="hidden"
+										name="numbered-items"
+										value="false"
+									/>
 									<input type="checkbox"
 										name="numbered-items"
 										value="true"
@@ -118,6 +122,10 @@
 						<div class="col-sm-9">
 							<div class="checkbox">
 								<label title="By default, Shunt will hide all file extensions (e.g. ‘.pdf’). Use this checkbox if you want your users to see these file extensions in the Shunt site.">
+									<input type="hidden"
+										name="show-extensions"
+										value="false"
+									/>
 									<input type="checkbox"
 										name="show-extensions"
 										value="true"
@@ -148,8 +156,13 @@
 						<div class="col-sm-9">
 							<div class="checkbox">
 								<label title="Only allow users with a valid username and password to see the Shunt site">
-									<input type="hidden" name="private" value="false"/>
-									<input type="checkbox" name="private" value="true"
+									<input type="hidden"
+										name="private"
+										value="false"
+									/>
+									<input type="checkbox"
+										name="private"
+										value="true"
 										{{#if content.site.private}}checked="checked"{{/if}}
 									/>
 									Password protect this site
