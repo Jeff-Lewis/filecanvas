@@ -6,7 +6,6 @@ var escapeRegExp = require('escape-regexp');
 var HttpError = require('../errors/HttpError');
 
 var DropboxService = require('../services/DropboxService');
-var DownloadService = require('../services/DownloadService');
 var UserService = require('../services/UserService');
 var AuthenticationService = require('../services/AuthenticationService');
 
@@ -60,19 +59,18 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 	}
 
 	function initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteContents) {
-		var dropboxService = new DropboxService();
-		return dropboxService.connect(appKey, appSecret, accessToken, uid)
-			.then(function(client) {
-				return checkWhetherFileExists(dropboxService, sitePath);
-			})
-			.then(function(folderExists) {
-				if (folderExists) { return; }
-				return copySiteFiles(dropboxService, sitePath, siteContents);
+		return new DropboxService().connect(appKey, appSecret, accessToken, uid)
+			.then(function(dropboxClient) {
+				return checkWhetherFileExists(dropboxClient, sitePath)
+					.then(function(folderExists) {
+						if (folderExists) { return; }
+						return copySiteFiles(dropboxClient, sitePath, siteContents);
+					});
 			});
 
 
-		function checkWhetherFileExists(dropboxService, filePath) {
-			return dropboxService.getFileMetadata(filePath)
+		function checkWhetherFileExists(dropboxClient, filePath) {
+			return dropboxClient.getFileMetadata(filePath)
 				.then(function(stat) {
 					if (stat.isRemoved) { return false; }
 					return true;
@@ -85,13 +83,13 @@ SiteService.prototype.createSite = function(siteModel, accessToken) {
 				});
 		}
 
-		function copySiteFiles(dropboxService, sitePath, dirContents) {
+		function copySiteFiles(dropboxClient, sitePath, dirContents) {
 			var files = getFileListing(dirContents, sitePath);
 			var writeOptions = {};
 			return Promise.resolve(mapSeries(files, function(fileMetaData) {
 				var filePath = fileMetaData.path;
 				var fileContents = fileMetaData.contents;
-				return dropboxService.writeFile(filePath, fileContents, writeOptions);
+				return dropboxClient.writeFile(filePath, fileContents, writeOptions);
 			}).then(function(results) {}));
 
 
@@ -208,10 +206,9 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 	}
 
 	function loadSiteContents(siteModel, appKey, appSecret, accessToken, uid) {
-		var dropboxService = new DropboxService();
-		return dropboxService.connect(appKey, appSecret, accessToken, uid)
-			.then(function(client) {
-				return dropboxService.loadFolderContents(siteModel.path, siteModel.cache);
+		return new DropboxService().connect(appKey, appSecret, accessToken, uid)
+			.then(function(dropboxClient) {
+				return dropboxClient.loadFolderContents(siteModel.path, siteModel.cache);
 			});
 	}
 
@@ -273,12 +270,10 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 			return userService.retrieveUser(uid)
 				.then(function(userModel) {
 					var accessToken = userModel.token;
-					var dropboxService = new DropboxService();
-					return dropboxService.connect(appKey, appSecret, accessToken)
-						.then(function(client) {
-							var downloadService = new DownloadService(dropboxService);
+					return new DropboxService().connect(appKey, appSecret, accessToken)
+						.then(function(dropboxClient) {
 							var dropboxFilePath = folderPath + '/' + downloadPath;
-							return downloadService.retrieveDownloadLink(dropboxFilePath);
+							return dropboxClient.generateDownloadLink(dropboxFilePath);
 						});
 				});
 		});
@@ -460,11 +455,10 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 SiteService.prototype.getDropboxFileMetadata = function(uid, filePath, accessToken) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var dropboxService = new DropboxService();
 
-	return dropboxService.connect(appKey, appSecret, accessToken, uid)
-		.then(function(client) {
-			return dropboxService.getFileMetadata(filePath)
+	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
+		.then(function(dropboxClient) {
+			return dropboxClient.getFileMetadata(filePath)
 				.then(function(stat) {
 					return stat.json();
 				});

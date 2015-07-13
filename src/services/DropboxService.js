@@ -13,55 +13,33 @@ var DROPBOX_DELTA_CACHE_EXPIRY = 5 * SECONDS;
 function DropboxService() {
 }
 
-DropboxService.prototype.client = null;
-DropboxService.prototype.connecting = false;
-
-DropboxService.prototype.generateAccessToken = function(appKey, appSecret) {
-	var self = this;
-	return new Promise(function(resolve, reject) {
-		var client = new Dropbox.Client({
-			key: appKey,
-			secret: appSecret,
-			sandbox: false
-		});
-
-		client.authDriver(new Dropbox.AuthDriver.NodeServer(8191));
-
-		client.authenticate(function(error, client) {
-			if (error) { return reject(new HttpError(error.status, self.getErrorType(error))); }
-			var accessToken = client._oauth._token;
-			return resolve(accessToken);
-		});
-	});
-};
-
 DropboxService.prototype.connect = function(appKey, appSecret, accessToken, uid) {
-	var self = this;
 	return new Promise(function(resolve, reject) {
-		if (self.connecting) { throw new Error('Connection attempt already in progress'); }
-		if (self.client) { throw new Error('Already connected'); }
-
-		self.connecting = true;
-
-		var client = new Dropbox.Client({
+		new Dropbox.Client({
 			key: appKey,
 			secret: appSecret,
 			token: accessToken,
 			uid: uid,
 			sandbox: false
-		});
-
-		client.authenticate(function(error, client) {
-			self.connecting = false;
+		})
+		.authenticate(function(error, client) {
 			if (error) { return reject(error); }
-			self.client = client;
 			return resolve(client);
 		});
+	})
+	.then(function(client) {
+		return new DropboxClient(client);
 	});
 };
 
-DropboxService.prototype.getFileMetadata = function(filePath) {
-	if (!this.client) { return Promise.resolve(new Error('Not connected')); }
+
+function DropboxClient(client) {
+	this.client = client;
+}
+
+DropboxClient.prototype.client = null;
+
+DropboxClient.prototype.getFileMetadata = function(filePath) {
 	var client = this.client;
 	return getFileMetadata(client, filePath);
 
@@ -77,8 +55,7 @@ DropboxService.prototype.getFileMetadata = function(filePath) {
 	}
 };
 
-DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) {
-	if (!this.client) { return Promise.resolve(new Error('Not connected')); }
+DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 	var self = this;
 	var client = this.client;
 
@@ -253,8 +230,7 @@ DropboxService.prototype.loadFolderContents = function(folderPath, folderCache) 
 	}
 };
 
-DropboxService.prototype.writeFile = function(path, data, options) {
-	if (!this.client) { return Promise.resolve(new Error('Not connected')); }
+DropboxClient.prototype.writeFile = function(path, data, options) {
 	var client = this.client;
 	return writeFile(client, path, data, options);
 
@@ -269,46 +245,59 @@ DropboxService.prototype.writeFile = function(path, data, options) {
 	}
 };
 
-DropboxService.prototype.getErrorType = function(error) {
+DropboxClient.prototype.generateDownloadLink = function(filePath) {
+	var self = this;
+	return new Promise(function(resolve, reject) {
+		var generateTemporaryUrl = true;
+		self.client.makeUrl(filePath, { download: generateTemporaryUrl },
+			function(error, shareUrlModel) {
+				if (error) { return reject(error); }
+				return resolve(shareUrlModel.url);
+			}
+		);
+	});
+};
+
+DropboxClient.prototype.getErrorType = function(error) {
 	switch (error.status) {
-	case Dropbox.ApiError.INVALID_TOKEN:
+	case DropboxClient.ApiError.INVALID_TOKEN:
 		// If you're using dropbox.js, the only cause behind this error is that
 		// the user token expired.
 		// Get the user through the authentication flow again.
-		return 'Dropbox.ApiError.INVALID_TOKEN';
+		return 'DropboxClient.ApiError.INVALID_TOKEN';
 
-	case Dropbox.ApiError.NOT_FOUND:
-		// The file or folder you tried to access is not in the user's Dropbox.
+	case DropboxClient.ApiError.NOT_FOUND:
+		// The file or folder you tried to access is not in the user's DropboxClient.
 		// Handling this error is specific to your application.
-		return 'Dropbox.ApiError.NOT_FOUND';
+		return 'DropboxClient.ApiError.NOT_FOUND';
 
-	case Dropbox.ApiError.OVER_QUOTA:
-		// The user is over their Dropbox quota.
-		// Tell them their Dropbox is full. Refreshing the page won't help.
-		return 'Dropbox.ApiError.OVER_QUOTA';
+	case DropboxClient.ApiError.OVER_QUOTA:
+		// The user is over their DropboxClient quota.
+		// Tell them their DropboxClient is full. Refreshing the page won't help.
+		return 'DropboxClient.ApiError.OVER_QUOTA';
 
-	case Dropbox.ApiError.RATE_LIMITED:
+	case DropboxClient.ApiError.RATE_LIMITED:
 		// Too many API requests. Tell the user to try again later.
 		// Long-term, optimize your code to use fewer API calls.
-		return 'Dropbox.ApiError.RATE_LIMITED';
+		return 'DropboxClient.ApiError.RATE_LIMITED';
 
-	case Dropbox.ApiError.NETWORK_ERROR:
+	case DropboxClient.ApiError.NETWORK_ERROR:
 		// An error occurred at the XMLHttpRequest layer.
 		// Most likely, the user's network connection is down.
 		// API calls will not succeed until the user gets back online.
-		return 'Dropbox.ApiError.NETWORK_ERROR';
+		return 'DropboxClient.ApiError.NETWORK_ERROR';
 
-	case Dropbox.ApiError.INVALID_PARAM:
-		return 'Dropbox.ApiError.INVALID_PARAM';
+	case DropboxClient.ApiError.INVALID_PARAM:
+		return 'DropboxClient.ApiError.INVALID_PARAM';
 
-	case Dropbox.ApiError.OAUTH_ERROR:
-		return 'Dropbox.ApiError.OAUTH_ERROR';
+	case DropboxClient.ApiError.OAUTH_ERROR:
+		return 'DropboxClient.ApiError.OAUTH_ERROR';
 
-	case Dropbox.ApiError.INVALID_METHOD:
-		return 'Dropbox.ApiError.INVALID_METHOD';
+	case DropboxClient.ApiError.INVALID_METHOD:
+		return 'DropboxClient.ApiError.INVALID_METHOD';
 
 	default:
-		// Caused by a bug in dropbox.js, in your application, or in Dropbox.
+		// Caused by a bug in dropbox.js, in your application, or in DropboxClient.
 		// Tell the user an error occurred, ask them to refresh the page.
 	}
 };
