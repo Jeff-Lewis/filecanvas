@@ -23,6 +23,19 @@ module.exports = function() {
 		function initBodyParser(app) {
 			app.use(express.json());
 			app.use(express.urlencoded());
+			app.use(disableArrayFields);
+
+			function disableArrayFields(req, res, next) {
+				Object.keys(req.body).forEach(function(key) {
+					var value = req.body[key];
+					var isArrayField = Array.isArray(value);
+					if (isArrayField) {
+						var lastArrayItem = value[value.length - 1];
+						req.body[key] = lastArrayItem;
+					}
+				});
+				next();
+			}
 		}
 
 		function initMethodOverride(app) {
