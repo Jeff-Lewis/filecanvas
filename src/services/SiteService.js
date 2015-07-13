@@ -193,7 +193,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			'title',
 			'template',
 			'path',
-			'public'
+			'private'
 		];
 		if (includeUsers) { fields.push('users'); }
 		if (includeContents) { fields.push('cache'); }
@@ -297,14 +297,14 @@ SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteAlia
 	function retrieveSiteAuthenticationDetails(database, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
-			'public',
+			'private',
 			'users'
 		];
 		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
 				var authenticationDetails = {
-					'public': siteModel.public,
+					'private': siteModel.private,
 					'users': siteModel.users
 				};
 				return authenticationDetails;

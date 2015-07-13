@@ -150,14 +150,14 @@
 								<label title="Only allow users with a valid username and password to see the Shunt site">
 									<input type="hidden" name="private" value="false"/>
 									<input type="checkbox" name="private" value="true"
-										{{#unless content.site.public}}checked="checked"{{/unless}}
+										{{#if content.site.private}}checked="checked"{{/if}}
 									/>
 									Password protect this site
 								</label>
 							</div>
 						</div>
 					</div>
-					{{#unless content.site.public}}
+					{{#if content.site.private}}
 					<div class="form-group">
 						<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
 						<div class="col-sm-6 col-lg-4">
@@ -178,7 +178,7 @@
 							{{/if}}
 						</div>
 					</div>
-					{{/unless}}
+					{{/if}}
 					<div class="form-group">
 						<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
 							<button type="submit" class="btn btn-success">Save changes</button>

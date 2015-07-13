@@ -114,8 +114,8 @@ module.exports = function(database, options) {
 						});
 						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 							.then(function(authenticationDetails) {
-								var isPublic = authenticationDetails.public;
-								if (isPublic) { return callback(null, true); }
+								var isPrivate = authenticationDetails.private;
+								if (!isPrivate) { return callback(null, true); }
 
 								var validUsers = authenticationDetails.users;
 								var authenticationService = new AuthenticationService();
@@ -357,8 +357,8 @@ module.exports = function(database, options) {
 						});
 						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
 							.then(function(authenticationDetails) {
-								var isPublic = authenticationDetails.public;
-								if (isPublic) { return next(); }
+								var isPrivate = authenticationDetails.private;
+								if (!isPrivate) { return next(); }
 
 								var requestPath = req.originalUrl.split('?')[0];
 

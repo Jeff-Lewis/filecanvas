@@ -73,7 +73,7 @@
 								<input type="checkbox"
 									name="private"
 									value="true"
-									{{#unless content.site.public}}checked="checked"{{/unless}}
+									{{#if content.site.private}}checked="checked"{{/if}}
 								/> Password protect this site
 							</label>
 						</div>
