@@ -144,11 +144,20 @@ module.exports = function(database, options) {
 					throw error;
 				})
 				.then(function(userModel) {
-					var hasUpdatedAccessToken = userModel.token !== accessToken;
-					if (hasUpdatedAccessToken) {
-						return updateUserToken(database, uid, accessToken)
+					var hasUpdatedAccessToken = accessToken !== userModel.token;
+					var hasUpdatedProfileName = profileName !== userModel.profileName;
+					var hasUpdatedProfileEmail = profileEmail !== userModel.profileEmail;
+					var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileName || hasUpdatedProfileEmail;
+					if (hasUpdatedUserDetails) {
+						return updateUserDetails(database, uid, {
+							token: accessToken,
+							profileName: profileName,
+							profileEmail: profileEmail
+						})
 							.then(function() {
 								userModel.token = accessToken;
+								userModel.profileName = profileName;
+								userModel.profileEmail = profileEmail;
 								return userModel;
 							});
 					}
@@ -161,9 +170,9 @@ module.exports = function(database, options) {
 				return userService.retrieveUser(uid);
 			}
 
-			function updateUserToken(database, uid, accessToken) {
+			function updateUserDetails(database, uid, updates) {
 				var userService = new UserService(database);
-				return userService.updateUser(uid, { token: accessToken });
+				return userService.updateUser(uid, updates);
 			}
 		}
 
@@ -182,6 +191,8 @@ module.exports = function(database, options) {
 							alias: alias,
 							name: name,
 							email: email,
+							profileName: name,
+							profileEmail: email,
 							default: null
 						};
 						return userService.createUser(userModel);

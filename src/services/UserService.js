@@ -95,6 +95,8 @@ UserService.prototype.retrieveUser = function(user) {
 			'alias',
 			'name',
 			'email',
+			'profileName',
+			'profileEmail',
 			'default'
 		];
 		return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
