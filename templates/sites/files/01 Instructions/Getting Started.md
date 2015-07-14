@@ -10,7 +10,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 | ----------- | ------------------------------------------------ |
 | [https://${user.alias}.${host}/${site.alias}](https://${user.alias}.${host}/${site.alias}) | `${site.path}` |
 
-- This site's settings can be changed at any time by visiting its [settings page](https://my.${host}/sites/edit/${site.alias}).
+- This site's settings can be changed at any time by visiting its [settings page](https://my.${host}/sites/${site.alias}/edit).
 
 
 ## Basic usage
@@ -19,7 +19,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 
 - Try putting some files and folders in the site's Dropbox folder. They should appear on the Shunt site as soon as they've finished syncing.
 
-- **IMPORTANT:** If you move the site folder within your Dropbox, make sure to update the site folder path in this site's [settings page](https://my.${host}/sites/edit/${site.alias}).
+- **IMPORTANT:** If you move the site folder within your Dropbox, make sure to update the site folder path in this site's [settings page](https://my.${host}/sites/${site.alias}/edit).
 
 
 ## Changing the order of your files
@@ -60,7 +60,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 - You can protect this site by requiring users to log in with a username/password combination.
 
 - To enable password protection for this site:
-	1. Log into this site's [settings page](https://my.${host}/sites/edit/${site.alias})
+	1. Log into this site's [settings page](https://my.${host}/sites/${site.alias}/edit)
 	2. Under the **Site access** section, check the **Password protect this site** checkbox
 	3. Click the **Save changes** button to make the site private
 	4. Under the **Password protection** section, edit the **Registered users** to set the username/password combinations that allow access to the site

@@ -278,8 +278,7 @@ module.exports = function(database, options) {
 						registerAuth: '/register/oauth2',
 						logout: '/logout',
 						sites: '/sites',
-						sitesAdd: '/sites/add',
-						sitesEdit: '/sites/edit'
+						sitesAdd: '/sites/add'
 					};
 				}
 			}
@@ -387,8 +386,8 @@ module.exports = function(database, options) {
 			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 			app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
-			app.get('/sites/edit/:site', ensureAuth, initAdminSession, retrieveSiteEditRoute);
-			app.get('/sites/edit/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersEditRoute);
+			app.get('/sites/:site/edit', ensureAuth, initAdminSession, retrieveSiteEditRoute);
+			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersEditRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 			app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 			app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
@@ -607,7 +606,7 @@ module.exports = function(database, options) {
 								site: siteModel
 							}
 						};
-						return renderAdminPage(req, res, 'sites/edit/users', templateData);
+						return renderAdminPage(req, res, 'sites/users', templateData);
 					})
 					.catch(function(error) {
 						next(error);
@@ -637,7 +636,7 @@ module.exports = function(database, options) {
 				});
 				siteService.createSite(siteModel)
 					.then(function(siteModel) {
-						res.redirect(303, '/sites/edit/' + siteModel.alias);
+						res.redirect(303, '/sites/' + siteModel.alias + '/edit');
 					})
 					.catch(function(error) {
 						next(error);
@@ -654,7 +653,7 @@ module.exports = function(database, options) {
 				if (isPurgeRequest) {
 					purgeSite(uid, accessToken, siteAlias)
 						.then(function() {
-							res.redirect(303, '/sites/edit/' + siteAlias);
+							res.redirect(303, '/sites/' + siteAlias + '/edit');
 						})
 						.catch(function(error) {
 							next(error);
@@ -673,7 +672,7 @@ module.exports = function(database, options) {
 					updateSite(uid, accessToken, siteAlias, updates)
 						.then(function() {
 							if ('alias' in updates) { siteAlias = updates.alias; }
-							res.redirect(303, '/sites/edit/' + siteAlias);
+							res.redirect(303, '/sites/' + siteAlias + '/edit');
 						})
 						.catch(function(error) {
 							next(error);
@@ -740,7 +739,7 @@ module.exports = function(database, options) {
 				});
 				siteService.createSiteUser(uid, siteAlias, username, password)
 					.then(function(userModel) {
-						res.redirect(303, '/sites/edit/' + siteAlias + '/users');
+						res.redirect(303, '/sites/' + siteAlias + '/users');
 					})
 					.catch(function(error) {
 						next(error);
@@ -762,7 +761,7 @@ module.exports = function(database, options) {
 				});
 				siteService.deleteSiteUser(uid, siteAlias, username)
 					.then(function() {
-						res.redirect(303, '/sites/edit/' + siteAlias + '/users');
+						res.redirect(303, '/sites/' + siteAlias + '/users');
 					})
 					.catch(function(error) {
 						next(error);

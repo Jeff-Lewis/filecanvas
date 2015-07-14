@@ -185,12 +185,12 @@
 								{{else}}
 								{{content.site.users.length}} registered users
 								{{/ifequals}}
-								(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
+								(<a href="{{ session.urls.sites }}/{{ content.site.alias }}/users">edit</a>)
 							</p>
 							{{else}}
 							<p class="form-control-static" title="Password protection is enabled, but you have not yet registered any users">
 								<strong class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Nobody is allowed to access this site</strong>
-								(<a href="{{ session.urls.sites }}/edit/{{ content.site.alias }}/users">edit</a>)
+								(<a href="{{ session.urls.sites }}/{{ content.site.alias }}/users">edit</a>)
 							</p>
 							{{/if}}
 						</div>
