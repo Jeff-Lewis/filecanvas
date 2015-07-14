@@ -386,8 +386,8 @@ module.exports = function(database, options) {
 			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 			app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
-			app.get('/sites/:site/edit', ensureAuth, initAdminSession, retrieveSiteEditRoute);
-			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersEditRoute);
+			app.get('/sites/:site/settings', ensureAuth, initAdminSession, retrieveSiteSettingsRoute);
+			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 			app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 			app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
@@ -555,7 +555,7 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function retrieveSiteEditRoute(req, res, next) {
+			function retrieveSiteSettingsRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
@@ -572,19 +572,19 @@ module.exports = function(database, options) {
 				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var templateData = {
-							title: 'Edit site: ' + siteModel.name,
+							title: 'Site settings: ' + siteModel.name,
 							content: {
 								site: siteModel
 							}
 						};
-						return renderAdminPage(req, res, 'sites/edit', templateData);
+						return renderAdminPage(req, res, 'sites/settings', templateData);
 					})
 					.catch(function(error) {
 						next(error);
 					});
 			}
 
-			function retrieveSiteUsersEditRoute(req, res, next) {
+			function retrieveSiteUsersRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
@@ -636,7 +636,7 @@ module.exports = function(database, options) {
 				});
 				siteService.createSite(siteModel)
 					.then(function(siteModel) {
-						res.redirect(303, '/sites/' + siteModel.alias + '/edit');
+						res.redirect(303, '/sites/' + siteModel.alias + '/settings');
 					})
 					.catch(function(error) {
 						next(error);
@@ -653,7 +653,7 @@ module.exports = function(database, options) {
 				if (isPurgeRequest) {
 					purgeSite(uid, accessToken, siteAlias)
 						.then(function() {
-							res.redirect(303, '/sites/' + siteAlias + '/edit');
+							res.redirect(303, '/sites/' + siteAlias + '/settings');
 						})
 						.catch(function(error) {
 							next(error);
@@ -672,7 +672,7 @@ module.exports = function(database, options) {
 					updateSite(uid, accessToken, siteAlias, updates)
 						.then(function() {
 							if ('alias' in updates) { siteAlias = updates.alias; }
-							res.redirect(303, '/sites/' + siteAlias + '/edit');
+							res.redirect(303, '/sites/' + siteAlias + '/settings');
 						})
 						.catch(function(error) {
 							next(error);

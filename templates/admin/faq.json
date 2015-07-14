@@ -32,12 +32,12 @@
 	{
 		"id": "password-protection",
 		"title": "Can I password-protect my Shunt sites?",
-		"body": "<p>Yes. Follow these steps to restrict access to a Shunt site:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Edit site\" link for to the site that you want to password-protect</li><li>Check the \"Password-protect this site\" checkbox</li><li>Under the \"Password protection\" section, you can edit the list of username/password combinations that can be used to access this site</li></ol>"
+		"body": "<p>Yes. Follow these steps to restrict access to a Shunt site:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Settings\" link for to the site that you want to password-protect</li><li>Check the \"Password-protect this site\" checkbox</li><li>Under the \"Password protection\" section, you can set the list of username/password combinations that can be used to access this site</li></ol>"
 	},
 	{
 		"id": "retrieve-site-user-password",
 		"title": "Can I retrieve the password for a password-protected Shunt site?",
-		"body": "<p>For security reasons, Shunt only stores an encrypted version of the passwords for the users on your password-protected Shunt sites. This means that it's impossible to retrieve a user's password if it has been forgotten. It's very easy to reset a user's password though – you just need to delete the old user and create a new user with the same username:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Edit site\" link for to the site that you want to password-protect</li><li>Under the \"Password protection\" section, you can edit the list of username/password combinations that can be used to access this site</li><li>Remove the existing user, and add a new user with the same username and a password</li></ol>"
+		"body": "<p>For security reasons, Shunt only stores an encrypted version of the passwords for the users on your password-protected Shunt sites. This means that it's impossible to retrieve a user's password if it has been forgotten. It's very easy to reset a user's password though – you just need to delete the old user and create a new user with the same username:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Settings\" link for to the site that you want to password-protect</li><li>Under the \"Password protection\" section, you can see the list of username/password combinations that can be used to access this site</li><li>Remove the existing user, and add a new user with the same username and a password</li></ol>"
 	},
 	{
 		"id": "default-site",
