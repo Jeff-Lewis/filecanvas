@@ -278,7 +278,7 @@ module.exports = function(database, options) {
 						registerAuth: '/register/oauth2',
 						logout: '/logout',
 						sites: '/sites',
-						sitesAdd: '/sites/add'
+						sitesAdd: '/sites/create'
 					};
 				}
 			}
@@ -385,7 +385,7 @@ module.exports = function(database, options) {
 			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
 			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
-			app.get('/sites/add', ensureAuth, initAdminSession, retrieveSiteAddRoute);
+			app.get('/sites/create', ensureAuth, initAdminSession, retrieveSiteCreateRoute);
 			app.get('/sites/:site/settings', ensureAuth, initAdminSession, retrieveSiteSettingsRoute);
 			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
@@ -539,17 +539,17 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function retrieveSiteAddRoute(req, res, next) {
+			function retrieveSiteCreateRoute(req, res, next) {
 				var siteModel = {
 					template: defaultSiteTemplate
 				};
 				var templateData = {
-					title: 'Add a site',
+					title: 'Create a site',
 					content: {
 						site: siteModel
 					}
 				};
-				renderAdminPage(req, res, 'sites/add', templateData)
+				renderAdminPage(req, res, 'sites/create', templateData)
 					.catch(function(error) {
 						next(error);
 					});
