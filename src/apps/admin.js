@@ -22,12 +22,14 @@ var faqData = require('../../templates/admin/faq.json');
 
 module.exports = function(database, options) {
 	options = options || {};
+	var host = options.host;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
 	var registerCallbackUrl = options.registerCallbackUrl;
 	var defaultSiteTemplate = options.defaultSiteTemplate;
 
+	if (!host) { throw new Error('Missing hostname'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
@@ -561,6 +563,7 @@ module.exports = function(database, options) {
 				var siteAlias = req.params.site;
 
 				var siteService = new SiteService(database, {
+					host: host,
 					appKey: appKey,
 					appSecret: appSecret,
 					accessToken: accessToken
@@ -589,6 +592,7 @@ module.exports = function(database, options) {
 				var siteAlias = req.params.site;
 
 				var siteService = new SiteService(database, {
+					host: host,
 					appKey: appKey,
 					appSecret: appSecret,
 					accessToken: accessToken
@@ -626,6 +630,7 @@ module.exports = function(database, options) {
 				};
 
 				var siteService = new SiteService(database, {
+					host: host,
 					appKey: appKey,
 					appSecret: appSecret,
 					accessToken: accessToken
@@ -679,6 +684,7 @@ module.exports = function(database, options) {
 				function purgeSite(uid, accessToken, siteAlias) {
 					var cache = null;
 					var siteService = new SiteService(database, {
+						host: host,
 						appKey: appKey,
 						appSecret: appSecret,
 						accessToken: accessToken
@@ -688,6 +694,7 @@ module.exports = function(database, options) {
 
 				function updateSite(uid, accessToken, siteAlias, updates) {
 					var siteService = new SiteService(database, {
+						host: host,
 						appKey: appKey,
 						appSecret: appSecret,
 						accessToken: accessToken
@@ -703,6 +710,7 @@ module.exports = function(database, options) {
 				var siteAlias = req.params.site;
 
 				var siteService = new SiteService(database, {
+					host: host,
 					appKey: appKey,
 					appSecret: appSecret,
 					accessToken: accessToken
@@ -725,6 +733,7 @@ module.exports = function(database, options) {
 				var password = req.body.password;
 
 				var siteService = new SiteService(database, {
+					host: host,
 					appKey: appKey,
 					appSecret: appSecret,
 					accessToken: accessToken
@@ -746,6 +755,7 @@ module.exports = function(database, options) {
 				var username = req.params.username;
 
 				var siteService = new SiteService(database, {
+					host: host,
 					appKey: appKey,
 					appSecret: appSecret,
 					accessToken: accessToken
@@ -766,6 +776,7 @@ module.exports = function(database, options) {
 				var dropboxPath = req.params[0];
 
 				var siteService = new SiteService(database, {
+					host: host,
 					appKey: appKey,
 					appSecret: appSecret,
 					accessToken: accessToken

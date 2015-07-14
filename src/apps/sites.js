@@ -19,10 +19,12 @@ var AuthenticationService = require('../services/AuthenticationService');
 
 module.exports = function(database, options) {
 	options = options || {};
+	var host = options.host;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var templatesUrl = options.templatesUrl;
 
+	if (!host) { throw new Error('Missing hostname'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!templatesUrl) { throw new Error('Missing templates root URL'); }
@@ -70,6 +72,7 @@ module.exports = function(database, options) {
 					var uid = userModel.uid;
 					var accessToken = userModel.token;
 					var siteService = new SiteService(database, {
+						host: host,
 						appKey: appKey,
 						appSecret: appSecret,
 						accessToken: accessToken
@@ -110,6 +113,7 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var siteService = new SiteService(database, {
+							host: host,
 							appKey: appKey,
 							appSecret: appSecret,
 							accessToken: accessToken
@@ -277,6 +281,7 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var siteService = new SiteService(database, {
+							host: host,
 							appKey: appKey,
 							appSecret: appSecret,
 							accessToken: accessToken
@@ -353,6 +358,7 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var siteService = new SiteService(database, {
+							host: host,
 							appKey: appKey,
 							appSecret: appSecret,
 							accessToken: accessToken
@@ -390,6 +396,7 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var siteService = new SiteService(database, {
+							host: host,
 							appKey: appKey,
 							appSecret: appSecret,
 							accessToken: accessToken
@@ -426,6 +433,7 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var siteService = new SiteService(database, {
+							host: host,
 							appKey: appKey,
 							appSecret: appSecret,
 							accessToken: accessToken

@@ -17,11 +17,13 @@ var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 
 function SiteService(database, options) {
 	options = options || {};
+	var host = options.host;
 	var appKey = options.appKey;
 	var appSecret = options.appKey;
 	var accessToken = options.accessToken;
 
 	this.database = database;
+	this.host = host;
 	this.appKey = appKey;
 	this.appSecret = appSecret;
 	this.accessToken = accessToken;
