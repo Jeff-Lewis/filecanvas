@@ -9,8 +9,7 @@ var constants = require('../constants');
 var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 
-function UserService(database, options) {
-	options = options || null;
+function UserService(database) {
 	this.database = database;
 }
 
