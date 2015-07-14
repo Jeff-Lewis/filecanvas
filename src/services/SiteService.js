@@ -7,13 +7,13 @@ var HttpError = require('../errors/HttpError');
 
 var DropboxService = require('../services/DropboxService');
 var UserService = require('../services/UserService');
+var SiteTemplateService = require('../services/SiteTemplateService');
 var AuthenticationService = require('../services/AuthenticationService');
 
 var constants = require('../constants');
 
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
-var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 
 function SiteService(database, options) {
 	options = options || {};
@@ -33,6 +33,7 @@ SiteService.prototype.database = null;
 
 SiteService.prototype.createSite = function(siteModel) {
 	var database = this.database;
+	var host = this.host;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var accessToken = this.accessToken;
@@ -50,9 +51,20 @@ SiteService.prototype.createSite = function(siteModel) {
 		.then(function() {
 			if (!siteModel.path) { return; }
 			var uid = siteModel.user;
-			var sitePath = siteModel.path;
-			var siteContents = SITE_TEMPLATE_FILES;
-			return initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteContents);
+			return new UserService(database).retrieveUser(uid)
+				.then(function(userModel) {
+					var sitePath = siteModel.path;
+					return new SiteTemplateService().generateSiteFiles({
+						pathPrefix: sitePath,
+						context: {
+							host: host,
+							user: userModel,
+							site: siteModel
+						}
+					}).then(function(siteFiles) {
+						return initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteFiles);
+					});
+				});
 		})
 		.then(function() {
 			return siteModel;
@@ -63,13 +75,13 @@ SiteService.prototype.createSite = function(siteModel) {
 		return database.collection(DB_COLLECTION_SITES).insertOne(siteModel);
 	}
 
-	function initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteContents) {
+	function initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteFiles) {
 		return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 			.then(function(dropboxClient) {
 				return checkWhetherFileExists(dropboxClient, sitePath)
 					.then(function(folderExists) {
 						if (folderExists) { return; }
-						return copySiteFiles(dropboxClient, sitePath, siteContents);
+						return copySiteFiles(dropboxClient, siteFiles);
 					});
 			});
 
@@ -88,8 +100,8 @@ SiteService.prototype.createSite = function(siteModel) {
 				});
 		}
 
-		function copySiteFiles(dropboxClient, sitePath, dirContents) {
-			var files = getFileListing(dirContents, sitePath);
+		function copySiteFiles(dropboxClient, dirContents) {
+			var files = getFileListing(dirContents);
 			var writeOptions = {};
 			return Promise.resolve(mapSeries(files, function(fileMetaData) {
 				var filePath = fileMetaData.path;
@@ -98,24 +110,18 @@ SiteService.prototype.createSite = function(siteModel) {
 			}).then(function(results) {}));
 
 
-			function getFileListing(dirContents, pathPrefix) {
-				var files = Object.keys(dirContents).reduce(function(files, filename) {
-					var file = dirContents[filename];
-					var filePath = pathPrefix + '/' + filename;
-					var isFile = file instanceof Buffer || file instanceof String;
-					if (isFile) {
-						files.push({
+			function getFileListing(dirContents) {
+				var files = Object.keys(dirContents)
+					.sort(function(filePath1, filePath2) {
+						return (filePath1 < filePath2 ? -1 : 1);
+					})
+					.map(function(filePath) {
+						var file = dirContents[filePath];
+						return {
 							path: filePath,
 							contents: file
-						});
-					} else {
-						var childDirContents = file;
-						var childDirPath = filePath;
-						var childDirFiles = getFileListing(childDirContents, childDirPath);
-						files = files.concat(childDirFiles);
-					}
-					return files;
-				}, []);
+						};
+					});
 				return files;
 			}
 		}
