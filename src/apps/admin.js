@@ -667,6 +667,7 @@ module.exports = function(database, options) {
 					if (req.body.private) { updates.private = req.body.private === 'true'; }
 					updateSite(uid, accessToken, siteAlias, updates)
 						.then(function() {
+							if ('alias' in updates) { siteAlias = updates.alias; }
 							res.redirect(303, '/sites/edit/' + siteAlias);
 						})
 						.catch(function(error) {
