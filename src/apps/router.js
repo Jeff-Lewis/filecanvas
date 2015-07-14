@@ -43,6 +43,8 @@ module.exports = function(database, config) {
 		subdomain: 'www'
 	});
 	initWildcardSubdomain(app, {
+		appKey: config.dropbox.appKey,
+		appSecret: config.dropbox.appSecret,
 		templatesUrl: config.templates.url
 	});
 	initErrorHandler(app, {
@@ -108,10 +110,14 @@ module.exports = function(database, config) {
 
 	function initWildcardSubdomain(app, options) {
 		options = options || {};
+		var appKey = options.appKey;
+		var appSecret = options.appSecret;
 		var templatesUrl = options.templatesUrl;
 
 		app.use(useSubdomainAsPathPrefix());
 		app.use(sitesApp(database, {
+			appKey: appKey,
+			appSecret: appSecret,
 			templatesUrl: templatesUrl
 		}));
 	}

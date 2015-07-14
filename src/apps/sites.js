@@ -23,6 +23,8 @@ module.exports = function(database, options) {
 	var appSecret = options.appSecret;
 	var templatesUrl = options.templatesUrl;
 
+	if (!appKey) { throw new Error('Missing Dropbox app key'); }
+	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!templatesUrl) { throw new Error('Missing templates root URL'); }
 
 	var app = express();
