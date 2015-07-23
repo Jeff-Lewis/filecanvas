@@ -10,6 +10,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 | ----------- | ------------------------------------------------ |
 | [https://${user.alias}.${host}/${site.alias}](https://${user.alias}.${host}/${site.alias}) | `${site.path}` |
 
+
 - This site's settings can be changed at any time by visiting its [settings page](https://my.${host}/sites/${site.alias}/settings).
 
 
@@ -68,17 +69,17 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 
 ## Using a custom domain name
 
-> **Example**: setting up a custom domain name for this site
->
+- To set up a custom domain name for this site:
 > This example assumes you want to serve your Shunt site from the `www` subdomain of your domain. The same steps apply for all other subdomains.
->
-> - Step 1: Log into your DNS provider's admin area
-> - Step 2: Set up a CNAME alias record with the following values:
->
-> | Type | Name | Value | TTL
-> | ---- | ---- | ----- | ---
-> | `CNAME` | `www` | `${site.alias}.${user.alias}.${host}` | `86400`
->
-> - Step 3: (Optional) Set up your DNS provider to automatically redirect the root domain to the `www` subdomain
+
+	1. Log into your DNS provider's admin area
+	2. Set up a CNAME alias record with the following values:
+
+		| Type | Name | Value | TTL |
+		| ---- | ---- | ----- | --- |
+		| `CNAME` | `www` | `${site.alias}.${user.alias}.${host}` | `86400` |
+
+
+          3. (Optional) Set up your DNS provider to automatically redirect the root domain to the `www` subdomain
 
 - See the Shunt [FAQ](https://my.${host}/faq) page for more information about custom domain names.
