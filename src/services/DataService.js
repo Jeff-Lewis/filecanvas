@@ -27,9 +27,10 @@ DataService.prototype.connect = function(uri) {
 			self.connectionAttempt = null;
 			return database;
 		})
-		.catch(function() {
+		.catch(function(error) {
 			self.database = null;
 			self.connectionAttempt = null;
+			throw error;
 		});
 	return this.connectionAttempt;
 };
