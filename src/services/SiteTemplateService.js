@@ -1,15 +1,12 @@
 'use strict';
 
-var fs = require('fs');
 var path = require('path');
 var objectAssign = require('object-assign');
 var isTextOrBinary = require('istextorbinary');
 var template = require('es6-template-strings');
-var marked = require('marked');
 var pdf = require('html-pdf');
 
-var MARKDOWN_HTML_TEMPLATE = fs.readFileSync(path.resolve(__dirname, '../../templates/markdown/index.hbs'));
-var MARKDOWN_CSS_TEMPLATE = fs.readFileSync(path.resolve(__dirname, '../../node_modules/github-markdown-css/github-markdown.css'));
+var MarkdownService = require('./MarkdownService');
 
 var constants = require('../constants');
 
@@ -91,7 +88,7 @@ SiteTemplateService.prototype.generateSiteFiles = function(options) {
 				});
 			}
 			var markdownString = fileBuffer.toString();
-			var html = convertMarkdownToHtml(markdownString);
+			var html = new MarkdownService().renderHtml(markdownString);
 			if (!shouldCreatePdf) {
 				return Promise.resolve({
 					path: replaceFileExtension(filePath, '.html'),
@@ -117,20 +114,6 @@ SiteTemplateService.prototype.generateSiteFiles = function(options) {
 
 		function getIsMarkdownFile(filename, file) {
 			return (path.extname(filename) === '.md');
-		}
-
-		function convertMarkdownToHtml(markdown) {
-			var markedOptions = {
-				gfm: true,
-				tables: true,
-				breaks: true
-			};
-			var bodyHtml = marked(markdown, markedOptions);
-			var html = template(MARKDOWN_HTML_TEMPLATE, {
-				css: MARKDOWN_CSS_TEMPLATE,
-				body: bodyHtml
-			});
-			return html;
 		}
 
 		function convertHtmlToPdf(html) {
