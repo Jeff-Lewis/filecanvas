@@ -18,12 +18,34 @@
 							<tbody>
 								{{#each content.site.users }}
 								<tr>
-									<td>
-										<form class="pull-right" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
+									<td class="site-user is-delete">
+										<form class="site-user-delete" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
 											<input type="hidden" name="_method" value="DELETE"/>
-											<button type="submit" class="pull-right btn btn-danger btn-xs" title="Prevent this user from accessing this site"><span class="glyphicon glyphicon-remove"></span> Remove user</button>
+											<div class="pull-right">
+												<button type="button" class="btn btn-default btn-xs" title="Change this user's password" onclick="this.parentNode.parentNode.parentNode.className = 'site-user is-password'"><span class="glyphicon glyphicon-cog"></span> Settings</button>
+												<button type="submit" class="btn btn-danger btn-xs" title="Prevent this user from accessing this site"><span class="glyphicon glyphicon-remove"></span> Delete</button>
+											</div>
+											<div><span class="glyphicon"></span>{{ username }}</div>
 										</form>
-										{{ username }}
+										<form class="clearfix site-user-password" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
+											<input type="hidden" name="_method" value="PUT"/>
+											<h5 class="col-sm-12">Change password for <b>{{ username }}</b>:</h5>
+											<div class="col-sm-12">
+												<div class="form-group col-sm-12">
+													<input type="password" class="form-control input-sm"
+														name="password"
+														title="Enter a new password for this user"
+														placeholder="New password"
+														data-trigger="focus"
+														data-validate="notEmpty"
+													/>
+												</div>
+											</div>
+											<p class="col-sm-12">
+												<button type="submit" class="btn btn-success btn-sm" title="Change this user's password"><span class="glyphicon glyphicon-ok"></span> OK</button>
+												<button type="button" class="btn btn-default btn-sm" title="Keep the existing password" onclick="this.parentNode.parentNode.parentNode.className = 'site-user is-delete'"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+											</p>
+										</form>
 									</td>
 								</tr>
 								{{/each}}
@@ -41,7 +63,7 @@
 								<input type="text" class="form-control"
 									name="username"
 									title="Enter a username which your users can use to log into your Shunt site"
-									placeholder="username"
+									placeholder="Username"
 									data-trigger="focus"
 									data-validate="notEmpty"
 								/>
@@ -50,7 +72,7 @@
 								<input type="password" class="form-control"
 									name="password"
 									title="Enter a password to go with this username"
-									placeholder="password"
+									placeholder="Password"
 									data-trigger="focus"
 									data-validate="notEmpty"
 								/>

@@ -392,6 +392,7 @@ module.exports = function(database, options) {
 			app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 			app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
 			app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUserRoute);
+			app.put('/sites/:site/users/:username', ensureAuth, initAdminSession, updateSiteUserRoute);
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
 			app.get('/dropbox/metadata/*', ensureAuth, initAdminSession, retrieveDropboxMetadataRoute);
@@ -737,7 +738,36 @@ module.exports = function(database, options) {
 					appSecret: appSecret,
 					accessToken: accessToken
 				});
-				siteService.createSiteUser(uid, siteAlias, username, password)
+				siteService.createSiteUser(uid, siteAlias, {
+					username: username,
+					password: password
+				})
+					.then(function(userModel) {
+						res.redirect(303, '/sites/' + siteAlias + '/users');
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function updateSiteUserRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+				var accessToken = userModel.token;
+				var siteAlias = req.params.site;
+				var username = req.params.username;
+				var password = req.body.password;
+
+				var siteService = new SiteService(database, {
+					host: host,
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
+				siteService.updateSiteUser(uid, siteAlias, username, {
+					username: username,
+					password: password
+				})
 					.then(function(userModel) {
 						res.redirect(303, '/sites/' + siteAlias + '/users');
 					})

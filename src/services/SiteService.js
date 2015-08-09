@@ -128,19 +128,20 @@ SiteService.prototype.createSite = function(siteModel) {
 	}
 };
 
-SiteService.prototype.createSiteUser = function(uid, siteAlias, username, password) {
+SiteService.prototype.createSiteUser = function(uid, siteAlias, authDetails) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!password) { return Promise.reject(new HttpError(400, 'No password specified')); }
+	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
+	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
+	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
 
 	var database = this.database;
-	return checkWhetherUserAlreadyExists(database, uid, siteAlias, username)
+	return checkWhetherUserAlreadyExists(database, uid, siteAlias, authDetails.username)
 		.then(function(userAlreadyExists) {
 			if (userAlreadyExists) {
 				throw new HttpError(409, 'A user already exists with this username');
 			}
-			return addSiteUser(database, uid, siteAlias, username, password);
+			return addSiteUser(database, uid, siteAlias, authDetails);
 		});
 
 
@@ -153,17 +154,17 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, username, passwo
 			});
 	}
 
-	function addSiteUser(database, uid, siteAlias, username, password) {
+	function addSiteUser(database, uid, siteAlias, authDetails) {
 		var authenticationService = new AuthenticationService();
-		var userModel = authenticationService.create(username, password);
+		var siteUserModel = authenticationService.create(authDetails.username, authDetails.password);
 		var filter = { 'user': uid, 'alias': siteAlias };
-		var updates = { $push: { 'users': userModel } };
+		var updates = { $push: { 'users': siteUserModel } };
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) {
 					throw new HttpError(404);
 				}
-				return userModel;
+				return siteUserModel;
 			});
 	}
 };
@@ -396,6 +397,31 @@ SiteService.prototype.updateSiteCache = function(uid, siteAlias, cache) {
 };
 
 
+SiteService.prototype.updateSiteUser = function(uid, siteAlias, username, authDetails) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
+	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
+	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
+	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
+
+	var database = this.database;
+	return updateSiteUser(database, uid, siteAlias, username, authDetails);
+
+
+	function updateSiteUser(database, uid, shareAlias, username, authDetails) {
+		var authenticationService = new AuthenticationService();
+		var siteUserModel = authenticationService.create(authDetails.username, authDetails.password);
+		var filter = { 'user': uid, 'alias': siteAlias, 'users.username': username };
+		var updates = { $set: { 'users.$': siteUserModel } };
+		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
+			.then(function(error, numRecords) {
+				if (numRecords === 0) { throw new HttpError(404); }
+			});
+	}
+};
+
+
 SiteService.prototype.deleteSiteUser = function(uid, siteAlias, username) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
@@ -405,7 +431,7 @@ SiteService.prototype.deleteSiteUser = function(uid, siteAlias, username) {
 	return deleteSiteUser(database, uid, siteAlias, username);
 
 
-	function deleteSiteUser(database, uid, shareAlias, username, callback) {
+	function deleteSiteUser(database, uid, shareAlias, username) {
 		var filter = { 'user': uid, 'alias': siteAlias };
 		var updates = { $pull: { 'users': { 'username': username } } };
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)

@@ -51,6 +51,13 @@ legend {
 	font-style: normal;
 }
 
+.site-user.is-password .site-user-delete {
+	display: none;
+}
+.site-user.is-delete .site-user-password {
+	display: none;
+}
+
 .shunt-delete-button[disabled] { opacity: 0.5; }
 
 .shunt-sync-idle { }
