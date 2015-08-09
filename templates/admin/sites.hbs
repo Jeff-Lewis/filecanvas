@@ -1,49 +1,45 @@
-<h1 class="page-header">Your sites</h1>
-
-{{#if content.sites}}
-
-<p class="lead">The following sites have been registered to this account:</p>
 <div class="row">
-	<div class="col-sm-8 col-lg-5">
-		<table class="table table-bordered table-condensed">
-			<tbody>
-				{{#each content.sites }}
-				<tr>
-					<td>
-						<div class="pull-right">
-							<button type="button" class="btn btn-success btn-xs"
-									title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
-									{{#unless path}}disabled="disabled"{{/unless}}
-									data-shunt-purge="{{ alias }}"
-								>
-								<span class="shunt-sync-idle"><span class="glyphicon glyphicon-refresh"></span> Sync files</span>
-								<span class="shunt-sync-loading"><span class="glyphicon glyphicon-refresh"></span> Syncing…</span>
-								<span class="shunt-sync-success"><span class="glyphicon glyphicon-ok"></span> Sync done</span>
-								<span class="shunt-sync-error"><span class="glyphicon glyphicon-exclamation-sign"></span> Sync failed</span>
-							</button>
-							<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}/settings" title="Change this site’s settings"><span class="glyphicon glyphicon-cog"></span> Settings</a>
-						</div>
-						{{#unless path}}
-						<span class="glyphicon glyphicon-exclamation-sign text-danger" title="This site has not yet been linked to a Dropbox folder."></span>
-						{{else}}
-						<span class="glyphicon"></span>
-						{{/unless}}
-						{{ name }}
-						<a href="{{ ../session.urls.webroot }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
-					</td>
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
-		<p><a class="btn btn-primary" href="{{ session.urls.sitesAdd }}"><span class="glyphicon glyphicon-plus"></span> Create a new site</a></p>
+	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
+		<h2>Your sites</h1>
+		<hr/>
+
+		{{#if content.sites}}
+
+		<p class="lead">The following sites have been registered to this account:</p>
+		<div class="row">
+			<div class="col-sm-8 col-lg-5">
+				<table class="table table-bordered table-condensed">
+					<tbody>
+						{{#each content.sites }}
+						<tr>
+							<td>
+								<div class="pull-right">
+									<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}/settings" title="Change this site’s settings"><span class="glyphicon glyphicon-cog"></span> Settings</a>
+								</div>
+								{{#unless path}}
+								<span class="glyphicon glyphicon-exclamation-sign text-danger" title="This site has not yet been linked to a Dropbox folder."></span>
+								{{else}}
+								<span class="glyphicon"></span>
+								{{/unless}}
+								{{ name }}
+								<a href="{{ ../session.urls.webroot }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
+							</td>
+						</tr>
+						{{/each}}
+					</tbody>
+				</table>
+				<p><a class="btn btn-primary" href="{{ session.urls.sitesAdd }}"><span class="glyphicon glyphicon-plus"></span> Create a new site</a></p>
+			</div>
+		</div>
+
+		{{else}}
+
+		<div class="alert alert-info">
+			<p>There are no sites registered to this account.</p>
+			<p>Start using Shunt by <a href="{{ session.urls.sitesAdd }}">adding a new site</a>.</p>
+		</div>
+
+		{{/if}}
+
 	</div>
 </div>
-
-{{else}}
-
-<div class="alert alert-info">
-	<p>There are no sites registered to this account.</p>
-	<p>Start using Shunt by <a href="{{ session.urls.sitesAdd }}">adding a new site</a>.</p>
-</div>
-
-{{/if}}
