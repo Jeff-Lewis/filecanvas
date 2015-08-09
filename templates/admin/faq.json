@@ -37,7 +37,7 @@
 	{
 		"id": "retrieve-site-user-password",
 		"title": "Can I retrieve the password for a password-protected Shunt site?",
-		"body": "<p>For security reasons, Shunt only stores an encrypted version of the passwords for the users on your password-protected Shunt sites. This means that it's impossible to retrieve a user's password if it has been forgotten. It's very easy to reset a user's password though:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Settings\" link for the site</li><li>Under the \"Password protection\" section, you can edit the settings for the site's registered users</li><li>Click the \"Settings\" button next to the user and set a new password</li></ol>"
+		"body": "<p>For security reasons, Shunt only stores an encrypted version of the passwords for the users on your password-protected Shunt sites. This means that it's impossible to retrieve a user's password if it has been forgotten. It's very easy to reset a user's password though:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Settings\" link for the site</li><li>Under the \"Password protection\" section, you can edit the settings for the site's registered users</li><li>Click the pencil icon next to the user and set a new password</li></ol>"
 	},
 	{
 		"id": "default-site",

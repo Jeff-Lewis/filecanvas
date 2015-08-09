@@ -22,8 +22,8 @@
 										<form class="site-user-delete" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
 											<input type="hidden" name="_method" value="DELETE"/>
 											<div class="pull-right">
-												<button type="button" class="btn btn-default btn-xs" title="Change this user's password" onclick="this.parentNode.parentNode.parentNode.className = 'site-user is-password'"><span class="glyphicon glyphicon-cog"></span> Settings</button>
-												<button type="submit" class="btn btn-danger btn-xs" title="Prevent this user from accessing this site"><span class="glyphicon glyphicon-remove"></span> Delete</button>
+												<button type="button" class="btn btn-default btn-xs" title="Change this user's password" onclick="this.parentNode.parentNode.parentNode.className = 'site-user is-password'"><span class="glyphicon glyphicon-pencil"></span></button>
+												<button type="submit" class="btn btn-danger btn-xs" title="Delete this user"><span class="glyphicon glyphicon-trash"></span></button>
 											</div>
 											<div><span class="glyphicon"></span>{{ username }}</div>
 										</form>
