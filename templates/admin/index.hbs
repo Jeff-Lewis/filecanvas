@@ -21,7 +21,7 @@
 		<![endif]-->
 	</head>
 
-	<body>
+	<body{{#unless session.user}} class="login-page"{{/unless}}>
 
 		{{#if session.user}}
 		<header class="navbar navbar-default navbar-fixed-top" role="navigation">

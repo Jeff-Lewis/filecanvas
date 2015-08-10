@@ -7,27 +7,39 @@ legend {
 }
 
 .main {
-	margin-top: 70px;
+	margin-top: 80px;
 }
 
 .users-table {
 	margin-bottom: 0;
 }
 
+.login-page {
+	background-color: #f4f4f4;
+}
+
 .form-signin {
-	padding: 5px 20px 20px;
-	background-color: #eee;
+	padding: 5px 40px 30px;
+	background-color: white;
 	max-width: 330px;
 	margin: 0 auto;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-	border-radius: 6px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+	border-radius: 5px 5px 0px 0px;
+	border: 1px solid #ccc;
+	overflow: hidden;
 }
-.form-signin .form-signin-heading {
+.form-signin-heading {
+	border-radius: 0;
+	margin: -5px -40px 30px;
+	padding: 19px 20px;
+	color: white;
 	text-align: center;
-	margin-bottom: 30px;
 }
-.form-signin .form-signin-block + .form-signin-block {
-	margin-top: 15px;
+.form-signin-heading h2 {
+	margin: 0;
+}
+.form-signin .btn-block + .btn-block {
+	margin-top: 10px;
 }
 
 .faq-toc {}

@@ -1,5 +1,7 @@
 <form class="form-signin" action="{{ session.urls.loginAuth }}" method="GET">
-	<h2 class="form-signin-heading">Sign in to Shunt</h2>
-	<button type="submit" class="btn btn-lg btn-primary btn-block">Sign in using Dropbox</button>
-	<button type="submit" class="btn btn-lg btn-primary btn-block" formaction="{{ session.urls.registerAuth }}">Create an account</button>
+	<header class="form-signin-heading navbar navbar-default">
+		<h2>Sign in to Shunt</h2>
+	</header>
+	<button type="submit" class="btn btn-lg btn-success btn-block">Sign in using Dropbox</button>
+	<button type="submit" class="btn btn-lg btn-default btn-block" formaction="{{ session.urls.registerAuth }}">Create an account</button>
 </form>
