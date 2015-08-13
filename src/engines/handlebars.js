@@ -57,6 +57,13 @@ Handlebars.registerHelper('is-array', function(item, options) {
 Handlebars.registerHelper('replace', function(item1, item2, options) {
 	return options.fn(this).replace(item1, item2);
 });
+Handlebars.registerHelper('concat', function(item, options) {
+	var items = Array.prototype.slice.call(arguments, 0, -1);
+	return items.join('');
+});
+Handlebars.registerHelper('startsWith', function(haystack, needle, options) {
+	return haystack.indexOf(needle) === 0;
+});
 
 module.exports = function(filePath, options, callback) {
 	loadTemplate(filePath, function(error, template) {
