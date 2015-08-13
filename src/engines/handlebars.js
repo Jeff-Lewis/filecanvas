@@ -23,6 +23,37 @@ Handlebars.registerHelper('unlessequals', function(item1, item2, options) {
 	}
 });
 
+Handlebars.registerHelper('eq', function(item1, item2, options) {
+	return item1 === item2;
+});
+Handlebars.registerHelper('not-eq', function(item1, item2, options) {
+	return item1 !== item2;
+});
+Handlebars.registerHelper('not', function(item, options) {
+	return !item;
+});
+Handlebars.registerHelper('and', function(item1, item2, options) {
+	return item1 && item2;
+});
+Handlebars.registerHelper('or', function(item1, item2, options) {
+	return item1 || item2;
+});
+Handlebars.registerHelper('gt', function(item1, item2, options) {
+	return item1 > item2;
+});
+Handlebars.registerHelper('gte', function(item1, item2, options) {
+	return item1 >= item2;
+});
+Handlebars.registerHelper('lt', function(item1, item2, options) {
+	return item1 >= item2;
+});
+Handlebars.registerHelper('lte', function(item1, item2, options) {
+	return item1 >= item2;
+});
+Handlebars.registerHelper('is-array', function(item, options) {
+	return Array.isArray(item);
+});
+
 Handlebars.registerHelper('replace', function(item1, item2, options) {
 	return options.fn(this).replace(item1, item2);
 });
