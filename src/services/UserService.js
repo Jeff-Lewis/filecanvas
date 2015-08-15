@@ -92,7 +92,8 @@ UserService.prototype.retrieveUser = function(user) {
 			'uid',
 			'token',
 			'alias',
-			'name',
+			'firstName',
+			'lastName',
 			'email',
 			'profileName',
 			'profileEmail',
@@ -218,8 +219,9 @@ function validateUserModel(userModel, requireFullModel) {
 		if (!userModel) { throw new HttpError(400, 'No user specified'); }
 		if ((requireFullModel || ('uid' in userModel)) && !userModel.uid) { throw new HttpError(400, 'No user ID specified'); }
 		if ((requireFullModel || ('token' in userModel)) && !userModel.token) { throw new HttpError(400, 'No access token specified'); }
-		if ((requireFullModel || ('alias' in userModel)) && !userModel.alias) { throw new HttpError(400, 'No alias specified'); }
-		if ((requireFullModel || ('name' in userModel)) && !userModel.name) { throw new HttpError(400, 'No name specified'); }
+		if ((requireFullModel || ('alias' in userModel)) && !userModel.alias) { throw new HttpError(400, 'No username specified'); }
+		if ((requireFullModel || ('firstName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No first name specified'); }
+		if ((requireFullModel || ('lastName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No last name specified'); }
 		if ((requireFullModel || ('email' in userModel)) && !userModel.email) { throw new HttpError(400, 'No email specified'); }
 		if (requireFullModel && !('default' in userModel)) { throw new HttpError(400, 'No default site specified'); }
 

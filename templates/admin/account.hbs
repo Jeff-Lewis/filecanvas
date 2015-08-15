@@ -11,11 +11,21 @@
 							<input type="hidden" name="_method" value="PUT"/>
 							<div class="form-group">
 								<label class="col-sm-2 control-label">Name</label>
-								<div class="col-sm-10">
+								<div class="col-sm-4">
 									<input type="text" class="form-control"
-										name="name"
-										placeholder="Full name"
-										value="{{ content.user.name }}"
+										name="firstName"
+										placeholder="First name"
+										value="{{ content.user.firstName }}"
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+								<div class="col-sm-6">
+									<input type="text" class="form-control"
+										name="lastName"
+										placeholder="Last name"
+										value="{{ content.user.lastName }}"
 										data-validate="notEmpty"
 										data-trigger="focus"
 									/>

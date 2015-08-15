@@ -120,9 +120,10 @@ module.exports = function(database, options) {
 			},
 			function(accessToken, refreshToken, profile, callback) {
 				var uid = profile.id;
-				var profileName = profile.displayName;
+				var profileFirstName = profile._json.name_details.given_name;
+				var profileLastName = profile._json.name_details.surname;
 				var profileEmail = profile.emails[0].value;
-				return loginUser(database, uid, accessToken, profileName, profileEmail)
+				return loginUser(database, uid, accessToken, profileFirstName, profileLastName, profileEmail)
 					.then(function(userModel) {
 						callback(null, userModel);
 					})
@@ -140,9 +141,10 @@ module.exports = function(database, options) {
 			},
 			function(accessToken, refreshToken, profile, callback) {
 				var uid = profile.id;
-				var profileName = profile.displayName;
+				var profileFirstName = profile._json.name_details.given_name;
+				var profileLastName = profile._json.name_details.surname;
 				var profileEmail = profile.emails[0].value;
-				return registerUser(database, uid, accessToken, profileName, profileEmail)
+				return registerUser(database, uid, accessToken, profileFirstName, profileLastName, profileEmail)
 					.then(function(userModel) {
 						callback(null, userModel);
 					})
@@ -153,8 +155,8 @@ module.exports = function(database, options) {
 		));
 
 
-		function loginUser(database, uid, accessToken, profileName, profileEmail) {
-			return loadUserModel(database, uid, accessToken, profileName, profileEmail)
+		function loginUser(database, uid, accessToken, profileFirstName, profileLastName, profileEmail) {
+			return loadUserModel(database, uid)
 				.catch(function(error) {
 					if (error.status === 404) {
 						throw new HttpError(403, profileEmail + ' is not a registered user');
@@ -163,18 +165,21 @@ module.exports = function(database, options) {
 				})
 				.then(function(userModel) {
 					var hasUpdatedAccessToken = accessToken !== userModel.token;
-					var hasUpdatedProfileName = profileName !== userModel.profileName;
+					var hasUpdatedProfileFirstName = profileFirstName !== userModel.profileFirstName;
+					var hasUpdatedProfileLastName = profileLastName !== userModel.profileLastName;
 					var hasUpdatedProfileEmail = profileEmail !== userModel.profileEmail;
-					var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileName || hasUpdatedProfileEmail;
+					var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
 					if (hasUpdatedUserDetails) {
 						return updateUserDetails(database, uid, {
 							token: accessToken,
-							profileName: profileName,
+							profileFirstName: profileFirstName,
+							profileLastName: profileLastName,
 							profileEmail: profileEmail
 						})
 							.then(function() {
 								userModel.token = accessToken;
-								userModel.profileName = profileName;
+								userModel.profileFirstName = profileFirstName;
+								userModel.profileLastName = profileLastName;
 								userModel.profileEmail = profileEmail;
 								return userModel;
 							});
@@ -183,7 +188,7 @@ module.exports = function(database, options) {
 				});
 
 
-			function loadUserModel(database, uid, accessToken, name, email) {
+			function loadUserModel(database, uid) {
 				var userService = new UserService(database);
 				return userService.retrieveUser(uid);
 			}
@@ -194,22 +199,25 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function registerUser(database, uid, accessToken, profileName, profileEmail) {
-			return createUserModel(database, uid, accessToken, profileName, profileEmail);
+		function registerUser(database, uid, accessToken, firstName, lastName, email) {
+			return createUserModel(database, uid, accessToken, firstName, lastName, email);
 
 
-			function createUserModel(database, uid, accessToken, name, email) {
+			function createUserModel(database, uid, accessToken, firstName, lastName, email) {
 				var userService = new UserService(database);
-				var alias = slug(name, { lower: true });
+				var fullName = firstName + ' ' + lastName;
+				var alias = slug(fullName, { lower: true });
 				return userService.generateUniqueAlias(alias)
 					.then(function(alias) {
 						var userModel = {
 							uid: uid,
 							token: accessToken,
 							alias: alias,
-							name: name,
+							firstName: firstName,
+							lastName: lastName,
 							email: email,
-							profileName: name,
+							profileFirstName: firstName,
+							profileLastName: lastName,
 							profileEmail: email,
 							default: null
 						};
@@ -508,7 +516,8 @@ module.exports = function(database, options) {
 				var uid = userModel.uid;
 				var updates = {};
 				if ('alias' in req.body) { updates.alias = req.body.alias; }
-				if ('name' in req.body) { updates.name = req.body.name; }
+				if ('firstName' in req.body) { updates.firstName = req.body.firstName; }
+				if ('lastName' in req.body) { updates.lastName = req.body.lastName; }
 				if ('email' in req.body) { updates.email = req.body.email; }
 				if ('default' in req.body) { updates.default = req.body.default || null; }
 				var userService = new UserService(database);
@@ -560,7 +569,8 @@ module.exports = function(database, options) {
 				var uid = userModel.uid;
 				var updates = {
 					'alias': req.body.alias,
-					'name': req.body.name,
+					'firstName': req.body.firstName,
+					'lastName': req.body.lastName,
 					'email': req.body.email
 				};
 				var userService = new UserService(database);
