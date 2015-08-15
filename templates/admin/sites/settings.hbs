@@ -35,37 +35,26 @@
 										data-trigger="focus"
 									/>
 									<span class="form-control-feedback fa" aria-hidden="true"></span>
-									<p class="help-block">This site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ content.site.alias }}</strong></p>
+									<p class="help-block">The site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ content.site.alias }}</strong></p>
 								</div>
 							</div>
 							<div class="form-group">
 								<label class="col-sm-2 control-label">Dropbox folder</label>
 								<div class="col-sm-10">
-									<div class="input-group">
-										<input type="text" class="form-control"
-										 	name="path"
-											placeholder="Dropbox folder"
-											value="{{ content.site.path }}"
-											data-bind-id="site-path"
-										/>
-										<span class="input-group-btn">
-											<button type="button" class="btn btn-info" title="Shunt scans your Dropbox folder automatically. Use this link to manually trigger a re-scan of your Dropbox folder."
-												data-shunt-purge="{{ content.site.alias }}"
-											>
-												<span class="shunt-sync-idle"><span class="fa fa-refresh mr10"></span>Sync files</span>
-												<span class="shunt-sync-loading"><span class="fa fa-refresh mr10"></span>Syncing…</span>
-												<span class="shunt-sync-success"><span class="fa fa-check mr10"></span>Sync done</span>
-												<span class="shunt-sync-error"><span class="fa fa-exclamation-circle mr10"></span>Sync failed</span>
-											</button>
-										</span>
-									</div>
-									<p class="help-block"
+									<input type="text" class="form-control"
+									 	name="path"
+										placeholder="Dropbox folder"
+										value="{{ content.site.path }}"
+										data-bind-id="site-path"
+									/>
+									<p class="form-control-feedback fa" aria-hidden="true"
 										data-bind-dropbox-folder-check="site-path"
 									>
-										<span class="shunt-dropbox-check-loading"><i class="fa fa-refresh"></i> Checking site folder…</span>
-										<span class="shunt-dropbox-check-valid text-success"><i class="fa fa-check"></i> Site folder is valid</span>
-										<span class="shunt-dropbox-check-invalid text-danger"><i class="fa fa-exclamation-circle"></i> No site folder exists at this path</span>
+										<span class="shunt-dropbox-check-loading text-default"><i class="fa fa-refresh"></i></span>
+										<span class="shunt-dropbox-check-valid text-success"><i class="fa fa-check"></i></span>
+										<span class="shunt-dropbox-check-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
 									</p>
+									<p class="help-block">This tells Shunt where to find the site's files within your Dropbox</p>
 								</div>
 							</div>
 							<div class="form-group">

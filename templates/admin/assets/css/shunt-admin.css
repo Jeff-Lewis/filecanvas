@@ -157,7 +157,7 @@ footer.content-footer {
     color: rgba(135, 135, 135, 0.5);
 }
 
-.has-error .form-control-feedback.fa {
+.form-control-feedback.fa {
 	line-height: 34px;
 	right: 15px;
 }
