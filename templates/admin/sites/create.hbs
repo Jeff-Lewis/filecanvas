@@ -1,94 +1,88 @@
 <div class="row">
-	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Create a site</h2>
-		<p class="lead">Use the fields below to create a new Shunt site.</p>
-		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.sites }}" method="POST" autocomplete="off">
-			<input type="hidden" name="_method" value="POST"/>
-			<input type="hidden" name="template" value="{{ content.site.template }}"/>
-			<fieldset>
-				<div class="form-group">
-					<label for="input-site-name" class="col-sm-3 col-lg-2 control-label">Name</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-site-name"
-							name="name"
-							title="This helps you identify the site in the Shunt admin area"
-							placeholder="Site name"
-							value="{{ content.site.name }}"
-							data-bind-id="site-name"
-							data-validate="notEmpty"
-							data-trigger="focus"
-						/>
+	<div class="col-md-12 col-lg-10">
+		<div class="panel mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase">Create a site</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row no-margin">
+					<div class="col-lg-12">
+						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
+							<input type="hidden" name="_method" value="POST"/>
+							<input type="hidden" name="template" value="{{ content.site.template }}"/>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Name</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="name"
+										placeholder="Site name"
+										value="{{ content.site.name }}"
+										data-bind-id="site-name"
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Site ID</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="alias"
+										placeholder="Site ID"
+										data-bind-id="site-alias"
+										value="{{ content.site.alias }}"
+										data-bind-value="site-name|slug"
+										data-parser="slug"
+										data-validate="slug"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+									<p class="help-block">{{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Dropbox folder</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+									 	name="path"
+										placeholder="Dropbox folder"
+										value="{{ content.site.path }}"
+										data-bind-value="site-alias|format:'/shunt/$0'"
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Site access</label>
+								<div class="col-sm-10">
+									<div class="checkbox">
+										<label>
+											<input type="hidden"
+												name="private"
+												value="false"
+											/>
+											<input type="checkbox"
+												name="private"
+												value="true"
+												{{#if content.site.private}}checked="checked"{{/if}}
+											/> Password protect this site
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-success">Create site</button>
+									<button type="button" class="btn btn-default pull-right" onclick="document.location.href='{{ session.urls.sites }}'">Cancel</button>
+								</div>
+							</div>
+						</form>
 					</div>
 				</div>
-				<div class="form-group">
-					<label for="input-site-alias" class="col-sm-3 col-lg-2 control-label">Site ID</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-site-alias"
-						 	name="alias"
-							title="This determines the site’s web address"
-							placeholder="Site ID"
-							data-bind-id="site-alias"
-							value="{{ content.site.alias }}"
-							data-bind-value="site-name|slug"
-							data-parser="slug"
-							data-validate="slug"
-							data-trigger="focus"
-						/>
-						<p class="help-block">{{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Dropbox folder</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-site-path"
-						 	name="path"
-							title="Choose the Dropbox folder that this site syncs from. If the folder does not exist, it will be created."
-							placeholder="Dropbox folder"
-							value="{{ content.site.path }}"
-							data-bind-value="site-alias|format:'/shunt/$0'"
-							data-trigger="focus"
-						/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="input-site-title" class="col-sm-3 col-lg-2 control-label">Page title</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-site-title"
-							name="title"
-							title="This determines what is shown in the title of the user’s browser window"
-							placeholder="Page title"
-							value="{{ content.site.title }}"
-							data-bind-value="site-name"
-							data-validate="notEmpty"
-							data-trigger="focus"
-						/>
-					</div>
-				</div>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Site access</label>
-					<div class="col-sm-9">
-						<div class="checkbox">
-							<label title="Only allow users with a valid username and password to see the Shunt site">
-								<input type="hidden"
-									name="private"
-									value="false"
-								/>
-								<input type="checkbox"
-									name="private"
-									value="true"
-									{{#if content.site.private}}checked="checked"{{/if}}
-								/> Password protect this site
-							</label>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-success">Create site</button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
+			</div>
+		</div>
 	</div>
 </div>

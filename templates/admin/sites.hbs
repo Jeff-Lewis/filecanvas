@@ -1,45 +1,24 @@
 <div class="row">
-	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Your sites</h1>
-		<hr/>
-
+	<div class="col-md-12 col-lg-10 mb15">
+		<div class="mb15">
+			<h4 class="no-margin text-uppercase">My Sites</h4>
+		</div>
 		{{#if content.sites}}
-
-		<p class="lead">The following sites have been registered to this account:</p>
-		<div class="row">
-			<div class="col-sm-8 col-lg-5">
-				<table class="table table-bordered table-condensed">
-					<tbody>
-						{{#each content.sites }}
-						<tr>
-							<td>
-								<div class="pull-right">
-									<a class="btn btn-default btn-xs" href="{{ ../session.urls.sites }}/{{ alias }}/settings" title="Change this site’s settings"><span class="glyphicon glyphicon-cog"></span> Settings</a>
-								</div>
-								{{#unless path}}
-								<span class="glyphicon glyphicon-exclamation-sign text-danger" title="This site has not yet been linked to a Dropbox folder."></span>
-								{{else}}
-								<span class="glyphicon"></span>
-								{{/unless}}
-								{{ name }}
-								<a href="{{ ../session.urls.webroot }}{{ alias }}" target="_blank" title="Visit this site"><span class="glyphicon glyphicon-new-window"></span></a>
-							</td>
-						</tr>
-						{{/each}}
-					</tbody>
-				</table>
-				<p><a class="btn btn-primary" href="{{ session.urls.sitesAdd }}"><span class="glyphicon glyphicon-plus"></span> Create a new site</a></p>
-			</div>
-		</div>
-
+		{{#each content.sites as |site|}}
+		<a class="widget mb0 bg-white" href="{{ ../session.urls.sites }}/{{ site.alias }}/settings">
+			<i class="fa {{#if site.path}}fa-arrow-right{{else}}fa-exclamation-sign{{/if}} mr5"{{#unless site.path}} title="This site is not linked to a Dropbox folder{{/unless}}"></i> {{ site.name }}</a>
+		</a>
+		{{/each}}
 		{{else}}
-
-		<div class="alert alert-info">
-			<p>There are no sites registered to this account.</p>
-			<p>Start using Shunt by <a href="{{ session.urls.sitesAdd }}">adding a new site</a>.</p>
+		<div class="alert alert-info mb0">
+			<h5>There are no sites registered to this account.</h5>
 		</div>
-
 		{{/if}}
-
+	</div>
+	<div class="col-md-12 col-lg-10">
+		<a class="widget bg-white" href="{{ session.urls.sitesAdd }}">
+			<i class="widget-icon bg-primary pull-left fa fa-plus"></i>
+			<h4>Create a site</h4>
+		</a>
 	</div>
 </div>

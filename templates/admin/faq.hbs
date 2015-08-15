@@ -1,22 +1,20 @@
-<h1 class="page-header">FAQ</h1>
-<p class="lead">Below you will find answers to our most frequently asked questions.</p>
-<p class="lead">For anything not in this list, contact us via the <a href="/support">Support</a> page.</p>
-
-<section class="faq-toc">
-	<ul>
-		{{#each content.questions}}
-		<li>
-			<a href="#{{ id }}">{{ title }}</a>
-		</li>
+<div class="row">
+	<div class="col-md-12 col-lg-10 mb20">
+		<div class="mb15">
+			<h4 class="no-margin text-uppercase">Frequently asked questions</h4>
+		</div>
+		{{#each content.questions as |question|}}
+		<div class="panel panel-primary mb5">
+			<a class="panel-heading collapsed" data-toggle="collapse" href="#{{ question.id }}" aria-expanded="false" aria-controls="{{ question.id }}" role="tab">
+				<div class="pull-left">{{ question.title }}</div>
+				<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+			</a>
+			<div id="{{ question.id }}" class="panel-collapse collapse" role="tabpanel">
+				<div class="panel-body">
+					{{{ question.body }}}
+				</div>
+			</div>
+		</div>
 		{{/each}}
-	</ul>
-</section>
-
-<hr/>
-
-{{#each content.questions}}
-<a class="faq-anchor" id="{{ id }}"></a>
-<section class="faq-item">
-	<h4>{{ title }}</h4>{{{ body }}}
-</section>
-{{/each}}
+	</div>
+</div>

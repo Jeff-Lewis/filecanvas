@@ -1,94 +1,142 @@
 <div class="row">
-	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Registered users for {{ content.site.name }}</h2>
-		<p class="lead">Use the fields below to control who is allowed to see this Shunt site.</p>
-		<hr/>
-		<div class="form-horizontal">
-			{{#unless content.site.users}}
-			<div class="alert alert-danger">
-				<p><strong>Warning:</strong> There are no registered users for this site.</p>
-			</div>
-			{{/unless}}
-			<fieldset>
-				{{#if content.site.users}}
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Registered users</label>
-					<div class="col-sm-6 col-lg-4">
-						<table class="form-control-static table table-bordered table-condensed">
-							<tbody>
-								{{#each content.site.users }}
-								<tr>
-									<td class="site-user is-delete">
-										<form class="site-user-delete" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
-											<input type="hidden" name="_method" value="DELETE"/>
-											<div class="pull-right">
-												<button type="button" class="btn btn-default btn-xs" title="Change this user's password" onclick="this.parentNode.parentNode.parentNode.className = 'site-user is-password'"><span class="glyphicon glyphicon-pencil"></span></button>
-												<button type="submit" class="btn btn-danger btn-xs" title="Delete this user"><span class="glyphicon glyphicon-trash"></span></button>
-											</div>
-											<div><span class="glyphicon"></span>{{ username }}</div>
-										</form>
-										<form class="clearfix site-user-password" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ username }}" method="POST" autocomplete="off">
-											<input type="hidden" name="_method" value="PUT"/>
-											<h5 class="col-sm-12">Change password for <b>{{ username }}</b>:</h5>
-											<div class="col-sm-12">
-												<div class="form-group col-sm-12">
-													<input type="password" class="form-control input-sm"
-														name="password"
-														title="Enter a new password for this user"
-														placeholder="New password"
-														data-trigger="focus"
-														data-validate="notEmpty"
-													/>
-												</div>
-											</div>
-											<p class="col-sm-12">
-												<button type="submit" class="btn btn-success btn-sm" title="Change this user's password"><span class="glyphicon glyphicon-ok"></span> OK</button>
-												<button type="button" class="btn btn-default btn-sm" title="Keep the existing password" onclick="this.parentNode.parentNode.parentNode.className = 'site-user is-delete'"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
-											</p>
-										</form>
-									</td>
-								</tr>
-								{{/each}}
-							</tbody>
-						</table>
+	<div class="col-md-8 col-lg-6">
+		<div class="mb15">
+			<h4 class="no-margin text-uppercase">
+				<a class="pull-right" href="{{ session.urls.sites }}/{{ content.site.alias }}/settings">
+					<i class="fa fa-times"></i>
+				</a>
+				Site users: {{ content.site.name }}
+			</h4>
+		</div>
+		{{#unless content.site.users}}
+		<div class="alert alert-info">
+			<h5>There are no users registered for this site.</h5>
+		</div>
+		{{/unless}}
+		{{#if content.site.users}}
+		<div class="site-users mb10">
+			{{#each content.site.users as |user|}}
+			<div class="panel panel-white panel-bordered mb0">
+				<div class="panel-heading">
+					<div class="panel-controls">
+						<button type="button" class="btn btn-xs btn-round btn-icon-icon bg-primary mr10" title="Edit this user's settings" data-toggle="collapse" data-target="#edit-{{ user.username }}" aria-expanded="false" aria-controls="edit-{{ user.username }}" onclick="$(this).closest('.panel').removeClass('panel-white').addClass('panel-primary').find('.panel-controls').hide();"><i class="fa fa-pencil text-white"></i></a>
+						<button type="button" class="btn btn-xs btn-round btn-icon-icon bg-danger" title="Delete this user" data-toggle="collapse" data-target="#delete-{{ user.username }}" aria-expanded="false" aria-controls="delete-{{ user.username }}" onclick="$(this).closest('.panel').removeClass('panel-white').addClass('panel-danger').find('.panel-controls').hide();"><i class="fa fa-trash text-white"></i></a>
 					</div>
+					<i class="fa fa-user mr5"></i> {{ user.username }}
 				</div>
-				{{/if}}
-				<form class="form-group" action="{{ session.urls.sites }}/{{ content.site.alias }}/users" method="POST" autocomplete="off">
-					<input type="hidden" name="_method" value="POST"/>
-					<label class="col-sm-3 col-lg-2 control-label">Add user</label>
-					<div class="col-sm-6 col-lg-4">
-						<div class="row">
-							<div class="col-sm-6">
-								<input type="text" class="form-control"
-									name="username"
-									title="Enter a username which your users can use to log into your Shunt site"
-									placeholder="Username"
-									data-trigger="focus"
-									data-validate="notEmpty"
-								/>
-							</div>
-							<div class="col-sm-6">
-								<input type="password" class="form-control"
-									name="password"
-									title="Enter a password to go with this username"
-									placeholder="Password"
-									data-trigger="focus"
-									data-validate="notEmpty"
-								/>
+				<div id="edit-{{ user.username }}" class="collapse">
+					<div class="panel-body">
+						<div class="row no-margin">
+							<div class="col-lg-12">
+								<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ user.username }}" autocomplete="off">
+									<input type="hidden" name="_method" value="PUT"/>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">Username</label>
+										<div class="col-sm-9">
+											<p class="form-control-static">{{ user.username }}</p>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">Password</label>
+										<div class="col-sm-9">
+											<input type="password" class="form-control"
+												placeholder="New password"
+												data-validate="notEmpty"
+												data-trigger="focus"
+											/>
+											<span class="form-control-feedback fa" aria-hidden="true"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-sm-offset-3 col-sm-9">
+											<button type="submit" class="btn btn-success">Save changes</button>
+											<button type="reset" class="btn btn-default ml5" data-toggle="collapse" data-target="#edit-{{ user.username }}" aria-expanded="false" aria-controls="edit-{{ user.username }}" onclick="$(this).closest('.panel').removeClass('panel-primary').addClass('panel-white').find('.panel-controls').show();">Cancel</button>
+										</div>
+									</div>
+								</form>
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-3 col-lg-2">
-						<button type="submit" class="btn btn-success" title="Add this user to the list of users who are allowed to see your Shunt site"><span class="glyphicon glyphicon-plus"></span> Add user</button>
-					</div>
-				</form>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<a href="{{ session.urls.sites }}/{{ content.site.alias }}/settings" class="btn btn-default"><span class="glyphicon glyphicon-chevron-left"></span> Back to site</a>
+				</div>
+				<div id="delete-{{ user.username }}" class="collapse">
+					<div class="panel-body">
+						<div class="row no-margin">
+							<div class="col-lg-12">
+								<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.alias }}/users/{{ user.username }}" autocomplete="off">
+									<input type="hidden" name="_method" value="DELETE"/>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">Are you sure?</label>
+										<div class="col-sm-9">
+											<div class="checkbox">
+												<label><input type="checkbox" data-bind-id="confirm-delete-{{ user.username }}"/> I want to permanently delete <strong>{{ user.username }}</strong></label>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="col-sm-offset-3 col-sm-9">
+											<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete-{{ user.username }}">Delete user</button>
+											<button type="reset" class="btn btn-default ml5" data-toggle="collapse" data-target="#delete-{{ user.username }}" aria-expanded="false" aria-controls="edit-{{ user.username }}" onclick="$(this).closest('.panel').removeClass('panel-danger').addClass('panel-white').find('.panel-controls').show();">Cancel</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
 					</div>
 				</div>
-			</fieldset>
+			</div>
+			{{/each}}
 		</div>
-	<div>
+		{{/if}}
+		<div>
+			<a class="widget bg-white mb0" data-toggle="collapse" href="#add-user" aria-expanded="false" aria-controls="add-user" onclick="$(this).hide().next().show();">
+				<i class="widget-icon bg-primary pull-left fa fa-user-plus"></i>
+				<h4>Add a user</h4>
+			</a>
+			<div class="widget bg-primary mb0" style="display: none;">
+				<i class="widget-icon bg-white pull-left fa fa-user-plus"></i>
+				<h4>Add a user</h4>
+			</div>
+			<div class="collapse" id="add-user">
+				<div class="panel-body bg-white">
+					<div class="col-lg-12">
+						<form class="form-horizontal" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.alias }}/users" autocomplete="off">
+							<input type="hidden" name="_method" value="POST"/>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">Username</label>
+								<div class="col-sm-9">
+									<input type="text" class="form-control"
+										name="username"
+										placeholder="Username"
+										value=""
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">Password</label>
+								<div class="col-sm-9">
+									<input type="password" class="form-control"
+										name="password"
+										placeholder="Password"
+										value=""
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-3 col-sm-9" data-toggle="collapse" data-target="#add-user" aria-expanded="false" aria-controls="add-user" onclick="$(this).closest('.collapse').prev().hide().prev().show();">
+									<button type="submit" class="btn btn-success">Add user</button>
+									<button type="reset" class="btn btn-default ml5">Cancel</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

@@ -1,76 +1,215 @@
-fieldset {
-	margin-bottom: 40px;
+body {
+	background-color: #f0f0f0;
 }
 
-legend {
-	padding-bottom: 4px;
+a:not(:link) {
+	cursor: default;
 }
 
-.main {
-	margin-top: 80px;
+a,
+a:active,
+a:focus,
+a:hover,
+a:visited {
+	text-decoration: underline;
 }
 
-.users-table {
-	margin-bottom: 0;
+a.btn,
+a.btn:active,
+a.btn:focus,
+a.btn:hover,
+a.btn:visited,
+a.widget,
+a.widget:active,
+a.widget:focus,
+a.widget:hover,
+a.widget:visited,
+.nav a,
+.nav a:active,
+.nav a:focus,
+.nav a:hover,
+.nav a:visited,
+.breadcrumb a,
+.breadcrumb a:active,
+.breadcrumb a:focus,
+.breadcrumb a:hover,
+.breadcrumb a:visited,
+.content-footer a,
+.content-footer a:active,
+.content-footer a:focus,
+.content-footer a:hover,
+.content-footer a:visited {
+	text-decoration: none;
 }
 
-.login-page {
-	background-color: #f4f4f4;
+button.btn-reset {
+	text-align: left;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
 }
 
-.form-signin {
-	padding: 5px 40px 30px;
-	background-color: white;
-	max-width: 330px;
-	margin: 0 auto;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-	border-radius: 5px 5px 0px 0px;
-	border: 1px solid #ccc;
-	overflow: hidden;
+button.bg-white:hover:not(:disabled) {
+	background-color: #e6e6e6;
 }
-.form-signin-heading {
-	border-radius: 0;
-	margin: -5px -40px 30px;
-	padding: 19px 20px;
-	color: white;
-	text-align: center;
+
+@media screen and (min-width:768px) {
+	.login-form {
+		margin-top: 130px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 320px;
+	}
+
+	body.login footer.content-footer {
+        padding-left: 20px;
+	}
+
+    body.login .main-panel {
+        margin-left: 0;
+    }
 }
-.form-signin-heading h2 {
-	margin: 0;
+
+.brand-logo {
+	font-weight: bold;
 }
-.form-signin .btn-block + .btn-block {
+
+.brand-logo a {
+	text-decoration: none;
+}
+
+.navbar .brand-logo,
+.navbar .brand-logo a {
+	color: #333;
+    margin-top: 15px;
+    margin-bottom: 14px;
+}
+
+.main-panel > .header .navbar-nav .dropdown-menu {
+	border-right: none;
+}
+
+.navbar > .breadcrumb {
+	margin-bottom: 9px;
 	margin-top: 10px;
 }
 
-.faq-toc {}
-.faq-anchor {
+.sidebar-panel > nav {
+	overflow-y: visible;
+}
+
+.sidebar-panel > nav ul > li > a .fa {
+	font-size: 16px;
+}
+
+.sidebar-panel > nav ul > li > a {
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
+.sidebar-panel > nav li:hover > a > .fa,
+.sidebar-panel > nav li:hover > a > span {
+	text-indent: 0;
+}
+
+.sidebar-panel > nav li.open > a .fa,
+.sidebar-panel > nav li.open > a > span {
+	text-indent: 3px;
+}
+
+footer.content-footer {
+	bottom: 1px;
+}
+
+.dropdown-menu > li > a {
+	padding: 10px 20px;
+}
+
+.alert {
+    overflow: hidden;
+}
+
+.alert > .fa {
+	margin-left: 10px;
+	margin-top: 10px;
+	font-size: 32px;
+}
+.alert > .fa + * {
+	margin-left: 62px;
+}
+.alert p {
+	color: inherit;
+}
+.alert h4 {
+	font-weight: bold;
+}
+.alert h5 {
+	font-weight: bold;
+}
+.alert ul {
+	padding-left: 15px;
+}
+
+.form-control::-webkit-input-placeholder {
+    color: rgba(135, 135, 135, 0.5);
+}
+
+.has-error .form-control-feedback.fa {
+	line-height: 34px;
+	right: 15px;
+}
+
+.has-error .form-control-feedback.fa:before {
+	content: "\f00d"
+}
+
+.panel-heading {
+	font-weight: bold;
+}
+
+a.panel-heading {
 	display: block;
-	position: relative;
-	top: -75px;
-}
-.faq-item {
-	margin-bottom: 30px;
-}
-.faq-example {}
-.faq-example aside {
-	margin-bottom: 15px;
-	font-style: italic;
-}
-.faq-example aside b {
-	font-style: normal;
-}
-.faq-example blockquote p {
-	font-style: normal;
 }
 
-.site-user.is-password .site-user-delete {
-	display: none;
+.panel-arrow {
+	display: block;
+	font-size: 20px;
+	-webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+    -webkit-transition: transform 300ms ease;
+    -moz-transition: transform 300ms ease;
+    -o-transition: transform 300ms ease;
+    transition: transform 300ms ease;
 }
-.site-user.is-delete .site-user-password {
-	display: none;
+.panel-heading.collapsed .panel-arrow {
+	-webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
-.shunt-delete-button[disabled] { opacity: 0.5; }
+.site-users .panel-heading {
+	font-weight: normal;
+}
+.site-users .panel.panel-white:hover {
+    background-color: #e6e6e6;
+}
+.site-users .panel.panel-white:hover .panel-body {
+	background-color: white;
+}
+.site-users .widget .widget-actions {
+	opacity: 0.75;
+}
+.site-users .widget:hover .widget-actions {
+	opacity: 1;
+}
 
 .shunt-sync-idle { }
 .shunt-sync-loading { display: none; }
@@ -100,4 +239,3 @@ legend {
 .-shunt-dropbox-check-loading .shunt-dropbox-check-loading { display: inline; }
 .-shunt-dropbox-check-valid .shunt-dropbox-check-valid { display: inline; }
 .-shunt-dropbox-check-invalid .shunt-dropbox-check-invalid { display: inline; }
-

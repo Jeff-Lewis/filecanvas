@@ -1,67 +1,66 @@
 <div class="row">
-	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Your profile</h2>
-		<p class="lead">Use the fields below to update your profile settings.</p>
-		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.profile }}" method="POST" autocomplete="off">
-			<input type="hidden" name="_method" value="PUT"/>
-			<fieldset>
-				<div class="form-group">
-					<label for="input-user-name" class="col-sm-3 col-lg-2 control-label">Name</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-user-name"
-							name="name"
-							title="This is used to identify you in the Shunt admin area and in any email communication"
-							placeholder="Full name"
-							value="{{ content.user.name }}"
-							data-validate="notEmpty"
-							data-trigger="focus"
-						/>
+	<div class="col-md-12 col-lg-10">
+		<div class="panel mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase">Your profile</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row no-margin">
+					<div class="col-lg-12">
+						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.profile }}" autocomplete="off">
+							<input type="hidden" name="_method" value="PUT"/>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Name</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="name"
+										placeholder="Full name"
+										value="{{ content.user.name }}"
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Email</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="email"
+										placeholder="Email address"
+										value="{{ content.user.email }}"
+										data-validate="email"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Username</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="alias"
+										placeholder="Username"
+										value="{{ content.user.alias }}"
+										data-bind-id="user-alias"
+										data-parser="slug"
+										data-validate="slug"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+									<p class="help-block">Sites will be created in {{#replace '$0' content.user.alias}}{{#replace '$0' '<strong data-bind-value="user-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+									<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+								</div>
+							</div>
+						</form>
 					</div>
 				</div>
-				<div class="form-group">
-					<label for="input-user-email" class="col-sm-3 col-lg-2 control-label">Email</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-user-email"
-						 	name="email"
-							title="This is used as your login to the Shunt admin area and the address for any email communication"
-							placeholder="Email address"
-							value="{{ content.user.email }}"
-							data-validate="email"
-							data-trigger="focus"
-						/>
-					</div>
-				</div>
-			</fieldset>
-			<fieldset>
-				<legend>Your username</legend>
-				<div class="form-group">
-					<ul>
-						<li>Your username determines your Shunt web root, where your sites are located.</li>
-					</ul>
-					<label for="input-user-alias" class="col-sm-3 col-lg-2 control-label">Username</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-user-alias"
-						 	name="alias"
-							title="This determines your Shunt web root, where your sites are located"
-							placeholder="Username"
-							value="{{ content.user.alias }}"
-							data-bind-id="user-alias"
-							data-parser="slug"
-							data-validate="slug"
-							data-trigger="focus"
-						/>
-						<p class="help-block">{{#replace '$0' content.user.alias}}{{#replace '$0' '<strong data-bind-value="user-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
-					</div>
-				</div>
-			</fieldset>
-			<fieldset>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-success">Save changes</button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
+			</div>
+		</div>
 	</div>
 </div>

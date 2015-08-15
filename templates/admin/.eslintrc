@@ -1,11 +1,9 @@
 {
 	"env": {
-		"node": false,
-		"browser": true,
-		"jquery": true
+		"browser": true
 	},
 	"rules": {
 		"strict": [2, "function"],
-		"no-extra-strict": false
+		"no-extra-strict": 0
 	}
 }

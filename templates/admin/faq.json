@@ -2,12 +2,12 @@
 	{
 		"id": "share-link",
 		"title": "Will people need to sign up for Shunt or Dropbox to access my Shunt sites?",
-		"body": "<p>No. For others to view your site, all they need is the web address of the Shunt site.</p><p>The web address for a Shunt site takes the form <b>https://${username}.shunt.io/${sitename}</b>, where <b>${username}</b> is your Shunt username and <b>${sitename}</b> is the path to your Shunt site (as specified in your <a href=\"/account\">account settings</a> page and the site's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
+		"body": "<p>No. For others to view your site, all they need is the web address of the Shunt site.</p><p>The web address for a Shunt site takes the form <b>https://${username}.shunt.io/${sitename}</b>, where <b>${username}</b> is your Shunt username and <b>${sitename}</b> is your Shunt site ID (as specified in your <a href=\"/account\">account settings</a> page and the site's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
 	},
 	{
 		"id": "site-folder",
 		"title": "Where are my Shunt sites stored?",
-		"body": "<p>By default, whenever you create a Shunt site, Shunt will create a new <b>site folder</b> within a folder named <code>shunt</code> inside your Dropbox. Your Shunt site will then stay in sync with the contents of this folder.</p><p>Shunt does <b>not</b> store copies of any your files. All the files in your Shunt site folder are located on Dropbox's secure file servers.</p>"
+		"body": "<p>Shunt does <b>not</b> store any your files. All the files in your Shunt sites are located on Dropbox's secure file servers.</p><p>By default, whenever you create a Shunt site, Shunt will create a new <b>site folder</b> within a folder named <code>shunt</code> inside your Dropbox. Your Shunt site will then stay in sync with the contents of this folder.</p>"
 	},
 	{
 		"id": "share-folder",

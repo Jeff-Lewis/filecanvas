@@ -1,5 +1,6 @@
 'use strict';
 
+var fs = require('fs');
 var path = require('path');
 var objectAssign = require('object-assign');
 var express = require('express');
@@ -39,17 +40,18 @@ module.exports = function(database, options) {
 	var app = express();
 	var passport = new Passport();
 
-	initStaticAssets(app, {
-		assetsRoot: path.resolve(__dirname, '../../templates/admin/assets')
-	});
 	initAuth(app, passport, database, {
 		appKey: appKey,
 		appSecret: appSecret,
 		loginCallbackUrl: loginCallbackUrl,
 		registerCallbackUrl: registerCallbackUrl
 	});
-	initViewEngine(app, {
-		templatesPath: path.resolve(__dirname, '../../templates/admin')
+	initAssetsRoot(app, '/assets', {
+		assetsRoot: path.resolve(__dirname, '../../templates/admin/assets')
+	});
+	initStaticPages(app, {
+		'/terms': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/terms/terms.html'), { encoding: 'utf8' }),
+		'/privacy': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/privacy/privacy.html'), { encoding: 'utf8' })
 	});
 	initRoutes(app, passport, database, {
 		defaultSiteTemplate: defaultSiteTemplate,
@@ -58,15 +60,29 @@ module.exports = function(database, options) {
 	initErrorHandler(app, {
 		template: 'error'
 	});
+	initViewEngine(app, {
+		templatesPath: path.resolve(__dirname, '../../templates/admin')
+	});
 
 	return app;
 
 
-	function initStaticAssets(app, options) {
+	function initAssetsRoot(app, pathPrefix, options) {
 		options = options || {};
 		var assetsRoot = options.assetsRoot;
 
-		app.use('/assets', express.static(assetsRoot));
+		app.use(pathPrefix, express.static(assetsRoot, {
+			redirect: false
+		}));
+	}
+
+	function initStaticPages(app, pages) {
+		Object.keys(pages).forEach(function(path) {
+			var file = pages[path];
+			app.get(path, function(req, res) {
+				res.send(file);
+			});
+		});
 	}
 
 	function initAuth(app, passport, database, options) {
@@ -278,7 +294,9 @@ module.exports = function(database, options) {
 						registerAuth: '/register/oauth2',
 						logout: '/logout',
 						sites: '/sites',
-						sitesAdd: '/sites/create'
+						sitesAdd: '/sites/create',
+						terms: '/terms',
+						privacy: '/privacy'
 					};
 				}
 			}
@@ -422,6 +440,13 @@ module.exports = function(database, options) {
 				});
 				var templateData = {
 					title: 'FAQ',
+					breadcrumb: [
+						{
+							link: '/faq',
+							icon: 'info-circle',
+							label: 'FAQ'
+						}
+					],
 					content: {
 						questions: faqs
 					}
@@ -445,6 +470,13 @@ module.exports = function(database, options) {
 			function retrieveSupportRoute(req, res, next) {
 				var templateData = {
 					title: 'Support',
+					breadcrumb: [
+						{
+							link: '/support',
+							icon: 'question-circle',
+							label: 'Support'
+						}
+					],
 					content: null
 				};
 				renderAdminPage(req, res, 'support', templateData)
@@ -457,6 +489,13 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var templateData = {
 					title: 'Your account',
+					breadcrumb: [
+						{
+							link: '/account',
+							icon: 'user',
+							label: 'Your account'
+						}
+					],
 					content: {
 						user: userModel
 					}
@@ -502,6 +541,13 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var templateData = {
 					title: 'Your profile',
+					breadcrumb: [
+						{
+							link: '/profile',
+							icon: 'user',
+							label: 'Your profile'
+						}
+					],
 					content: {
 						user: userModel
 					}
@@ -529,7 +575,14 @@ module.exports = function(database, options) {
 
 			function retrieveSitesRoute(req, res, next) {
 				var templateData = {
-					title: 'Your sites',
+					title: 'My sites',
+					breadcrumb: [
+						{
+							link: '/sites',
+							icon: 'dashboard',
+							label: 'My sites'
+						}
+					],
 					content: {
 						sites: res.locals.sites
 					}
@@ -546,6 +599,13 @@ module.exports = function(database, options) {
 				};
 				var templateData = {
 					title: 'Create a site',
+					breadcrumb: [
+						{
+							link: '/sites/create',
+							icon: 'plus',
+							label: 'Create a site'
+						}
+					],
 					content: {
 						site: siteModel
 					}
@@ -574,6 +634,18 @@ module.exports = function(database, options) {
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Site settings: ' + siteModel.name,
+							breadcrumb: [
+								{
+									link: '/sites',
+									icon: 'dashboard',
+									label: 'My sites'
+								},
+								{
+									link: '/sites/' + siteAlias + '/settings',
+									icon: 'cog',
+									label: siteModel.name
+								}
+							],
 							content: {
 								site: siteModel
 							}
@@ -603,6 +675,23 @@ module.exports = function(database, options) {
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Edit site users: ' + siteModel.name,
+							breadcrumb: [
+								{
+									link: '/sites',
+									icon: 'dashboard',
+									label: 'My sites'
+								},
+								{
+									link: '/sites/' + siteAlias + '/settings',
+									icon: 'cog',
+									label: siteModel.name
+								},
+								{
+									link: '/sites/' + siteAlias + '/users',
+									icon: 'users',
+									label: 'Site users'
+								}
+							],
 							content: {
 								site: siteModel
 							}
@@ -623,7 +712,7 @@ module.exports = function(database, options) {
 					'user': uid,
 					'alias': req.body.alias,
 					'name': req.body.name,
-					'title': req.body.title,
+					'title': req.body.name,
 					'template': req.body.template,
 					'path': req.body.path || null,
 					'private': req.body.private === 'true'

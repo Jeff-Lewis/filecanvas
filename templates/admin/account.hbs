@@ -1,116 +1,160 @@
 <div class="row">
-	<div class="col-sm-12 col-lg-offset-1 col-lg-11">
-		<h2>Your account</h2>
-		<p class="lead">Use the fields below to update your account settings.</p>
-		<hr/>
-		<form class="form-horizontal" role="form" action="{{ session.urls.account }}" method="POST" autocomplete="off">
-			<input type="hidden" name="_method" value="PUT"/>
-			<fieldset>
-				<div class="form-group">
-					<label for="input-user-name" class="col-sm-3 col-lg-2 control-label">Name</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-user-name"
-							name="name"
-							title="This is used to identify you in the Shunt admin area and in any email communication"
-							placeholder="Full name"
-							value="{{ content.user.name }}"
-							data-validate="notEmpty"
-							data-trigger="focus"
-						/>
+	<div class="col-md-12 col-lg-10">
+		<div class="panel mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase">Your account</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row no-margin">
+					<div class="col-lg-12">
+						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+							<input type="hidden" name="_method" value="PUT"/>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Name</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="name"
+										placeholder="Full name"
+										value="{{ content.user.name }}"
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Email</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="email"
+										placeholder="Email address"
+										value="{{ content.user.email }}"
+										data-validate="email"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Default site</label>
+								<div class="col-sm-10">
+									<select class="form-control"
+										name="default"
+									>
+										<option>No default site</option>
+										{{#each session.sites as |site|}}
+										<option value="{{ site.alias }}"{{#if (eq site.alias ../content.user.default)}} selected="selected"{{/if}}>{{ site.name }}</option>
+										{{/each}}
+									</select>
+									<p class="help-block">This is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+									<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+								</div>
+							</div>
+						</form>
 					</div>
 				</div>
-				<div class="form-group">
-					<label for="input-user-email" class="col-sm-3 col-lg-2 control-label">Email</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-user-email"
-						 	name="email"
-							title="This is used as your login to the Shunt admin area and the address for any email communication"
-							placeholder="Email address"
-							value="{{ content.user.email }}"
-							data-validate="email"
-							data-trigger="focus"
-						/>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12 col-lg-10">
+		<div class="panel mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase">Change your username</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row no-margin">
+					<div class="col-lg-12">
+						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+							<input type="hidden" name="_method" value="PUT"/>
+							<div class="alert alert-warning">
+								<i class="pull-left fa fa-exclamation-triangle"></i>
+								<div>
+									<h5>Before changing your username, bear the following points in mind:</h5>
+									<ul>
+										<li>Your username determines your Shunt web root, where your sites are located.</li>
+										<li>Changing your username will change the web address of <strong>all your Shunt sites</strong>.</li>
+										<li>Your Shunt sites will be accessible from your updated Shunt web root.</li>
+										<li>Any custom domain names will need to be updated to reflect your updated web root address.</li>
+									</ul>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Username</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="alias"
+										placeholder="Username"
+										value="{{ content.user.alias }}"
+										data-bind-id="user-alias"
+										data-parser="slug"
+										data-validate="slug"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+									<p class="help-block">Sites will be moved to {{#replace '$0' content.user.alias}}{{#replace '$0' '<strong data-bind-value="user-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+									<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+								</div>
+							</div>
+						</form>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="col-sm-3 col-lg-2 control-label">Default site</label>
-					<div class="col-sm-6 col-lg-4">
-						<select class="form-control"
-							name="default"
-							title="This determines the site that will be shown if a user navigates to {{ session.urls.webroot }}"
-						>
-							<option value="">No default site selected</option>
-							{{#each session.sites}}
-							<option value="{{ alias }}"{{#ifequals alias ../content.user.default }} selected="selected"{{/ifequals}}>{{ name }}</option>
-							{{/each}}
-						</select>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12 col-lg-10">
+		<div class="panel mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase">Delete your account</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row no-margin">
+					<div class="col-lg-12">
+						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+							<input type="hidden" name="_method" value="DELETE"/>
+							<div class="alert alert-danger">
+								<i class="pull-left fa fa-exclamation-circle"></i>
+								<div>
+									<h5>Before deleting your account, bear the following points in mind:</h5>
+									<ul>
+										<li>Deleting this account will <strong>permanently</strong> remove all Shunt sites located at <strong>{{ session.urls.webroot }}</strong></li>
+										<li>Deleting this site will unlink your Dropbox folder from the Shunt service.</li>
+										<li>Deleting this site will <strong>not</strong> delete the contents of your Dropbox folder.</li>
+									</ul>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Are you sure?</label>
+								<div class="col-sm-10">
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete my account
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete my account</button>
+								</div>
+							</div>
+						</form>
 					</div>
 				</div>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-success">Save changes</button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
-		<form class="form-horizontal" role="form" action="{{ session.urls.account }}" method="POST" autocomplete="off">
-			<input type="hidden" name="_method" value="PUT"/>
-			<fieldset>
-				<legend>Change your username</legend>
-				<div class="form-group">
-					<ul>
-						<li>Your username determines your Shunt web root, where your sites are located.</li>
-						<li>Changing your username will change the web address of <b>all your Shunt sites</b>.</li>
-						<li>Your Shunt sites will be accessible from your updated Shunt web root.</li>
-						<li>Any custom domain names will need to be updated to reflect your updated web root address.</li>
-					</ul>
-					<label for="input-user-alias" class="col-sm-3 col-lg-2 control-label">Username</label>
-					<div class="col-sm-6 col-lg-4">
-						<input type="text" class="form-control" id="input-user-alias"
-						 	name="alias"
-							title="This determines your Shunt web root, where your sites are located"
-							placeholder="Username"
-							value="{{ content.user.alias }}"
-							data-bind-id="user-alias"
-							data-parser="slug"
-							data-validate="slug"
-							data-trigger="focus"
-						/>
-						<p class="help-block">{{#replace '$0' content.user.alias}}{{#replace '$0' '<strong data-bind-value="user-alias">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-success">Save changes</button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
-		<form class="form-horizontal" role="form" action="{{ session.urls.account }}" method="POST" autocomplete="off">
-			<input type="hidden" name="_method" value="DELETE"/>
-			<fieldset>
-				<legend>Delete your account</legend>
-				<div class="form-group">
-					<ul>
-						<li>Deleting this account will permanently remove all Shunt sites located at <strong>{{ session.urls.webroot }}</strong></li>
-						<li>Deleting this site will unlink your Dropbox folder from the Shunt service.</li>
-						<li>Deleting this site will <b>not</b> delete the contents of your Dropbox folder.</li>
-					</ul>
-					<label class="col-sm-3 col-lg-2 control-label">Are you sure?</label>
-					<div class="col-sm-9">
-						<div class="checkbox">
-							<label>
-								<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete my Shunt account
-							</label>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-						<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete my account</button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
+			</div>
+		</div>
 	</div>
 </div>

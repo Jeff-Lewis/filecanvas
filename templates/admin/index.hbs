@@ -1,81 +1,106 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 	<head>
-		<meta charset="utf-8">
+		<meta charset="utf-8"/>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<meta name="description" content=""/>
 		<meta name="author" content=""/>
-		<link rel="shortcut icon" href="/assets/favicon.ico"/>
-		{{#if title}}
-		<title>{{ title }} | Shunt Admin</title>
-		{{else}}
-		<title>Shunt Admin Area</title>
-		{{/if}}
-		<link href="//netdna.bootstrapcdn.com/bootswatch/3.0.3/flatly/bootstrap.min.css" rel="stylesheet"/>
-		<link href="/assets/css/shunt-admin.css" rel="stylesheet"/>
-		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-		<!--[if lt IE 9]>
-			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-			<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-		<![endif]-->
+		<link rel="shortcut icon" href="/favicon.ico"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link rel="stylesheet" href="/assets/css/app.min.css"/>
+		<link rel="stylesheet" href="/assets/css/shunt-admin.css"/>
+		<title>{{#if title}}{{ title }} | {{/if}}Shunt</title>
 	</head>
-
-	<body{{#unless session.user}} class="login-page"{{/unless}}>
-
-		{{#if session.user}}
-		<header class="navbar navbar-default navbar-fixed-top" role="navigation">
-			<div class="container">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="{{ session.urls.admin }}">Shunt</a>
+	<body{{#unless session.user}} class="login"{{/unless}}>
+		<div class="app{{#if session.user}} layout-fixed-header{{/if}}">
+			{{#if session.user}}
+			<div class="sidebar-panel offscreen-left">
+				<div class="brand">
+					<h3 class="brand-logo"><a href="/">Shunt</a></h3>
 				</div>
-				<div class="collapse navbar-collapse">
-					<ul class="nav navbar-nav">
-						<li class="dropdown">
-							<a href="{{ session.urls.admin }}" class="dropdown-toggle" data-toggle="dropdown">Your sites <b class="caret"></b></a>
-							<ul class="dropdown-menu">
-								{{#if session.sites}}
-								{{#each session.sites}}
-								<li><a href="{{ ../session.urls.sites }}/{{ alias }}/settings">{{ name }}</a></li>
+				<nav role="navigation">
+					<ul class="nav">
+						<li class="menu-accordion{{#if (and (startsWith session.location.pathname session.urls.sites) (not-eq session.location.pathname session.urls.sitesAdd))}} open{{/if}}">
+							<a href="{{ session.urls.sites }}"><i class="fa fa-dashboard"></i> <span>My sites</span></a>
+							{{#if session.sites}}
+							<ul class="sub-menu">
+								{{#each session.sites as |site|}}
+								<li{{#if (eq ../session.location.pathname (concat ../session.urls.sites '/' site.alias '/settings'))}} class="open"{{/if}}><a href="{{ ../session.urls.sites }}/{{ site.alias }}/settings"> <span>{{ site.name }}</span></a></li>
 								{{/each}}
-								<li class="divider"></li>
-								{{/if}}
-								<li><a href="{{ session.urls.sites }}">Site dashboard</a></li>
-								<li><a href="{{ session.urls.sitesAdd }}">Create a new site...</a></li>
 							</ul>
+							{{/if}}
 						</li>
-						<li{{#ifequals session.location.pathname session.urls.faq}} class="active"{{/ifequals}}><a href="{{ session.urls.faq }}">FAQ</a></li>
-						<li{{#ifequals session.location.pathname session.urls.support}} class="active"{{/ifequals}}><a href="{{ session.urls.support }}">Support</a></li>
+						<li{{#if (eq session.location.pathname session.urls.sitesAdd)}} class="open"{{/if}}><a href="{{ session.urls.sitesAdd }}"><i class="fa fa-plus"></i><span>Create a site</span></a></li>
+						<li{{#if (eq session.location.pathname session.urls.faq)}} class="open"{{/if}}><a href="{{ session.urls.faq }}"><i class="fa fa-info-circle"></i><span>FAQ</span></a></li>
+						<li{{#if (eq session.location.pathname session.urls.support)}} class="open"{{/if}}><a href="{{ session.urls.support }}"><i class="fa fa-question-circle"></i><span>Support</span></a></li>
+						<li class="visible-xs {{#if (eq session.location.pathname session.urls.account)}} open{{/if}}"><a href="{{ session.urls.account }}"><i class="fa fa-user"></i><span>Your account</span></a></li>
+						<li class="visible-xs"><a href="{{ session.urls.logout }}"><i class="fa fa-sign-out"></i><span>Log out</span></a></li>
 					</ul>
-					<ul class="nav navbar-nav navbar-right">
-						<li class="dropdown">
-							<a href="{{ session.urls.admin }}" class="dropdown-toggle" data-toggle="dropdown">{{ session.user.name }} <b class="caret"></b></a>
-							<ul class="dropdown-menu">
-								<li><a href="{{ session.urls.account }}">Account settings</a></li>
-								<li><a href="{{ session.urls.logout }}">Log out</a></li>
-							</ul>
-						</li>
-					</ul>
-				</div>
+				</nav>
 			</div>
-		</header>
-		{{/if}}
-
-		<section class="container main">
-			{{> page }}
-		</section>
-
+			{{/if}}
+			<div class="main-panel">
+				{{#if session.user}}
+				<header class="header navbar">
+					<div class="brand visible-xs">
+						<div class="toggle-offscreen">
+							<a href="javascript:;" class="hamburger-icon visible-xs" data-toggle="offscreen" data-move="ltr">
+								<span></span><span></span><span></span>
+							</a>
+						</div>
+						<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+					</div>
+					{{#if breadcrumb}}
+					<ol class="breadcrumb pull-left hidden-xs">
+					{{#each breadcrumb as |item|}}
+						<li>
+							<a href="{{ item.link }}">
+								{{#if item.icon}}<i class="fa fa-{{ item.icon }} mr5"></i>{{/if}}{{ item.label }}
+							</a>
+						</li>
+					{{/each}}
+					</ol>
+					{{/if}}
+					<ul class="nav navbar-nav navbar-right hidden-xs">
+						<li>
+							<a href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+								<span>{{ session.user.name }}</span>
+								<i class="ml10 fa fa-angle-down"></i>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="{{ session.urls.account }}">Account Settings</a>
+								</li>
+								<li>
+									<a href="{{ session.urls.logout }}">Log out</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</header>
+				{{/if}}
+				<section class="main-content">
+					{{> page }}
+				</section>
+			</div>
+			<footer class="content-footer">
+				<nav class="footer-right">
+					<ul class="nav">
+						<li><a href="mailto:info@shunt.io">Feedback</a></li>
+					</ul>
+				</nav>
+				<nav class="footer-left">
+					<ul class="nav">
+						<li><a>Copyright <i class="fa fa-copyright"></i> <span>Shunt</span> 2015</a></li>
+						<li><a href="{{ session.urls.terms }}">Terms &amp; Conditions</a></li>
+						<li><a href="{{ session.urls.privacy }}">Privacy Policy</a></li>
+					</ul>
+				</nav>
+			</footer>
+		</div>
 		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-		<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<script src="/assets/js/shunt.js"></script>
 		<script src="/assets/js/shunt-admin.js"></script>
-		<script>$('.main [title]').tooltip();</script>
-
 	</body>
 </html>

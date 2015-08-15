@@ -35,12 +35,15 @@
 		};
 
 		initSubmitButtons();
+		initResetButtons();
 		initInputParsers(parsers);
 		var bindingSources = initBindingSources();
 		initBindingTargets(bindingSources, bindingFilters);
 		initShunt(bindingSources, bindingFilters);
 		updateBindings(bindingSources);
 		initInputValidators(validators);
+		initAccordionAnchors();
+		initOffscreenSidebar();
 	});
 
 
@@ -49,8 +52,21 @@
 
 		$formElements.on('submit', function(event) {
 			var $formElement = $(event.currentTarget);
-			var $submitElements = $formElement.find('input[type="submit"],button[type="submit"]');
+			var $submitElements = $formElement.find('input[type="submit"],button');
 			$submitElements.prop('disabled', true);
+		});
+	}
+
+	function initResetButtons() {
+		var $formElements = $('form');
+
+		$formElements.on('reset', function(event) {
+			var $formElement = $(event.currentTarget);
+			var sourceAttributeName = 'data-bind-id';
+			var $sourceElements = $formElement.find('[' + sourceAttributeName + ']');
+			setTimeout(function() {
+				$sourceElements.change();
+			});
 		});
 	}
 
@@ -421,5 +437,89 @@
 				}
 			}
 		}
+	}
+
+	function initAccordionAnchors() {
+		$('.collapse').on('show.bs.collapse', function() {
+			location.hash = this.id;
+		});
+		$(window).on('hashchange', onHashChanged);
+		onHashChanged(null);
+
+
+		function onHashChanged(event) {
+			if (location.hash) {
+				var $panelElements = $('.collapse,.collapsing');
+				var $panelElement = $panelElements.filter(location.hash);
+				if ($panelElement.length === 0) { return; }
+				$panelElements.not(location.hash).collapse('hide');
+				$panelElement.collapse('show');
+			}
+		}
+	}
+
+	function initOffscreenSidebar() {
+		var offscreenToggleBtn = $('[data-toggle=offscreen]');
+    	var app = $('.app');
+    	var mainPanel = $('.main-panel');
+		var offscreenDirection;
+		var offscreenDirectionClass;
+		var rapidClickCheck = false;
+		var isOffscreenOpen = false;
+
+		function toggleMenu() {
+			if (isOffscreenOpen) {
+				app.removeClass('offscreen move-left move-right');
+			} else {
+				app.addClass('offscreen ' + offscreenDirectionClass);
+			}
+			isOffscreenOpen = !isOffscreenOpen;
+			rapidClickFix();
+		}
+
+		function rapidClickFix() {
+			debounce(function() {
+				rapidClickCheck = false;
+			}, 300);
+
+			var timeout;
+			function debounce(func, wait, immediate) {
+				var context = this, args = arguments;
+				var later = function() {
+					timeout = null;
+					if (!immediate) {
+						func.apply(context, args);
+					}
+				};
+				var callNow = immediate && !timeout;
+				clearTimeout(timeout);
+				timeout = setTimeout(later, wait);
+				if (callNow) {
+					func.apply(context, args);
+				}
+			}
+		}
+
+		offscreenToggleBtn.on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			offscreenDirection = $(this).data('move') ? $(this).data('move') : 'ltr';
+			if (offscreenDirection === 'rtl') {
+				offscreenDirectionClass = 'move-right';
+			} else {
+				offscreenDirectionClass = 'move-left';
+			}
+			if (rapidClickCheck) { return; }
+			rapidClickCheck = true;
+			toggleMenu();
+		});
+
+		mainPanel.on('click', function (e) {
+			var target = e.target;
+
+			if (isOffscreenOpen && target !== offscreenToggleBtn) {
+				toggleMenu();
+			}
+		});
 	}
 })();

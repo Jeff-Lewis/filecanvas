@@ -5,24 +5,6 @@ var Handlebars = require('handlebars');
 
 var templateCache = {};
 
-Handlebars.registerHelper('ifequals', function(item1, item2, options) {
-	var isEqual = (item1 == item2); // eslint-disable-line eqeqeq
-	if (isEqual) {
-		return options.fn(this);
-	} else {
-		return options.inverse(this);
-	}
-});
-
-Handlebars.registerHelper('unlessequals', function(item1, item2, options) {
-	var isNotEqual = (item1 != item2); // eslint-disable-line eqeqeq
-	if (isNotEqual) {
-		return options.fn(this);
-	} else {
-		return options.inverse(this);
-	}
-});
-
 Handlebars.registerHelper('eq', function(item1, item2, options) {
 	return item1 === item2;
 });
