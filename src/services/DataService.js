@@ -105,7 +105,7 @@ Collection.prototype.updateOne = function(filter, updates, options) {
 	options = options || {};
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
-		collection.updateOne(filter, updates,
+		collection.updateOne(filter, updates, options,
 			function(error, results) {
 				if (error) { return reject(error); }
 				var numRecords = results.result.n;
@@ -119,7 +119,7 @@ Collection.prototype.deleteOne = function(filter, options) {
 	options = options || {};
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
-		collection.deleteOne(filter,
+		collection.deleteOne(filter, options,
 			function(error, results) {
 				if (error) { return reject(error); }
 				var numRecords = results.result.n;
@@ -133,7 +133,7 @@ Collection.prototype.deleteMany = function(filter, options) {
 	options = options || {};
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
-		collection.deleteMany(filter,
+		collection.deleteMany(filter, options,
 			function(error, results) {
 				if (error) { return reject(error); }
 				var numRecords = results.result.n;
@@ -147,7 +147,7 @@ Collection.prototype.count = function(query, options) {
 	options = options || {};
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
-		collection.count(query,
+		collection.count(query, options,
 			function(error, numRecords) {
 				if (error) { return reject(error); }
 				return resolve(numRecords);
