@@ -2,7 +2,7 @@
 	{
 		"id": "share-link",
 		"title": "Will people need to sign up for Shunt or Dropbox to access my Shunt sites?",
-		"body": "<p>No. For others to view your site, all they need is the web address of the Shunt site.</p><p>The web address for a Shunt site takes the form <b>https://${username}.shunt.io/${sitename}</b>, where <b>${username}</b> is your Shunt username and <b>${sitename}</b> is your Shunt site ID (as specified in your <a href=\"/account\">account settings</a> page and the site's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
+		"body": "<p>No. For others to view your site, all they need is the web address of the Shunt site.</p><p>The web address for a Shunt site takes the form <b>https://${username}.shunt.io/${sitename}</b>, where <b>${username}</b> is your Shunt username and <b>${sitename}</b> is your Shunt site path (as specified in your <a href=\"/account\">account settings</a> page and the site's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
 	},
 	{
 		"id": "site-folder",
@@ -57,7 +57,7 @@
 	{
 		"id": "existing-site-folder",
 		"title": "Can I use an existing folder as a Shunt site folder?",
-		"body": "<p>Yes. Make sure the folder is somewhere inside your Dropbox, and then create a new Shunt site, setting the <b>Dropbox folder</b> to the path of your site folder (relative to your Dropbox root, e.g. <code>/shunt/${sitename}</code>).</p><p>You can add a site from anywhere in your Dropbox, however it's recommended that Shunt site folders should be kept in a folder named <code>shunt</code> in your Dropbox root.</p>"
+		"body": "<p>Yes. Make sure the folder is somewhere inside your Dropbox, and then create a new Shunt site, setting the <b>Dropbox folder</b> to the path of your site folder (relative to your Dropbox root and starting with a slash, e.g. <code>/shunt/${sitename}</code>).</p><p>You can add a site from anywhere in your Dropbox, however it's recommended that Shunt site folders should be kept in a folder named <code>shunt</code> in your Dropbox root.</p>"
 	},
 	{
 		"id": "custom-domain",

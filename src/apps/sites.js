@@ -55,19 +55,19 @@ module.exports = function(database, options) {
 			var serializedUser = JSON.stringify({
 				user: passportUser.user,
 				site: passportUser.site,
-				username: passportUser.model.username
+				siteUsername: passportUser.model.username
 			});
 			return callback(null, serializedUser);
 		});
 
 		passport.deserializeUser(function(serializedUser, callback) {
 			var deserializedUser = JSON.parse(serializedUser);
-			var userAlias = deserializedUser.user;
-			var siteAlias = deserializedUser.site;
-			var username = deserializedUser.username;
+			var username = deserializedUser.user;
+			var siteName = deserializedUser.site;
+			var siteUsername = deserializedUser.siteUsername;
 
 			var userService = new UserService(database);
-			userService.retrieveUser(userAlias)
+			userService.retrieveUser(username)
 				.then(function(userModel) {
 					var uid = userModel.uid;
 					var accessToken = userModel.token;
@@ -77,21 +77,21 @@ module.exports = function(database, options) {
 						appSecret: appSecret,
 						accessToken: accessToken
 					});
-					return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+					return siteService.retrieveSiteAuthenticationDetails(uid, siteName)
 						.then(function(authenticationDetails) {
 							var validUsers = authenticationDetails.users;
 							var matchedUsers = validUsers.filter(function(validUser) {
-								return validUser.username === username;
+								return validUser.username === siteUsername;
 							});
 
 							if (matchedUsers.length === 0) {
-								throw new Error('Username not found: "' + username + '"');
+								throw new Error('Username not found: "' + siteUsername + '"');
 							}
 
 							var siteUserModel = matchedUsers[0];
 							var passportUser = {
-								user: userAlias,
-								site: siteAlias,
+								user: username,
+								site: siteName,
 								model: siteUserModel
 							};
 							return callback(null, passportUser);
@@ -103,12 +103,12 @@ module.exports = function(database, options) {
 		});
 
 		passport.use('site/local', new LocalStrategy({ passReqToCallback: true },
-			function(req, username, password, callback) {
-				var userAlias = req.params.user;
-				var siteAlias = req.params.site;
+			function(req, siteUsername, sitePassword, callback) {
+				var username = req.params.user;
+				var siteName = req.params.site;
 
 				var userService = new UserService(database);
-				userService.retrieveUser(userAlias)
+				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
@@ -118,20 +118,20 @@ module.exports = function(database, options) {
 							appSecret: appSecret,
 							accessToken: accessToken
 						});
-						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+						return siteService.retrieveSiteAuthenticationDetails(uid, siteName)
 							.then(function(authenticationDetails) {
 								var isPrivate = authenticationDetails.private;
 								if (!isPrivate) { return callback(null, true); }
 
 								var validUsers = authenticationDetails.users;
 								var authenticationService = new AuthenticationService();
-								var siteUserModel = authenticationService.authenticate(username, password, validUsers);
+								var siteUserModel = authenticationService.authenticate(siteUsername, sitePassword, validUsers);
 
 								if (!siteUserModel) { return callback(null, false); }
 
 								var passportUser = {
-									user: userAlias,
-									site: siteAlias,
+									user: username,
+									site: siteName,
 									model: siteUserModel
 								};
 								return callback(null, passportUser);
@@ -193,15 +193,15 @@ module.exports = function(database, options) {
 
 
 			function defaultUserSiteRoute(req, res, next) {
-				var userAlias = req.params.user;
+				var username = req.params.user;
 
 				var userService = new UserService(database);
-				return userService.retrieveUserDefaultSiteAlias(userAlias)
-					.then(function(siteAlias) {
-						if (!siteAlias) {
+				return userService.retrieveUserDefaultSiteName(username)
+					.then(function(siteName) {
+						if (!siteName) {
 							throw new HttpError(403);
 						}
-						req.url += '/' + siteAlias;
+						req.url += '/' + siteName;
 						next();
 					})
 					.catch(function(error) {
@@ -210,15 +210,15 @@ module.exports = function(database, options) {
 			}
 
 			function defaultUserSiteLoginRoute(req, res, next) {
-				var userAlias = req.params.user;
+				var username = req.params.user;
 
 				var userService = new UserService(database);
-				userService.retrieveUserDefaultSiteAlias(userAlias)
-					.then(function(siteAlias) {
-						if (!siteAlias) {
+				userService.retrieveUserDefaultSiteName(username)
+					.then(function(siteName) {
+						if (!siteName) {
 							throw new HttpError(404);
 						}
-						req.url = '/' + userAlias + '/' + siteAlias + '/login';
+						req.url = '/' + username + '/' + siteName + '/login';
 						next();
 					})
 					.catch(function(error) {
@@ -227,15 +227,15 @@ module.exports = function(database, options) {
 			}
 
 			function defaultUserSiteLogoutRoute(req, res, next) {
-				var userAlias = req.params.user;
+				var username = req.params.user;
 
 				var userService = new UserService(database);
-				userService.retrieveUserDefaultSiteAlias(userAlias)
-					.then(function(siteAlias) {
-						if (!siteAlias) {
+				userService.retrieveUserDefaultSiteName(username)
+					.then(function(siteName) {
+						if (!siteName) {
 							throw new HttpError(404);
 						}
-						req.url = '/' + userAlias + '/' + siteAlias + '/logout';
+						req.url = '/' + username + '/' + siteName + '/logout';
 						next();
 					})
 					.catch(function(error) {
@@ -244,16 +244,16 @@ module.exports = function(database, options) {
 			}
 
 			function defaultUserSiteDownloadRoute(req, res, next) {
-				var userAlias = req.params.user;
+				var username = req.params.user;
 				var downloadPath = req.params[0];
 
 				var userService = new UserService(database);
-				userService.retrieveUserDefaultSiteAlias(userAlias)
-					.then(function(siteAlias) {
-						if (!siteAlias) {
+				userService.retrieveUserDefaultSiteName(username)
+					.then(function(siteName) {
+						if (!siteName) {
 							throw new HttpError(404);
 						}
-						req.url = '/' + userAlias + '/' + siteAlias + '/download/' + downloadPath;
+						req.url = '/' + username + '/' + siteName + '/download/' + downloadPath;
 						next();
 					})
 					.catch(function(error) {
@@ -272,11 +272,11 @@ module.exports = function(database, options) {
 			}
 
 			function loginRoute(req, res, next) {
-				var userAlias = req.params.user;
-				var siteAlias = req.params.site;
+				var username = req.params.user;
+				var siteName = req.params.site;
 
 				var userService = new UserService(database);
-				userService.retrieveUser(userAlias)
+				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
@@ -288,7 +288,7 @@ module.exports = function(database, options) {
 						});
 						var includeContents = false;
 						var includeUsers = false;
-						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
+						return siteService.retrieveSite(uid, siteName, includeContents, includeUsers)
 							.then(function(siteModel) {
 								var context = {
 									title: siteModel.title,
@@ -339,8 +339,8 @@ module.exports = function(database, options) {
 
 
 			function ensureAuth(req, res, next) {
-				var userAlias = req.params.user;
-				var siteAlias = req.params.site;
+				var username = req.params.user;
+				var siteName = req.params.site;
 
 				if (req.isAuthenticated()) {
 					var isLoggedIntoDifferentSite = (req.params.user !== req.user.user) || (req.params.site !== req.user.site);
@@ -353,7 +353,7 @@ module.exports = function(database, options) {
 				}
 
 				var userService = new UserService(database);
-				userService.retrieveUser(userAlias)
+				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
@@ -363,7 +363,7 @@ module.exports = function(database, options) {
 							appSecret: appSecret,
 							accessToken: accessToken
 						});
-						return siteService.retrieveSiteAuthenticationDetails(uid, siteAlias)
+						return siteService.retrieveSiteAuthenticationDetails(uid, siteName)
 							.then(function(authenticationDetails) {
 								var isPrivate = authenticationDetails.private;
 								if (!isPrivate) { return next(); }
@@ -387,11 +387,11 @@ module.exports = function(database, options) {
 			}
 
 			function siteRoute(req, res, next) {
-				var userAlias = req.params.user;
-				var siteAlias = req.params.site;
+				var username = req.params.user;
+				var siteName = req.params.site;
 
 				var userService = new UserService(database);
-				userService.retrieveUser(userAlias)
+				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
@@ -403,7 +403,7 @@ module.exports = function(database, options) {
 						});
 						var includeContents = true;
 						var includeUsers = false;
-						return siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
+						return siteService.retrieveSite(uid, siteName, includeContents, includeUsers)
 							.then(function(siteModel) {
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
@@ -423,12 +423,12 @@ module.exports = function(database, options) {
 			}
 
 			function downloadRoute(req, res, next) {
-				var userAlias = req.params.user;
-				var siteAlias = req.params.site;
+				var username = req.params.user;
+				var siteName = req.params.site;
 				var downloadPath = req.params[0];
 
 				var userService = new UserService(database);
-				userService.retrieveUser(userAlias)
+				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
@@ -438,7 +438,7 @@ module.exports = function(database, options) {
 							appSecret: appSecret,
 							accessToken: accessToken
 						});
-						return siteService.retrieveSiteDownloadLink(uid, siteAlias, downloadPath)
+						return siteService.retrieveSiteDownloadLink(uid, siteName, downloadPath)
 							.then(function(downloadUrl) {
 								res.redirect(downloadUrl);
 							});

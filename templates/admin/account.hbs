@@ -53,7 +53,7 @@
 									>
 										<option value="">No default site</option>
 										{{#each session.sites as |site|}}
-										<option value="{{ site.alias }}"{{#if (eq site.alias ../content.user.defaultSite)}} selected="selected"{{/if}}>{{ site.label }}</option>
+										<option value="{{ site.name }}"{{#if (eq site.name ../content.user.defaultSite)}} selected="selected"{{/if}}>{{ site.label }}</option>
 										{{/each}}
 									</select>
 									<p class="help-block">This is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>

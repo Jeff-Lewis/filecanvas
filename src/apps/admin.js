@@ -441,10 +441,10 @@ module.exports = function(database, options) {
 			function retrieveFaqRoute(req, res, next) {
 				var username = req.user.username;
 				var siteModels = res.locals.sites;
-				var siteAlias = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].alias : 'my-site');
+				var siteName = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].name : 'my-site');
 				var faqs = replaceFaqPlaceholders(faqData, {
 					username: username,
-					sitename: siteAlias
+					sitename: siteName
 				});
 				var templateData = {
 					title: 'FAQ',
@@ -630,7 +630,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var siteAlias = req.params.site;
+				var siteName = req.params.site;
 
 				var siteService = new SiteService(database, {
 					host: host,
@@ -640,7 +640,7 @@ module.exports = function(database, options) {
 				});
 				var includeContents = false;
 				var includeUsers = true;
-				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
+				siteService.retrieveSite(uid, siteName, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Site settings: ' + siteModel.label,
@@ -651,7 +651,7 @@ module.exports = function(database, options) {
 									label: 'My sites'
 								},
 								{
-									link: '/sites/' + siteAlias + '/settings',
+									link: '/sites/' + siteName + '/settings',
 									icon: 'cog',
 									label: siteModel.label
 								}
@@ -671,7 +671,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var siteAlias = req.params.site;
+				var siteName = req.params.site;
 
 				var siteService = new SiteService(database, {
 					host: host,
@@ -681,7 +681,7 @@ module.exports = function(database, options) {
 				});
 				var includeContents = false;
 				var includeUsers = true;
-				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
+				siteService.retrieveSite(uid, siteName, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Edit site users: ' + siteModel.label,
@@ -692,12 +692,12 @@ module.exports = function(database, options) {
 									label: 'My sites'
 								},
 								{
-									link: '/sites/' + siteAlias + '/settings',
+									link: '/sites/' + siteName + '/settings',
 									icon: 'cog',
 									label: siteModel.label
 								},
 								{
-									link: '/sites/' + siteAlias + '/users',
+									link: '/sites/' + siteName + '/users',
 									icon: 'users',
 									label: 'Site users'
 								}
@@ -720,7 +720,7 @@ module.exports = function(database, options) {
 
 				var siteModel = {
 					'user': uid,
-					'alias': req.body.alias,
+					'name': req.body.name,
 					'label': req.body.label,
 					'title': req.body.label,
 					'template': req.body.template,
@@ -736,7 +736,7 @@ module.exports = function(database, options) {
 				});
 				siteService.createSite(siteModel)
 					.then(function(siteModel) {
-						res.redirect(303, '/sites/' + siteModel.alias + '/settings');
+						res.redirect(303, '/sites/' + siteModel.name + '/settings');
 					})
 					.catch(function(error) {
 						next(error);
@@ -747,13 +747,13 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var siteAlias = req.params.site;
+				var siteName = req.params.site;
 
 				var isPurgeRequest = (req.body._action === 'purge');
 				if (isPurgeRequest) {
-					purgeSite(uid, accessToken, siteAlias)
+					purgeSite(uid, accessToken, siteName)
 						.then(function() {
-							res.redirect(303, '/sites/' + siteAlias + '/settings');
+							res.redirect(303, '/sites/' + siteName + '/settings');
 						})
 						.catch(function(error) {
 							next(error);
@@ -763,16 +763,16 @@ module.exports = function(database, options) {
 					var updates = {
 						'user': uid
 					};
-					if (req.body.alias) { updates.alias = req.body.alias; }
+					if (req.body.name) { updates.name = req.body.name; }
 					if (req.body.label) { updates.label = req.body.label; }
 					if (req.body.title) { updates.title = req.body.title; }
 					if (req.body.template) { updates.template = req.body.template; }
 					if (req.body.root) { updates.root = req.body.root || null; }
 					if (req.body.private) { updates.private = req.body.private === 'true'; }
-					updateSite(uid, accessToken, siteAlias, updates)
+					updateSite(uid, accessToken, siteName, updates)
 						.then(function() {
-							if ('alias' in updates) { siteAlias = updates.alias; }
-							res.redirect(303, '/sites/' + siteAlias + '/settings');
+							if ('name' in updates) { siteName = updates.name; }
+							res.redirect(303, '/sites/' + siteName + '/settings');
 						})
 						.catch(function(error) {
 							next(error);
@@ -780,7 +780,7 @@ module.exports = function(database, options) {
 				}
 
 
-				function purgeSite(uid, accessToken, siteAlias) {
+				function purgeSite(uid, accessToken, siteName) {
 					var cache = null;
 					var siteService = new SiteService(database, {
 						host: host,
@@ -788,17 +788,17 @@ module.exports = function(database, options) {
 						appSecret: appSecret,
 						accessToken: accessToken
 					});
-					return siteService.updateSiteCache(uid, siteAlias, cache);
+					return siteService.updateSiteCache(uid, siteName, cache);
 				}
 
-				function updateSite(uid, accessToken, siteAlias, updates) {
+				function updateSite(uid, accessToken, siteName, updates) {
 					var siteService = new SiteService(database, {
 						host: host,
 						appKey: appKey,
 						appSecret: appSecret,
 						accessToken: accessToken
 					});
-					return siteService.updateSite(uid, siteAlias, updates);
+					return siteService.updateSite(uid, siteName, updates);
 				}
 			}
 
@@ -806,7 +806,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var siteAlias = req.params.site;
+				var siteName = req.params.site;
 
 				var siteService = new SiteService(database, {
 					host: host,
@@ -814,7 +814,7 @@ module.exports = function(database, options) {
 					appSecret: appSecret,
 					accessToken: accessToken
 				});
-				siteService.deleteSite(uid, siteAlias)
+				siteService.deleteSite(uid, siteName)
 					.then(function(siteModel) {
 						res.redirect(303, '/sites');
 					})
@@ -827,7 +827,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var siteAlias = req.params.site;
+				var siteName = req.params.site;
 				var username = req.body.username;
 				var password = req.body.password;
 
@@ -837,12 +837,12 @@ module.exports = function(database, options) {
 					appSecret: appSecret,
 					accessToken: accessToken
 				});
-				siteService.createSiteUser(uid, siteAlias, {
+				siteService.createSiteUser(uid, siteName, {
 					username: username,
 					password: password
 				})
 					.then(function(userModel) {
-						res.redirect(303, '/sites/' + siteAlias + '/users');
+						res.redirect(303, '/sites/' + siteName + '/users');
 					})
 					.catch(function(error) {
 						next(error);
@@ -853,7 +853,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var siteAlias = req.params.site;
+				var siteName = req.params.site;
 				var username = req.params.username;
 				var password = req.body.password;
 
@@ -863,12 +863,12 @@ module.exports = function(database, options) {
 					appSecret: appSecret,
 					accessToken: accessToken
 				});
-				siteService.updateSiteUser(uid, siteAlias, username, {
+				siteService.updateSiteUser(uid, siteName, username, {
 					username: username,
 					password: password
 				})
 					.then(function(userModel) {
-						res.redirect(303, '/sites/' + siteAlias + '/users');
+						res.redirect(303, '/sites/' + siteName + '/users');
 					})
 					.catch(function(error) {
 						next(error);
@@ -879,7 +879,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var siteAlias = req.params.site;
+				var siteName = req.params.site;
 				var username = req.params.username;
 
 				var siteService = new SiteService(database, {
@@ -888,9 +888,9 @@ module.exports = function(database, options) {
 					appSecret: appSecret,
 					accessToken: accessToken
 				});
-				siteService.deleteSiteUser(uid, siteAlias, username)
+				siteService.deleteSiteUser(uid, siteName, username)
 					.then(function() {
-						res.redirect(303, '/sites/' + siteAlias + '/users');
+						res.redirect(303, '/sites/' + siteName + '/users');
 					})
 					.catch(function(error) {
 						next(error);

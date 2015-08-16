@@ -128,25 +128,25 @@ SiteService.prototype.createSite = function(siteModel) {
 	}
 };
 
-SiteService.prototype.createSiteUser = function(uid, siteAlias, authDetails) {
+SiteService.prototype.createSiteUser = function(uid, siteName, authDetails) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
 	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
 	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
 
 	var database = this.database;
-	return checkWhetherUserAlreadyExists(database, uid, siteAlias, authDetails.username)
+	return checkWhetherUserAlreadyExists(database, uid, siteName, authDetails.username)
 		.then(function(userAlreadyExists) {
 			if (userAlreadyExists) {
 				throw new HttpError(409, 'A user already exists with this username');
 			}
-			return addSiteUser(database, uid, siteAlias, authDetails);
+			return addSiteUser(database, uid, siteName, authDetails);
 		});
 
 
-	function checkWhetherUserAlreadyExists(database, uid, siteAlias, username) {
-		var query = { 'user': uid, 'alias': siteAlias, 'users.username': username };
+	function checkWhetherUserAlreadyExists(database, uid, siteName, username) {
+		var query = { 'user': uid, 'name': siteName, 'users.username': username };
 		return database.collection(DB_COLLECTION_SITES).count(query)
 			.then(function(numRecords) {
 				var userAlreadyExists = (numRecords > 0);
@@ -154,10 +154,10 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, authDetails) {
 			});
 	}
 
-	function addSiteUser(database, uid, siteAlias, authDetails) {
+	function addSiteUser(database, uid, siteName, authDetails) {
 		var authenticationService = new AuthenticationService();
 		var siteUserModel = authenticationService.create(authDetails.username, authDetails.password);
-		var filter = { 'user': uid, 'alias': siteAlias };
+		var filter = { 'user': uid, 'name': siteName };
 		var updates = { $push: { 'users': siteUserModel } };
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(numRecords) {
@@ -169,13 +169,13 @@ SiteService.prototype.createSiteUser = function(uid, siteAlias, authDetails) {
 	}
 };
 
-SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, includeUsers) {
+SiteService.prototype.retrieveSite = function(uid, siteName, includeContents, includeUsers) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var accessToken = this.accessToken;
 	var self = this;
-	return retrieveSite(database, uid, siteAlias, includeContents, includeUsers)
+	return retrieveSite(database, uid, siteName, includeContents, includeUsers)
 		.then(function(siteModel) {
 			if (!includeContents) { return siteModel; }
 
@@ -184,7 +184,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 
 			return loadSiteContents(siteModel, appKey, appSecret, accessToken, uid)
 				.then(function(folder) {
-					self.updateSiteCache(uid, siteAlias, folder.cache);
+					self.updateSiteCache(uid, siteName, folder.cache);
 					var contents = parseFileModel(folder.contents, siteModel.root);
 					siteModel.contents = contents;
 					siteModel.cache = folder.cache;
@@ -193,11 +193,11 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 		});
 
 
-	function retrieveSite(database, uid, siteAlias, includeContents, includeUsers) {
-		var query = { 'user': uid, 'alias': siteAlias };
+	function retrieveSite(database, uid, siteName, includeContents, includeUsers) {
+		var query = { 'user': uid, 'name': siteName };
 		var fields = [
 			'user',
-			'alias',
+			'name',
 			'label',
 			'title',
 			'template',
@@ -268,12 +268,12 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 	}
 };
 
-SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downloadPath) {
+SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteName, downloadPath) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var accessToken = this.accessToken;
-	return retrieveSiteDropboxPath(database, uid, siteAlias)
+	return retrieveSiteDropboxPath(database, uid, siteName)
 		.then(function(folderPath) {
 			return new DropboxService().connect(appKey, appSecret, accessToken)
 				.then(function(dropboxClient) {
@@ -283,8 +283,8 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 		});
 
 
-	function retrieveSiteDropboxPath(database, uid, siteAlias) {
-		var query = { 'user': uid, 'alias': siteAlias };
+	function retrieveSiteDropboxPath(database, uid, siteName) {
+		var query = { 'user': uid, 'name': siteName };
 		var fields = [
 			'root'
 		];
@@ -298,13 +298,13 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 	}
 };
 
-SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteAlias) {
+SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteName) {
 	var database = this.database;
-	return retrieveSiteAuthenticationDetails(database, uid, siteAlias);
+	return retrieveSiteAuthenticationDetails(database, uid, siteName);
 
 
-	function retrieveSiteAuthenticationDetails(database, uid, siteAlias) {
-		var query = { 'user': uid, 'alias': siteAlias };
+	function retrieveSiteAuthenticationDetails(database, uid, siteName) {
+		var query = { 'user': uid, 'name': siteName };
 		var fields = [
 			'private',
 			'users'
@@ -321,13 +321,13 @@ SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteAlia
 	}
 };
 
-SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
+SiteService.prototype.retrieveSiteCache = function(uid, siteName) {
 	var database = this.database;
-	return retrieveSiteCache(database, uid, siteAlias);
+	return retrieveSiteCache(database, uid, siteName);
 
 
-	function retrieveSiteCache(database, uid, siteAlias) {
-		var query = { 'user': uid, 'alias': siteAlias };
+	function retrieveSiteCache(database, uid, siteName) {
+		var query = { 'user': uid, 'name': siteName };
 		var fields = [
 			'cache'
 		];
@@ -340,25 +340,25 @@ SiteService.prototype.retrieveSiteCache = function(uid, siteAlias) {
 	}
 };
 
-SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
+SiteService.prototype.updateSite = function(uid, siteName, updates) {
 	var database = this.database;
 	var requireFullModel = false;
 	return validateSiteModel(updates, requireFullModel)
 		.then(function(updates) {
-			return getSiteRoot(database, uid, siteAlias)
+			return getSiteRoot(database, uid, siteName)
 				.then(function(existingSiteRoot) {
 					var siteRootHasChanged = (existingSiteRoot !== updates.root);
 					if (!siteRootHasChanged) {
 						delete updates.root;
 						delete updates.cache;
 					}
-					return updateSite(database, uid, siteAlias, updates);
+					return updateSite(database, uid, siteName, updates);
 				});
 		});
 
 
-	function getSiteRoot(database, uid, siteAlias) {
-		var query = { 'user': uid, 'alias': siteAlias };
+	function getSiteRoot(database, uid, siteName) {
+		var query = { 'user': uid, 'name': siteName };
 		var fields = [
 			'root'
 		];
@@ -370,8 +370,8 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 			});
 	}
 
-	function updateSite(database, uid, siteAlias, fields) {
-		var filter = { 'user': uid, 'alias': siteAlias };
+	function updateSite(database, uid, siteName, fields) {
+		var filter = { 'user': uid, 'name': siteName };
 		var updates = { $set: fields };
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
@@ -380,14 +380,14 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 	}
 };
 
-SiteService.prototype.updateSiteCache = function(uid, siteAlias, cache) {
+SiteService.prototype.updateSiteCache = function(uid, siteName, cache) {
 	cache = cache || null;
 	var database = this.database;
-	return updateSiteCache(database, uid, siteAlias, cache);
+	return updateSiteCache(database, uid, siteName, cache);
 
 
-	function updateSiteCache(database, uid, siteAlias, cache) {
-		var filter = { 'user': uid, 'alias': siteAlias };
+	function updateSiteCache(database, uid, siteName, cache) {
+		var filter = { 'user': uid, 'name': siteName };
 		var updates = { $set: { 'cache': cache } };
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
@@ -397,22 +397,22 @@ SiteService.prototype.updateSiteCache = function(uid, siteAlias, cache) {
 };
 
 
-SiteService.prototype.updateSiteUser = function(uid, siteAlias, username, authDetails) {
+SiteService.prototype.updateSiteUser = function(uid, siteName, username, authDetails) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
 	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
 	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
 
 	var database = this.database;
-	return updateSiteUser(database, uid, siteAlias, username, authDetails);
+	return updateSiteUser(database, uid, siteName, username, authDetails);
 
 
-	function updateSiteUser(database, uid, shareAlias, username, authDetails) {
+	function updateSiteUser(database, uid, siteName, username, authDetails) {
 		var authenticationService = new AuthenticationService();
 		var siteUserModel = authenticationService.create(authDetails.username, authDetails.password);
-		var filter = { 'user': uid, 'alias': siteAlias, 'users.username': username };
+		var filter = { 'user': uid, 'name': siteName, 'users.username': username };
 		var updates = { $set: { 'users.$': siteUserModel } };
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
@@ -422,17 +422,17 @@ SiteService.prototype.updateSiteUser = function(uid, siteAlias, username, authDe
 };
 
 
-SiteService.prototype.deleteSiteUser = function(uid, siteAlias, username) {
+SiteService.prototype.deleteSiteUser = function(uid, siteName, username) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var database = this.database;
-	return deleteSiteUser(database, uid, siteAlias, username);
+	return deleteSiteUser(database, uid, siteName, username);
 
 
-	function deleteSiteUser(database, uid, shareAlias, username) {
-		var filter = { 'user': uid, 'alias': siteAlias };
+	function deleteSiteUser(database, uid, siteName, username) {
+		var filter = { 'user': uid, 'name': siteName };
 		var updates = { $pull: { 'users': { 'username': username } } };
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
@@ -442,14 +442,14 @@ SiteService.prototype.deleteSiteUser = function(uid, siteAlias, username) {
 };
 
 
-SiteService.prototype.deleteSite = function(uid, siteAlias) {
+SiteService.prototype.deleteSite = function(uid, siteName) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
-	if (!siteAlias) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 
 	var database = this.database;
-	return checkWhetherSiteisUserDefaultSite(database, uid, siteAlias)
+	return checkWhetherSiteisUserDefaultSite(database, uid, siteName)
 		.then(function(isDefaultSite) {
-			return deleteSite(database, uid, siteAlias)
+			return deleteSite(database, uid, siteName)
 				.then(function() {
 					if (isDefaultSite) {
 						return resetUserDefaultSite(database, uid);
@@ -457,8 +457,8 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 				});
 		});
 
-	function checkWhetherSiteisUserDefaultSite(database, uid, siteAlias) {
-		var query = { 'user': uid, 'defaultSite': siteAlias };
+	function checkWhetherSiteisUserDefaultSite(database, uid, siteName) {
+		var query = { 'user': uid, 'defaultSite': siteName };
 		return database.collection(DB_COLLECTION_USERS).count(query)
 			.then(function(numRecords) {
 				var isDefaultSite = (numRecords > 0);
@@ -466,8 +466,8 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 			});
 	}
 
-	function deleteSite(database, uid, siteAlias) {
-		var filter = { 'user': uid, 'alias': siteAlias };
+	function deleteSite(database, uid, siteName) {
+		var filter = { 'user': uid, 'name': siteName };
 		return database.collection(DB_COLLECTION_SITES).deleteOne(filter)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
@@ -476,8 +476,8 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 
 	function resetUserDefaultSite(database, uid) {
 		var userService = new UserService(database);
-		return userService.updateUserDefaultSiteAlias(uid, null)
-			.then(function(siteAlias) {});
+		return userService.updateUserDefaultSiteName(uid, null)
+			.then(function(siteName) {});
 	}
 };
 
@@ -499,14 +499,14 @@ function validateSiteModel(siteModel, requireFullModel) {
 	return new Promise(function(resolve, reject) {
 		if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
 		if ((requireFullModel || ('user' in siteModel)) && !siteModel.user) { throw new HttpError(400, 'No user specified'); }
-		if ((requireFullModel || ('alias' in siteModel)) && !siteModel.alias) { throw new HttpError(400, 'No site alias specified'); }
+		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site path specified'); }
 		if ((requireFullModel || ('label' in siteModel)) && !siteModel.label) { throw new HttpError(400, 'No site name specified'); }
 		if ((requireFullModel || ('title' in siteModel)) && !siteModel.title) { throw new HttpError(400, 'No site title specified'); }
 		if ((requireFullModel || ('template' in siteModel)) && !siteModel.template) { throw new HttpError(400, 'No site template specified'); }
 
 		// TODO: Validate organization when validating site model
-		// TODO: Validate alias when validating site model
 		// TODO: Validate name when validating site model
+		// TODO: Validate label when validating site model
 		// TODO: Validate title when validating site model
 		// TODO: Validate template when validating site model
 		// TODO: Validate root when validating site model

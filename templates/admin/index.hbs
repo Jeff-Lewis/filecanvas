@@ -25,7 +25,7 @@
 							{{#if session.sites}}
 							<ul class="sub-menu">
 								{{#each session.sites as |site|}}
-								<li{{#if (eq ../session.location.pathname (concat ../session.urls.sites '/' site.alias '/settings'))}} class="open"{{/if}}><a href="{{ ../session.urls.sites }}/{{ site.alias }}/settings"> <span>{{ site.label }}</span></a></li>
+								<li{{#if (eq ../session.location.pathname (concat ../session.urls.sites '/' site.name '/settings'))}} class="open"{{/if}}><a href="{{ ../session.urls.sites }}/{{ site.name }}/settings"> <span>{{ site.label }}</span></a></li>
 								{{/each}}
 							</ul>
 							{{/if}}

@@ -107,12 +107,12 @@ UserService.prototype.retrieveUser = function(user) {
 	}
 };
 
-UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
+UserService.prototype.retrieveUserDefaultSiteName = function(user) {
 	var database = this.database;
-	return retrieveUserDefaultSiteAlias(database, user);
+	return retrieveUserDefaultSiteName(database, user);
 
 
-	function retrieveUserDefaultSiteAlias(database, user) {
+	function retrieveUserDefaultSiteName(database, user) {
 		var query = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
 		var fields = [
 			'defaultSite'
@@ -120,8 +120,8 @@ UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
 		return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 			.then(function(userModel) {
 				if (!userModel) { throw new HttpError(404); }
-				var defaultSiteAlias = userModel.defaultSite;
-				return defaultSiteAlias;
+				var defaultSiteName = userModel.defaultSite;
+				return defaultSiteName;
 			});
 	}
 };
@@ -135,7 +135,7 @@ UserService.prototype.retrieveUserSites = function(uid) {
 		var query = { 'user': uid };
 		var fields = [
 			'user',
-			'alias',
+			'name',
 			'label',
 			'title',
 			'template',
@@ -172,17 +172,17 @@ UserService.prototype.updateUser = function(user, updates) {
 	}
 };
 
-UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
+UserService.prototype.updateUserDefaultSiteName = function(user, siteName) {
 	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
 
 	var database = this.database;
-	siteAlias = siteAlias || null;
-	return updateUserDefaultSiteAlias(database, user, siteAlias);
+	siteName = siteName || null;
+	return updateUserDefaultSiteName(database, user, siteName);
 
 
-	function updateUserDefaultSiteAlias(database, user, siteAlias) {
+	function updateUserDefaultSiteName(database, user, siteName) {
 		var filter = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
-		var updates = { $set: { 'defaultSite': siteAlias } };
+		var updates = { $set: { 'defaultSite': siteName } };
 		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }

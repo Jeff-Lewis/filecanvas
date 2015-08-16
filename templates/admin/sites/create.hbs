@@ -17,7 +17,7 @@
 										name="label"
 										placeholder="Site name"
 										value="{{ content.site.label }}"
-										data-bind-id="site-name"
+										data-bind-id="site-label"
 										data-validate="notEmpty"
 										data-trigger="focus"
 									/>
@@ -28,17 +28,17 @@
 								<label class="col-sm-2 control-label">Site path</label>
 								<div class="col-sm-10">
 									<input type="text" class="form-control"
-										name="alias"
+										name="name"
 										placeholder="Site path"
-										data-bind-id="site-alias"
-										value="{{ content.site.alias }}"
-										data-bind-value="site-name|slug"
+										value="{{ content.site.name }}"
+										data-bind-value="site-label|slug"
+										data-bind-id="site-name"
 										data-parser="slug"
 										data-validate="slug"
 										data-trigger="focus"
 									/>
 									<span class="form-control-feedback fa" aria-hidden="true"></span>
-									<p class="help-block">The site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-alias">{{ site.alias }}</strong></p>
+									<p class="help-block">The site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-name">{{ site.name }}</strong></p>
 								</div>
 							</div>
 							<div class="form-group">
@@ -48,7 +48,7 @@
 									 	name="root"
 										placeholder="Dropbox folder"
 										value="{{ content.site.root }}"
-										data-bind-value="site-alias|format:'/shunt/$0'"
+										data-bind-value="site-name|format:'/shunt/$0'"
 										data-validate="notEmpty"
 										data-trigger="focus"
 									/>
