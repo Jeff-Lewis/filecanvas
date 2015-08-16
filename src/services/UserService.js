@@ -158,6 +158,7 @@ UserService.prototype.updateUser = function(user, updates) {
 					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
 						throw new HttpError(409, 'This username is being used by another user');
 					}
+					return;
 				});
 		});
 
@@ -168,6 +169,7 @@ UserService.prototype.updateUser = function(user, updates) {
 		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 };
@@ -186,6 +188,7 @@ UserService.prototype.updateUserDefaultSiteName = function(user, siteName) {
 		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 };
@@ -210,6 +213,7 @@ UserService.prototype.deleteUser = function(uid) {
 		return database.collection(DB_COLLECTION_USERS).deleteOne(filter)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 };
@@ -227,9 +231,10 @@ function validateUserModel(userModel, requireFullModel) {
 
 		// TODO: Validate uid when validating user model
 		// TODO: Validate token when validating user model
-		// TODO: Validate name when validating user model
-		// TODO: Validate email when validating user model
 		// TODO: Validate username when validating user model
+		// TODO: Validate firstName when validating user model
+		// TODO: Validate lastName when validating user model
+		// TODO: Validate email when validating user model
 		// TODO: Validate default when validating user model
 
 		return resolve(userModel);

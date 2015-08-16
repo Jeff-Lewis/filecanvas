@@ -107,7 +107,9 @@ SiteService.prototype.createSite = function(siteModel) {
 				var filePath = fileMetaData.path;
 				var fileContents = fileMetaData.contents;
 				return dropboxClient.writeFile(filePath, fileContents, writeOptions);
-			}).then(function(results) {}));
+			}).then(function(results) {
+				return;
+			}));
 
 
 			function getFileListing(dirContents) {
@@ -375,6 +377,7 @@ SiteService.prototype.updateSite = function(uid, siteName, updates) {
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 };
@@ -391,6 +394,7 @@ SiteService.prototype.updateSiteCache = function(uid, siteName, cache) {
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 };
@@ -416,6 +420,7 @@ SiteService.prototype.updateSiteUser = function(uid, siteName, username, authDet
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 };
@@ -436,6 +441,7 @@ SiteService.prototype.deleteSiteUser = function(uid, siteName, username) {
 		return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 			.then(function(error, numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 };
@@ -470,6 +476,7 @@ SiteService.prototype.deleteSite = function(uid, siteName) {
 		return database.collection(DB_COLLECTION_SITES).deleteOne(filter)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
+				return;
 			});
 	}
 
@@ -507,6 +514,7 @@ function validateSiteModel(siteModel, requireFullModel) {
 		// TODO: Validate label when validating site model
 		// TODO: Validate template when validating site model
 		// TODO: Validate root when validating site model
+		// TODO: Validate home option when validating site model
 
 		resolve(siteModel);
 	});

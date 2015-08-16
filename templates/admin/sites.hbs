@@ -3,6 +3,11 @@
 		<div class="mb15">
 			<h4 class="no-margin text-uppercase">Your sites</h4>
 		</div>
+		{{#unless content.sites}}
+		<div class="alert alert-info mb10">
+			<h5>There are no sites registered to this account.</h5>
+		</div>
+		{{/unless}}
 		{{#if content.sites}}
 		<div class="mb10">
 			{{#each content.sites as |site|}}
@@ -10,10 +15,6 @@
 				<i class="fa {{#if site.root}}fa-arrow-right{{else}}fa-exclamation-circle text-danger{{/if}} mr5"{{#unless site.root}} title="This site is not linked to a Dropbox folder{{/unless}}"></i> {{ site.label }}</a>
 			</a>
 			{{/each}}
-		</div>
-		{{else}}
-		<div class="alert alert-info">
-			<h5>There are no sites registered to this account.</h5>
 		</div>
 		{{/if}}
 		<div class="mb15">
@@ -101,6 +102,26 @@
 											/> Password protect this site
 										</label>
 									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Home site</label>
+								<div class="col-sm-10">
+									<div class="checkbox">
+										<label>
+											<input type="hidden"
+												name="home"
+												value="false"
+											/>
+											<input type="checkbox"
+												name="home"
+												value="true"
+												{{#if content.site.home}}checked="checked"{{/if}}
+											/>
+											Use this as my home site
+										</label>
+									</div>
+									<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
 								</div>
 							</div>
 							<div class="form-group">

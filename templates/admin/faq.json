@@ -42,7 +42,7 @@
 	{
 		"id": "default-site",
 		"title": "Can I set a default site to display at my Shunt web root?",
-		"body": "<p>Yes. You can choose which site shows up as the default site for your Shunt web root (i.e. at <b>https://${username}.shunt.io/</b>) by changing the \"Default site\" setting in your <a href=\"/account\">account settings</a>.</p>"
+		"body": "<p>Yes. You can choose which site shows up as the default site for your Shunt web root (i.e. at <b>https://${username}.shunt.io/</b>) by changing the \"Home site\" setting in your <a href=\"/account\">account settings</a>.</p>"
 	},
 	{
 		"id": "change-username",
