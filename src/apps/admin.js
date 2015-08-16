@@ -286,7 +286,14 @@ module.exports = function(database, options) {
 				function getUserSites(database, userModel) {
 					var uid = userModel.uid;
 					var userService = new UserService(database);
-					return userService.retrieveUserSites(uid);
+					return userService.retrieveUserSites(uid)
+						.then(function(siteModels) {
+							return siteModels.slice().sort(function(item1, item2) {
+								if (item1.name === userModel.defaultSite) { return -1; }
+								if (item2.name === userModel.defaultSite) { return 1; }
+								return (item1.label < item2.label ? -1 : 1);
+							});
+						});
 				}
 
 				function getAdminUrls(urlService, userModel) {
