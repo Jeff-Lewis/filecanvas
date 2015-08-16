@@ -402,20 +402,24 @@ module.exports = function(database, options) {
 
 		function initPrivateRoutes(app, passport, defaultSiteTemplate, faqData) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
+
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
 			app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
+
+			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
+			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
 			app.put('/account', ensureAuth, initAdminSession, updateUserAccountRoute);
 			app.delete('/account', ensureAuth, initAdminSession, deleteUserAccountRoute);
-			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
-			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
+
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
-			app.get('/sites/:site', ensureAuth, initAdminSession, retrieveSiteSettingsRoute);
-			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
+			app.get('/sites/:site', ensureAuth, initAdminSession, retrieveSiteRoute);
 			app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 			app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
-			app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUsersRoute);
+
+			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersRoute);
+			app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUserRoute);
 			app.put('/sites/:site/users/:username', ensureAuth, initAdminSession, updateSiteUserRoute);
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
@@ -491,6 +495,43 @@ module.exports = function(database, options) {
 					});
 			}
 
+			function retrieveUserProfileRoute(req, res, next) {
+				var userModel = req.user;
+				var templateData = {
+					title: 'Your profile',
+					breadcrumb: [
+						{
+							link: '/profile',
+							icon: 'user',
+							label: 'Your profile'
+						}
+					],
+					content: {
+						user: userModel
+					}
+				};
+				return renderAdminPage(req, res, 'profile', templateData);
+			}
+
+			function updateUserProfileRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+				var updates = {
+					'username': req.body.username,
+					'firstName': req.body.firstName,
+					'lastName': req.body.lastName,
+					'email': req.body.email
+				};
+				var userService = new UserService(database);
+				userService.updateUser(uid, updates)
+					.then(function(userModel) {
+						res.redirect(303, '/sites');
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
 			function retrieveUserAccountRoute(req, res, next) {
 				var userModel = req.user;
 				var templateData = {
@@ -544,43 +585,6 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function retrieveUserProfileRoute(req, res, next) {
-				var userModel = req.user;
-				var templateData = {
-					title: 'Your profile',
-					breadcrumb: [
-						{
-							link: '/profile',
-							icon: 'user',
-							label: 'Your profile'
-						}
-					],
-					content: {
-						user: userModel
-					}
-				};
-				return renderAdminPage(req, res, 'profile', templateData);
-			}
-
-			function updateUserProfileRoute(req, res, next) {
-				var userModel = req.user;
-				var uid = userModel.uid;
-				var updates = {
-					'username': req.body.username,
-					'firstName': req.body.firstName,
-					'lastName': req.body.lastName,
-					'email': req.body.email
-				};
-				var userService = new UserService(database);
-				userService.updateUser(uid, updates)
-					.then(function(userModel) {
-						res.redirect(303, '/sites');
-					})
-					.catch(function(error) {
-						next(error);
-					});
-			}
-
 			function retrieveSitesRoute(req, res, next) {
 				var siteModel = {
 					template: {
@@ -610,7 +614,41 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function retrieveSiteSettingsRoute(req, res, next) {
+			function createSiteRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+				var accessToken = userModel.token;
+
+				var siteModel = {
+					'user': uid,
+					'name': req.body.name,
+					'label': req.body.label,
+					'template': {
+						'name': req.body.template,
+						'options': {
+							title: req.body['template.title']
+						}
+					},
+					'root': req.body.root || null,
+					'private': req.body.private === 'true'
+				};
+
+				var siteService = new SiteService(database, {
+					host: host,
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
+				siteService.createSite(siteModel)
+					.then(function(siteModel) {
+						res.redirect(303, '/sites/' + siteModel.name);
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function retrieveSiteRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
@@ -645,86 +683,6 @@ module.exports = function(database, options) {
 							}
 						};
 						return renderAdminPage(req, res, 'sites/site', templateData);
-					})
-					.catch(function(error) {
-						next(error);
-					});
-			}
-
-			function retrieveSiteUsersRoute(req, res, next) {
-				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
-				var siteName = req.params.site;
-
-				var siteService = new SiteService(database, {
-					host: host,
-					appKey: appKey,
-					appSecret: appSecret,
-					accessToken: accessToken
-				});
-				var includeContents = false;
-				var includeUsers = true;
-				siteService.retrieveSite(uid, siteName, includeContents, includeUsers)
-					.then(function(siteModel) {
-						var templateData = {
-							title: 'Edit site users: ' + siteModel.label,
-							breadcrumb: [
-								{
-									link: '/sites',
-									icon: 'dashboard',
-									label: 'Site dashboard'
-								},
-								{
-									link: '/sites/' + siteName,
-									icon: 'cog',
-									label: siteModel.label
-								},
-								{
-									link: '/sites/' + siteName + '/users',
-									icon: 'users',
-									label: 'Site users'
-								}
-							],
-							content: {
-								site: siteModel
-							}
-						};
-						return renderAdminPage(req, res, 'sites/site/users', templateData);
-					})
-					.catch(function(error) {
-						next(error);
-					});
-			}
-
-			function createSiteRoute(req, res, next) {
-				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
-
-				var siteModel = {
-					'user': uid,
-					'name': req.body.name,
-					'label': req.body.label,
-					'template': {
-						'name': req.body.template,
-						'options': {
-							title: req.body['template.title']
-						}
-					},
-					'root': req.body.root || null,
-					'private': req.body.private === 'true'
-				};
-
-				var siteService = new SiteService(database, {
-					host: host,
-					appKey: appKey,
-					appSecret: appSecret,
-					accessToken: accessToken
-				});
-				siteService.createSite(siteModel)
-					.then(function(siteModel) {
-						res.redirect(303, '/sites/' + siteModel.name);
 					})
 					.catch(function(error) {
 						next(error);
@@ -817,7 +775,53 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function createSiteUsersRoute(req, res, next) {
+			function retrieveSiteUsersRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+				var accessToken = userModel.token;
+				var siteName = req.params.site;
+
+				var siteService = new SiteService(database, {
+					host: host,
+					appKey: appKey,
+					appSecret: appSecret,
+					accessToken: accessToken
+				});
+				var includeContents = false;
+				var includeUsers = true;
+				siteService.retrieveSite(uid, siteName, includeContents, includeUsers)
+					.then(function(siteModel) {
+						var templateData = {
+							title: 'Edit site users: ' + siteModel.label,
+							breadcrumb: [
+								{
+									link: '/sites',
+									icon: 'dashboard',
+									label: 'Site dashboard'
+								},
+								{
+									link: '/sites/' + siteName,
+									icon: 'cog',
+									label: siteModel.label
+								},
+								{
+									link: '/sites/' + siteName + '/users',
+									icon: 'users',
+									label: 'Site users'
+								}
+							],
+							content: {
+								site: siteModel
+							}
+						};
+						return renderAdminPage(req, res, 'sites/site/users', templateData);
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function createSiteUserRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
