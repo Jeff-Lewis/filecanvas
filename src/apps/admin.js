@@ -183,8 +183,9 @@ module.exports = function(database, options) {
 								userModel.profileEmail = profileEmail;
 								return userModel;
 							});
+					} else {
+						return userModel;
 					}
-					return userModel;
 				});
 
 
@@ -690,18 +691,16 @@ module.exports = function(database, options) {
 			function retrieveSiteRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var defaultSiteName = userModel.defaultSite;
 				var accessToken = userModel.token;
 				var siteName = req.params.site;
 				var includeContents = false;
 				var includeUsers = true;
 				retrieveSite(database, uid, siteName, includeContents, includeUsers)
 					.then(function(siteModel) {
-						return retrieveUserDefaultSiteName(database, uid)
-							.then(function(defaultSiteName) {
-								var isDefaultSite = (siteModel.name === defaultSiteName);
-								siteModel.home = isDefaultSite;
-								return siteModel;
-							});
+						var isDefaultSite = (siteModel.name === defaultSiteName);
+						siteModel.home = isDefaultSite;
+						return siteModel;
 					})
 					.then(function(siteModel) {
 						var templateData = {
@@ -738,11 +737,6 @@ module.exports = function(database, options) {
 					});
 					return siteService.retrieveSite(uid, siteName, includeContents, includeUsers);
 				}
-
-				function retrieveUserDefaultSiteName(database, uid) {
-					var userService = new UserService(database);
-					return userService.retrieveUserDefaultSiteName(uid);
-				}
 			}
 
 			function updateSiteRoute(req, res, next) {
@@ -752,6 +746,7 @@ module.exports = function(database, options) {
 				}
 				var userModel = req.user;
 				var uid = userModel.uid;
+				var defaultSiteName = userModel.defaultSite;
 				var accessToken = userModel.token;
 				var siteName = req.params.site;
 
@@ -775,12 +770,9 @@ module.exports = function(database, options) {
 				var updatedSiteName = 'name' in updates ? updates.name : null;
 				updateSite(database, uid, accessToken, siteName, updates)
 					.then(function() {
-						return retrieveUserDefaultSiteName(database, uid)
-							.then(function(existingDefaultSiteName) {
-								var defaultSiteName = (isDefaultSite ? (updatedSiteName || siteName) : (existingDefaultSiteName === siteName ? null : existingDefaultSiteName));
-								if (defaultSiteName === existingDefaultSiteName) { return; }
-								return updateUserDefaultSiteName(database, uid, defaultSiteName);
-							});
+						var updatedDefaultSiteName = (isDefaultSite ? (updatedSiteName || siteName) : (defaultSiteName === siteName ? null : defaultSiteName));
+						if (updatedDefaultSiteName === defaultSiteName) { return; }
+						return updateUserDefaultSiteName(database, uid, updatedDefaultSiteName);
 					})
 					.then(function() {
 						res.redirect(303, '/sites/' + (updatedSiteName || siteName));
@@ -798,11 +790,6 @@ module.exports = function(database, options) {
 						accessToken: accessToken
 					});
 					return siteService.updateSite(uid, siteName, updates);
-				}
-
-				function retrieveUserDefaultSiteName(database, uid) {
-					var userService = new UserService(database);
-					return userService.retrieveUserDefaultSiteName(uid);
 				}
 
 				function updateUserDefaultSiteName(database, uid, siteName) {
