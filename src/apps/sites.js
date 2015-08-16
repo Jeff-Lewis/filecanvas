@@ -291,13 +291,15 @@ module.exports = function(database, options) {
 						return siteService.retrieveSite(uid, siteName, includeContents, includeUsers)
 							.then(function(siteModel) {
 								var context = {
-									title: siteModel.title,
-									site: siteModel,
 									siteRoot: getSiteRootUrl(req, '/login'),
-									templateRoot: templatesUrl + siteModel.template + '/'
+									templateRoot: templatesUrl + siteModel.template.name + '/',
+									template: siteModel.template.options,
+									site: {
+										private: siteModel.private
+									}
 								};
-								var templateName = 'themes/' + siteModel.template + '/login';
-								res.render(templateName, context);
+								var templatePath = 'themes/' + siteModel.template.name + '/login';
+								res.render(templatePath, context);
 							});
 					})
 					.catch(function(error) {
@@ -407,13 +409,15 @@ module.exports = function(database, options) {
 							.then(function(siteModel) {
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
-									title: siteModel.title,
-									site: siteModel,
 									siteRoot: getSiteRootUrl(req),
-									templateRoot: templatesUrl + siteModel.template + '/',
+									templateRoot: templatesUrl + siteModel.template.name + '/',
+									template: siteModel.template.options,
+									site: {
+										private: siteModel.private
+									},
 									contents: siteContents
 								};
-								var templateName = 'themes/' + siteModel.template + '/index';
+								var templateName = 'themes/' + siteModel.template.name + '/index';
 								res.render(templateName, context);
 							});
 					})

@@ -35,7 +35,7 @@ module.exports = function(database, options) {
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
 	if (!registerCallbackUrl) { throw new Error('Missing Dropbox register callback URL'); }
-	if (!defaultSiteTemplate) { throw new Error('Missing default site template name'); }
+	if (!defaultSiteTemplate) { throw new Error('Missing default site template'); }
 
 	var app = express();
 	var passport = new Passport();
@@ -605,7 +605,12 @@ module.exports = function(database, options) {
 
 			function retrieveSiteCreateRoute(req, res, next) {
 				var siteModel = {
-					template: defaultSiteTemplate
+					template: {
+						name: defaultSiteTemplate,
+						options: {
+							title: ''
+						}
+					}
 				};
 				var templateData = {
 					title: 'Create a site',
@@ -722,8 +727,12 @@ module.exports = function(database, options) {
 					'user': uid,
 					'name': req.body.name,
 					'label': req.body.label,
-					'title': req.body.label,
-					'template': req.body.template,
+					'template': {
+						'name': req.body.template,
+						'options': {
+							title: req.body['template.title']
+						}
+					},
 					'root': req.body.root || null,
 					'private': req.body.private === 'true'
 				};
@@ -765,8 +774,14 @@ module.exports = function(database, options) {
 					};
 					if (req.body.name) { updates.name = req.body.name; }
 					if (req.body.label) { updates.label = req.body.label; }
-					if (req.body.title) { updates.title = req.body.title; }
-					if (req.body.template) { updates.template = req.body.template; }
+					if (req.body.template) {
+						updates.template = {
+							'name': req.body.template,
+							'options': {
+								title: req.body['template.title']
+							}
+						};
+					}
 					if (req.body.root) { updates.root = req.body.root || null; }
 					if (req.body.private) { updates.private = req.body.private === 'true'; }
 					updateSite(uid, accessToken, siteName, updates)

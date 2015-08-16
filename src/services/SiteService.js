@@ -199,7 +199,6 @@ SiteService.prototype.retrieveSite = function(uid, siteName, includeContents, in
 			'user',
 			'name',
 			'label',
-			'title',
 			'template',
 			'root',
 			'private'
@@ -501,13 +500,11 @@ function validateSiteModel(siteModel, requireFullModel) {
 		if ((requireFullModel || ('user' in siteModel)) && !siteModel.user) { throw new HttpError(400, 'No user specified'); }
 		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site path specified'); }
 		if ((requireFullModel || ('label' in siteModel)) && !siteModel.label) { throw new HttpError(400, 'No site name specified'); }
-		if ((requireFullModel || ('title' in siteModel)) && !siteModel.title) { throw new HttpError(400, 'No site title specified'); }
 		if ((requireFullModel || ('template' in siteModel)) && !siteModel.template) { throw new HttpError(400, 'No site template specified'); }
 
 		// TODO: Validate organization when validating site model
 		// TODO: Validate name when validating site model
 		// TODO: Validate label when validating site model
-		// TODO: Validate title when validating site model
 		// TODO: Validate template when validating site model
 		// TODO: Validate root when validating site model
 
