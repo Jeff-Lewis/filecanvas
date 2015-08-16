@@ -165,7 +165,7 @@
 						if (this.value === value) { return; }
 						this.value = value;
 					}
-					var value = this.value;
+					value = value || this.value;
 					bindingSource.listeners.forEach(function(handler) {
 						handler(value);
 					});
@@ -215,7 +215,7 @@
 		var filterExpressions = bindingExpressionSegments[3] ? bindingExpressionSegments[3].split('|') : null;
 		var hasFilters = Boolean(filterExpressions) && (filterExpressions.length > 0);
 
-		var filter = function(value) { return value; }
+		var filter = function(value) { return value; };
 		if (hasFilters) { filter = getFilteredBindingFunction(filter, bindingFilters); }
 		if (isBindingSourceInverted) { filter = invertBindingFilter(filter); }
 
@@ -460,8 +460,8 @@
 
 	function initOffscreenSidebar() {
 		var offscreenToggleBtn = $('[data-toggle=offscreen]');
-    	var app = $('.app');
-    	var mainPanel = $('.main-panel');
+		var app = $('.app');
+		var mainPanel = $('.main-panel');
 		var offscreenDirection;
 		var offscreenDirectionClass;
 		var rapidClickCheck = false;
