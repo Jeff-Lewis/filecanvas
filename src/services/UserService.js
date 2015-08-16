@@ -97,7 +97,7 @@ UserService.prototype.retrieveUser = function(user) {
 			'email',
 			'profileName',
 			'profileEmail',
-			'default'
+			'defaultSite'
 		];
 		return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 			.then(function(userModel) {
@@ -115,12 +115,12 @@ UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
 	function retrieveUserDefaultSiteAlias(database, user) {
 		var query = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
 		var fields = [
-			'default'
+			'defaultSite'
 		];
 		return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 			.then(function(userModel) {
 				if (!userModel) { throw new HttpError(404); }
-				var defaultSiteAlias = userModel.default;
+				var defaultSiteAlias = userModel.defaultSite;
 				return defaultSiteAlias;
 			});
 	}
@@ -182,7 +182,7 @@ UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 
 	function updateUserDefaultSiteAlias(database, user, siteAlias) {
 		var filter = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
-		var updates = { $set: { 'default': siteAlias } };
+		var updates = { $set: { 'defaultSite': siteAlias } };
 		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
 				if (numRecords === 0) { throw new HttpError(404); }
@@ -223,7 +223,7 @@ function validateUserModel(userModel, requireFullModel) {
 		if ((requireFullModel || ('firstName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No first name specified'); }
 		if ((requireFullModel || ('lastName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No last name specified'); }
 		if ((requireFullModel || ('email' in userModel)) && !userModel.email) { throw new HttpError(400, 'No email specified'); }
-		if (requireFullModel && !('default' in userModel)) { throw new HttpError(400, 'No default site specified'); }
+		if (requireFullModel && !('defaultSite' in userModel)) { throw new HttpError(400, 'No default site specified'); }
 
 		// TODO: Validate uid when validating user model
 		// TODO: Validate token when validating user model

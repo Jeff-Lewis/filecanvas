@@ -458,7 +458,7 @@ SiteService.prototype.deleteSite = function(uid, siteAlias) {
 		});
 
 	function checkWhetherSiteisUserDefaultSite(database, uid, siteAlias) {
-		var query = { 'user': uid, 'default': siteAlias };
+		var query = { 'user': uid, 'defaultSite': siteAlias };
 		return database.collection(DB_COLLECTION_USERS).count(query)
 			.then(function(numRecords) {
 				var isDefaultSite = (numRecords > 0);

@@ -219,7 +219,7 @@ module.exports = function(database, options) {
 							profileFirstName: firstName,
 							profileLastName: lastName,
 							profileEmail: email,
-							default: null
+							defaultSite: null
 						};
 						return userService.createUser(userModel);
 					});
@@ -519,7 +519,7 @@ module.exports = function(database, options) {
 				if ('firstName' in req.body) { updates.firstName = req.body.firstName; }
 				if ('lastName' in req.body) { updates.lastName = req.body.lastName; }
 				if ('email' in req.body) { updates.email = req.body.email; }
-				if ('default' in req.body) { updates.default = req.body.default || null; }
+				if ('defaultSite' in req.body) { updates.defaultSite = req.body.defaultSite || null; }
 				var userService = new UserService(database);
 				userService.updateUser(uid, updates)
 					.then(function(userModel) {

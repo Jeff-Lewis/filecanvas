@@ -49,11 +49,11 @@
 								<label class="col-sm-2 control-label">Default site</label>
 								<div class="col-sm-10">
 									<select class="form-control"
-										name="default"
+										name="defaultSite"
 									>
-										<option>No default site</option>
+										<option value="">No default site</option>
 										{{#each session.sites as |site|}}
-										<option value="{{ site.alias }}"{{#if (eq site.alias ../content.user.default)}} selected="selected"{{/if}}>{{ site.name }}</option>
+										<option value="{{ site.alias }}"{{#if (eq site.alias ../content.user.defaultSite)}} selected="selected"{{/if}}>{{ site.name }}</option>
 										{{/each}}
 									</select>
 									<p class="help-block">This is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
