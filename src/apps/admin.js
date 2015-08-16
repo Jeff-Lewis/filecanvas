@@ -410,12 +410,12 @@ module.exports = function(database, options) {
 			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
 			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
-			app.get('/sites/:site/settings', ensureAuth, initAdminSession, retrieveSiteSettingsRoute);
+			app.get('/sites/:site', ensureAuth, initAdminSession, retrieveSiteSettingsRoute);
 			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 			app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 			app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
-			app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUserRoute);
+			app.post('/sites/:site/users', ensureAuth, initAdminSession, createSiteUsersRoute);
 			app.put('/sites/:site/users/:username', ensureAuth, initAdminSession, updateSiteUserRoute);
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
@@ -635,7 +635,7 @@ module.exports = function(database, options) {
 									label: 'Site dashboard'
 								},
 								{
-									link: '/sites/' + siteName + '/settings',
+									link: '/sites/' + siteName,
 									icon: 'cog',
 									label: siteModel.label
 								}
@@ -644,7 +644,7 @@ module.exports = function(database, options) {
 								site: siteModel
 							}
 						};
-						return renderAdminPage(req, res, 'sites/settings', templateData);
+						return renderAdminPage(req, res, 'sites/site', templateData);
 					})
 					.catch(function(error) {
 						next(error);
@@ -676,7 +676,7 @@ module.exports = function(database, options) {
 									label: 'Site dashboard'
 								},
 								{
-									link: '/sites/' + siteName + '/settings',
+									link: '/sites/' + siteName,
 									icon: 'cog',
 									label: siteModel.label
 								},
@@ -690,7 +690,7 @@ module.exports = function(database, options) {
 								site: siteModel
 							}
 						};
-						return renderAdminPage(req, res, 'sites/users', templateData);
+						return renderAdminPage(req, res, 'sites/site/users', templateData);
 					})
 					.catch(function(error) {
 						next(error);
@@ -724,7 +724,7 @@ module.exports = function(database, options) {
 				});
 				siteService.createSite(siteModel)
 					.then(function(siteModel) {
-						res.redirect(303, '/sites/' + siteModel.name + '/settings');
+						res.redirect(303, '/sites/' + siteModel.name);
 					})
 					.catch(function(error) {
 						next(error);
@@ -741,7 +741,7 @@ module.exports = function(database, options) {
 				if (isPurgeRequest) {
 					purgeSite(uid, accessToken, siteName)
 						.then(function() {
-							res.redirect(303, '/sites/' + siteName + '/settings');
+							res.redirect(303, '/sites/' + siteName);
 						})
 						.catch(function(error) {
 							next(error);
@@ -766,7 +766,7 @@ module.exports = function(database, options) {
 					updateSite(uid, accessToken, siteName, updates)
 						.then(function() {
 							if ('name' in updates) { siteName = updates.name; }
-							res.redirect(303, '/sites/' + siteName + '/settings');
+							res.redirect(303, '/sites/' + siteName);
 						})
 						.catch(function(error) {
 							next(error);
@@ -817,7 +817,7 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function createSiteUserRoute(req, res, next) {
+			function createSiteUsersRoute(req, res, next) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
