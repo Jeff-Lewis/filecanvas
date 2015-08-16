@@ -30,7 +30,6 @@
 							</ul>
 							{{/if}}
 						</li>
-						<li{{#if (eq session.location.pathname session.urls.sitesAdd)}} class="open"{{/if}}><a href="{{ session.urls.sitesAdd }}"><i class="fa fa-plus"></i><span>Create a site</span></a></li>
 						<li{{#if (eq session.location.pathname session.urls.faq)}} class="open"{{/if}}><a href="{{ session.urls.faq }}"><i class="fa fa-info-circle"></i><span>FAQ</span></a></li>
 						<li{{#if (eq session.location.pathname session.urls.support)}} class="open"{{/if}}><a href="{{ session.urls.support }}"><i class="fa fa-question-circle"></i><span>Support</span></a></li>
 						<li class="visible-xs {{#if (eq session.location.pathname session.urls.account)}} open{{/if}}"><a href="{{ session.urls.account }}"><i class="fa fa-user"></i><span>Your account</span></a></li>

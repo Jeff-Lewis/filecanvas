@@ -302,7 +302,6 @@ module.exports = function(database, options) {
 						registerAuth: '/register/oauth2',
 						logout: '/logout',
 						sites: '/sites',
-						sitesAdd: '/sites/create',
 						terms: '/terms',
 						privacy: '/privacy'
 					};
@@ -411,7 +410,6 @@ module.exports = function(database, options) {
 			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
 			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
-			app.get('/sites/create', ensureAuth, initAdminSession, retrieveSiteCreateRoute);
 			app.get('/sites/:site/settings', ensureAuth, initAdminSession, retrieveSiteSettingsRoute);
 			app.get('/sites/:site/users', ensureAuth, initAdminSession, retrieveSiteUsersRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
@@ -584,6 +582,14 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveSitesRoute(req, res, next) {
+				var siteModel = {
+					template: {
+						name: defaultSiteTemplate,
+						options: {
+							title: ''
+						}
+					}
+				};
 				var templateData = {
 					title: 'Site dashboard',
 					breadcrumb: [
@@ -594,38 +600,11 @@ module.exports = function(database, options) {
 						}
 					],
 					content: {
-						sites: res.locals.sites
-					}
-				};
-				renderAdminPage(req, res, 'sites', templateData)
-					.catch(function(error) {
-						next(error);
-					});
-			}
-
-			function retrieveSiteCreateRoute(req, res, next) {
-				var siteModel = {
-					template: {
-						name: defaultSiteTemplate,
-						options: {
-							title: ''
-						}
-					}
-				};
-				var templateData = {
-					title: 'Create a site',
-					breadcrumb: [
-						{
-							link: '/sites/create',
-							icon: 'plus',
-							label: 'Create a site'
-						}
-					],
-					content: {
+						sites: res.locals.sites,
 						site: siteModel
 					}
 				};
-				renderAdminPage(req, res, 'sites/create', templateData)
+				renderAdminPage(req, res, 'sites', templateData)
 					.catch(function(error) {
 						next(error);
 					});

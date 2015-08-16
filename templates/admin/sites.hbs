@@ -4,21 +4,115 @@
 			<h4 class="no-margin text-uppercase">Your sites</h4>
 		</div>
 		{{#if content.sites}}
-		{{#each content.sites as |site|}}
-		<a class="widget mb0 bg-white" href="{{ ../session.urls.sites }}/{{ site.name }}/settings">
-			<i class="fa {{#if site.root}}fa-arrow-right{{else}}fa-exclamation-circle text-danger{{/if}} mr5"{{#unless site.root}} title="This site is not linked to a Dropbox folder{{/unless}}"></i> {{ site.label }}</a>
-		</a>
-		{{/each}}
+		<div class="mb10">
+			{{#each content.sites as |site|}}
+			<a class="widget mb0 bg-white" href="{{ ../session.urls.sites }}/{{ site.name }}/settings">
+				<i class="fa {{#if site.root}}fa-arrow-right{{else}}fa-exclamation-circle text-danger{{/if}} mr5"{{#unless site.root}} title="This site is not linked to a Dropbox folder{{/unless}}"></i> {{ site.label }}</a>
+			</a>
+			{{/each}}
+		</div>
 		{{else}}
-		<div class="alert alert-info mb0">
+		<div class="alert alert-info">
 			<h5>There are no sites registered to this account.</h5>
 		</div>
 		{{/if}}
-	</div>
-	<div class="col-md-12 col-lg-10">
-		<a class="widget bg-white" href="{{ session.urls.sitesAdd }}">
-			<i class="widget-icon bg-primary pull-left fa fa-plus"></i>
-			<h4>Create a site</h4>
-		</a>
+		<div class="mb15">
+			<a class="widget bg-white mb0" data-toggle="collapse" data-target="#create-site" aria-expanded="false" aria-controls="create-site" onclick="$(this).hide().next().show();">
+				<i class="widget-icon bg-primary pull-left fa fa-plus"></i>
+				<h4>Create a site</h4>
+			</a>
+			<div class="widget bg-primary mb0" style="display: none;">
+				<i class="widget-icon bg-white pull-left fa fa-plus"></i>
+				<h4>Create a site</h4>
+			</div>
+			<div class="collapse" id="create-site">
+				<div class="panel-body bg-white">
+					<div class="col-lg-12">
+						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
+							<input type="hidden" name="_method" value="POST"/>
+							<input type="hidden"
+								name="template"
+								value="{{ content.site.template.name }}"
+							/>
+							<input type="hidden"
+								name="template.title"
+								value="{{ content.site.template.options.title }}"
+								data-bind-value="site-label"
+							/>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Name</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="label"
+										placeholder="Site name"
+										value="{{ content.site.label }}"
+										data-bind-id="site-label"
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Site path</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+										name="name"
+										placeholder="Site path"
+										value="{{ content.site.name }}"
+										data-bind-value="site-label|slug"
+										data-bind-id="site-name"
+										data-parser="slug"
+										data-validate="slug"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+									<p class="help-block">The site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-name">{{ site.name }}</strong></p>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Dropbox folder</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control"
+									 	name="root"
+										placeholder="Dropbox folder"
+										value="{{ content.site.root }}"
+										data-bind-value="site-name|format:'/shunt/$0'"
+										data-validate="notEmpty"
+										data-trigger="focus"
+									/>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
+									<p class="help-block">This tells Shunt where to find the site's files within your Dropbox.<br/>If this folder doesn't already exist, it will be created.</p>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Site access</label>
+								<div class="col-sm-10">
+									<div class="checkbox">
+										<label>
+											<input type="hidden"
+												name="private"
+												value="false"
+											/>
+											<input type="checkbox"
+												name="private"
+												value="true"
+												{{#if content.site.private}}checked="checked"{{/if}}
+											/> Password protect this site
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-success">Create site</button>
+									<button type="reset" class="btn btn-default pull-right" data-toggle="collapse" data-target="#create-site" aria-expanded="false" aria-controls="create-site" onclick="$(this).closest('.collapse').prev().hide().prev().show();">Cancel</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
