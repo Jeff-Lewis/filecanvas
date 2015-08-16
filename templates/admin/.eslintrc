@@ -1,6 +1,10 @@
 {
 	"env": {
+		"node": false,
 		"browser": true
+	},
+	"globals": {
+		"$": false
 	},
 	"rules": {
 		"strict": [2, "function"],
