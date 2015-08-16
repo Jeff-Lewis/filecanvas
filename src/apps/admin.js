@@ -585,12 +585,12 @@ module.exports = function(database, options) {
 
 			function retrieveSitesRoute(req, res, next) {
 				var templateData = {
-					title: 'My sites',
+					title: 'Site dashboard',
 					breadcrumb: [
 						{
 							link: '/sites',
 							icon: 'dashboard',
-							label: 'My sites'
+							label: 'Site dashboard'
 						}
 					],
 					content: {
@@ -653,7 +653,7 @@ module.exports = function(database, options) {
 								{
 									link: '/sites',
 									icon: 'dashboard',
-									label: 'My sites'
+									label: 'Site dashboard'
 								},
 								{
 									link: '/sites/' + siteName + '/settings',
@@ -694,7 +694,7 @@ module.exports = function(database, options) {
 								{
 									link: '/sites',
 									icon: 'dashboard',
-									label: 'My sites'
+									label: 'Site dashboard'
 								},
 								{
 									link: '/sites/' + siteName + '/settings',

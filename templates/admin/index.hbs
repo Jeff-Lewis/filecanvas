@@ -21,7 +21,7 @@
 				<nav role="navigation">
 					<ul class="nav">
 						<li class="menu-accordion{{#if (and (startsWith session.location.pathname session.urls.sites) (not-eq session.location.pathname session.urls.sitesAdd))}} open{{/if}}">
-							<a href="{{ session.urls.sites }}"><i class="fa fa-dashboard"></i> <span>My sites</span></a>
+							<a href="{{ session.urls.sites }}"><i class="fa fa-dashboard"></i> <span>Site dashboard</span></a>
 							{{#if session.sites}}
 							<ul class="sub-menu">
 								{{#each session.sites as |site|}}
