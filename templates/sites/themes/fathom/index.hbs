@@ -82,6 +82,29 @@
 		</nav>
 		<!-- End Sticky Navigation -->
 
+		{{#if contents.files}}
+		<section id="{{ alias }}" class="page">
+			<div class="container">
+				<div class="row">
+					<div class="span12">
+						<div class="posts row isotope ">
+							{{#each contents.files}}
+							<div class="post item span4 isotope-item" data-file-modified="{{ timestamp }}">
+								<a href="{{ ../siteRoot }}download{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp">
+									<div class="profile-photo" data-extension="{{ extension }}"></div>
+									<div class="project-client">&nbsp;</div>
+									<div class="project-name">{{ label }}</div>
+									<hr class="mini">
+									<div class="project-date">{{ date }} – {{ size }}</div>
+								</a>
+							</div>
+							{{/each}}
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		{{/if}}
 
 		{{#each contents.folders}}
 		<section id="{{ alias }}" class="page">
