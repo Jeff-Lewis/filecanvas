@@ -16,8 +16,8 @@ shunt.sites.drop();
 
 print(' - Setting \'uid\' index on \'users\' collection...');
 shunt.users.createIndex({ 'uid': 1 }, { 'unique': true });
-print(' - Setting \'alias\' index on \'users\' collection...');
-shunt.users.createIndex({ 'alias': 1 }, { 'unique': true });
+print(' - Setting \'username\' index on \'users\' collection...');
+shunt.users.createIndex({ 'username': 1 }, { 'unique': true });
 
 print(' - Setting \'user, alias\' index on \'sites\' collection...');
 shunt.sites.createIndex({ 'user': 1, 'alias': 1 }, { 'unique': true });

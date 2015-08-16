@@ -15,45 +15,45 @@ function UserService(database) {
 
 UserService.prototype.database = null;
 
-UserService.prototype.generateUniqueAlias = function(alias) {
+UserService.prototype.generateUniqueUsername = function(username) {
 	var database = this.database;
-	return checkWhetherAliasExists(database, alias)
-		.then(function(aliasExists) {
-			if (!aliasExists) { return alias; }
-			return generateUniqueAlias(database, alias);
+	return checkWhetherUsernameExists(database, username)
+		.then(function(usernameExists) {
+			if (!usernameExists) { return username; }
+			return generateUniqueUsername(database, username);
 		});
 
 
-	function checkWhetherAliasExists(database, alias) {
-		var query = { 'alias': alias };
+	function checkWhetherUsernameExists(database, username) {
+		var query = { 'username': username };
 		return database.collection(DB_COLLECTION_USERS).count(query)
 			.then(function(numRecords) {
-				var aliasExists = numRecords > 0;
-				return aliasExists;
+				var usernameExists = numRecords > 0;
+				return usernameExists;
 			});
 	}
 
-	function generateUniqueAlias(database, alias) {
-		return getRegisteredAliases(database, alias)
-			.then(function(registeredAliases) {
+	function generateUniqueUsername(database, username) {
+		return getExistingUsernames(database, username)
+			.then(function(existingUsernames) {
 				var index = 1;
-				while (registeredAliases.indexOf(alias + index) !== -1) { index++; }
-				return alias + index;
+				while (existingUsernames.indexOf(username + index) !== -1) { index++; }
+				return username + index;
 			});
 	}
 
-	function getRegisteredAliases(database, alias) {
-		var pattern = new RegExp('^' + escapeRegExp(alias) + '\d+$');
-		var query = { alias: pattern };
+	function getExistingUsernames(database, username) {
+		var pattern = new RegExp('^' + escapeRegExp(username) + '\d+$');
+		var query = { username: pattern };
 		var fields = [
-			'alias'
+			'username'
 		];
 		return database.collection(DB_COLLECTION_USERS).find(query, fields)
 			.then(function(userModels) {
-				var userAliases = userModels.map(function(userModel) {
-					return userModel.alias;
+				var usernames = userModels.map(function(userModel) {
+					return userModel.username;
 				});
-				return userAliases;
+				return usernames;
 			});
 	}
 };
@@ -87,11 +87,11 @@ UserService.prototype.retrieveUser = function(user) {
 
 
 	function retrieveUser(database, user) {
-		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		var query = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
 		var fields = [
 			'uid',
 			'token',
-			'alias',
+			'username',
 			'firstName',
 			'lastName',
 			'email',
@@ -113,7 +113,7 @@ UserService.prototype.retrieveUserDefaultSiteAlias = function(user) {
 
 
 	function retrieveUserDefaultSiteAlias(database, user) {
-		var query = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		var query = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
 		var fields = [
 			'default'
 		];
@@ -163,7 +163,7 @@ UserService.prototype.updateUser = function(user, updates) {
 
 
 	function updateUser(database, user, fields) {
-		var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		var filter = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
 		var updates = { $set: fields };
 		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
@@ -181,7 +181,7 @@ UserService.prototype.updateUserDefaultSiteAlias = function(user, siteAlias) {
 
 
 	function updateUserDefaultSiteAlias(database, user, siteAlias) {
-		var filter = (typeof user === 'string' ? { 'alias': user } : { 'uid': user });
+		var filter = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
 		var updates = { $set: { 'default': siteAlias } };
 		return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 			.then(function(numRecords) {
@@ -219,7 +219,7 @@ function validateUserModel(userModel, requireFullModel) {
 		if (!userModel) { throw new HttpError(400, 'No user specified'); }
 		if ((requireFullModel || ('uid' in userModel)) && !userModel.uid) { throw new HttpError(400, 'No user ID specified'); }
 		if ((requireFullModel || ('token' in userModel)) && !userModel.token) { throw new HttpError(400, 'No access token specified'); }
-		if ((requireFullModel || ('alias' in userModel)) && !userModel.alias) { throw new HttpError(400, 'No username specified'); }
+		if ((requireFullModel || ('username' in userModel)) && !userModel.username) { throw new HttpError(400, 'No username specified'); }
 		if ((requireFullModel || ('firstName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No first name specified'); }
 		if ((requireFullModel || ('lastName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No last name specified'); }
 		if ((requireFullModel || ('email' in userModel)) && !userModel.email) { throw new HttpError(400, 'No email specified'); }
@@ -229,7 +229,7 @@ function validateUserModel(userModel, requireFullModel) {
 		// TODO: Validate token when validating user model
 		// TODO: Validate name when validating user model
 		// TODO: Validate email when validating user model
-		// TODO: Validate alias when validating user model
+		// TODO: Validate username when validating user model
 		// TODO: Validate default when validating user model
 
 		return resolve(userModel);

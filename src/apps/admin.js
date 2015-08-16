@@ -206,13 +206,13 @@ module.exports = function(database, options) {
 			function createUserModel(database, uid, accessToken, firstName, lastName, email) {
 				var userService = new UserService(database);
 				var fullName = firstName + ' ' + lastName;
-				var alias = slug(fullName, { lower: true });
-				return userService.generateUniqueAlias(alias)
-					.then(function(alias) {
+				var username = slug(fullName, { lower: true });
+				return userService.generateUniqueUsername(username)
+					.then(function(username) {
 						var userModel = {
 							uid: uid,
 							token: accessToken,
-							alias: alias,
+							username: username,
 							firstName: firstName,
 							lastName: lastName,
 							email: email,
@@ -290,7 +290,7 @@ module.exports = function(database, options) {
 
 				function getAdminUrls(urlService, userModel) {
 					return {
-						webroot: (userModel ? urlService.getSubdomainUrl(userModel.alias) : null),
+						webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 						domain: urlService.getSubdomainUrl('$0'),
 						admin: '/',
 						faq: '/faq',
@@ -439,7 +439,7 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveFaqRoute(req, res, next) {
-				var username = req.user.alias;
+				var username = req.user.username;
 				var siteModels = res.locals.sites;
 				var siteAlias = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].alias : 'site-name');
 				var faqs = replaceFaqPlaceholders(faqData, {
@@ -515,7 +515,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var updates = {};
-				if ('alias' in req.body) { updates.alias = req.body.alias; }
+				if ('username' in req.body) { updates.username = req.body.username; }
 				if ('firstName' in req.body) { updates.firstName = req.body.firstName; }
 				if ('lastName' in req.body) { updates.lastName = req.body.lastName; }
 				if ('email' in req.body) { updates.email = req.body.email; }
@@ -568,7 +568,7 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var updates = {
-					'alias': req.body.alias,
+					'username': req.body.username,
 					'firstName': req.body.firstName,
 					'lastName': req.body.lastName,
 					'email': req.body.email
