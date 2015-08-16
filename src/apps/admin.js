@@ -724,7 +724,7 @@ module.exports = function(database, options) {
 					'label': req.body.label,
 					'title': req.body.label,
 					'template': req.body.template,
-					'path': req.body.path || null,
+					'root': req.body.root || null,
 					'private': req.body.private === 'true'
 				};
 
@@ -767,7 +767,7 @@ module.exports = function(database, options) {
 					if (req.body.label) { updates.label = req.body.label; }
 					if (req.body.title) { updates.title = req.body.title; }
 					if (req.body.template) { updates.template = req.body.template; }
-					if (req.body.path) { updates.path = req.body.path || null; }
+					if (req.body.root) { updates.root = req.body.root || null; }
 					if (req.body.private) { updates.private = req.body.private === 'true'; }
 					updateSite(uid, accessToken, siteAlias, updates)
 						.then(function() {

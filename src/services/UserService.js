@@ -139,7 +139,7 @@ UserService.prototype.retrieveUserSites = function(uid) {
 			'label',
 			'title',
 			'template',
-			'path'
+			'root'
 		];
 		return database.collection(DB_COLLECTION_SITES).find(query, fields);
 	}

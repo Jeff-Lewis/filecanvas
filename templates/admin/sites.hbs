@@ -6,7 +6,7 @@
 		{{#if content.sites}}
 		{{#each content.sites as |site|}}
 		<a class="widget mb0 bg-white" href="{{ ../session.urls.sites }}/{{ site.alias }}/settings">
-			<i class="fa {{#if site.path}}fa-arrow-right{{else}}fa-exclamation-sign{{/if}} mr5"{{#unless site.path}} title="This site is not linked to a Dropbox folder{{/unless}}"></i> {{ site.name }}</a>
+			<i class="fa {{#if site.root}}fa-arrow-right{{else}}fa-exclamation-circle text-danger{{/if}} mr5"{{#unless site.root}} title="This site is not linked to a Dropbox folder{{/unless}}"></i> {{ site.label }}</a>
 		</a>
 		{{/each}}
 		{{else}}

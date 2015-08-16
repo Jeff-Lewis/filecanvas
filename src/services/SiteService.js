@@ -49,20 +49,20 @@ SiteService.prototype.createSite = function(siteModel) {
 				});
 		})
 		.then(function() {
-			if (!siteModel.path) { return; }
+			if (!siteModel.root) { return; }
 			var uid = siteModel.user;
 			return new UserService(database).retrieveUser(uid)
 				.then(function(userModel) {
-					var sitePath = siteModel.path;
+					var siteRoot = siteModel.root;
 					return new SiteTemplateService().generateSiteFiles({
-						pathPrefix: sitePath,
+						pathPrefix: siteRoot,
 						context: {
 							host: host,
 							user: userModel,
 							site: siteModel
 						}
 					}).then(function(siteFiles) {
-						return initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteFiles);
+						return initSiteFolder(uid, appKey, appSecret, accessToken, siteRoot, siteFiles);
 					});
 				});
 		})
@@ -75,10 +75,10 @@ SiteService.prototype.createSite = function(siteModel) {
 		return database.collection(DB_COLLECTION_SITES).insertOne(siteModel);
 	}
 
-	function initSiteFolder(uid, appKey, appSecret, accessToken, sitePath, siteFiles) {
+	function initSiteFolder(uid, appKey, appSecret, accessToken, siteRoot, siteFiles) {
 		return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 			.then(function(dropboxClient) {
-				return checkWhetherFileExists(dropboxClient, sitePath)
+				return checkWhetherFileExists(dropboxClient, siteRoot)
 					.then(function(folderExists) {
 						if (folderExists) { return; }
 						return copySiteFiles(dropboxClient, siteFiles);
@@ -179,13 +179,13 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 		.then(function(siteModel) {
 			if (!includeContents) { return siteModel; }
 
-			var hasSiteFolder = (siteModel.path !== null);
+			var hasSiteFolder = (siteModel.root !== null);
 			if (!hasSiteFolder) { return null; }
 
 			return loadSiteContents(siteModel, appKey, appSecret, accessToken, uid)
 				.then(function(folder) {
 					self.updateSiteCache(uid, siteAlias, folder.cache);
-					var contents = parseFileModel(folder.contents, siteModel.path);
+					var contents = parseFileModel(folder.contents, siteModel.root);
 					siteModel.contents = contents;
 					siteModel.cache = folder.cache;
 					return siteModel;
@@ -201,7 +201,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 			'label',
 			'title',
 			'template',
-			'path',
+			'root',
 			'private'
 		];
 		if (includeUsers) { fields.push('users'); }
@@ -216,7 +216,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 	function loadSiteContents(siteModel, appKey, appSecret, accessToken, uid) {
 		return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 			.then(function(dropboxClient) {
-				return dropboxClient.loadFolderContents(siteModel.path, siteModel.cache);
+				return dropboxClient.loadFolderContents(siteModel.root, siteModel.cache);
 			});
 	}
 
@@ -286,14 +286,14 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteAlias, downlo
 	function retrieveSiteDropboxPath(database, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
-			'path'
+			'root'
 		];
 		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
-				if (!siteModel.path) { throw new HttpError(404); }
-				var sitePath = siteModel.path;
-				return sitePath;
+				if (!siteModel.root) { throw new HttpError(404); }
+				var siteRoot = siteModel.root;
+				return siteRoot;
 			});
 	}
 };
@@ -345,11 +345,11 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 	var requireFullModel = false;
 	return validateSiteModel(updates, requireFullModel)
 		.then(function(updates) {
-			return getSitePath(database, uid, siteAlias)
-				.then(function(existingSitePath) {
-					var sitePathHasChanged = (existingSitePath !== updates.path);
-					if (!sitePathHasChanged) {
-						delete updates.path;
+			return getSiteRoot(database, uid, siteAlias)
+				.then(function(existingSiteRoot) {
+					var siteRootHasChanged = (existingSiteRoot !== updates.root);
+					if (!siteRootHasChanged) {
+						delete updates.root;
 						delete updates.cache;
 					}
 					return updateSite(database, uid, siteAlias, updates);
@@ -357,16 +357,16 @@ SiteService.prototype.updateSite = function(uid, siteAlias, updates) {
 		});
 
 
-	function getSitePath(database, uid, siteAlias) {
+	function getSiteRoot(database, uid, siteAlias) {
 		var query = { 'user': uid, 'alias': siteAlias };
 		var fields = [
-			'path'
+			'root'
 		];
 		return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 			.then(function(siteModel) {
 				if (!siteModel) { throw new HttpError(404); }
-				var sitePath = siteModel.path;
-				return sitePath;
+				var siteRoot = siteModel.root;
+				return siteRoot;
 			});
 	}
 
@@ -509,7 +509,7 @@ function validateSiteModel(siteModel, requireFullModel) {
 		// TODO: Validate name when validating site model
 		// TODO: Validate title when validating site model
 		// TODO: Validate template when validating site model
-		// TODO: Validate path when validating site model
+		// TODO: Validate root when validating site model
 
 		resolve(siteModel);
 	});
