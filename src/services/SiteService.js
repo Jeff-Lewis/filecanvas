@@ -198,7 +198,7 @@ SiteService.prototype.retrieveSite = function(uid, siteAlias, includeContents, i
 		var fields = [
 			'user',
 			'alias',
-			'name',
+			'label',
 			'title',
 			'template',
 			'path',
@@ -500,7 +500,7 @@ function validateSiteModel(siteModel, requireFullModel) {
 		if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
 		if ((requireFullModel || ('user' in siteModel)) && !siteModel.user) { throw new HttpError(400, 'No user specified'); }
 		if ((requireFullModel || ('alias' in siteModel)) && !siteModel.alias) { throw new HttpError(400, 'No site alias specified'); }
-		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site name specified'); }
+		if ((requireFullModel || ('label' in siteModel)) && !siteModel.label) { throw new HttpError(400, 'No site name specified'); }
 		if ((requireFullModel || ('title' in siteModel)) && !siteModel.title) { throw new HttpError(400, 'No site title specified'); }
 		if ((requireFullModel || ('template' in siteModel)) && !siteModel.template) { throw new HttpError(400, 'No site template specified'); }
 

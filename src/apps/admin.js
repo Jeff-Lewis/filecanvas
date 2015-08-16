@@ -441,7 +441,7 @@ module.exports = function(database, options) {
 			function retrieveFaqRoute(req, res, next) {
 				var username = req.user.username;
 				var siteModels = res.locals.sites;
-				var siteAlias = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].alias : 'site-name');
+				var siteAlias = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].alias : 'my-site');
 				var faqs = replaceFaqPlaceholders(faqData, {
 					username: username,
 					sitename: siteAlias
@@ -643,7 +643,7 @@ module.exports = function(database, options) {
 				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var templateData = {
-							title: 'Site settings: ' + siteModel.name,
+							title: 'Site settings: ' + siteModel.label,
 							breadcrumb: [
 								{
 									link: '/sites',
@@ -653,7 +653,7 @@ module.exports = function(database, options) {
 								{
 									link: '/sites/' + siteAlias + '/settings',
 									icon: 'cog',
-									label: siteModel.name
+									label: siteModel.label
 								}
 							],
 							content: {
@@ -684,7 +684,7 @@ module.exports = function(database, options) {
 				siteService.retrieveSite(uid, siteAlias, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var templateData = {
-							title: 'Edit site users: ' + siteModel.name,
+							title: 'Edit site users: ' + siteModel.label,
 							breadcrumb: [
 								{
 									link: '/sites',
@@ -694,7 +694,7 @@ module.exports = function(database, options) {
 								{
 									link: '/sites/' + siteAlias + '/settings',
 									icon: 'cog',
-									label: siteModel.name
+									label: siteModel.label
 								},
 								{
 									link: '/sites/' + siteAlias + '/users',
@@ -721,8 +721,8 @@ module.exports = function(database, options) {
 				var siteModel = {
 					'user': uid,
 					'alias': req.body.alias,
-					'name': req.body.name,
-					'title': req.body.name,
+					'label': req.body.label,
+					'title': req.body.label,
 					'template': req.body.template,
 					'path': req.body.path || null,
 					'private': req.body.private === 'true'
@@ -764,7 +764,7 @@ module.exports = function(database, options) {
 						'user': uid
 					};
 					if (req.body.alias) { updates.alias = req.body.alias; }
-					if (req.body.name) { updates.name = req.body.name; }
+					if (req.body.label) { updates.label = req.body.label; }
 					if (req.body.title) { updates.title = req.body.title; }
 					if (req.body.template) { updates.template = req.body.template; }
 					if (req.body.path) { updates.path = req.body.path || null; }

@@ -14,9 +14,9 @@
 								<label class="col-sm-2 control-label">Name</label>
 								<div class="col-sm-10">
 									<input type="text" class="form-control"
-										name="name"
+										name="label"
 										placeholder="Site name"
-										value="{{ content.site.name }}"
+										value="{{ content.site.label }}"
 										data-bind-id="site-name"
 										data-validate="notEmpty"
 										data-trigger="focus"
@@ -25,11 +25,11 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label">Site ID</label>
+								<label class="col-sm-2 control-label">Site path</label>
 								<div class="col-sm-10">
 									<input type="text" class="form-control"
 										name="alias"
-										placeholder="Site ID"
+										placeholder="Site path"
 										data-bind-id="site-alias"
 										value="{{ content.site.alias }}"
 										data-bind-value="site-name|slug"

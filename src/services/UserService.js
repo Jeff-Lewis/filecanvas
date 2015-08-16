@@ -136,7 +136,7 @@ UserService.prototype.retrieveUserSites = function(uid) {
 		var fields = [
 			'user',
 			'alias',
-			'name',
+			'label',
 			'title',
 			'template',
 			'path'
