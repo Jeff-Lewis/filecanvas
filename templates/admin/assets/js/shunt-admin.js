@@ -34,8 +34,8 @@
 			}
 		};
 
-		initSubmitButtons();
-		initResetButtons();
+		initFormSubmitButtons();
+		initFormResetButtons();
 		initInputParsers(parsers);
 		var bindingSources = initBindingSources();
 		initBindingTargets(bindingSources, bindingFilters);
@@ -47,7 +47,7 @@
 	});
 
 
-	function initSubmitButtons() {
+	function initFormSubmitButtons() {
 		var $formElements = $('form');
 
 		$formElements.on('submit', function(event) {
@@ -57,27 +57,30 @@
 		});
 	}
 
-	function initResetButtons() {
+	function initFormResetButtons() {
 		var $formElements = $('form');
 
 		$formElements.on('reset', function(event) {
 			var $formElement = $(event.currentTarget);
 			var sourceAttributeName = 'data-bind-id';
+			var validatorAttributeName = 'data-validate';
 			var $sourceElements = $formElement.find('[' + sourceAttributeName + ']');
+			var $validatedElements = $formElement.find('[' + validatorAttributeName + ']');
 			setTimeout(function() {
 				$sourceElements.change();
+				$validatedElements.trigger(event);
 			});
 		});
 	}
 
 	function initInputParsers(parsers) {
-		var attributeName = 'data-parser';
-		var $inputElements = $('[' + attributeName + ']');
+		var parserAttributeName = 'data-parser';
+		var $inputElements = $('[' + parserAttributeName + ']');
 
 		$inputElements.each(function(index, inputElement) {
 			var $inputElement = $(inputElement);
 
-			var parserId = $inputElement.attr(attributeName);
+			var parserId = $inputElement.attr(parserAttributeName);
 			if (!(parserId in parsers)) { throw new Error('Invalid parser specified: "' + parserId + '"'); }
 
 			var parser = parsers[parserId];
@@ -100,12 +103,12 @@
 	}
 
 	function initInputValidators(validators) {
-		var attributeName = 'data-validate';
-		var $inputElements = $('[' + attributeName + ']');
+		var validatorAttributeName = 'data-validate';
+		var $inputElements = $('[' + validatorAttributeName + ']');
 
 		$inputElements.each(function(index, inputElement) {
 			var $inputElement = $(inputElement);
-			createValidator($inputElement, attributeName, validators);
+			createValidator($inputElement, validatorAttributeName, validators);
 		});
 
 
@@ -119,12 +122,17 @@
 
 			function addParserListeners($inputElement, validator) {
 				$inputElement.on('input change blur', onInputUpdated);
+				$inputElement.on('reset', onInputReset);
 
 
 				function onInputUpdated(event) {
 					var inputValue = $inputElement.val();
 					var isValid = validator(inputValue);
 					$inputElement.parent().toggleClass('has-error', !isValid);
+				}
+
+				function onInputReset(event) {
+					$inputElement.parent().removeClass('has-error');
 				}
 			}
 		}
