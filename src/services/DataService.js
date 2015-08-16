@@ -115,6 +115,20 @@ Collection.prototype.updateOne = function(filter, updates, options) {
 	});
 };
 
+Collection.prototype.updateMany = function(filter, updates, options) {
+	options = objectAssign(options || {}, { multi: true });
+	var collection = this.collection;
+	return new Promise(function(resolve, reject) {
+		collection.updateMany(filter, updates, options,
+			function(error, results) {
+				if (error) { return reject(error); }
+				var numRecords = results.result.n;
+				return resolve(numRecords);
+			}
+		);
+	});
+};
+
 Collection.prototype.deleteOne = function(filter, options) {
 	options = options || {};
 	var collection = this.collection;
