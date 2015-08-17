@@ -120,10 +120,10 @@ module.exports = function(database, options) {
 			},
 			function(accessToken, refreshToken, profile, callback) {
 				var uid = profile.id;
-				var profileFirstName = profile._json.name_details.given_name;
-				var profileLastName = profile._json.name_details.surname;
-				var profileEmail = profile.emails[0].value;
-				return loginUser(uid, accessToken, profileFirstName, profileLastName, profileEmail)
+				var dropboxFirstName = profile._json.name_details.given_name;
+				var dropboxLastName = profile._json.name_details.surname;
+				var dropboxEmail = profile.emails[0].value;
+				return loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail)
 					.then(function(userModel) {
 						callback(null, userModel);
 					})
@@ -141,10 +141,10 @@ module.exports = function(database, options) {
 			},
 			function(accessToken, refreshToken, profile, callback) {
 				var uid = profile.id;
-				var profileFirstName = profile._json.name_details.given_name;
-				var profileLastName = profile._json.name_details.surname;
-				var profileEmail = profile.emails[0].value;
-				return registerUser(uid, accessToken, profileFirstName, profileLastName, profileEmail)
+				var dropboxFirstName = profile._json.name_details.given_name;
+				var dropboxLastName = profile._json.name_details.surname;
+				var dropboxEmail = profile.emails[0].value;
+				return registerUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail)
 					.then(function(userModel) {
 						callback(null, userModel);
 					})
@@ -155,32 +155,32 @@ module.exports = function(database, options) {
 		));
 
 
-		function loginUser(uid, accessToken, profileFirstName, profileLastName, profileEmail) {
+		function loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail) {
 			return loadUserModel(uid)
 				.catch(function(error) {
 					if (error.status === 404) {
-						throw new HttpError(403, profileEmail + ' is not a registered user');
+						throw new HttpError(403, dropboxEmail + ' is not a registered user');
 					}
 					throw error;
 				})
 				.then(function(userModel) {
 					var hasUpdatedAccessToken = accessToken !== userModel.token;
-					var hasUpdatedProfileFirstName = profileFirstName !== userModel.profileFirstName;
-					var hasUpdatedProfileLastName = profileLastName !== userModel.profileLastName;
-					var hasUpdatedProfileEmail = profileEmail !== userModel.profileEmail;
+					var hasUpdatedProfileFirstName = dropboxFirstName !== userModel.dropboxFirstName;
+					var hasUpdatedProfileLastName = dropboxLastName !== userModel.dropboxLastName;
+					var hasUpdatedProfileEmail = dropboxEmail !== userModel.dropboxEmail;
 					var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
 					if (hasUpdatedUserDetails) {
 						return updateUserDetails(uid, {
 							token: accessToken,
-							profileFirstName: profileFirstName,
-							profileLastName: profileLastName,
-							profileEmail: profileEmail
+							dropboxFirstName: dropboxFirstName,
+							dropboxLastName: dropboxLastName,
+							dropboxEmail: dropboxEmail
 						})
 							.then(function() {
 								userModel.token = accessToken;
-								userModel.profileFirstName = profileFirstName;
-								userModel.profileLastName = profileLastName;
-								userModel.profileEmail = profileEmail;
+								userModel.dropboxFirstName = dropboxFirstName;
+								userModel.dropboxLastName = dropboxLastName;
+								userModel.dropboxEmail = dropboxEmail;
 								return userModel;
 							});
 					} else {
@@ -201,9 +201,9 @@ module.exports = function(database, options) {
 						firstName: firstName,
 						lastName: lastName,
 						email: email,
-						profileFirstName: firstName,
-						profileLastName: lastName,
-						profileEmail: email,
+						dropboxFirstName: firstName,
+						dropboxLastName: lastName,
+						dropboxEmail: email,
 						defaultSite: null
 					};
 					return createUser(userModel);
@@ -735,8 +735,8 @@ module.exports = function(database, options) {
 				if (req.body.published) { updates.published = req.body.published === 'true'; }
 
 				var isDefaultSite = siteName === defaultSiteName;
-				var isUpdatedDefaultSite = (req.body.home ? req.body.home === 'true' : isDefaultSite);
-				var updatedSiteName = 'name' in updates ? updates.name : siteName;
+				var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
+				var updatedSiteName = ('name' in updates ? updates.name : siteName);
 				updateSite(accessToken, uid, siteName, updates)
 					.then(function() {
 						var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));

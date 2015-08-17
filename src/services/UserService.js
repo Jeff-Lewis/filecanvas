@@ -138,8 +138,9 @@ function retrieveUser(database, user) {
 		'firstName',
 		'lastName',
 		'email',
-		'profileName',
-		'profileEmail',
+		'dropboxFirstName',
+		'dropboxLastName',
+		'dropboxEmail',
 		'defaultSite'
 	];
 	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
