@@ -58,6 +58,50 @@
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-2 control-label">Home site</label>
+								<div class="col-sm-10">
+									<div class="checkbox">
+										<label>
+											<input type="hidden"
+												name="home"
+												value="false"
+											/>
+											<input type="checkbox"
+												name="home"
+												value="true"
+												{{#if content.site.home}}checked="checked"{{/if}}
+											/>
+											Use this as my home site
+										</label>
+									</div>
+									<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-success">Save changes</button>
+									<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12 col-lg-10">
+		<div class="panel mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase">Password protection</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row no-margin">
+					<div class="col-lg-12">
+						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+							<input type="hidden" name="_method" value="PUT"/>
+							<div class="form-group">
 								<label class="col-sm-2 control-label">Site access</label>
 								<div class="col-sm-10">
 									<div class="checkbox">
@@ -95,26 +139,6 @@
 								</div>
 							</div>
 							{{/if}}
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Home site</label>
-								<div class="col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="hidden"
-												name="home"
-												value="false"
-											/>
-											<input type="checkbox"
-												name="home"
-												value="true"
-												{{#if content.site.home}}checked="checked"{{/if}}
-											/>
-											Use this as my home site
-										</label>
-									</div>
-									<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
-								</div>
-							</div>
 							<div class="form-group">
 								<div class="col-sm-offset-2 col-sm-10">
 									<button type="submit" class="btn btn-success">Save changes</button>
