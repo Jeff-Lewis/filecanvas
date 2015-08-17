@@ -32,6 +32,14 @@
 						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
 							<input type="hidden" name="_method" value="POST"/>
 							<input type="hidden"
+								name="private"
+								value="{{#if content.site.private}}true{{else}}false{{/if}}"
+							/>
+							<input type="hidden"
+								name="home"
+								value="{{#if content.site.home}}true{{else}}false{{/if}}"
+							/>
+							<input type="hidden"
 								name="template"
 								value="{{ content.site.template.name }}"
 							/>
@@ -84,44 +92,6 @@
 									/>
 									<span class="form-control-feedback fa" aria-hidden="true"></span>
 									<p class="help-block">This tells Shunt where to find the site's files within your Dropbox.<br/>If this folder doesn't already exist, it will be created.</p>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Site access</label>
-								<div class="col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="hidden"
-												name="private"
-												value="false"
-											/>
-											<input type="checkbox"
-												name="private"
-												value="true"
-												{{#if content.site.private}}checked="checked"{{/if}}
-											/> Password protect this site
-										</label>
-									</div>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Home site</label>
-								<div class="col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="hidden"
-												name="home"
-												value="false"
-											/>
-											<input type="checkbox"
-												name="home"
-												value="true"
-												{{#if content.site.home}}checked="checked"{{/if}}
-											/>
-											Use this as my home site
-										</label>
-									</div>
-									<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
 								</div>
 							</div>
 							<div class="form-group">
