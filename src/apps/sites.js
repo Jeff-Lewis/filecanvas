@@ -271,8 +271,7 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var includeContents = false;
-						var includeUsers = false;
-						return retrieveSite(accessToken, uid, siteName, includeContents, includeUsers)
+						return retrieveSite(accessToken, uid, siteName, includeContents)
 							.then(function(siteModel) {
 								var context = {
 									siteRoot: getSiteRootUrl(req, '/login'),
@@ -371,8 +370,7 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var includeContents = true;
-						var includeUsers = false;
-						return retrieveSite(accessToken, uid, siteName, includeContents, includeUsers)
+						return retrieveSite(accessToken, uid, siteName, includeContents)
 							.then(function(siteModel) {
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
@@ -423,14 +421,18 @@ module.exports = function(database, options) {
 			return userService.retrieveUser(username);
 		}
 
-		function retrieveSite(accessToken, uid, siteName, includeContents, includeUsers) {
+		function retrieveSite(accessToken, uid, siteName, includeContents) {
 			var siteService = new SiteService(database, {
 				host: host,
 				appKey: appKey,
 				appSecret: appSecret,
 				accessToken: accessToken
 			});
-			return siteService.retrieveSite(uid, siteName, includeContents, includeUsers);
+			return siteService.retrieveSite(uid, siteName, {
+				published: true,
+				contents: includeContents,
+				users: false
+			});
 		}
 
 		function retrieveSiteAuthenticationDetails(accessToken, uid, siteName) {

@@ -70,12 +70,20 @@ SiteService.prototype.createSite = function(siteModel) {
 		});
 };
 
-SiteService.prototype.retrieveSite = function(uid, siteName, includeContents, includeUsers) {
+SiteService.prototype.retrieveSite = function(uid, siteName, options) {
+	options = options || {};
+	var onlyPublishedSites = Boolean(options.published);
+	var includeContents = Boolean(options.contents);
+	var includeUsers = Boolean(options.users);
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var accessToken = this.accessToken;
-	return retrieveSite(database, uid, siteName, includeContents, includeUsers)
+	return retrieveSite(database, uid, siteName, {
+		published: onlyPublishedSites,
+		contents: includeContents,
+		users: includeUsers
+	})
 		.then(function(siteModel) {
 			if (!includeContents) { return siteModel; }
 			var hasSiteFolder = (siteModel.root !== null);
@@ -251,15 +259,22 @@ function createSite(database, siteModel) {
 	return database.collection(DB_COLLECTION_SITES).insertOne(siteModel);
 }
 
-function retrieveSite(database, uid, siteName, includeContents, includeUsers) {
+function retrieveSite(database, uid, siteName, options) {
+	options = options || {};
+	var onlyPublishedSites = Boolean(options.published);
+	var includeContents = Boolean(options.contents);
+	var includeUsers = Boolean(options.users);
+
 	var query = { 'user': uid, 'name': siteName };
+	if (onlyPublishedSites) { query['published'] = true; }
 	var fields = [
 		'user',
 		'name',
 		'label',
 		'template',
 		'root',
-		'private'
+		'private',
+		'published'
 	];
 	if (includeUsers) { fields.push('users'); }
 	if (includeContents) { fields.push('cache'); }

@@ -203,9 +203,10 @@ function retrieveUserSites(database, uid) {
 		'user',
 		'name',
 		'label',
-		'title',
 		'template',
-		'root'
+		'root',
+		'private',
+		'published'
 	];
 	return database.collection(DB_COLLECTION_SITES).find(query, fields);
 }

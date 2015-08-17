@@ -21,6 +21,8 @@ shunt.users.createIndex({ 'username': 1 }, { 'unique': true });
 
 print(' - Setting \'user, name\' index on \'sites\' collection...');
 shunt.sites.createIndex({ 'user': 1, 'name': 1 }, { 'unique': true });
+print(' - Setting \'user, name, published\' index on \'sites\' collection...');
+shunt.sites.createIndex({ 'user': 1, 'name': 1, 'published': 1 });
 print(' - Setting \'user\' index on \'sites\' collection...');
 shunt.sites.createIndex({ 'user': 1 });
 

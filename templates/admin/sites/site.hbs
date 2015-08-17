@@ -1,8 +1,99 @@
 <div class="row">
 	<div class="col-md-12 col-lg-10">
+		<div class="panel panel-bordered panel-primary mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase"><i class="fa fa-globe mr10"></i>Site control: {{ content.site.label }}</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row no-margin">
+					<div class="col-lg-12">
+						<form class="form-horizontal" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+							<input type="hidden" name="_method" value="PUT"/>
+							<div class="form-group mb0">
+								<label class="col-sm-2 control-label">Site status</label>
+								<div class="col-sm-10">
+									<p class="form-control-static">
+										{{#if content.site.published}}
+										<strong class="text-uppercase text-success"><i class="fa fa-check mr5"></i>Online</strong>
+										{{else}}
+										<strong class="text-uppercase text-danger"><i class="fa fa-exclamation-circle mr5"></i>Offline</strong>
+										{{/if}}
+									</p>
+								</div>
+							</div>
+							<div class="form-group mb0">
+								<label class="col-sm-2 control-label">Dropbox</label>
+								<div class="col-sm-10">
+									<input type="hidden"
+										value="{{ content.site.root }}"
+										data-bind-id="site-control-root"
+									/>
+									<p class="form-control-static"
+										data-bind-dropbox-folder-check="site-control-root"
+									>
+										<strong class="shunt-dropbox-check-loading text-default"><i class="fa fa-refresh fa-spin mr5"></i>Checking…</strong>
+										<strong class="shunt-dropbox-check-valid text-success text-uppercase"><i class="fa fa-check mr5"></i>Linked</strong>
+										<strong class="shunt-dropbox-check-invalid text-danger text-uppercase"><i class="fa fa-exclamation-circle mr5"></i>Invalid</strong>
+									</p>
+								</div>
+							</div>
+							<div class="form-group mb0">
+								<label class="col-sm-2 control-label">Site access</label>
+								<div class="col-sm-10">
+									<p class="form-control-static">
+										{{#if content.site.private}}
+										<strong class="text-uppercase"><i class="fa fa-lock mr5"></i>Password-protected</strong>
+										{{else}}
+										<strong class="text-uppercase"><i class="fa fa-unlock-alt mr5"></i>Not password-protected</strong>
+										{{/if}}
+									</p>
+								</div>
+							</div>
+							{{#if content.site.published}}
+							<div class="form-group mb15">
+								<label class="col-sm-2 control-label">Site address</label>
+								<div class="col-sm-10">
+									<p class="form-control-static">
+										<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">
+											{{ session.urls.webroot }}{{ content.site.name }}
+										</a>
+									</p>
+								</div>
+							</div>
+							{{/if}}
+							<div class="form-group mt15">
+								<div class="col-sm-10 col-sm-offset-2">
+									{{#if content.site.published}}
+									<input type="hidden"
+										name="published"
+										value="false"
+									/>
+									<button type="submit" class="btn btn-danger btn-sm btn-icon mr5">
+										<i class="fa fa-power-off"></i><span>Take site offline</span>
+									</button>
+									{{else}}
+									<input type="hidden"
+										name="published"
+										value="true"
+									/>
+									<button type="submit" class="btn btn-success btn-sm btn-icon mr5">
+										<i class="fa fa-power-off"></i><span>Take site online</span>
+									</button>
+									{{/if}}
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12 col-lg-10">
 		<div class="panel mb25">
 			<div class="panel-heading border">
-				<h4 class="no-margin text-uppercase">Site Settings: {{ content.site.label }}<a class="ml10" href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank" title="Visit this site"><i class="text-info fa fa-external-link-square"></i></a></h4>
+				<h4 class="no-margin text-uppercase">Site Settings</h4>
 			</div>
 			<div class="panel-body">
 				<div class="row no-margin">
@@ -50,7 +141,7 @@
 									<p class="form-control-feedback fa" aria-hidden="true"
 										data-bind-dropbox-folder-check="site-root"
 									>
-										<span class="shunt-dropbox-check-loading text-default"><i class="fa fa-refresh"></i></span>
+										<span class="shunt-dropbox-check-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
 										<span class="shunt-dropbox-check-valid text-success"><i class="fa fa-check"></i></span>
 										<span class="shunt-dropbox-check-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
 									</p>
@@ -192,7 +283,7 @@
 </div>
 <div class="row">
 	<div class="col-md-12 col-lg-10">
-		<div class="panel mb25">
+		<div class="panel panel-danger mb25">
 			<div class="panel-heading border">
 				<h4 class="no-margin text-uppercase">Delete site</h4>
 			</div>

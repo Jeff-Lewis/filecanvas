@@ -598,6 +598,7 @@ module.exports = function(database, options) {
 					label: '',
 					root: '',
 					private: false,
+					published: false,
 					home: false,
 					template: {
 						name: defaultSiteTemplate,
@@ -643,6 +644,7 @@ module.exports = function(database, options) {
 					},
 					'root': req.body.root || null,
 					'private': req.body.private === 'true',
+					'published': req.body.published === 'true',
 					'cache': null
 				};
 
@@ -689,7 +691,7 @@ module.exports = function(database, options) {
 								},
 								{
 									link: '/sites/' + siteName,
-									icon: 'cog',
+									icon: 'globe',
 									label: siteModel.label
 								}
 							],
@@ -730,17 +732,19 @@ module.exports = function(database, options) {
 				}
 				if (req.body.root) { updates.root = req.body.root || null; }
 				if (req.body.private) { updates.private = req.body.private === 'true'; }
+				if (req.body.published) { updates.published = req.body.published === 'true'; }
 
-				var isDefaultSite = (req.body.home === 'true');
-				var updatedSiteName = 'name' in updates ? updates.name : null;
+				var isDefaultSite = siteName === defaultSiteName;
+				var isUpdatedDefaultSite = (req.body.home ? req.body.home === 'true' : isDefaultSite);
+				var updatedSiteName = 'name' in updates ? updates.name : siteName;
 				updateSite(accessToken, uid, siteName, updates)
 					.then(function() {
-						var updatedDefaultSiteName = (isDefaultSite ? (updatedSiteName || siteName) : (defaultSiteName === siteName ? null : defaultSiteName));
+						var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));
 						if (updatedDefaultSiteName === defaultSiteName) { return; }
 						return updateUserDefaultSiteName(uid, updatedDefaultSiteName);
 					})
 					.then(function() {
-						res.redirect(303, '/sites/' + (updatedSiteName || siteName));
+						res.redirect(303, '/sites/' + updatedSiteName);
 					})
 					.catch(function(error) {
 						next(error);
@@ -794,7 +798,7 @@ module.exports = function(database, options) {
 								},
 								{
 									link: '/sites/' + siteName,
-									icon: 'cog',
+									icon: 'globe',
 									label: siteModel.label
 								},
 								{
