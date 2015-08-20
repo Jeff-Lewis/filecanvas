@@ -2,6 +2,7 @@
   "name": "Shunt",
   "version": "0.0.1",
   "description": "Share your files to the web instantly and securely",
+  "license": "Copyright (c) Tim Kendrick Ltd",
   "main": "server.js",
   "scripts": {
     "postinstall": "./install.sh",
