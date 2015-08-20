@@ -1,0 +1,34 @@
+body.home {
+	padding-top: 40px;
+	background-color: #495469;
+}
+h1 {
+	font-size: 70px;
+	font-weight: 500;
+	line-height: 1;
+	text-align: center;
+	color: #e3e5e8;
+}
+h2 {
+	font-size: 20px;
+	font-weight: 300;
+	color: #b2b6be;
+	margin-bottom: 45px;
+}
+form {
+	padding: 0 10px;
+}
+@media (min-width: 768px) {
+	body.home {
+		padding-top: 120px;
+	}
+	h1 {
+		font-size: 8em;
+	}
+	h2 {
+		font-size: 26px;
+	}
+	.signup-field {
+		width: 207px;
+	}
+}

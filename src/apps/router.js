@@ -86,7 +86,9 @@ module.exports = function(database, config) {
 
 		app.set('subdomain offset', host.split('.').length);
 
-		app.use(subdomain('www', wwwApp()));
+		app.use(subdomain('www', wwwApp({
+			sitePath: path.resolve(__dirname, '../../templates/www')
+		})));
 		app.use(subdomain('ping', pingApp()));
 		app.use(subdomain('templates', templatesApp({
 			templatesPath: path.resolve(__dirname, '../../templates/sites/themes')
