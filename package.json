@@ -1,7 +1,7 @@
 {
   "name": "Shunt",
   "version": "0.0.1",
-  "description": "Share your files to the web instantly and securely",
+  "description": "The easiest way to showcase your files",
   "license": "Copyright (c) Tim Kendrick Ltd",
   "main": "server.js",
   "scripts": {
