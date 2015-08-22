@@ -11,7 +11,6 @@ $(document).ready(function(){
 		];
 		var DOCUMENT_PREVIEW_EXTENSIONS = [
 			'html',
-			'pdf',
 			'txt'
 		];
 		$('.post a.project-wrp').click(function(event) {
