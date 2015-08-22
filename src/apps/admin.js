@@ -933,7 +933,10 @@ module.exports = function(database, options) {
 				appSecret: appSecret,
 				accessToken: accessToken
 			});
-			return siteService.retrieveSite(uid, siteName, includeContents, includeUsers);
+			return siteService.retrieveSite(uid, siteName, {
+				contents: includeContents,
+				users: includeUsers
+			});
 		}
 
 		function updateSite(accessToken, uid, siteName, updates) {
