@@ -9,7 +9,6 @@ module.exports = function(options) {
 	var sitePath = options.sitePath;
 
 	var app = express();
-	console.log(sitePath);
 
 	app.use(express.static(sitePath));
 	app.use(errorHandler({
