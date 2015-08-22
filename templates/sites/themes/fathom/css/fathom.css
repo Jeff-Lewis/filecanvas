@@ -2,6 +2,58 @@
 	margin-bottom: 75px;
 }
 
+#fancybox-loading div {
+	border-radius: 4px;
+}
+
+.fancybox-download {
+	display: inline-block;
+	position: relative;
+}
+.fancybox-download::before {
+	content: '';
+	position: absolute;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.3);
+	opacity: 0;
+	cursor: pointer;
+    -webkit-transition: all 0.1s linear;
+    -moz-transition: all 0.1s linear;
+    -ms-transition: all 0.1s linear;
+    -o-transition: all 0.1s linear;
+    transition: all 0.1s linear;
+}
+.fancybox-download:hover::before {
+	opacity: 1;
+}
+.fancybox-download::after {
+	position: absolute;
+	z-index: 2;
+	top: 40%;
+	left: 50%;
+	margin-top: -32px;
+	margin-left: -32px;
+	content: "\f019";
+	display: inline-block;
+    font: normal normal normal 64px/1 FontAwesome;
+    color: white;
+    text-rendering: auto;
+    opacity: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-transition: all 0.1s linear;
+    -moz-transition: all 0.1s linear;
+    -ms-transition: all 0.1s linear;
+    -o-transition: all 0.1s linear;
+    transition: all 0.1s linear;
+}
+.fancybox-download:hover::after {
+	top: 50%;
+	opacity: 1;
+}
+
 .project-wrp .profile-icon {
 	/*color: #8bc53e;*/
 }

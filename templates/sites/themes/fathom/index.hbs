@@ -10,6 +10,7 @@
 	<link rel="shortcut icon" href="{{{ templateRoot }}}favicon.ico"/>
 	<title>{{ template.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
 	<!-- Import CSS -->
 	<link rel="stylesheet" href="{{{ templateRoot }}}css/base.css">
@@ -90,7 +91,7 @@
 						<div class="posts row isotope ">
 							{{#each contents.files}}
 							<div class="post item span4 isotope-item" data-file-modified="{{ timestamp }}">
-								<a href="{{ ../siteRoot }}download{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp">
+								<a href="{{ ../siteRoot }}download{{ url }}" title="{{ label }}" target="_blank" class="project-wrp">
 									<div class="profile-photo" data-extension="{{ extension }}"></div>
 									<div class="project-client">&nbsp;</div>
 									<div class="project-name">{{ label }}</div>
@@ -131,7 +132,7 @@
 						<div class="posts row isotope ">
 							{{#each files}}
 							<div class="post item span4 isotope-item" data-file-modified="{{ timestamp }}">
-								<a href="{{ ../../siteRoot }}download{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp">
+								<a href="{{ ../../siteRoot }}download{{ url }}" title="{{ label }}" target="_blank" class="project-wrp">
 									<div class="profile-photo" data-extension="{{ extension }}"></div>
 									<div class="project-client">&nbsp;</div>
 									<div class="project-name">{{ label }}</div>
