@@ -28,6 +28,7 @@ module.exports = function(database, options) {
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
 	var registerCallbackUrl = options.registerCallbackUrl;
+	var siteTemplates = options.siteTemplates;
 	var defaultSiteTemplate = options.defaultSiteTemplate;
 
 	if (!host) { throw new Error('Missing hostname'); }
@@ -35,6 +36,7 @@ module.exports = function(database, options) {
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
 	if (!registerCallbackUrl) { throw new Error('Missing Dropbox register callback URL'); }
+	if (!siteTemplates) { throw new Error('Missing site templates'); }
 	if (!defaultSiteTemplate) { throw new Error('Missing default site template'); }
 
 	var app = express();
@@ -54,6 +56,7 @@ module.exports = function(database, options) {
 		'/privacy': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/privacy/privacy.html'), { encoding: 'utf8' })
 	});
 	initRoutes(app, passport, database, {
+		siteTemplates: siteTemplates,
 		defaultSiteTemplate: defaultSiteTemplate,
 		faqData: faqData
 	});
@@ -251,11 +254,12 @@ module.exports = function(database, options) {
 
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
+		var siteTemplates = options.siteTemplates;
 		var defaultSiteTemplate = options.defaultSiteTemplate;
 		var faqData = options.faqData;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, defaultSiteTemplate, faqData);
+		initPrivateRoutes(app, passport, siteTemplates, defaultSiteTemplate, faqData);
 		app.use(invalidRoute());
 
 
@@ -411,7 +415,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, defaultSiteTemplate, faqData) {
+		function initPrivateRoutes(app, passport, siteTemplates, defaultSiteTemplate, faqData) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -618,7 +622,8 @@ module.exports = function(database, options) {
 					],
 					content: {
 						sites: res.locals.sites,
-						site: siteModel
+						site: siteModel,
+						templates: siteTemplates
 					}
 				};
 				renderAdminPage(req, res, 'sites', templateData)
@@ -696,7 +701,8 @@ module.exports = function(database, options) {
 								}
 							],
 							content: {
-								site: siteModel
+								site: siteModel,
+								templates: siteTemplates
 							}
 						};
 						return renderAdminPage(req, res, 'sites/site', templateData);

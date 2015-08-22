@@ -254,11 +254,21 @@
 					<div class="col-lg-12">
 						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
 							<input type="hidden" name="_method" value="PUT"/>
-							<input type="hidden" name="template"
-								value="{{ content.site.template.name }}"
-							/>
 							<div class="form-group">
-								<label class="col-sm-2 control-label">Window title</label>
+								<label class="col-sm-2 control-label">Template</label>
+								<div class="col-sm-10">
+									<select class="form-control"
+										name="template"
+										value="{{ content.site.template.name }}"
+									>
+										{{#each content.templates as |template|}}
+										<option value="{{ template.name }}">{{ template.title }}</option>
+										{{/each}}
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Browser title</label>
 								<div class="col-sm-10">
 									<input type="text" class="form-control"
 										name="template.title"

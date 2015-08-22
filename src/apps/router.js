@@ -37,6 +37,7 @@ module.exports = function(database, config) {
 		appSecret: config.dropbox.appSecret,
 		loginCallbackUrl: config.dropbox.loginCallbackUrl,
 		registerCallbackUrl: config.dropbox.registerCallbackUrl,
+		siteTemplates: config.templates.options,
 		defaultSiteTemplate: config.templates.default
 	});
 	initDefaultSubdomain(app, {
@@ -46,7 +47,7 @@ module.exports = function(database, config) {
 		host: host,
 		appKey: config.dropbox.appKey,
 		appSecret: config.dropbox.appSecret,
-		templatesUrl: config.templates.url
+		templatesUrl: config.templates.root
 	});
 	initErrorHandler(app, {
 		template: 'error'
@@ -82,6 +83,7 @@ module.exports = function(database, config) {
 		var appSecret = options.appSecret;
 		var loginCallbackUrl = options.loginCallbackUrl;
 		var registerCallbackUrl = options.registerCallbackUrl;
+		var siteTemplates = options.siteTemplates;
 		var defaultSiteTemplate = options.defaultSiteTemplate;
 
 		app.set('subdomain offset', host.split('.').length);
@@ -99,6 +101,7 @@ module.exports = function(database, config) {
 			appSecret: appSecret,
 			loginCallbackUrl: loginCallbackUrl,
 			registerCallbackUrl: registerCallbackUrl,
+			siteTemplates: siteTemplates,
 			defaultSiteTemplate: defaultSiteTemplate
 		})));
 	}

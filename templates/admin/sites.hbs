@@ -44,10 +44,6 @@
 								value="{{#if content.site.home}}true{{else}}false{{/if}}"
 							/>
 							<input type="hidden"
-								name="template"
-								value="{{ content.site.template.name }}"
-							/>
-							<input type="hidden"
 								name="template.title"
 								value="{{ content.site.template.options.title }}"
 								data-bind-value="site-label"
@@ -96,6 +92,19 @@
 									/>
 									<span class="form-control-feedback fa" aria-hidden="true"></span>
 									<p class="help-block">This tells Shunt where to find the site's files within your Dropbox.<br/>If this folder doesn't already exist, it will be created.</p>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Template</label>
+								<div class="col-sm-10">
+									<select class="form-control"
+										name="template"
+										value="{{ content.site.template.name }}"
+									>
+										{{#each content.templates as |template|}}
+										<option value="{{ template.name }}">{{ template.title }}</option>
+										{{/each}}
+									</select>
 								</div>
 							</div>
 							<div class="form-group">
