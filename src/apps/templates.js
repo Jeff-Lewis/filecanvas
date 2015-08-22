@@ -2,6 +2,7 @@
 
 var path = require('path');
 var express = require('express');
+var cors = require('cors');
 
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
@@ -11,6 +12,8 @@ module.exports = function(options) {
 	var templatesPath = options.templatesPath;
 
 	var app = express();
+
+	app.use(cors());
 
 	var staticMiddleware = express.static(templatesPath);
 	app.use(function(req, res, next) {

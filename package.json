@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "clarify": "^1.0.5",
+    "cors": "^2.7.1",
     "dropbox": "ehfeng/dropbox-js#stable",
     "es6-template-strings": "^1.0.0",
     "escape-regexp": "0.0.1",
