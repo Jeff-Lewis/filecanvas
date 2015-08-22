@@ -664,7 +664,7 @@ module.exports = function(database, options) {
 							});
 					})
 					.then(function(siteModel) {
-						res.redirect(303, '/sites/' + siteModel.name);
+						res.redirect(303, '/sites');
 					})
 					.catch(function(error) {
 						next(error);
