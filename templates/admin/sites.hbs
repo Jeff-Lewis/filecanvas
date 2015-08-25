@@ -12,7 +12,7 @@
 		<div class="mb10">
 			{{#each content.sites as |site|}}
 			<a class="widget mb0 bg-white" href="{{ ../session.urls.sites }}/{{ site.name }}">
-				<i class="fa {{#if (eq site.name ../session.user.defaultSite)}}fa-home{{else}}fa-power-off{{/if}} {{#if site.published}}text-success{{else}}text-danger{{/if}} mr5"></i> {{ site.label }}</a>
+				<i class="fa {{#if (eq site.name ../session.user.defaultSite)}}fa-home{{else}}fa-arrow-right{{/if}} {{#if site.published}}text-success{{else}}text-danger{{/if}} mr5"></i> {{ site.label }}</a>
 			</a>
 			{{/each}}
 		</div>
