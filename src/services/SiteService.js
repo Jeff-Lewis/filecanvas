@@ -359,7 +359,7 @@ function updateSiteCache(database, uid, siteName, cache) {
 }
 
 function checkWhetherSiteisUserDefaultSite(database, uid, siteName) {
-	var query = { 'user': uid, 'defaultSite': siteName };
+	var query = { 'uid': uid, 'defaultSite': siteName };
 	return database.collection(DB_COLLECTION_USERS).count(query)
 		.then(function(numRecords) {
 			var isDefaultSite = (numRecords > 0);
