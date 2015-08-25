@@ -63,13 +63,102 @@ button.bg-white:hover:not(:disabled) {
 	}
 
 	body.login footer.content-footer {
-        padding-left: 20px;
+		padding-left: 20px;
 	}
 
-    body.login .main-panel {
-        margin-left: 0;
-    }
+	body.login .main-panel {
+		margin-left: 0;
+	}
 }
+
+@media screen and (min-width:992px) {
+	.md-no-margin { margin: 0!important }
+	.md-mn { margin-right: -15px; margin-left: -15px }
+	.md-mrn { margin-right: -15px }
+	.md-mln { margin-left: -15px }
+	.md-mtn { margin-top: -15px }
+	.md-mbn { margin-bottom: -15px }
+	.md-ml0 { margin-left: 0 }
+	.md-mr0 { margin-right: 0 }
+	.md-mt0 { margin-top: 0 }
+	.md-mb0 { margin-bottom: 0 }
+	.md-m30 { margin: 30px }
+	.md-mr30 { margin-right: 30px }
+	.md-ml30 { margin-left: 30px }
+	.md-mt30 { margin-top: 30px }
+	.md-mb30 { margin-bottom: 30px }
+	.md-m25 { margin: 25px }
+	.md-mr25 { margin-right: 25px }
+	.md-ml25 { margin-left: 25px }
+	.md-mt25 { margin-top: 25px }
+	.md-mb25 { margin-bottom: 25px }
+	.md-m20 { margin: 20px }
+	.md-mr20 { margin-right: 20px }
+	.md-ml20 { margin-left: 20px }
+	.md-mt20 { margin-top: 20px }
+	.md-mb20 { margin-bottom: 20px }
+	.md-m15 { margin: 15px }
+	.md-mr15 { margin-right: 15px }
+	.md-ml15 { margin-left: 15px }
+	.md-mt15 { margin-top: 15px }
+	.md-mb15 { margin-bottom: 15px }
+	.md-m10 { margin: 10px }
+	.md-mr10 { margin-right: 10px }
+	.md-ml10 { margin-left: 10px }
+	.md-mt10 { margin-top: 10px }
+	.md-mb10 { margin-bottom: 10px }
+	.md-m5 { margin: 5px }
+	.md-mr5 { margin-right: 5px }
+	.md-ml5 { margin-left: 5px }
+	.md-mt5 { margin-top: 5px }
+	.md-mb5 { margin-bottom: 5px }
+	.md-m2 { margin: 2px }
+	.md-mr2 { margin-right: 2px }
+	.md-ml2 { margin-left: 2px }
+	.md-mt2 { margin-top: 2px }
+	.md-mb2 { margin-bottom: 2px }
+	.md-no-padding:not(.main-content) { padding: 0!important }
+	.md-pl0 { padding-left: 0 }
+	.md-pr0 { padding-right: 0 }
+	.md-pt0 { padding-top: 0!important }
+	.md-pb0 { padding-bottom: 0 }
+	.md-p30 { padding: 30px }
+	.md-pr30 { padding-right: 30px }
+	.md-pl30 { padding-left: 30px }
+	.md-pt30 { padding-top: 30px }
+	.md-pb30 { padding-bottom: 30px }
+	.md-p25 { padding: 25px }
+	.md-pr25 { padding-right: 25px }
+	.md-pl25 { padding-left: 25px }
+	.md-pt25 { padding-top: 25px }
+	.md-pb25 { padding-bottom: 25px }
+	.md-p20 { padding: 20px }
+	.md-pr20 { padding-right: 20px }
+	.md-pl20 { padding-left: 20px }
+	.md-pt20 { padding-top: 20px }
+	.md-pb20 { padding-bottom: 20px }
+	.md-p15 { padding: 15px }
+	.md-pr15 { padding-right: 15px }
+	.md-pl15 { padding-left: 15px }
+	.md-pt15 { padding-top: 15px }
+	.md-pb15 { padding-bottom: 15px }
+	.md-p10 { padding: 10px }
+	.md-pr10 { padding-right: 10px }
+	.md-pl10 { padding-left: 10px }
+	.md-pt10 { padding-top: 10px }
+	.md-pb10 { padding-bottom: 10px }
+	.md-p5 { padding: 5px }
+	.md-pr5 { padding-right: 5px }
+	.md-pl5 { padding-left: 5px }
+	.md-pt5 { padding-top: 5px }
+	.md-pb5 { padding-bottom: 5px }
+	.md-p2 { padding: 2px }
+	.md-pr2 { padding-right: 2px }
+	.md-pl2 { padding-left: 2px }
+	.md-pt2 { padding-top: 2px }
+	.md-pb2 { padding-bottom: 2px }
+}
+
 
 .brand-logo {
 	font-weight: bold;
@@ -82,8 +171,8 @@ button.bg-white:hover:not(:disabled) {
 .navbar .brand-logo,
 .navbar .brand-logo a {
 	color: #333;
-    margin-top: 15px;
-    margin-bottom: 14px;
+	margin-top: 15px;
+	margin-bottom: 14px;
 }
 
 .main-panel > .header .navbar-nav .dropdown-menu {
@@ -129,7 +218,7 @@ footer.content-footer {
 }
 
 .alert {
-    overflow: hidden;
+	overflow: hidden;
 }
 
 .alert > .fa {
@@ -154,7 +243,7 @@ footer.content-footer {
 }
 
 .form-control::-webkit-input-placeholder {
-    color: rgba(135, 135, 135, 0.5);
+	color: rgba(135, 135, 135, 0.5);
 }
 
 .form-control-feedback.fa {
@@ -178,28 +267,28 @@ a.panel-heading {
 	display: block;
 	font-size: 20px;
 	-webkit-transform: rotate(0deg);
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    -ms-transform: rotate(0deg);
-    transform: rotate(0deg);
-    -webkit-transition: transform 300ms ease;
-    -moz-transition: transform 300ms ease;
-    -o-transition: transform 300ms ease;
-    transition: transform 300ms ease;
+	-moz-transform: rotate(0deg);
+	-o-transform: rotate(0deg);
+	-ms-transform: rotate(0deg);
+	transform: rotate(0deg);
+	-webkit-transition: transform 300ms ease;
+	-moz-transition: transform 300ms ease;
+	-o-transition: transform 300ms ease;
+	transition: transform 300ms ease;
 }
 .panel-heading.collapsed .panel-arrow {
 	-webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    -o-transform: rotate(180deg);
-    -ms-transform: rotate(180deg);
-    transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	transform: rotate(180deg);
 }
 
 .site-users .panel-heading {
 	font-weight: normal;
 }
 .site-users .panel.panel-white:hover {
-    background-color: #e6e6e6;
+	background-color: #e6e6e6;
 }
 .site-users .panel.panel-white:hover .panel-body {
 	background-color: white;
@@ -239,3 +328,11 @@ a.panel-heading {
 .-shunt-dropbox-check-loading .shunt-dropbox-check-loading { display: inline; }
 .-shunt-dropbox-check-valid .shunt-dropbox-check-valid { display: inline; }
 .-shunt-dropbox-check-invalid .shunt-dropbox-check-invalid { display: inline; }
+
+.widget-icon.shunt-dropbox-check-loading { display: none; }
+.widget-icon.shunt-dropbox-check-valid { display: none; }
+.widget-icon.shunt-dropbox-check-invalid { display: none; }
+
+.-shunt-dropbox-check-loading .widget-icon.shunt-dropbox-check-loading { display: block; }
+.-shunt-dropbox-check-valid .widget-icon.shunt-dropbox-check-valid { display: block; }
+.-shunt-dropbox-check-invalid .widget-icon.shunt-dropbox-check-invalid { display: block; }
