@@ -324,15 +324,19 @@ a.panel-heading {
 .shunt-dropbox-check-loading { display: none; }
 .shunt-dropbox-check-valid { display: none; }
 .shunt-dropbox-check-invalid { display: none; }
+.shunt-dropbox-check-error { display: none; }
 
 .-shunt-dropbox-check-loading .shunt-dropbox-check-loading { display: inline; }
 .-shunt-dropbox-check-valid .shunt-dropbox-check-valid { display: inline; }
 .-shunt-dropbox-check-invalid .shunt-dropbox-check-invalid { display: inline; }
+.-shunt-dropbox-check-error .shunt-dropbox-check-error { display: inline; }
 
 .widget-icon.shunt-dropbox-check-loading { display: none; }
 .widget-icon.shunt-dropbox-check-valid { display: none; }
 .widget-icon.shunt-dropbox-check-invalid { display: none; }
+.widget-icon.shunt-dropbox-check-error { display: none; }
 
 .-shunt-dropbox-check-loading .widget-icon.shunt-dropbox-check-loading { display: block; }
 .-shunt-dropbox-check-valid .widget-icon.shunt-dropbox-check-valid { display: block; }
 .-shunt-dropbox-check-invalid .widget-icon.shunt-dropbox-check-invalid { display: block; }
+.-shunt-dropbox-check-error .widget-icon.shunt-dropbox-check-error { display: block; }

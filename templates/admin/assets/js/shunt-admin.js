@@ -406,22 +406,30 @@
 				var currentState = null;
 				var currentRequest = null;
 				var classPrefix = '-shunt-dropbox-check-';
+				var retriesAttributeName = 'data-dropbox-folder-check-retries';
+				var retriesAttributeValue = $targetElement.attr(retriesAttributeName);
+				var numRetries = (retriesAttributeValue ? parseInt(retriesAttributeValue) : 0);
 
 				bindingSource.bind(function(value) {
 					value = bindingFilter(value);
-					updateBindingTarget($targetElement, value);
+					updateBindingTarget($targetElement, value, numRetries);
 				});
 
 
-				function updateBindingTarget($targetElement, path) {
+				function updateBindingTarget($targetElement, path, numRetries) {
 					setCurrentState($targetElement, 'loading');
-					var request = delay(500)
+					var debounceDuration = 500;
+					var request = delay(debounceDuration)
 						.then(function() {
 							if (currentRequest !== request) { return; }
 							return shunt.validateDropboxFolder(path);
 						})
 						.done(function(isValid) {
 							if (currentRequest !== request) { return; }
+							if (!isValid && (numRetries > 0)) {
+								updateBindingTarget($targetElement, path, numRetries - 1);
+								return;
+							}
 							setCurrentState($targetElement, isValid ? 'valid' : 'invalid');
 						})
 						.fail(function(error) {
