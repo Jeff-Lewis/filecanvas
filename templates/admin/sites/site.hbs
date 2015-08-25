@@ -68,9 +68,15 @@
 						</div>
 					</div>
 				</div>
+				{{#if content.site.published}}
+				<p class="text-center mt15 mb15">
+					This site can be accessed at
+					<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
+				</p>
+				{{/if}}
 				<div class="row no-margin md-pl20 md-pr20">
 					<div class="col-md-4 col-md-offset-4">
-						<button type="submit" class="btn btn-{{#if content.site.published}}danger{{else}}success{{/if}} btn-icon mt20 mb5 md-ml25">
+						<button type="submit" class="btn btn-{{#if content.site.published}}danger{{else}}success{{/if}} btn-icon {{#unless content.site.published}} mt20 {{/unless}}mb5 md-ml25">
 							<i class="fa fa-power-off"></i><span>Take site {{#if content.site.published}}offline{{else}}online{{/if}}</span>
 						</button>
 					</div>
