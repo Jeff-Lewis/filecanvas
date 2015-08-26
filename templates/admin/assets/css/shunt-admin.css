@@ -284,6 +284,13 @@ a.panel-heading {
 	transform: rotate(180deg);
 }
 
+.widget[data-toggle="collapse"][aria-expanded="true"] {
+	display: none;
+}
+.widget[data-toggle="collapse"][aria-expanded="false"] + .widget {
+	display: none;
+}
+
 .site-users .panel-heading {
 	font-weight: normal;
 }
