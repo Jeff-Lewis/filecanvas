@@ -2,6 +2,10 @@
 
 By accessing this web site, you are agreeing to be bound by these web site Terms and Conditions of Use, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. The materials contained in this web site are protected by applicable copyright and trade mark law.
 
+## Beta disclaimer
+
+This is a beta version of the Shunt.io web site, and as such is still undergoing extensive testing and refinement before its official release. All content and services are subject to change without notice. No warranties, express or implied, are made as to the nature or licensing of the final product.
+
 ## Use License
 
 Permission is granted to temporarily download one copy of the materials (information or software) on Shunt.io for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
