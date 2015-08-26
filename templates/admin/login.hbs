@@ -1,5 +1,6 @@
 <form class="login-form center-block mb25" method="GET" action="{{ session.urls.loginAuth }}">
-	<h4 class="widget text-center mb5">Welcome to <strong>Shunt.</strong></h4>
+	<h1 class="text-center mb0 pl0 pr0 pb0" style="color: #e3e5e8;">Welcome to <strong>Shunt.</strong></h1>
+	<h4 class="text-center mt5 mb25">The easiest way to showcase your files</h4>
 	<button type="submit" class="btn btn-reset widget bg-white mb5">
 		<i class="widget-icon bg-success pull-left fa fa-sign-in"></i>
 		<h4>Sign in using Dropbox</h4>
@@ -14,12 +15,12 @@
 	</div>
 	<div class="collapse" id="create-account">
 		<div class="panel-body bg-white">
-			<div class="col-lg-12 text-center">
+			<div class="text-center">
 				<p class="mt5 mb20">
 					<label>
 						<input type="checkbox"
 							data-bind-id="confirm-terms"
-						/><span class="ml10">I agree to Shunt's <a href="{{ session.urls.terms }}" target="_blank">terms and conditions</a></span>
+						/><span class="ml10">I agree to the Shunt <a href="{{ session.urls.terms }}" target="_blank">terms and conditions</a></span>
 					</label>
 				</p>
 				<button type="submit" class="btn btn-primary mb10" formaction="{{ session.urls.registerAuth }}" disabled="disabled" data-bind-value="confirm-terms">Create account</button>
