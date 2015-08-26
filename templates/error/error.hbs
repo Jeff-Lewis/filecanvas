@@ -28,6 +28,11 @@
 			<a class="btn btn-primary" href="/">
 				<i class="glyphicon glyphicon-home"></i> &nbsp; <span>Home</span>
 			</a>
+			{{#if (gte error.status 500)}}
+			<a class="btn btn-primary btn-envelope" href="mailto:info@shunt.io?subject=Bug%20report&body=Looks%20like%20something's%20gone%20wrong.%0A%0AWe'd%20really%20appreciate%20it%20if%20you%20could%20help%20us%20out%20with%20a%20couple%20of%20details%20to%20help%20us%20fix%20the%20problem%20as%20quickly%20as%20possible.%0A%0ACan%20you%20remember%20which%20page%20you%20were%20last%20on%3F%0A%0A%5Btype%20here%5D%0A%0A...and%20do%20you%20know%20what%20you%20clicked%20immediately%20before%20you%20saw%20the%20error%20page%3F%0A%0A%5Btype%20here%5D%0A%0ASorry%20for%20the%20inconvenience%2C%20we'll%20try%20to%20fix%20this%20straight%20away!%0A%0AThanks%2C%0A%0AShunt">
+				<i class="glyphicon glyphicon-envelope"></i> &nbsp; <span>Feedback</span>
+			</a>
+			{{/if}}
 		</div>
 	</div>
 </body>
