@@ -21,6 +21,14 @@
 			</div>
 			{{#if (and debug (and (gte error.status 400) (lt err.status 500)))}}<pre>{{ error.stack }}</pre>{{/if}}
 		</div>
+		<div class="text-center">
+			<a class="btn btn-primary" href="javascript:history.go(-1);">
+				<i class="glyphicon glyphicon-chevron-left"></i> &nbsp; <span>Back</span>
+			</a>
+			<a class="btn btn-primary" href="/">
+				<i class="glyphicon glyphicon-home"></i> &nbsp; <span>Home</span>
+			</a>
+		</div>
 	</div>
 </body>
 </html>
