@@ -18,6 +18,29 @@
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 	<link rel="stylesheet" href="{{{ templateRoot }}}css/base.css">
+	<style type="text/css">
+		[data-section-header] {
+			display: none;
+		}
+		[data-section-header="Definition"] {
+			display: block;
+		}
+		[data-section-header="Definition"]::before {
+			content: "Smart thinking is what we do best. But smart thinking is diminished in potency without clear and accurate communication. We need to explain what our solution looks like and how it behaves for customers, and we need to do this quickly, in ways that mean you and your stakeholders can understand what we're proposing fully and unambiguously. This is the purpose of Definition. During Definition, our focus is on the creation of bespoke solutions and the timely, efficient communication of that solution to stakeholders.";
+		}
+		[data-section-header="Discovery"] {
+			display: block;
+		}
+		[data-section-header="Discovery"]::before {
+			content: "During Discovery, our focus is on analysis of issues, synthesis of insights and modelling of the people at the heart of the matter, the users.";
+		}
+		[data-section-header="Origination"] {
+			display: block;
+		}
+		[data-section-header="Origination"]::before {
+			content: "Origination is the most obviously creative phase of our methodology and, as you'd expect, the hardest part to describe. Experience of interface aesthetics, usability best practice and software interactivity plays a huge part in this inherently creative process. During Origination, our focus is on synthesis of ideas and creation of solutions.";
+		}
+	</style>
 </head>
 
 <body>
@@ -104,7 +127,7 @@
 					<div class="span12">
 						<div class="title">{{ folder.label }}</div>
 						<hr/>
-						<div class="lead-small section-content" data-section-header="{{ folder.alias }}"></div>
+						<div class="lead-small section-content" data-section-header="{{ folder.label }}"></div>
 
 						{{#if folder.folders}}
 						<ul class="option-set" data-option-key="filter">
@@ -174,28 +197,6 @@
 	</div>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-
-	<script>
-		$(document).ready(function() {
-			var sectionContent = {
-				"definition": "Smart thinking is what we do best. But smart thinking is diminished in potency without clear and accurate communication. We need to explain what our solution looks like and how it behaves for customers, and we need to do this quickly, in ways that mean you and your stakeholders can understand what we're proposing fully and unambiguously. This is the purpose of Definition. During Definition, our focus is on the creation of bespoke solutions and the timely, efficient communication of that solution to stakeholders.",
-				"discovery": "During Discovery, our focus is on analysis of issues, synthesis of insights and modelling of the people at the heart of the matter, the users.",
-				"origination": "Origination is the most obviously creative phase of our methodology and, as you'd expect, the hardest part to describe. Experience of interface aesthetics, usability best practice and software interactivity plays a huge part in this inherently creative process. During Origination, our focus is on synthesis of ideas and creation of solutions.",
-				"other-documents": null
-			};
-
-			var $sections = $('[data-section-header]');
-			if ($sections) {
-				$sections.each(function(index, element) {
-					var $sectionHeader = $(element);
-					var sectionAlias = $sectionHeader.attr('data-section-header');
-					var sectionName = sectionAlias.replace(/^[0-9]+-/, '');
-					var sectionText = sectionContent[sectionName];
-					if (sectionText) { $sectionHeader.html(sectionText); } else { $sectionHeader.remove(); }
-				});
-			}
-		});
-	</script>
 
 	<script src="{{{ templateRoot }}}js/main.js"></script>
 	<script src="{{{ templateRoot }}}js/jquery.easing.min.js"></script>
