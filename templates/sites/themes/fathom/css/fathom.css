@@ -9,6 +9,7 @@
 .fancybox-download {
 	display: inline-block;
 	position: relative;
+	border-bottom: none;
 }
 .fancybox-download::before {
 	content: '';
