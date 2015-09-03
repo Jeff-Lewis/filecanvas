@@ -649,6 +649,7 @@ module.exports = function(database, options) {
 					},
 					'root': req.body.root || null,
 					'private': req.body.private === 'true',
+					'users': [],
 					'published': req.body.published === 'true',
 					'cache': null
 				};
