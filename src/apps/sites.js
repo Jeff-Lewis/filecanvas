@@ -125,16 +125,17 @@ module.exports = function(database, options) {
 
 								var validUsers = authenticationDetails.users;
 								var authenticationService = new AuthenticationService();
-								var siteUserModel = authenticationService.authenticate(siteUsername, sitePassword, validUsers);
+								return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
+									.then(function(siteUserModel) {
+										if (!siteUserModel) { return callback(null, false); }
 
-								if (!siteUserModel) { return callback(null, false); }
-
-								var passportUser = {
-									user: username,
-									site: siteName,
-									model: siteUserModel
-								};
-								return callback(null, passportUser);
+										var passportUser = {
+											user: username,
+											site: siteName,
+											model: siteUserModel
+										};
+										return callback(null, passportUser);
+									});
 							});
 					})
 					.catch(function(error) {

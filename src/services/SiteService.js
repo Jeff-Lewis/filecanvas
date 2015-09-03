@@ -406,27 +406,31 @@ function checkWhetherSiteUserAlreadyExists(database, uid, siteName, username) {
 
 function createSiteUser(database, uid, siteName, authDetails) {
 	var authenticationService = new AuthenticationService();
-	var siteUserModel = authenticationService.create(authDetails.username, authDetails.password);
-	var filter = { 'user': uid, 'name': siteName };
-	var updates = { $push: { 'users': siteUserModel } };
-	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
-		.then(function(numRecords) {
-			if (numRecords === 0) {
-				throw new HttpError(404);
-			}
-			return siteUserModel;
+	return authenticationService.create(authDetails.username, authDetails.password)
+		.then(function(siteUserModel) {
+			var filter = { 'user': uid, 'name': siteName };
+			var updates = { $push: { 'users': siteUserModel } };
+			return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
+				.then(function(numRecords) {
+					if (numRecords === 0) {
+						throw new HttpError(404);
+					}
+					return siteUserModel;
+				});
 		});
 }
 
 function updateSiteUser(database, uid, siteName, username, authDetails) {
 	var authenticationService = new AuthenticationService();
-	var siteUserModel = authenticationService.create(authDetails.username, authDetails.password);
-	var filter = { 'user': uid, 'name': siteName, 'users.username': username };
-	var updates = { $set: { 'users.$': siteUserModel } };
-	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
-		.then(function(error, numRecords) {
-			if (numRecords === 0) { throw new HttpError(404); }
-			return;
+	return authenticationService.create(authDetails.username, authDetails.password)
+		.then(function(siteUserModel) {
+			var filter = { 'user': uid, 'name': siteName, 'users.username': username };
+			var updates = { $set: { 'users.$': siteUserModel } };
+			return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
+				.then(function(error, numRecords) {
+					if (numRecords === 0) { throw new HttpError(404); }
+					return;
+				});
 		});
 }
 

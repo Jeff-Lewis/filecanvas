@@ -23,6 +23,7 @@
     "url": "https://github.com/timkendrick/shunt/issues"
   },
   "dependencies": {
+    "bcrypt": "^0.8.5",
     "clarify": "^1.0.5",
     "cors": "^2.7.1",
     "dropbox": "ehfeng/dropbox-js#stable",
