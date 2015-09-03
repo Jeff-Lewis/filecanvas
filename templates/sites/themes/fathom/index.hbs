@@ -11,23 +11,17 @@
 	<title>{{ template.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-
-	<!-- Import CSS -->
-	<link rel="stylesheet" href="{{{ templateRoot }}}css/base.css">
 	<!--[if lt IE 10]>
 		<link href= "css/ie.css" rel= "stylesheet" media= "all" />
 	<![endif]-->
-
 	<!--[if lt IE 9]>
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
-
+	<link rel="stylesheet" href="{{{ templateRoot }}}css/base.css">
 </head>
 
 <body>
 
-
-	<!-- Start Homepage -->
 	<header id="home">
 		<div class="header-bg"></div>
 		<div class="pattern"></div>
@@ -36,19 +30,17 @@
 				<div class="span4">
 					<a href="http://www.fathomlondon.com/" class="logo"><img src="{{{ templateRoot }}}img/FathomLogoSmall.png" alt=""></a>
 				</div>
-				<!-- Navigation -->
 				<nav id="topnav" class="span8">
 					<ul id="fixed-nav" class="visible-desktop">
 						<li><a class="scroll-link" href="#home">Home</a></li>
-						{{#each contents.folders}}
-						{{#if contents}}
-						<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
+						{{#each contents.folders as |folder|}}
+						{{#if folder.contents}}
+						<li><a class="scroll-link" href="#{{ folder.alias }}">{{ folder.label }}</a></li>
 						{{/if}}
 						{{/each}}
 						{{#if site.private}}<li><a href="{{ siteRoot }}logout">Log out</a></li>{{/if}}
 					</ul>
 				</nav>
-				<!-- End Navigation -->
 			</div>
 			<div class="row">
 				<div class="span12">
@@ -61,7 +53,6 @@
 
 	<div class="wrapper">
 
-		<!-- Start Sticky Navigation -->
 		<nav id="mainnav">
 			<div class="container">
 				<div class="row">
@@ -71,9 +62,9 @@
 					<div class="span8">
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
 							<li><a class="scroll-link" href="#home">Home</a></li>
-							{{#each contents.folders}}
-							{{#if contents}}
-							<li><a class="scroll-link" href="#{{ alias }}">{{ label }}</a></li>
+							{{#each contents.folders as |folder|}}
+							{{#if folder.contents}}
+							<li><a class="scroll-link" href="#{{ folder.alias }}">{{ folder.label }}</a></li>
 							{{/if}}
 							{{/each}}
 						</ul>
@@ -81,22 +72,21 @@
 				</div>
 			</div>
 		</nav>
-		<!-- End Sticky Navigation -->
 
 		{{#if contents.files}}
-		<section id="{{ alias }}" class="page">
+		<section class="page">
 			<div class="container">
 				<div class="row">
 					<div class="span12">
 						<div class="posts row isotope ">
-							{{#each contents.files}}
-							<div class="post item span4 isotope-item" data-file-modified="{{ timestamp }}">
-								<a href="{{ ../siteRoot }}download{{ url }}" title="{{ label }}" target="_blank" class="project-wrp">
-									<div class="profile-photo" data-extension="{{ extension }}"></div>
+							{{#each contents.files as |file|}}
+							<div class="post item span4 isotope-item" data-file-modified="{{ file.timestamp }}">
+								<a href="{{ ../siteRoot }}download{{ file.url }}" title="{{ file.label }}" target="_blank" class="project-wrp">
+									<div class="profile-photo" data-extension="{{ file.extension }}"></div>
 									<div class="project-client">&nbsp;</div>
-									<div class="project-name">{{ label }}</div>
+									<div class="project-name">{{ file.label }}</div>
 									<hr class="mini">
-									<div class="project-date">{{ date }} – {{ size }}</div>
+									<div class="project-date">{{ file.date }} – {{ file.size }}</div>
 								</a>
 							</div>
 							{{/each}}
@@ -107,88 +97,75 @@
 		</section>
 		{{/if}}
 
-		{{#each contents.folders}}
-		<section id="{{ alias }}" class="page">
+		{{#each contents.folders as |folder|}}
+		<section id="{{ folder.alias }}" class="page">
 			<div class="container">
 				<div class="row">
 					<div class="span12">
-						<div class="title">{{ label }}</div>
-						<hr>
-						<div class="lead-small section-content" data-section-header="{{ alias }}"></div>
+						<div class="title">{{ folder.label }}</div>
+						<hr/>
+						<div class="lead-small section-content" data-section-header="{{ folder.alias }}"></div>
 
-						{{#if folders}}
-						<!-- Start Filters -->
+						{{#if folder.folders}}
 						<ul class="option-set" data-option-key="filter">
 							<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
-							{{#each folders}}
-							{{#if contents}}
-							<li><a href="#filter" data-option-value=".filter-{{ alias }}"><span></span>{{ label }}</a></li>
+							{{#each folder.folders as |subfolder|}}
+							{{#if subfolder.contents}}
+							<li><a href="#filter" data-option-value=".filter-{{ subfolder.alias }}"><span></span>{{ subfolder.label }}</a></li>
 							{{/if}}
 							{{/each}}
 						</ul>
-						<!-- End Filters -->
 						{{/if}}
 
 						<div class="posts row isotope ">
-							{{#each files}}
-							<div class="post item span4 isotope-item" data-file-modified="{{ timestamp }}">
-								<a href="{{ ../../siteRoot }}download{{ url }}" title="{{ label }}" target="_blank" class="project-wrp">
-									<div class="profile-photo" data-extension="{{ extension }}"></div>
+							{{#each folder.files as |file|}}
+							<div class="post item span4 isotope-item" data-file-modified="{{ file.timestamp }}">
+								<a href="{{ ../../siteRoot }}download{{ file.url }}" title="{{ file.label }}" target="_blank" class="project-wrp">
+									<div class="profile-photo" data-extension="{{ file.extension }}"></div>
 									<div class="project-client">&nbsp;</div>
-									<div class="project-name">{{ label }}</div>
+									<div class="project-name">{{ file.label }}</div>
 									<hr class="mini">
-									<div class="project-date">{{ date }} – {{ size }}</div>
+									<div class="project-date">{{ file.date }} – {{ file.size }}</div>
 								</a>
 							</div>
 							{{/each}}
-							{{#each folders}}
-							{{#each files}}
-							<div class="post item span4 isotope-item filter-{{ ../alias }}" data-file-modified="{{ timestamp }}">
-								<a href="{{ ../../../siteRoot }}download{{ url }}" download="{{ label }}.{{ extension }}" title="{{ label }}" target="_blank" class="project-wrp">
-									<div class="profile-photo" data-extension="{{ extension }}"></div>
+							{{#each folder.folders as |subfolder|}}
+							{{#each subfolder.files as |file|}}
+							<div class="post item span4 isotope-item filter-{{ subfolder.alias }}" data-file-modified="{{ file.timestamp }}">
+								<a href="{{ ../../../siteRoot }}download{{ file.url }}" download="{{ file.label }}.{{ file.extension }}" title="{{ file.label }}" target="_blank" class="project-wrp">
+									<div class="profile-photo" data-extension="{{ file.extension }}"></div>
 									<div class="project-client">&nbsp;</div>
-									<div class="project-name">{{ label }}</div>
+									<div class="project-name">{{ file.label }}</div>
 									<hr class="mini">
-									<div class="project-date">{{ date }} – {{ size }}</div>
+									<div class="project-date">{{ file.date }} – {{ file.size }}</div>
 								</a>
 							</div>
 							{{/each}}
 							{{/each}}
 						</div>
-					</div><!-- End of span 12 -->
-				</div><!-- End of row -->
-			</div><!-- End of container -->
+					</div>
+				</div>
+			</div>
 		</section>
 		{{/each}}
 
 
-		<!-- Start Sidebar -->
 		<section id="sidebar">
 			<div class="container">
 				<div class="row">
 					<div class="span4">
 						<h5>Contact Us</h5>
 						<p><strong>E-mail:</strong> <a href="mailto:hello@fathomlondon.com" class="white-text">hello@fathomlondon.com</a><br />
-						<!-- <strong>Phone:</strong> <span class="white-text">+44 (0)203 544 4896</span><br /> -->
 						<strong>Location:</strong> <span class="white-text">80 Coleman Street, London, EC3M 7AT</span></p>
 					</div>
-
-
-					<div class="span4">
-
-					</div>
-
-
+					<div class="span4"></div>
 					<div class="span4">
 						<h5>Your Extranet</h5>
 						<p>Providing private access to the latest resources from Fathom London.</p>
 					</div>
-
-
 				</div>
 			</div>
 		</section>
-		<!-- End Sidebar -->
 
 		<section id="copyright">
 			&copy; 2014 Fathom london Ltd.
@@ -197,6 +174,7 @@
 	</div>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+
 	<script>
 		$(document).ready(function() {
 			var sectionContent = {
@@ -217,23 +195,23 @@
 				});
 			}
 		});
-
 	</script>
-	<script src="{{{ templateRoot }}}js/main.js"></script> <!-- Fathom Code -->
+
+	<script src="{{{ templateRoot }}}js/main.js"></script>
 	<script src="{{{ templateRoot }}}js/jquery.easing.min.js"></script>
-	<script src="{{{ templateRoot }}}js/jquery.sticky.js"></script><!-- Sticky Navigation -->
-	<script src="{{{ templateRoot }}}js/jquery.scrollTo.js"></script><!-- Smooth Scrolling -->
-	<script src="{{{ templateRoot }}}js/jquery.nav.js"></script><!-- One Page Navigation -->
-	<script src="{{{ templateRoot }}}js/selectnav.min.js"></script><!-- Mobile Navigation -->
-	<script src="{{{ templateRoot }}}js/jquery.flexslider.js"></script><!-- FlexSlider 2 -->
-	<script src="{{{ templateRoot }}}js/jquery.parallax-1.1.3.js"></script><!-- Parallax -->
-	<script src="{{{ templateRoot }}}js/jquery.isotope.min.js"></script><!-- Isotope Portfolio -->
-	<script src="{{{ templateRoot }}}js/mql.js"></script><!-- Isotope Fix -->
-	<script src="{{{ templateRoot }}}js/shortcodes.js"></script> <!-- Shortcodes -->
-	<script src="{{{ templateRoot }}}js/jquery.fancybox.pack.js"></script><!-- Fancybox -->
-	<script src="{{{ templateRoot }}}js/jquery.fancybox-media.js"></script><!-- Fancybox Media Helper -->
-	<script src="{{{ templateRoot }}}js/jflickrfeed.js"></script><!-- Flickr Feed -->
-	<script src="{{{ templateRoot }}}js/settings.js"></script> <!-- JS Options -->
+	<script src="{{{ templateRoot }}}js/jquery.sticky.js"></script>
+	<script src="{{{ templateRoot }}}js/jquery.scrollTo.js"></script>
+	<script src="{{{ templateRoot }}}js/jquery.nav.js"></script>
+	<script src="{{{ templateRoot }}}js/selectnav.min.js"></script>
+	<script src="{{{ templateRoot }}}js/jquery.flexslider.js"></script>
+	<script src="{{{ templateRoot }}}js/jquery.parallax-1.1.3.js"></script>
+	<script src="{{{ templateRoot }}}js/jquery.isotope.min.js"></script>
+	<script src="{{{ templateRoot }}}js/mql.js"></script>
+	<script src="{{{ templateRoot }}}js/shortcodes.js"></script>
+	<script src="{{{ templateRoot }}}js/jquery.fancybox.pack.js"></script>
+	<script src="{{{ templateRoot }}}js/jquery.fancybox-media.js"></script>
+	<script src="{{{ templateRoot }}}js/jflickrfeed.js"></script>
+	<script src="{{{ templateRoot }}}js/settings.js"></script>
 
 </body>
 
