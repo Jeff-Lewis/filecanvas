@@ -61,6 +61,7 @@
 
 .profile-photo {
 	padding-bottom: 63%;
+	background-color: #2d2d2d;
 	background-image: url('filetypes/_.jpg');
 	background-size: cover;
 }
@@ -105,4 +106,41 @@
 .profile-photo[data-extension="wmv"],
 .profile-photo[data-extension="flv"] {
 	background-image: url('filetypes/video.jpg');
+}
+
+.profile-photo.has-thumbnail {
+	background-image: none;
+}
+
+.project-wrp:hover img {
+	opacity: 1;
+	-ms-filter:;
+	filter:;
+}
+
+.project-wrp .profile-photo .profile-thumbnail {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	bottom: 10px;
+	right: 10px;
+}
+
+.project-wrp .profile-photo .profile-thumbnail img {
+	position: absolute;
+    width: auto;
+    height: auto;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    max-height: 100%;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+	-webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 }

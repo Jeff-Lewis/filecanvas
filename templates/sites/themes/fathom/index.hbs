@@ -103,8 +103,14 @@
 						<div class="posts row isotope ">
 							{{#each contents.files as |file|}}
 							<div class="post item span4 isotope-item" data-file-modified="{{ file.timestamp }}">
-								<a href="{{ downloadUrl file }}" title="{{ file.label }}" target="_blank" class="project-wrp">
-									<div class="profile-photo" data-extension="{{ file.extension }}"></div>
+								<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
+									<div class="profile-photo{{#if (hasThumbnail file)}} has-thumbnail{{/if}}" data-extension="{{ file.extension }}">
+										{{#if (hasThumbnail file)}}
+										<div class="profile-thumbnail">
+											<img src="{{ thumbnailUrl file }}"/>
+										</div>
+										{{/if}}
+									</div>
 									<div class="project-client">&nbsp;</div>
 									<div class="project-name">{{ file.label }}</div>
 									<hr class="mini">
@@ -142,8 +148,14 @@
 						<div class="posts row isotope ">
 							{{#each folder.files as |file|}}
 							<div class="post item span4 isotope-item" data-file-modified="{{ file.timestamp }}">
-								<a href="{{ downloadUrl file }}" title="{{ file.label }}" target="_blank" class="project-wrp">
-									<div class="profile-photo" data-extension="{{ file.extension }}"></div>
+								<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
+									<div class="profile-photo{{#if (hasThumbnail file)}} has-thumbnail{{/if}}" data-extension="{{ file.extension }}">
+										{{#if (hasThumbnail file)}}
+										<div class="profile-thumbnail">
+											<img src="{{ thumbnailUrl file }}"/>
+										</div>
+										{{/if}}
+									</div>
 									<div class="project-client">&nbsp;</div>
 									<div class="project-name">{{ file.label }}</div>
 									<hr class="mini">
@@ -154,8 +166,14 @@
 							{{#each folder.folders as |subfolder|}}
 							{{#each subfolder.files as |file|}}
 							<div class="post item span4 isotope-item filter-{{ subfolder.alias }}" data-file-modified="{{ file.timestamp }}">
-								<a href="{{ downloadUrl file }}" download="{{ file.label }}.{{ file.extension }}" title="{{ file.label }}" target="_blank" class="project-wrp">
-									<div class="profile-photo" data-extension="{{ file.extension }}"></div>
+								<a href="{{ downloadUrl file }}" download="{{ file.label }}.{{ file.extension }}" target="_blank" class="project-wrp">
+									<div class="profile-photo{{#if (hasThumbnail file)}} has-thumbnail{{/if}}" data-extension="{{ file.extension }}">
+										{{#if (hasThumbnail file)}}
+										<div class="profile-thumbnail">
+											<img src="{{ thumbnailUrl file }}"/>
+										</div>
+										{{/if}}
+									</div>
 									<div class="project-client">&nbsp;</div>
 									<div class="project-name">{{ file.label }}</div>
 									<hr class="mini">
