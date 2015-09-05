@@ -4,12 +4,14 @@ var fs = require('fs');
 var Handlebars = require('handlebars');
 
 var templateCache = {};
+var compilerConfig = {};
 
 module.exports = function(filePath, options, callback) {
-	var context = options;
-	loadTemplate(filePath, context)
+	loadTemplate(filePath)
 		.then(function(templateFunction) {
+			var context = options;
 			var templateOptions = options._ || {};
+			compilerConfig.context = context;
 			var output = templateFunction(context, templateOptions);
 			callback(null, output);
 		})
@@ -18,13 +20,13 @@ module.exports = function(filePath, options, callback) {
 		});
 };
 
-function loadTemplate(templatePath, context) {
+function loadTemplate(templatePath) {
 	var hasCachedTemplate = getHasCachedTemplate(templatePath, templateCache);
 	if (hasCachedTemplate) {
 		var cachedTemplate = retrieveCachedTemplate(templatePath, templateCache);
 		return Promise.resolve(cachedTemplate);
 	} else {
-		return loadTemplate(templatePath, context)
+		return loadTemplate(templatePath)
 			.then(function(templateFunction) {
 				cacheTemplate(templateFunction, templatePath, templateCache);
 				return templateFunction;
@@ -32,9 +34,9 @@ function loadTemplate(templatePath, context) {
 	}
 
 
-	function loadTemplate(templatePath, callback) {
+	function loadTemplate(templatePath) {
 		return new Promise(function(resolve, reject) {
-			var compiler = createHandlebarsCompiler();
+			var compiler = createHandlebarsCompiler(compilerConfig);
 			fs.readFile(templatePath, { encoding: 'utf-8' }, function(error, templateSource) {
 				if (error) { return reject(error); }
 				var templateFunction = compiler.compile(templateSource);
@@ -56,16 +58,17 @@ function loadTemplate(templatePath, context) {
 	}
 }
 
-function createHandlebarsCompiler() {
+function createHandlebarsCompiler(config) {
 	var compiler = Handlebars.create();
-	registerHelpers(compiler);
+	registerHelpers(compiler, config);
 	return compiler;
 
 
-	function registerHelpers(compiler) {
+	function registerHelpers(compiler, config) {
 		registerBooleanHelpers(compiler);
 		registerArrayHelpers(compiler);
 		registerStringHelpers(compiler);
+		registerSiteHelpers(compiler, config);
 
 
 		function registerBooleanHelpers(compiler) {
@@ -114,6 +117,21 @@ function createHandlebarsCompiler() {
 			});
 			compiler.registerHelper('startsWith', function(haystack, needle, options) {
 				return haystack.indexOf(needle) === 0;
+			});
+		}
+
+		function registerSiteHelpers(compiler, config) {
+			compiler.registerHelper('loginUrl', function() {
+				return config.context.siteRoot + 'login';
+			});
+			compiler.registerHelper('logoutUrl', function() {
+				return config.context.siteRoot + 'logout';
+			});
+			compiler.registerHelper('assetUrl', function(filePath) {
+				return config.context.templateRoot + filePath;
+			});
+			compiler.registerHelper('downloadUrl', function(file) {
+				return config.context.siteRoot + 'download' + file.url;
 			});
 		}
 	}
