@@ -182,140 +182,109 @@ module.exports = function(database, options) {
 		}
 
 		function initPublicRoutes(app, templatesUrl) {
-			app.get('/:user', defaultUserSiteRoute);
-			app.get('/:user/login', defaultUserSiteLoginRoute);
-			app.post('/:user/login', defaultUserSiteLoginRoute);
-			app.get('/:user/logout', defaultUserSiteLogoutRoute);
-			app.get('/:user/download/*', defaultUserSiteDownloadRoute);
-
-			app.get('/:user/:site/login', redirectIfLoggedIn, loginRoute);
-			app.post('/:user/:site/login', processLoginRoute);
-			app.get('/:user/:site/logout', processLogoutRoute);
+			initDefaultSiteRoutes(app);
+			initAuthRoutes(app, templatesUrl);
 
 
-			function defaultUserSiteRoute(req, res, next) {
-				var username = req.params.user;
-				retrieveUserDefaultSiteName(username)
-					.then(function(siteName) {
-						if (!siteName) {
-							throw new HttpError(403);
-						}
-						req.url += '/' + siteName;
-						next();
-					})
-					.catch(function(error) {
-						next(error);
-					});
-			}
+			function initDefaultSiteRoutes() {
+				app.get('/:user', createDefaultSiteRoute());
+				app.get('/:user/login', createDefaultSiteRoute('/login'));
+				app.post('/:user/login', createDefaultSiteRoute('/login'));
+				app.get('/:user/logout', createDefaultSiteRoute('/logout'));
+				app.get('/:user/download/*', createDefaultSiteRoute('/download/*'));
 
-			function defaultUserSiteLoginRoute(req, res, next) {
-				var username = req.params.user;
-				retrieveUserDefaultSiteName(username)
-					.then(function(siteName) {
-						if (!siteName) {
-							throw new HttpError(404);
-						}
-						req.url = '/' + username + '/' + siteName + '/login';
-						next();
-					})
-					.catch(function(error) {
-						next(error);
-					});
-			}
 
-			function defaultUserSiteLogoutRoute(req, res, next) {
-				var username = req.params.user;
-				retrieveUserDefaultSiteName(username)
-					.then(function(siteName) {
-						if (!siteName) {
-							throw new HttpError(404);
-						}
-						req.url = '/' + username + '/' + siteName + '/logout';
-						next();
-					})
-					.catch(function(error) {
-						next(error);
-					});
-			}
-
-			function defaultUserSiteDownloadRoute(req, res, next) {
-				var username = req.params.user;
-				var downloadPath = req.params[0];
-				retrieveUserDefaultSiteName(username)
-					.then(function(siteName) {
-						if (!siteName) {
-							throw new HttpError(404);
-						}
-						req.url = '/' + username + '/' + siteName + '/download/' + downloadPath;
-						next();
-					})
-					.catch(function(error) {
-						next(error);
-					});
-			}
-
-			function redirectIfLoggedIn(req, res, next) {
-				if (req.isAuthenticated()) {
-					var requestPath = req.originalUrl.split('?')[0];
-					var redirectParam = req.param('redirect');
-					var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
-					return res.redirect(redirectUrl);
-				}
-				next();
-			}
-
-			function loginRoute(req, res, next) {
-				var username = req.params.user;
-				var siteName = req.params.site;
-				retrieveUser(username)
-					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
-						var includeContents = false;
-						return retrieveSite(accessToken, uid, siteName, includeContents)
-							.then(function(siteModel) {
-								var context = {
-									siteRoot: getSiteRootUrl(req, '/login'),
-									templateRoot: templatesUrl + siteModel.template.name + '/',
-									template: siteModel.template.options,
-									site: {
-										private: siteModel.private
-									}
-								};
-								var templatePath = 'themes/' + siteModel.template.name + '/login';
-								res.render(templatePath, context);
+				function createDefaultSiteRoute(pathSuffix) {
+					pathSuffix = pathSuffix || '';
+					return function(req, res, next) {
+						var username = req.params.user;
+						retrieveUserDefaultSiteName(username)
+							.then(function(siteName) {
+								if (!siteName) {
+									throw new HttpError(404);
+								}
+								var wildcardPath = req.params[0];
+								var WILDCARD_REGEXP = /\/\*$/;
+								var fullPath = pathSuffix.replace(WILDCARD_REGEXP, '/' + wildcardPath);
+								req.url = '/' + username + '/' + siteName + fullPath;
+								next();
+							})
+							.catch(function(error) {
+								next(error);
 							});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+					};
+				}
 			}
 
-			function processLoginRoute(req, res, next) {
-				passport.authenticate('site/local', function(error, user, info) {
-					if (error) { return next(error); }
-					var loginWasSuccessful = Boolean(user);
-					var requestPath = req.originalUrl.split('?')[0];
-					if (loginWasSuccessful) {
-						req.logIn(user, function(error) {
-							if (error) { return next(error); }
-							var redirectParam = req.param('redirect');
-							var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
-							res.redirect(redirectUrl);
-						});
-					} else {
-						var siteLoginUrl = requestPath;
-						res.redirect(siteLoginUrl);
+			function initAuthRoutes(app, templatesUrl) {
+				app.get('/:user/:site/login', redirectIfLoggedIn, loginRoute);
+				app.post('/:user/:site/login', processLoginRoute);
+				app.get('/:user/:site/logout', processLogoutRoute);
+
+
+				function redirectIfLoggedIn(req, res, next) {
+					if (req.isAuthenticated()) {
+						var requestPath = req.originalUrl.split('?')[0];
+						var redirectParam = req.param('redirect');
+						var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
+						return res.redirect(redirectUrl);
 					}
-				})(req, res, next);
-			}
+					next();
+				}
 
-			function processLogoutRoute(req, res, next) {
-				req.logout();
-				req.session.destroy();
-				var requestPath = req.originalUrl.split('?')[0];
-				var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
-				res.redirect(redirectUrl);
+				function loginRoute(req, res, next) {
+					var username = req.params.user;
+					var siteName = req.params.site;
+					retrieveUser(username)
+						.then(function(userModel) {
+							var uid = userModel.uid;
+							var accessToken = userModel.token;
+							var includeContents = false;
+							return retrieveSite(accessToken, uid, siteName, includeContents)
+								.then(function(siteModel) {
+									var context = {
+										siteRoot: getSiteRootUrl(req, '/login'),
+										templateRoot: templatesUrl + siteModel.template.name + '/',
+										template: siteModel.template.options,
+										site: {
+											private: siteModel.private
+										}
+									};
+									var templatePath = 'themes/' + siteModel.template.name + '/login';
+									res.render(templatePath, context);
+								});
+						})
+						.catch(function(error) {
+							next(error);
+						});
+				}
+
+				function processLoginRoute(req, res, next) {
+					passport.authenticate('site/local', function(error, user, info) {
+						if (error) { return next(error); }
+						var loginWasSuccessful = Boolean(user);
+						var requestPath = req.originalUrl.split('?')[0];
+						if (loginWasSuccessful) {
+							req.logIn(user, function(error) {
+								if (error) { return next(error); }
+								var redirectParam = req.param('redirect');
+								var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
+								res.redirect(redirectUrl);
+							});
+						} else {
+							var siteLoginUrl = requestPath;
+							res.redirect(siteLoginUrl);
+						}
+					})(req, res, next);
+				}
+
+				function processLogoutRoute(req, res, next) {
+					req.logout();
+					req.session.destroy();
+					var requestPath = req.originalUrl.split('?')[0];
+					var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
+					res.redirect(redirectUrl);
+				}
 			}
 		}
 
