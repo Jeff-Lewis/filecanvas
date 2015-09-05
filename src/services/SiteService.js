@@ -196,7 +196,7 @@ SiteService.prototype.updateSiteCache = function(uid, siteName, cache) {
 	return updateSiteCache(database, uid, siteName, cache);
 };
 
-SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteName, downloadPath) {
+SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteName, filePath) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
@@ -205,8 +205,23 @@ SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteName, downloa
 		.then(function(folderPath) {
 			return new DropboxService().connect(appKey, appSecret, accessToken)
 				.then(function(dropboxClient) {
-					var dropboxFilePath = folderPath + '/' + downloadPath;
+					var dropboxFilePath = folderPath + '/' + filePath;
 					return dropboxClient.generateDownloadLink(dropboxFilePath);
+				});
+		});
+};
+
+SiteService.prototype.retrieveSiteThumbnailLink = function(uid, siteName, filePath) {
+	var database = this.database;
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
+	var accessToken = this.accessToken;
+	return retrieveSiteDropboxPath(database, uid, siteName)
+		.then(function(folderPath) {
+			return new DropboxService().connect(appKey, appSecret, accessToken)
+				.then(function(dropboxClient) {
+					var dropboxFilePath = folderPath + '/' + filePath;
+					return dropboxClient.generateThumbnailLink(dropboxFilePath);
 				});
 		});
 };

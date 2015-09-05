@@ -192,6 +192,7 @@ module.exports = function(database, options) {
 				app.post('/:user/login', createDefaultSiteRoute('/login'));
 				app.get('/:user/logout', createDefaultSiteRoute('/logout'));
 				app.get('/:user/download/*', createDefaultSiteRoute('/download/*'));
+				app.get('/:user/thumbnail/*', createDefaultSiteRoute('/thumbnail/*'));
 
 
 				function createDefaultSiteRoute(pathSuffix) {
@@ -291,6 +292,7 @@ module.exports = function(database, options) {
 		function initPrivateRoutes(app, templatesUrl) {
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
+			app.get('/:user/:site/thumbnail/*', ensureAuth, thumbnailRoute);
 
 
 			function ensureAuth(req, res, next) {
@@ -364,15 +366,34 @@ module.exports = function(database, options) {
 			function downloadRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
-				var downloadPath = req.params[0];
+				var filePath = req.params[0];
 
 				retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
-						return retrieveSiteDownloadLink(accessToken, uid, siteName, downloadPath)
+						return retrieveSiteDownloadLink(accessToken, uid, siteName, filePath)
 							.then(function(downloadUrl) {
 								res.redirect(downloadUrl);
+							});
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function thumbnailRoute(req, res, next) {
+				var username = req.params.user;
+				var siteName = req.params.site;
+				var filePath = req.params[0];
+
+				retrieveUser(username)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var accessToken = userModel.token;
+						return retrieveSiteThumbnailLink(accessToken, uid, siteName, filePath)
+							.then(function(thumbnailUrl) {
+								res.redirect(thumbnailUrl);
 							});
 					})
 					.catch(function(error) {
@@ -415,14 +436,24 @@ module.exports = function(database, options) {
 			return siteService.retrieveSiteAuthenticationDetails(uid, siteName);
 		}
 
-		function retrieveSiteDownloadLink(accessToken, uid, siteName, downloadPath) {
+		function retrieveSiteDownloadLink(accessToken, uid, siteName, filePath) {
 			var siteService = new SiteService(database, {
 				host: host,
 				appKey: appKey,
 				appSecret: appSecret,
 				accessToken: accessToken
 			});
-			return siteService.retrieveSiteDownloadLink(uid, siteName, downloadPath);
+			return siteService.retrieveSiteDownloadLink(uid, siteName, filePath);
+		}
+
+		function retrieveSiteThumbnailLink(accessToken, uid, siteName, filePath) {
+			var siteService = new SiteService(database, {
+				host: host,
+				appKey: appKey,
+				appSecret: appSecret,
+				accessToken: accessToken
+			});
+			return siteService.retrieveSiteThumbnailLink(uid, siteName, filePath);
 		}
 	}
 };

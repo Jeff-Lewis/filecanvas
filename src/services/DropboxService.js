@@ -258,6 +258,12 @@ DropboxClient.prototype.generateDownloadLink = function(filePath) {
 	});
 };
 
+DropboxClient.prototype.generateThumbnailLink = function(filePath) {
+	var self = this;
+	var thumbnailUrl = self.client.thumbnailUrl(filePath, { format: 'jpeg', size: 'l' });
+	return Promise.resolve(thumbnailUrl);
+};
+
 DropboxClient.prototype.getErrorType = function(error) {
 	switch (error.status) {
 	case DropboxClient.ApiError.INVALID_TOKEN:
