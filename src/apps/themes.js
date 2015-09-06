@@ -16,7 +16,7 @@ module.exports = function(options) {
 
 	var staticMiddleware = express.static(themesPath);
 	app.use(function(req, res, next) {
-		var THEME_RESOURCE_URL_REGEXP = /^\/(.*?)\/(.*)$/;
+		var THEME_RESOURCE_URL_REGEXP = /^\/(.+?)\/(.+)$/;
 		var results = THEME_RESOURCE_URL_REGEXP.exec(req.url);
 		if (!results) { return next(); }
 		var themeName = results[1];
