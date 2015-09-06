@@ -55,7 +55,7 @@ module.exports = function(database, options) {
 			var serializedUser = JSON.stringify({
 				user: passportUser.user,
 				site: passportUser.site,
-				siteUsername: passportUser.model.username
+				siteUsername: (passportUser.model ? passportUser.model.username : null)
 			});
 			return callback(null, serializedUser);
 		});
@@ -79,6 +79,15 @@ module.exports = function(database, options) {
 					});
 					return siteService.retrieveSiteAuthenticationDetails(uid, siteName)
 						.then(function(authenticationDetails) {
+							var isPrivate = authenticationDetails.private;
+							if (!isPrivate) {
+								var anonymousUser = {
+									user: username,
+									site: siteName,
+									model: null
+								};
+								return callback(null, anonymousUser);
+							}
 							var validUsers = authenticationDetails.users;
 							var matchedUsers = validUsers.filter(function(validUser) {
 								return validUser.username === siteUsername;
@@ -121,7 +130,14 @@ module.exports = function(database, options) {
 						return siteService.retrieveSiteAuthenticationDetails(uid, siteName)
 							.then(function(authenticationDetails) {
 								var isPrivate = authenticationDetails.private;
-								if (!isPrivate) { return callback(null, true); }
+								if (!isPrivate) {
+									var passportUser = {
+										user: username,
+										site: siteName,
+										model: null
+									};
+									return callback(null, passportUser);
+								}
 
 								var validUsers = authenticationDetails.users;
 								var authenticationService = new AuthenticationService();
