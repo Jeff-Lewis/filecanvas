@@ -240,13 +240,30 @@ module.exports = function(database, options) {
 
 
 				function redirectIfLoggedIn(req, res, next) {
+					var username = req.params.user;
+					var siteName = req.params.site;
 					if (req.isAuthenticated()) {
+						return redirectToSitePage(req, res);
+					}
+					retrieveUser(username)
+						.then(function(userModel) {
+							var uid = userModel.uid;
+							var accessToken = userModel.token;
+							return retrieveSiteAuthenticationDetails(accessToken, uid, siteName)
+								.then(function(authenticationDetails) {
+									var isPrivate = authenticationDetails.private;
+									if (!isPrivate) { return redirectToSitePage(req, res); }
+									next();
+								});
+						});
+
+
+					function redirectToSitePage(req, res) {
 						var requestPath = req.originalUrl.split('?')[0];
 						var redirectParam = req.param('redirect');
 						var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
 						return res.redirect(redirectUrl);
 					}
-					next();
 				}
 
 				function loginRoute(req, res, next) {
