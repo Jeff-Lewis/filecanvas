@@ -183,146 +183,106 @@ module.exports = function(database, options) {
 		options = options || {};
 		var themesUrl = options.themesUrl;
 
-		initPublicRoutes(app, themesUrl);
-		initPrivateRoutes(app, themesUrl);
+		initDefaultSiteRedirectRoutes(app);
+		initAuthRoutes(app, passport);
+		initSiteRoutes(app, themesUrl);
 		app.use(invalidRoute());
 
 
-		function getSiteRootUrl(req, currentPath) {
-			var requestPath = req.originalUrl.split('?')[0];
-			if (currentPath) {
-				requestPath = requestPath.replace(new RegExp(currentPath + '$'), '');
-			}
-			var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
-			return siteRoot;
-		}
-
-		function initPublicRoutes(app, themesUrl) {
-			initDefaultSiteRoutes(app);
-			initAuthRoutes(app, themesUrl);
+		function initDefaultSiteRedirectRoutes(app) {
+			app.get('/:user', createDefaultSiteRedirectRoute());
+			app.get('/:user/login', createDefaultSiteRedirectRoute('/login'));
+			app.post('/:user/login', createDefaultSiteRedirectRoute('/login'));
+			app.get('/:user/logout', createDefaultSiteRedirectRoute('/logout'));
+			app.get('/:user/download/*', createDefaultSiteRedirectRoute('/download/*'));
+			app.get('/:user/thumbnail/*', createDefaultSiteRedirectRoute('/thumbnail/*'));
 
 
-			function initDefaultSiteRoutes() {
-				app.get('/:user', createDefaultSiteRoute());
-				app.get('/:user/login', createDefaultSiteRoute('/login'));
-				app.post('/:user/login', createDefaultSiteRoute('/login'));
-				app.get('/:user/logout', createDefaultSiteRoute('/logout'));
-				app.get('/:user/download/*', createDefaultSiteRoute('/download/*'));
-				app.get('/:user/thumbnail/*', createDefaultSiteRoute('/thumbnail/*'));
-
-
-				function createDefaultSiteRoute(pathSuffix) {
-					pathSuffix = pathSuffix || '';
-					return function(req, res, next) {
-						var username = req.params.user;
-						retrieveUserDefaultSiteName(username)
-							.then(function(siteName) {
-								if (!siteName) {
-									throw new HttpError(404);
-								}
-								var wildcardPath = req.params[0];
-								var WILDCARD_REGEXP = /\/\*$/;
-								var fullPath = pathSuffix.replace(WILDCARD_REGEXP, '/' + wildcardPath);
-								req.url = '/' + username + '/' + siteName + fullPath;
-								next();
-							})
-							.catch(function(error) {
-								next(error);
-							});
-					};
-				}
-			}
-
-			function initAuthRoutes(app, themesUrl) {
-				app.get('/:user/:site/login', redirectIfLoggedIn, loginRoute);
-				app.post('/:user/:site/login', processLoginRoute);
-				app.get('/:user/:site/logout', processLogoutRoute);
-
-
-				function redirectIfLoggedIn(req, res, next) {
+			function createDefaultSiteRedirectRoute(pathSuffix) {
+				pathSuffix = pathSuffix || '';
+				return function(req, res, next) {
 					var username = req.params.user;
-					var siteName = req.params.site;
-					if (req.isAuthenticated()) {
-						return redirectToSitePage(req, res);
-					}
-					retrieveUser(username)
-						.then(function(userModel) {
-							var uid = userModel.uid;
-							var accessToken = userModel.token;
-							return retrieveSiteAuthenticationDetails(accessToken, uid, siteName)
-								.then(function(authenticationDetails) {
-									var isPrivate = authenticationDetails.private;
-									if (!isPrivate) { return redirectToSitePage(req, res); }
-									next();
-								});
-						});
-
-
-					function redirectToSitePage(req, res) {
-						var requestPath = req.originalUrl.split('?')[0];
-						var redirectParam = req.param('redirect');
-						var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
-						return res.redirect(redirectUrl);
-					}
-				}
-
-				function loginRoute(req, res, next) {
-					var username = req.params.user;
-					var siteName = req.params.site;
-					retrieveUser(username)
-						.then(function(userModel) {
-							var uid = userModel.uid;
-							var accessToken = userModel.token;
-							var includeContents = false;
-							return retrieveSite(accessToken, uid, siteName, includeContents)
-								.then(function(siteModel) {
-									var context = {
-										siteRoot: getSiteRootUrl(req, '/login'),
-										themeRoot: themesUrl + siteModel.theme.name + '/',
-										theme: siteModel.theme.options,
-										site: {
-											private: siteModel.private
-										}
-									};
-									var templateName = siteModel.theme.name + '/login';
-									res.render(templateName, context);
-								});
+					retrieveUserDefaultSiteName(username)
+						.then(function(siteName) {
+							if (!siteName) {
+								throw new HttpError(404);
+							}
+							var wildcardPath = req.params[0];
+							var WILDCARD_REGEXP = /\/\*$/;
+							var fullPath = pathSuffix.replace(WILDCARD_REGEXP, '/' + wildcardPath);
+							req.url = '/' + username + '/' + siteName + fullPath;
+							next();
 						})
 						.catch(function(error) {
 							next(error);
 						});
-				}
-
-				function processLoginRoute(req, res, next) {
-					passport.authenticate('site/local', function(error, user, info) {
-						if (error) { return next(error); }
-						var loginWasSuccessful = Boolean(user);
-						var requestPath = req.originalUrl.split('?')[0];
-						if (loginWasSuccessful) {
-							req.logIn(user, function(error) {
-								if (error) { return next(error); }
-								var redirectParam = req.param('redirect');
-								var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
-								res.redirect(redirectUrl);
-							});
-						} else {
-							var siteLoginUrl = requestPath;
-							res.redirect(siteLoginUrl);
-						}
-					})(req, res, next);
-				}
-
-				function processLogoutRoute(req, res, next) {
-					req.logout();
-					req.session.destroy();
-					var requestPath = req.originalUrl.split('?')[0];
-					var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
-					res.redirect(redirectUrl);
-				}
+				};
 			}
 		}
 
-		function initPrivateRoutes(app, themesUrl) {
+		function initAuthRoutes(app, passport) {
+			app.get('/:user/:site/login', redirectIfLoggedIn);
+			app.post('/:user/:site/login', processLoginRoute);
+			app.get('/:user/:site/logout', processLogoutRoute);
+
+
+			function redirectIfLoggedIn(req, res, next) {
+				var username = req.params.user;
+				var siteName = req.params.site;
+				if (req.isAuthenticated()) {
+					return redirectToSitePage(req, res);
+				}
+				retrieveUser(username)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var accessToken = userModel.token;
+						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName)
+							.then(function(authenticationDetails) {
+								var isPrivate = authenticationDetails.private;
+								if (!isPrivate) { return redirectToSitePage(req, res); }
+								next();
+							});
+					});
+
+
+				function redirectToSitePage(req, res) {
+					var requestPath = req.originalUrl.split('?')[0];
+					var redirectParam = req.param('redirect');
+					var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
+					return res.redirect(redirectUrl);
+				}
+			}
+
+			function processLoginRoute(req, res, next) {
+				passport.authenticate('site/local', function(error, user, info) {
+					if (error) { return next(error); }
+					var loginWasSuccessful = Boolean(user);
+					var requestPath = req.originalUrl.split('?')[0];
+					if (loginWasSuccessful) {
+						req.logIn(user, function(error) {
+							if (error) { return next(error); }
+							var redirectParam = req.param('redirect');
+							var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
+							res.redirect(redirectUrl);
+						});
+					} else {
+						var siteLoginUrl = requestPath;
+						res.redirect(siteLoginUrl);
+					}
+				})(req, res, next);
+			}
+
+			function processLogoutRoute(req, res, next) {
+				req.logout();
+				req.session.destroy();
+				var requestPath = req.originalUrl.split('?')[0];
+				var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
+				res.redirect(redirectUrl);
+			}
+		}
+
+		function initSiteRoutes(app, themesUrl) {
+			app.get('/:user/:site/login', loginRoute);
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
 			app.get('/:user/:site/thumbnail/*', ensureAuth, thumbnailRoute);
@@ -360,6 +320,42 @@ module.exports = function(database, options) {
 									siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
 								}
 								res.redirect(siteLoginUrl);
+							});
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function getSiteRootUrl(req, currentPath) {
+				var requestPath = req.originalUrl.split('?')[0];
+				if (currentPath) {
+					requestPath = requestPath.replace(new RegExp(currentPath + '$'), '');
+				}
+				var siteRoot = (requestPath === '/' ? requestPath : requestPath + '/');
+				return siteRoot;
+			}
+
+			function loginRoute(req, res, next) {
+				var username = req.params.user;
+				var siteName = req.params.site;
+				retrieveUser(username)
+					.then(function(userModel) {
+						var uid = userModel.uid;
+						var accessToken = userModel.token;
+						var includeContents = false;
+						return retrieveSite(accessToken, uid, siteName, includeContents)
+							.then(function(siteModel) {
+								var context = {
+									siteRoot: getSiteRootUrl(req, '/login'),
+									themeRoot: themesUrl + siteModel.theme.name + '/',
+									theme: siteModel.theme.options,
+									site: {
+										private: siteModel.private
+									}
+								};
+								var templateName = siteModel.theme.name + '/login';
+								res.render(templateName, context);
 							});
 					})
 					.catch(function(error) {
