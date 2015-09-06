@@ -8,7 +8,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<link rel="shortcut icon" href="{{ resourceUrl 'favicon.ico' }}"/>
-	<title>{{ template.title }}</title>
+	<title>{{ theme.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<!--[if lt IE 10]>
@@ -18,7 +18,7 @@
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
-	<style type="text/css">{{ template.styles }}</style>
+	<style type="text/css">{{ theme.styles }}</style>
 	<style type="text/css">
 		[data-section-header] {
 			display: none;
@@ -54,15 +54,10 @@
 				<div class="span4">
 					<a href="http://www.fathomlondon.com/" class="logo"><img src="{{ resourceUrl 'img/FathomLogoSmall.png' }}" alt=""></a>
 				</div>
-				<nav id="topnav" class="span8">
-					<ul id="fixed-nav" class="visible-desktop">
-						{{#each contents.folders as |folder|}}
-						{{#if folder.contents}}
-						<li><a class="scroll-link" href="#{{ folder.alias }}">{{ folder.label }}</a></li>
-						{{/if}}
-						{{/each}}
-						{{#if site.private}}<li><a href="{{ logoutUrl }}">Log out</a></li>{{/if}}
-					</ul>
+				<nav>
+					{{#if site.private}}
+					<a class="logout" href="{{ logoutUrl }}">Log out</a></li>
+					{{/if}}
 				</nav>
 			</div>
 			<div class="row">
@@ -209,7 +204,7 @@
 		</section>
 
 		<section id="copyright">
-			&copy; 2014 Fathom london Ltd.
+			Powered by <a href="https://www.shunt.io/">Shunt.io</a> – The easiest way to showcase your files
 		</section>
 
 	</div>

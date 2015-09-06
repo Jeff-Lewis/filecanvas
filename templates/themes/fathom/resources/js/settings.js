@@ -86,7 +86,7 @@ $(document).ready(function(){
     };
 
 	var testMobile = isMobile.any();
-	
+
 	if (testMobile == null)
 	{
 		$('.bg1').parallax("50%", 0.3);
@@ -137,27 +137,27 @@ function isoInstance($group){
 		},
 		sortBy : 'timeSinceModified'
 	});
-	
+
 	// Find filters
 	var $optionSets = $group.parent().find('.option-set');
 	var	$optionLinks = $optionSets.find('a');
-	
+
 	$optionLinks.click(function(){
 		$this = $(this);
 		// don't proceed if already selected
 		if ( $this.hasClass('selected') ) {
 			return false;
 		}
-		
+
 		var $optionSet = $this.parents('.option-set');
 		$optionSet.find('.selected').removeClass('selected');
 		$this.addClass('selected');
-		
+
 		// make option object dynamically, i.e. { filter: '.my-filter-class' }
 		var options = {},
 			key = $optionSet.attr('data-option-key'),
 			value = $this.attr('data-option-value');
-		
+
 		// parse 'false' as false boolean
 		value = value === 'false' ? false : value;
 		options[ key ] = value;
@@ -167,7 +167,7 @@ function isoInstance($group){
 		} else {
 			// otherwise, apply new options
 			$group.isotope( options );
-		}    
+		}
 		return false;
 	})
 }
@@ -181,10 +181,10 @@ $(document).ready(function() {
 	$(".fancybox").fancybox({
 		padding : 0,
 		beforeShow: function () {
-		
+
 					this.title = $(this.element).attr('title');
 					this.title = '<h4>' + this.title + '</h4><hr class="gray">' + $(this.element).find('img').attr('alt');
-					
+
 
 		            if (this.title) {
 		                // New line
