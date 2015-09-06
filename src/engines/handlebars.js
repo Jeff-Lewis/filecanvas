@@ -127,7 +127,7 @@ function createHandlebarsCompiler(config) {
 			compiler.registerHelper('logoutUrl', function() {
 				return config.context.siteRoot + 'logout';
 			});
-			compiler.registerHelper('assetUrl', function(filePath) {
+			compiler.registerHelper('resourceUrl', function(filePath) {
 				return config.context.templateRoot + filePath;
 			});
 			compiler.registerHelper('downloadUrl', function(file) {
