@@ -204,7 +204,7 @@ function retrieveUserSites(database, uid) {
 		'user',
 		'name',
 		'label',
-		'template',
+		'theme',
 		'root',
 		'private',
 		'published'

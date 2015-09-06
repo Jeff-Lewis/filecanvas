@@ -4,7 +4,7 @@ var path = require('path');
 var express = require('express');
 
 var pingApp = require('./ping');
-var templatesApp = require('./templates');
+var themesApp = require('./themes');
 var sitesApp = require('./sites');
 var adminApp = require('./admin');
 var wwwApp = require('./www');
@@ -28,27 +28,46 @@ module.exports = function(database, config) {
 		host: config.host,
 		https: Boolean(config.https.port)
 	});
+
 	initCustomDomains(app, {
 		host: config.host
 	});
-	initNamedSubdomains(app, database, {
+
+	initSubdomains(app, {
 		host: config.host,
-		appKey: config.dropbox.appKey,
-		appSecret: config.dropbox.appSecret,
-		loginCallbackUrl: config.dropbox.loginCallbackUrl,
-		registerCallbackUrl: config.dropbox.registerCallbackUrl,
-		siteTemplates: config.templates.options,
-		defaultSiteTemplate: config.templates.default
+		subdomains: {
+			'ping': pingApp(),
+			'www': wwwApp({
+				sitePath: path.resolve(__dirname, '../../templates/www')
+			}),
+			'themes': themesApp({
+				themesPath: path.resolve(__dirname, '../../templates/themes')
+			}),
+			'my': adminApp(database, {
+				host: config.host,
+				appKey: config.dropbox.appKey,
+				appSecret: config.dropbox.appSecret,
+				loginCallbackUrl: config.dropbox.loginCallbackUrl,
+				registerCallbackUrl: config.dropbox.registerCallbackUrl,
+				siteThemes: config.themes.options,
+				defaultSiteTheme: config.themes.default
+			}),
+			'sites': sitesApp(database, {
+				host: host,
+				appKey: config.dropbox.appKey,
+				appSecret: config.dropbox.appSecret,
+				themesUrl: config.themes.root
+			}),
+			'test': redirectToSubdomain({
+				subdomain: 'www'
+			}),
+			'*': 'sites',
+			'': redirectToSubdomain({
+				subdomain: 'www'
+			})
+		}
 	});
-	initDefaultSubdomain(app, {
-		subdomain: 'www'
-	});
-	initWildcardSubdomain(app, {
-		host: host,
-		appKey: config.dropbox.appKey,
-		appSecret: config.dropbox.appSecret,
-		templatesUrl: config.templates.root
-	});
+
 	initErrorHandler(app, {
 		template: 'error'
 	});
@@ -76,59 +95,54 @@ module.exports = function(database, config) {
 		app.use(customDomain({ host: host }));
 	}
 
-	function initNamedSubdomains(app, database, options) {
+	function initSubdomains(app, options) {
 		options = options || {};
 		var host = options.host;
-		var appKey = options.appKey;
-		var appSecret = options.appSecret;
-		var loginCallbackUrl = options.loginCallbackUrl;
-		var registerCallbackUrl = options.registerCallbackUrl;
-		var siteTemplates = options.siteTemplates;
-		var defaultSiteTemplate = options.defaultSiteTemplate;
+		var subdomains = options.subdomains;
 
 		app.set('subdomain offset', host.split('.').length);
 
-		app.use(subdomain('www', wwwApp({
-			sitePath: path.resolve(__dirname, '../../templates/www')
-		})));
-		app.use(subdomain('ping', pingApp()));
-		app.use(subdomain('templates', templatesApp({
-			templatesPath: path.resolve(__dirname, '../../templates/sites/themes')
-		})));
-		app.use(subdomain('my', adminApp(database, {
-			host: host,
-			appKey: appKey,
-			appSecret: appSecret,
-			loginCallbackUrl: loginCallbackUrl,
-			registerCallbackUrl: registerCallbackUrl,
-			siteTemplates: siteTemplates,
-			defaultSiteTemplate: defaultSiteTemplate
-		})));
-	}
+		var defaultSubdomainHandler = getSubdomainHandler('', subdomains);
+		var wildcardSubdomainHandler = getSubdomainHandler('*', subdomains);
+		var namedSubdomains = Object.keys(subdomains).filter(function(prefix) {
+			return (prefix !== '') && (prefix !== '*');
+		}).reduce(function(namedSubdomains, prefix) {
+			namedSubdomains[prefix] = getSubdomainHandler(prefix, subdomains);
+			return namedSubdomains;
+		}, {});
 
-	function initDefaultSubdomain(app, options) {
-		options = options || {};
-		var defaultSubdomain = options.subdomain;
+		initNamedSubdomains(app, namedSubdomains);
+		initDefaultSubdomain(app, defaultSubdomainHandler);
+		initWildcardSubdomain(app, wildcardSubdomainHandler);
 
-		app.use(subdomain(null, redirectToSubdomain({
-			subdomain: defaultSubdomain
-		})));
-	}
 
-	function initWildcardSubdomain(app, options) {
-		options = options || {};
-		var host = options.host;
-		var appKey = options.appKey;
-		var appSecret = options.appSecret;
-		var templatesUrl = options.templatesUrl;
+		function initNamedSubdomains(app, subdomains) {
+			Object.keys(subdomains).forEach(function(prefix) {
+				app.use(subdomain(prefix, subdomains[prefix]));
+			});
+		}
 
-		app.use(useSubdomainAsPathPrefix());
-		app.use(sitesApp(database, {
-			host: host,
-			appKey: appKey,
-			appSecret: appSecret,
-			templatesUrl: templatesUrl
-		}));
+		function initDefaultSubdomain(app, middleware) {
+			if (!middleware) { return; }
+			app.use(subdomain(null, middleware));
+		}
+
+		function initWildcardSubdomain(app, middleware) {
+			if (!middleware) { return; }
+			app.use(useSubdomainAsPathPrefix());
+			app.use(middleware);
+		}
+
+		function getSubdomainHandler(prefix, subdomains) {
+			if (!(prefix in subdomains)) { return null; }
+			var subdomainHandler = subdomains[prefix];
+			var isAlias = (typeof subdomainHandler === 'string');
+			if (isAlias) {
+				var targetHandler = subdomains[subdomainHandler];
+				subdomainHandler = targetHandler;
+			}
+			return subdomainHandler;
+		}
 	}
 
 	function initErrorHandler(app, options) {

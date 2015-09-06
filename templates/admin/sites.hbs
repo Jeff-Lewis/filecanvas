@@ -44,8 +44,8 @@
 								value="{{#if content.site.home}}true{{else}}false{{/if}}"
 							/>
 							<input type="hidden"
-								name="template.title"
-								value="{{ content.site.template.options.title }}"
+								name="theme.title"
+								value="{{ content.site.theme.options.title }}"
 								data-bind-value="site-label"
 							/>
 							<div class="form-group">
@@ -98,11 +98,11 @@
 								<label class="col-sm-2 control-label">Template</label>
 								<div class="col-sm-10">
 									<select class="form-control"
-										name="template"
-										value="{{ content.site.template.name }}"
+										name="theme"
+										value="{{ content.site.theme.name }}"
 									>
-										{{#each content.templates as |template|}}
-										<option value="{{ template.name }}">{{ template.title }}</option>
+										{{#each content.themes as |theme|}}
+										<option value="{{ theme.name }}">{{ theme.title }}</option>
 										{{/each}}
 									</select>
 								</div>

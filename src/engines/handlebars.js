@@ -128,7 +128,7 @@ function createHandlebarsCompiler(config) {
 				return config.context.siteRoot + 'logout';
 			});
 			compiler.registerHelper('resourceUrl', function(filePath) {
-				return config.context.templateRoot + filePath;
+				return config.context.themeRoot + filePath;
 			});
 			compiler.registerHelper('downloadUrl', function(file) {
 				return config.context.siteRoot + 'download' + file.url;

@@ -28,16 +28,16 @@ module.exports = function(database, options) {
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
 	var registerCallbackUrl = options.registerCallbackUrl;
-	var siteTemplates = options.siteTemplates;
-	var defaultSiteTemplate = options.defaultSiteTemplate;
+	var siteThemes = options.siteThemes;
+	var defaultSiteTheme = options.defaultSiteTheme;
 
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
 	if (!registerCallbackUrl) { throw new Error('Missing Dropbox register callback URL'); }
-	if (!siteTemplates) { throw new Error('Missing site templates'); }
-	if (!defaultSiteTemplate) { throw new Error('Missing default site template'); }
+	if (!siteThemes) { throw new Error('Missing site themes'); }
+	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 
 	var app = express();
 	var passport = new Passport();
@@ -56,8 +56,8 @@ module.exports = function(database, options) {
 		'/privacy': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/privacy/privacy.html'), { encoding: 'utf8' })
 	});
 	initRoutes(app, passport, database, {
-		siteTemplates: siteTemplates,
-		defaultSiteTemplate: defaultSiteTemplate,
+		siteThemes: siteThemes,
+		defaultSiteTheme: defaultSiteTheme,
 		faqData: faqData
 	});
 	initErrorHandler(app, {
@@ -254,12 +254,12 @@ module.exports = function(database, options) {
 
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
-		var siteTemplates = options.siteTemplates;
-		var defaultSiteTemplate = options.defaultSiteTemplate;
+		var siteThemes = options.siteThemes;
+		var defaultSiteTheme = options.defaultSiteTheme;
 		var faqData = options.faqData;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, siteTemplates, defaultSiteTemplate, faqData);
+		initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, faqData);
 		app.use(invalidRoute());
 
 
@@ -415,7 +415,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, siteTemplates, defaultSiteTemplate, faqData) {
+		function initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, faqData) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -604,8 +604,8 @@ module.exports = function(database, options) {
 					private: false,
 					published: false,
 					home: false,
-					template: {
-						name: defaultSiteTemplate,
+					theme: {
+						name: defaultSiteTheme,
 						options: {
 							title: ''
 						}
@@ -623,7 +623,7 @@ module.exports = function(database, options) {
 					content: {
 						sites: res.locals.sites,
 						site: siteModel,
-						templates: siteTemplates
+						themes: siteThemes
 					}
 				};
 				renderAdminPage(req, res, 'sites', templateData)
@@ -641,10 +641,10 @@ module.exports = function(database, options) {
 					'user': uid,
 					'name': req.body.name,
 					'label': req.body.label,
-					'template': {
-						'name': req.body.template,
+					'theme': {
+						'name': req.body.theme,
 						'options': {
-							title: req.body['template.title']
+							title: req.body['theme.title']
 						}
 					},
 					'root': req.body.root || null,
@@ -703,7 +703,7 @@ module.exports = function(database, options) {
 							],
 							content: {
 								site: siteModel,
-								templates: siteTemplates
+								themes: siteThemes
 							}
 						};
 						return renderAdminPage(req, res, 'sites/site', templateData);
@@ -729,11 +729,11 @@ module.exports = function(database, options) {
 				};
 				if (req.body.name) { updates.name = req.body.name; }
 				if (req.body.label) { updates.label = req.body.label; }
-				if (req.body.template) {
-					updates.template = {
-						'name': req.body.template,
+				if (req.body.theme) {
+					updates.theme = {
+						'name': req.body.theme,
 						'options': {
-							title: req.body['template.title']
+							title: req.body['theme.title']
 						}
 					};
 				}

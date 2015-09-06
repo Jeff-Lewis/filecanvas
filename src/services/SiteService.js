@@ -2,18 +2,24 @@
 
 var mapSeries = require('promise-map-series');
 var escapeRegExp = require('escape-regexp');
+var path = require('path');
+var objectAssign = require('object-assign');
+var isTextOrBinary = require('istextorbinary');
+var template = require('es6-template-strings');
+var pdf = require('html-pdf');
 
 var HttpError = require('../errors/HttpError');
 
 var DropboxService = require('../services/DropboxService');
 var UserService = require('../services/UserService');
-var SiteTemplateService = require('../services/SiteTemplateService');
+var MarkdownService = require('./MarkdownService');
 var AuthenticationService = require('../services/AuthenticationService');
 
 var constants = require('../constants');
 
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
+var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 
 function SiteService(database, options) {
 	options = options || {};
@@ -286,7 +292,7 @@ function retrieveSite(database, uid, siteName, options) {
 		'user',
 		'name',
 		'label',
-		'template',
+		'theme',
 		'root',
 		'private',
 		'published'
@@ -464,10 +470,113 @@ function retrieveUser(database, uid) {
 }
 
 function generateSiteFiles(pathPrefix, context) {
-	return new SiteTemplateService().generateSiteFiles({
-		pathPrefix: pathPrefix,
-		context: context
-	});
+	var templateFiles = SITE_TEMPLATE_FILES;
+	var flattenedTemplateFiles = flattenPathHierarchy(templateFiles, pathPrefix);
+	var expandedTemplateFiles = expandPlaceholders(flattenedTemplateFiles, context);
+	return convertMarkdownFiles(expandedTemplateFiles, { pdf: false });
+
+
+	function flattenPathHierarchy(tree, pathPrefix) {
+		var flattenedFiles = Object.keys(tree).reduce(function(flattenedFiles, filename) {
+			var filePath = path.join(pathPrefix, filename);
+			var fileObject = tree[filename];
+			var isFile = Buffer.isBuffer(fileObject) || fileObject instanceof String;
+			if (isFile) {
+				flattenedFiles[filePath] = fileObject;
+			} else {
+				var childPaths = flattenPathHierarchy(fileObject, filePath);
+				objectAssign(flattenedFiles, childPaths);
+			}
+			return flattenedFiles;
+		}, {});
+		return flattenedFiles;
+	}
+
+	function expandPlaceholders(files, context) {
+		var expandedFiles = Object.keys(files).reduce(function(expandedFiles, filePath) {
+			var filename = path.basename(filePath);
+			var fileBuffer = files[filePath];
+			var expandedFileBuffer = expandFilePlaceholders(filename, fileBuffer, context);
+			expandedFiles[filePath] = expandedFileBuffer;
+			return expandedFiles;
+		}, {});
+		return expandedFiles;
+
+
+		function expandFilePlaceholders(filename, fileBuffer, context) {
+			var isTextFile = getIsTextFile(filename, fileBuffer);
+			if (!isTextFile) { return fileBuffer; }
+			var templateString = fileBuffer.toString();
+			var output = expandPlaceholderStrings(templateString, context);
+			return new Buffer(output);
+
+
+			function getIsTextFile(filePath, fileBuffer) {
+				return isTextOrBinary.isTextSync(filePath, fileBuffer);
+			}
+
+			function expandPlaceholderStrings(source, context) {
+				return template(source, context);
+			}
+		}
+	}
+
+	function convertMarkdownFiles(files, options) {
+		options = options || {};
+		var shouldCreatePdf = Boolean(options.pdf);
+
+		var filePaths = Object.keys(files);
+		return Promise.all(filePaths.map(function(filePath) {
+			var filename = path.basename(filePath);
+			var fileBuffer = files[filePath];
+			var isMarkdownFile = getIsMarkdownFile(filename, fileBuffer);
+			if (!isMarkdownFile) {
+				return Promise.resolve({
+					path: filePath,
+					data: fileBuffer
+				});
+			}
+			var markdownString = fileBuffer.toString();
+			var html = new MarkdownService().renderHtml(markdownString);
+			if (!shouldCreatePdf) {
+				return Promise.resolve({
+					path: replaceFileExtension(filePath, '.html'),
+					data: new Buffer(html)
+				});
+			}
+			return convertHtmlToPdf(html)
+				.then(function(pdfBuffer) {
+					return {
+						path: replaceFileExtension(filePath, '.pdf'),
+						data: pdfBuffer
+					};
+				});
+		})).then(function(files) {
+			var convertedFiles = files.reduce(function(convertedFiles, fileInfo) {
+				var filePath = fileInfo.path;
+				var fileBuffer = fileInfo.data;
+				convertedFiles[filePath] = fileBuffer;
+				return convertedFiles;
+			}, {});
+			return convertedFiles;
+		});
+
+		function getIsMarkdownFile(filename, file) {
+			return (path.extname(filename) === '.md');
+		}
+
+		function convertHtmlToPdf(html) {
+			return new Promise(function(resolve, reject) {
+				pdf.create(html).toBuffer(function(error, buffer) {
+					resolve(buffer);
+				});
+			});
+		}
+
+		function replaceFileExtension(filePath, extension) {
+			return path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)) + extension);
+		}
+	}
 }
 
 function initSiteFolder(appKey, appSecret, accessToken, uid, siteRoot, siteFiles) {
@@ -539,12 +648,12 @@ function validateSiteModel(siteModel, requireFullModel) {
 		if ((requireFullModel || ('user' in siteModel)) && !siteModel.user) { throw new HttpError(400, 'No user specified'); }
 		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site path specified'); }
 		if ((requireFullModel || ('label' in siteModel)) && !siteModel.label) { throw new HttpError(400, 'No site name specified'); }
-		if ((requireFullModel || ('template' in siteModel)) && !siteModel.template) { throw new HttpError(400, 'No site template specified'); }
+		if ((requireFullModel || ('theme' in siteModel)) && !siteModel.theme) { throw new HttpError(400, 'No site theme specified'); }
 
 		// TODO: Validate organization when validating site model
 		// TODO: Validate name when validating site model
 		// TODO: Validate label when validating site model
-		// TODO: Validate template when validating site model
+		// TODO: Validate theme when validating site model
 		// TODO: Validate root when validating site model
 		// TODO: Validate home option when validating site model
 

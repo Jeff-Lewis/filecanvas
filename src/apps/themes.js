@@ -8,20 +8,20 @@ var errorHandler = require('../middleware/errorHandler');
 
 module.exports = function(options) {
 	options = options || {};
-	var templatesPath = options.templatesPath;
+	var themesPath = options.themesPath;
 
 	var app = express();
 
 	app.use(cors());
 
-	var staticMiddleware = express.static(templatesPath);
+	var staticMiddleware = express.static(themesPath);
 	app.use(function(req, res, next) {
-		var TEMPLATE_RESOURCE_URL_REGEXP = /^\/(.*?)\/(.*)$/;
-		var results = TEMPLATE_RESOURCE_URL_REGEXP.exec(req.url);
+		var THEME_RESOURCE_URL_REGEXP = /^\/(.*?)\/(.*)$/;
+		var results = THEME_RESOURCE_URL_REGEXP.exec(req.url);
 		if (!results) { return next(); }
-		var templateName = results[1];
+		var themeName = results[1];
 		var filePath = results[2];
-		req.url = '/' + templateName + '/resources/' + filePath;
+		req.url = '/' + themeName + '/resources/' + filePath;
 		staticMiddleware(req, res, next);
 	});
 

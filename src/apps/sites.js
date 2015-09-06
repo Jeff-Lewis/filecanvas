@@ -22,22 +22,22 @@ module.exports = function(database, options) {
 	var host = options.host;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
-	var templatesUrl = options.templatesUrl;
+	var themesUrl = options.themesUrl;
 
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
-	if (!templatesUrl) { throw new Error('Missing templates root URL'); }
+	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 
 	var app = express();
 	var passport = new Passport();
 
 	initAuth(app, passport, database);
 	initViewEngine(app, {
-		templatesPath: path.resolve(__dirname, '../../templates/sites')
+		templatesPath: path.resolve(__dirname, '../../templates/themes')
 	});
 	initRoutes(app, passport, database, {
-		templatesUrl: templatesUrl
+		themesUrl: themesUrl
 	});
 	initErrorHandler(app, {
 		template: 'error'
@@ -165,10 +165,10 @@ module.exports = function(database, options) {
 
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
-		var templatesUrl = options.templatesUrl;
+		var themesUrl = options.themesUrl;
 
-		initPublicRoutes(app, templatesUrl);
-		initPrivateRoutes(app, templatesUrl);
+		initPublicRoutes(app, themesUrl);
+		initPrivateRoutes(app, themesUrl);
 		app.use(invalidRoute());
 
 
@@ -181,9 +181,9 @@ module.exports = function(database, options) {
 			return siteRoot;
 		}
 
-		function initPublicRoutes(app, templatesUrl) {
+		function initPublicRoutes(app, themesUrl) {
 			initDefaultSiteRoutes(app);
-			initAuthRoutes(app, templatesUrl);
+			initAuthRoutes(app, themesUrl);
 
 
 			function initDefaultSiteRoutes() {
@@ -217,7 +217,7 @@ module.exports = function(database, options) {
 				}
 			}
 
-			function initAuthRoutes(app, templatesUrl) {
+			function initAuthRoutes(app, themesUrl) {
 				app.get('/:user/:site/login', redirectIfLoggedIn, loginRoute);
 				app.post('/:user/:site/login', processLoginRoute);
 				app.get('/:user/:site/logout', processLogoutRoute);
@@ -245,14 +245,14 @@ module.exports = function(database, options) {
 								.then(function(siteModel) {
 									var context = {
 										siteRoot: getSiteRootUrl(req, '/login'),
-										templateRoot: templatesUrl + siteModel.template.name + '/',
-										template: siteModel.template.options,
+										themeRoot: themesUrl + siteModel.theme.name + '/',
+										theme: siteModel.theme.options,
 										site: {
 											private: siteModel.private
 										}
 									};
-									var templatePath = 'themes/' + siteModel.template.name + '/login';
-									res.render(templatePath, context);
+									var templateName = siteModel.theme.name + '/login';
+									res.render(templateName, context);
 								});
 						})
 						.catch(function(error) {
@@ -289,7 +289,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, templatesUrl) {
+		function initPrivateRoutes(app, themesUrl) {
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
 			app.get('/:user/:site/thumbnail/*', ensureAuth, thumbnailRoute);
@@ -347,14 +347,14 @@ module.exports = function(database, options) {
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
 									siteRoot: getSiteRootUrl(req),
-									templateRoot: templatesUrl + siteModel.template.name + '/',
-									template: siteModel.template.options,
+									themeRoot: themesUrl + siteModel.theme.name + '/',
+									theme: siteModel.theme.options,
 									site: {
 										private: siteModel.private
 									},
 									contents: siteContents
 								};
-								var templateName = 'themes/' + siteModel.template.name + '/index';
+								var templateName = siteModel.theme.name + '/index';
 								res.render(templateName, context);
 							});
 					})

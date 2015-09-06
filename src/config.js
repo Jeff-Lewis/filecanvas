@@ -25,9 +25,9 @@ config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.e
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
-config.templates = {};
-config.templates.root = process.env.TEMPLATES_ROOT || null;
-config.templates.options = (process.env.TEMPLATES ? JSON.parse(process.env.TEMPLATES) : []);
-config.templates.default = process.env.TEMPLATES_DEFAULT || null;
+config.themes = {};
+config.themes.root = process.env.THEMES_ROOT || null;
+config.themes.options = (process.env.THEMES ? JSON.parse(process.env.THEMES) : []);
+config.themes.default = process.env.THEMES_DEFAULT || null;
 
 module.exports = config;
