@@ -6,7 +6,6 @@ body.navigation-hidden,
 body.navigation-hidden .app,
 body.navigation-hidden .main-panel {
 	background-color: #495469;
-	color: #b2b6be;
 }
 body.navigation-hidden button.bg-white {
 	background-color: #e3e5e8;
@@ -23,6 +22,16 @@ body.navigation-hidden footer.content-footer nav ul li a {
 }
 body.navigation-hidden footer.content-footer nav ul li a:link:hover {
 	opacity: 0.75;
+}
+
+body.full-height .app,
+body.full-height .main-panel,
+body.full-height .main-content {
+	height: 100%;
+}
+body.full-height .main-content {
+	margin: 0;
+	padding: 0;
 }
 
 a:not(:link) {
@@ -75,6 +84,10 @@ button.btn-reset {
 
 button.bg-white:hover:not(:disabled) {
 	background-color: #e6e6e6;
+}
+
+.login-form {
+	color: #b2b6be;
 }
 
 @media screen and (min-width:768px) {

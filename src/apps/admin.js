@@ -781,7 +781,8 @@ module.exports = function(database, options) {
 						return updateUserDefaultSiteName(uid, updatedDefaultSiteName);
 					})
 					.then(function() {
-						res.redirect(303, '/sites/' + updatedSiteName);
+						var isThemeUpdate = (req.body._action === 'theme');
+						res.redirect(303, (isThemeUpdate ? '/sites/' + updatedSiteName + '/theme' : '/sites/' + updatedSiteName));
 					})
 					.catch(function(error) {
 						next(error);
@@ -904,6 +905,57 @@ module.exports = function(database, options) {
 				deleteSiteUser(accessToken, uid, siteName, username)
 					.then(function() {
 						res.redirect(303, '/sites/' + siteName + '/users');
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function retrieveSiteThemeRoute(req, res, next) {
+				var userModel = req.user;
+				var uid = userModel.uid;
+				var accessToken = userModel.token;
+				var siteName = req.params.site;
+				var includeContents = false;
+				var includeUsers = true;
+				retrieveSite(accessToken, uid, siteName, includeContents, includeUsers)
+					.then(function(siteModel) {
+						var templateData = {
+							title: 'Site theme: ' + siteModel.label,
+							stylesheets: [
+								'/assets/css/bootstrap-colorpicker.min.css',
+								'/assets/css/shunt-editor.css'
+							],
+							scripts: [
+								'/assets/js/bootstrap-colorpicker.min.js',
+								'/assets/js/shunt-editor.js'
+							],
+							fullHeight: true,
+							navigation: false,
+							footer: false,
+							breadcrumb: [
+								{
+									link: '/sites',
+									icon: 'dashboard',
+									label: 'Site dashboard'
+								},
+								{
+									link: '/sites/' + siteName,
+									icon: 'globe',
+									label: siteModel.label
+								},
+								{
+									link: '/sites/' + siteName + '/theme',
+									icon: 'paint-brush',
+									label: 'Theme editor'
+								}
+							],
+							content: {
+								site: siteModel,
+								themes: siteThemes
+							}
+						};
+						return renderAdminPage(req, res, 'sites/site/theme', templateData);
 					})
 					.catch(function(error) {
 						next(error);

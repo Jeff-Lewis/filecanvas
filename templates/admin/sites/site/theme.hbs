@@ -1,0 +1,35 @@
+<div class="editor">
+	<form class="editor-sidepanel" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+		<input type="hidden" name="_method" value="PUT"/>
+		<input type="hidden" name="_action" value="theme"/>
+		<div class="editor-sidepanel-content">
+			<div class="panel mb0">
+				<div class="panel-heading border">
+					<h4 class="no-margin text-uppercase"><i class="fa fa-paint-brush mr10"></i>Theme editor</h4>
+				</div>
+				<div class="panel-body bordered-group">
+					<fieldset class="form-group">
+						<label class="control-label">Theme</label>
+						<div>
+							<select class="form-control"
+								name="theme"
+								value="{{ content.site.theme.name }}"
+							>
+								{{#each content.themes as |theme|}}
+									<option value="{{ theme.name }}">{{ theme.title }}</option>
+								{{/each}}
+							</select>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+		<div class="editor-sidepanel-controls">
+			<button type="submit" class="btn btn-success pull-right">Save changes</button>
+			<button type="reset" class="btn btn-default">Reset changes</button>
+		</div>
+	</form>
+	<div class="editor-main">
+		<iframe class="editor-preview" src="{{ session.urls.preview }}/{{ content.site.name }}" frameborder="0"></iframe>
+	</div>
+</div>
