@@ -15,5 +15,8 @@ module.exports = function(app, options) {
 	if (httpsPort) {
 		https.createServer(httpsOptions, app).listen(httpsPort);
 		app.set('httpsPort', httpsPort);
+		app.set('forceSSLOptions', {
+			httpsPort: httpsPort
+		});
 	}
 };
