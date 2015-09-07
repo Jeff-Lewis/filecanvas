@@ -8,6 +8,8 @@ var Passport = require('passport').Passport;
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 var slug = require('slug');
 
+var sitesApp = require('./sites');
+
 var transport = require('../middleware/transport');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
@@ -29,6 +31,7 @@ module.exports = function(database, options) {
 	var loginCallbackUrl = options.loginCallbackUrl;
 	var registerCallbackUrl = options.registerCallbackUrl;
 	var siteThemes = options.siteThemes;
+	var themesUrl = options.themesUrl;
 	var defaultSiteTheme = options.defaultSiteTheme;
 
 	if (!host) { throw new Error('Missing hostname'); }
@@ -38,6 +41,7 @@ module.exports = function(database, options) {
 	if (!registerCallbackUrl) { throw new Error('Missing Dropbox register callback URL'); }
 	if (!siteThemes) { throw new Error('Missing site themes'); }
 	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
+	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 
 	var app = express();
 	var passport = new Passport();
@@ -58,6 +62,7 @@ module.exports = function(database, options) {
 	initRoutes(app, passport, database, {
 		siteThemes: siteThemes,
 		defaultSiteTheme: defaultSiteTheme,
+		themesUrl: themesUrl,
 		faqData: faqData
 	});
 	initErrorHandler(app, {
@@ -256,10 +261,11 @@ module.exports = function(database, options) {
 		options = options || {};
 		var siteThemes = options.siteThemes;
 		var defaultSiteTheme = options.defaultSiteTheme;
+		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, faqData);
+		initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, themesUrl, faqData);
 		app.use(invalidRoute());
 
 
@@ -317,6 +323,7 @@ module.exports = function(database, options) {
 						registerAuth: '/register/oauth2',
 						logout: '/logout',
 						sites: '/sites',
+						preview: '/preview',
 						terms: '/terms',
 						privacy: '/privacy'
 					};
@@ -415,7 +422,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, faqData) {
+		function initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, themesUrl, faqData) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -438,7 +445,16 @@ module.exports = function(database, options) {
 			app.put('/sites/:site/users/:username', ensureAuth, initAdminSession, updateSiteUserRoute);
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
+			app.get('/sites/:site/theme', ensureAuth, initAdminSession, retrieveSiteThemeRoute);
+
 			app.get('/dropbox/metadata/*', ensureAuth, initAdminSession, retrieveDropboxMetadataRoute);
+
+			app.use('/preview', createPreviewApp(database, {
+				host: host,
+				appKey: appKey,
+				appSecret: appSecret,
+				themesUrl: themesUrl
+			}));
 
 
 			function ensureAuth(req, res, next) {
@@ -894,6 +910,33 @@ module.exports = function(database, options) {
 						}
 						next(error);
 					});
+			}
+
+			function createPreviewApp(database, options) {
+				options = options || {};
+				var host = options.host;
+				var appKey = options.appKey;
+				var appSecret = options.appSecret;
+				var themesUrl = options.themesUrl;
+
+				var app = express();
+				app.use(ensureAuth);
+				app.use(initAdminSession);
+				app.use(addUsernamePathPrefix);
+				app.use(sitesApp(database, {
+					preview: true,
+					host: host,
+					appKey: appKey,
+					appSecret: appSecret,
+					themesUrl: themesUrl
+				}));
+				return app;
+
+
+				function addUsernamePathPrefix(req, res, next) {
+					req.url = '/' + req.user.username + req.url;
+					next();
+				}
 			}
 		}
 

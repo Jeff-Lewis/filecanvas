@@ -50,10 +50,11 @@ module.exports = function(database, config) {
 				loginCallbackUrl: config.dropbox.loginCallbackUrl,
 				registerCallbackUrl: config.dropbox.registerCallbackUrl,
 				siteThemes: config.themes.options,
-				defaultSiteTheme: config.themes.default
+				defaultSiteTheme: config.themes.default,
+				themesUrl: config.themes.root
 			}),
 			'sites': sitesApp(database, {
-				host: host,
+				host: config.host,
 				appKey: config.dropbox.appKey,
 				appSecret: config.dropbox.appSecret,
 				themesUrl: config.themes.root

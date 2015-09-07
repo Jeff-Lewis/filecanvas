@@ -23,6 +23,7 @@ module.exports = function(database, options) {
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var themesUrl = options.themesUrl;
+	var isPreview = options.preview;
 
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
@@ -32,12 +33,15 @@ module.exports = function(database, options) {
 	var app = express();
 	var passport = new Passport();
 
-	initAuth(app, passport, database);
+	if (!isPreview) {
+		initAuth(app, passport, database);
+	}
 	initViewEngine(app, {
 		templatesPath: path.resolve(__dirname, '../../templates/themes')
 	});
 	initRoutes(app, passport, database, {
-		themesUrl: themesUrl
+		themesUrl: themesUrl,
+		preview: isPreview
 	});
 	initErrorHandler(app, {
 		template: 'error'
@@ -55,7 +59,7 @@ module.exports = function(database, options) {
 			var serializedUser = JSON.stringify({
 				user: passportUser.user,
 				site: passportUser.site,
-				siteUsername: (passportUser.model ? passportUser.model.username : null)
+				siteUser: (passportUser.model ? passportUser.model.username : null)
 			});
 			return callback(null, serializedUser);
 		});
@@ -64,7 +68,7 @@ module.exports = function(database, options) {
 			var deserializedUser = JSON.parse(serializedUser);
 			var username = deserializedUser.user;
 			var siteName = deserializedUser.site;
-			var siteUsername = deserializedUser.siteUsername;
+			var siteUsername = deserializedUser.siteUser;
 
 			var userService = new UserService(database);
 			userService.retrieveUser(username)
@@ -181,11 +185,12 @@ module.exports = function(database, options) {
 
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
+		var isPreview = options.preview;
 		var themesUrl = options.themesUrl;
 
 		initDefaultSiteRedirectRoutes(app);
-		initAuthRoutes(app, passport);
-		initSiteRoutes(app, themesUrl);
+		initSiteRoutes(app, themesUrl, isPreview);
+		if (!isPreview) { initAuthRoutes(app, passport); }
 		app.use(invalidRoute());
 
 
@@ -259,7 +264,7 @@ module.exports = function(database, options) {
 					var loginWasSuccessful = Boolean(user);
 					var requestPath = req.originalUrl.split('?')[0];
 					if (loginWasSuccessful) {
-						req.logIn(user, function(error) {
+						req.login(user, function(error) {
 							if (error) { return next(error); }
 							var redirectParam = req.param('redirect');
 							var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
@@ -281,7 +286,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initSiteRoutes(app, themesUrl) {
+		function initSiteRoutes(app, themesUrl, isPreview) {
 			app.get('/:user/:site/login', loginRoute);
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
@@ -289,6 +294,7 @@ module.exports = function(database, options) {
 
 
 			function ensureAuth(req, res, next) {
+				if (isPreview) { return next(); }
 				var username = req.params.user;
 				var siteName = req.params.site;
 				if (req.isAuthenticated()) {
@@ -343,8 +349,9 @@ module.exports = function(database, options) {
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
+						var published = !isPreview;
 						var includeContents = false;
-						return retrieveSite(accessToken, uid, siteName, includeContents)
+						return retrieveSite(accessToken, uid, siteName, published, includeContents)
 							.then(function(siteModel) {
 								var context = {
 									siteRoot: getSiteRootUrl(req, '/login'),
@@ -370,8 +377,9 @@ module.exports = function(database, options) {
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
+						var published = !isPreview;
 						var includeContents = true;
-						return retrieveSite(accessToken, uid, siteName, includeContents)
+						return retrieveSite(accessToken, uid, siteName, published, includeContents)
 							.then(function(siteModel) {
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
@@ -441,7 +449,7 @@ module.exports = function(database, options) {
 			return userService.retrieveUser(username);
 		}
 
-		function retrieveSite(accessToken, uid, siteName, includeContents) {
+		function retrieveSite(accessToken, uid, siteName, published, includeContents) {
 			var siteService = new SiteService(database, {
 				host: host,
 				appKey: appKey,
@@ -449,7 +457,7 @@ module.exports = function(database, options) {
 				accessToken: accessToken
 			});
 			return siteService.retrieveSite(uid, siteName, {
-				published: true,
+				published: published,
 				contents: includeContents,
 				users: false
 			});
