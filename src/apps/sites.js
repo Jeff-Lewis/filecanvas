@@ -190,7 +190,7 @@ module.exports = function(database, options) {
 
 		initDefaultSiteRedirectRoutes(app);
 		initSiteRoutes(app, themesUrl, isPreview);
-		if (!isPreview) { initAuthRoutes(app, passport); }
+		initAuthRoutes(app, passport, isPreview);
 		app.use(invalidRoute());
 
 
@@ -225,10 +225,15 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initAuthRoutes(app, passport) {
-			app.get('/:user/:site/login', redirectIfLoggedIn);
-			app.post('/:user/:site/login', processLoginRoute);
-			app.get('/:user/:site/logout', processLogoutRoute);
+		function initAuthRoutes(app, passport, isPreview) {
+			if (isPreview) {
+				app.post('/:user/:site/login', processPreviewLoginRoute);
+				app.get('/:user/:site/logout', processPreviewLogoutRoute);
+			} else {
+				app.get('/:user/:site/login', redirectIfLoggedIn);
+				app.post('/:user/:site/login', processLoginRoute);
+				app.get('/:user/:site/logout', processLogoutRoute);
+			}
 
 
 			function redirectIfLoggedIn(req, res, next) {
@@ -282,6 +287,18 @@ module.exports = function(database, options) {
 				req.session.destroy();
 				var requestPath = req.originalUrl.split('?')[0];
 				var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
+				res.redirect(redirectUrl);
+			}
+
+			function processPreviewLoginRoute(req, res, next) {
+				var requestPath = req.originalUrl.split('?')[0];
+				var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/';
+				res.redirect(redirectUrl);
+			}
+
+			function processPreviewLogoutRoute(req, res, next) {
+				var requestPath = req.originalUrl.split('?')[0];
+				var redirectUrl = (requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '') + '/login';
 				res.redirect(redirectUrl);
 			}
 		}
