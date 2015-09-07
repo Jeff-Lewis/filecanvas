@@ -407,6 +407,8 @@ module.exports = function(database, options) {
 			function retrieveLoginRoute(req, res, next) {
 				var templateData = {
 					title: 'Login',
+					navigation: false,
+					footer: true,
 					content: null
 				};
 				renderAdminPage(req, res, 'login', templateData)
@@ -481,6 +483,8 @@ module.exports = function(database, options) {
 				});
 				var templateData = {
 					title: 'FAQ',
+					navigation: true,
+					footer: true,
 					breadcrumb: [
 						{
 							link: '/faq',
@@ -511,6 +515,8 @@ module.exports = function(database, options) {
 			function retrieveSupportRoute(req, res, next) {
 				var templateData = {
 					title: 'Support',
+					navigation: true,
+					footer: true,
 					breadcrumb: [
 						{
 							link: '/support',
@@ -530,6 +536,8 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var templateData = {
 					title: 'Your profile',
+					navigation: true,
+					footer: true,
 					breadcrumb: [
 						{
 							link: '/profile',
@@ -566,6 +574,8 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var templateData = {
 					title: 'Your account',
+					navigation: true,
+					footer: true,
 					breadcrumb: [
 						{
 							link: '/account',
@@ -629,6 +639,8 @@ module.exports = function(database, options) {
 				};
 				var templateData = {
 					title: 'Site dashboard',
+					navigation: true,
+					footer: true,
 					breadcrumb: [
 						{
 							link: '/sites',
@@ -705,6 +717,8 @@ module.exports = function(database, options) {
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Site settings: ' + siteModel.label,
+							navigation: true,
+							footer: true,
 							breadcrumb: [
 								{
 									link: '/sites',
@@ -813,6 +827,8 @@ module.exports = function(database, options) {
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Edit site users: ' + siteModel.label,
+							navigation: true,
+							footer: true,
 							breadcrumb: [
 								{
 									link: '/sites',

@@ -2,26 +2,26 @@ body {
 	background-color: #f0f0f0;
 }
 
-body.login,
-body.login .app,
-body.login .main-panel {
+body.navigation-hidden,
+body.navigation-hidden .app,
+body.navigation-hidden .main-panel {
 	background-color: #495469;
 	color: #b2b6be;
 }
-body.login button.bg-white {
+body.navigation-hidden button.bg-white {
 	background-color: #e3e5e8;
 }
-body.login button.bg-white:hover:not(:disabled) {
+body.navigation-hidden button.bg-white:hover:not(:disabled) {
 	background-color: white;
 }
-body.login .content-footer {
+body.navigation-hidden .content-footer {
 	background-color: rgba(0, 0, 0, 0.2);
 }
-body.login footer.content-footer nav ul li a {
+body.navigation-hidden footer.content-footer nav ul li a {
 	color: #b2b6be;
 	opacity: 0.5;
 }
-body.login footer.content-footer nav ul li a:link:hover {
+body.navigation-hidden footer.content-footer nav ul li a:link:hover {
 	opacity: 0.75;
 }
 
@@ -85,11 +85,11 @@ button.bg-white:hover:not(:disabled) {
 		width: 320px;
 	}
 
-	body.login footer.content-footer {
+	body.navigation-hidden footer.content-footer {
 		padding-left: 20px;
 	}
 
-	body.login .main-panel {
+	body.navigation-hidden .main-panel {
 		margin-left: 0;
 	}
 }
