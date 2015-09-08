@@ -16,11 +16,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#000000",
-								"Red": "#d9534f",
-								"Green": "#5cb85c",
-								"Blue": "#5bc0de",
-								"White": "#ffffff"
+								"#000000": "#000000",
+								"#d9534f": "#d9534f",
+								"#5cb85c": "#5cb85c",
+								"#5bc0de": "#5bc0de",
+								"#ffffff": "#ffffff"
 							}
 						}
 					}
@@ -36,11 +36,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#000000",
-								"Red": "#d9534f",
-								"Green": "#5cb85c",
-								"Blue": "#5bc0de",
-								"White": "#ffffff"
+								"#000000": "#000000",
+								"#d9534f": "#d9534f",
+								"#5cb85c": "#5cb85c",
+								"#5bc0de": "#5bc0de",
+								"#ffffff": "#ffffff"
 							}
 						}
 					}
@@ -56,11 +56,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#000000",
-								"Red": "#d9534f",
-								"Green": "#5cb85c",
-								"Blue": "#5bc0de",
-								"White": "#ffffff"
+								"#000000": "#000000",
+								"#d9534f": "#d9534f",
+								"#5cb85c": "#5cb85c",
+								"#5bc0de": "#5bc0de",
+								"#ffffff": "#ffffff"
 							}
 						}
 					}
@@ -76,11 +76,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#000000",
-								"Red": "#d9534f",
-								"Green": "#5cb85c",
-								"Blue": "#5bc0de",
-								"White": "#ffffff"
+								"#000000": "#000000",
+								"#d9534f": "#d9534f",
+								"#5cb85c": "#5cb85c",
+								"#5bc0de": "#5bc0de",
+								"#ffffff": "#ffffff"
 							}
 						}
 					}
