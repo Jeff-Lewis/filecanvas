@@ -1,0 +1,294 @@
+{
+	"name": "Fathom Extranet",
+	"config": [
+		{
+			"name": "styles",
+			"label": "Styles",
+			"fields": [
+				{
+					"name": "brandColor",
+					"type": "color",
+					"default": "#d9534f",
+					"label": "Brand colour",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": {
+								"Black": "#010101",
+								"Red": "#d9534f",
+								"Green": "#5cb85c",
+								"Blue": "#5bc0de",
+								"White": "#fefefe"
+							}
+						}
+					}
+				},
+				{
+					"name": "navigationItemColor",
+					"type": "color",
+					"default": "#ffffff",
+					"label": "Navigation item",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": {
+								"Black": "#010101",
+								"Red": "#d9534f",
+								"Green": "#5cb85c",
+								"Blue": "#5bc0de",
+								"White": "#fefefe"
+							}
+						}
+					}
+				},
+				{
+					"name": "navigationItemRolloverColor",
+					"type": "color",
+					"default": "#ffffff",
+					"label": "Navigation item (rollover)",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": {
+								"Black": "#010101",
+								"Red": "#d9534f",
+								"Green": "#5cb85c",
+								"Blue": "#5bc0de",
+								"White": "#fefefe"
+							}
+						}
+					}
+				},
+				{
+					"name": "navigationItemRolloverColor",
+					"type": "color",
+					"default": "#ffffff",
+					"label": "Navigation item (selected)",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": {
+								"Black": "#010101",
+								"Red": "#d9534f",
+								"Green": "#5cb85c",
+								"Blue": "#5bc0de",
+								"White": "#fefefe"
+							}
+						}
+					}
+				},
+				{
+					"name": "css",
+					"type": "css",
+					"default": null,
+					"label": "Custom CSS rules",
+					"editor": {
+						"name": "code",
+						"options": {
+							"language": "css",
+							"placeholder": "Paste custom CSS rules here",
+							"maxLength": 4096,
+							"rows": 6
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "content",
+			"label": "Site content",
+			"fields": [
+				{
+					"name": "title",
+					"type": "string",
+					"default": null,
+					"label": "Page title",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Browser tab title",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "headerText",
+					"type": "string",
+					"default": null,
+					"label": "Page header",
+					"editor": {
+						"name": "textarea",
+						"options": {
+							"placeholder": "Main page header",
+							"maxLength": 256,
+							"rows": 3
+						}
+					}
+				},
+				{
+					"name": "headerLogo",
+					"type": "string",
+					"default": null,
+					"label": "Header logo",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "url",
+							"placeholder": "Enter a URL",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "navLogo",
+					"type": "string",
+					"default": null,
+					"label": "Navigation logo",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "url",
+							"placeholder": "Enter a URL",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "introHeader",
+					"type": "string",
+					"default": null,
+					"label": "Intro title",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Intro section title",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "introText",
+					"type": "string",
+					"default": null,
+					"label": "Intro text",
+					"editor": {
+						"name": "textarea",
+						"options": {
+							"placeholder": "Intro section content",
+							"maxLength": 1024,
+							"rows": 3
+						}
+					}
+				},
+				{
+					"name": "footerTitle",
+					"type": "string",
+					"default": null,
+					"label": "Footer title",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Page footer title",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "footerText",
+					"type": "string",
+					"default": null,
+					"label": "Footer text",
+					"editor": {
+						"name": "textarea",
+						"options": {
+							"placeholder": "Page footer content",
+							"maxLength": 256,
+							"rows": 3
+						}
+					}
+				},
+				{
+					"name": "contactHeader",
+					"type": "string",
+					"default": "Contact us",
+					"label": "Contact section title",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Contact section title",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "contactEmail",
+					"type": "string",
+					"default": null,
+					"label": "Contact: Email",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "email",
+							"placeholder": "Email address",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "contactWebsite",
+					"type": "url",
+					"default": null,
+					"label": "Contact: Website",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "url",
+							"placeholder": "Web address",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "contactPhone",
+					"type": "string",
+					"default": null,
+					"label": "Contact: Phone",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "tel",
+							"placeholder": "Phone number",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "contactAddress",
+					"type": "string",
+					"default": null,
+					"label": "Contact: Address",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Street address",
+							"maxLength": 128
+						}
+					}
+				}
+			]
+		}
+	]
+}

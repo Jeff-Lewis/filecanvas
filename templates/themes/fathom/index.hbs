@@ -8,7 +8,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<link rel="shortcut icon" href="{{ resourceUrl 'favicon.ico' }}"/>
-	<title>{{ theme.title }}</title>
+	<title>{{ theme.content.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<!--[if lt IE 10]>
@@ -18,30 +18,7 @@
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
-	<style type="text/css">{{ theme.styles }}</style>
-	<style type="text/css">
-		[data-section-header] {
-			display: none;
-		}
-		[data-section-header="Definition"] {
-			display: block;
-		}
-		[data-section-header="Definition"]::before {
-			content: "Smart thinking is what we do best. But smart thinking is diminished in potency without clear and accurate communication. We need to explain what our solution looks like and how it behaves for customers, and we need to do this quickly, in ways that mean you and your stakeholders can understand what we're proposing fully and unambiguously. This is the purpose of Definition. During Definition, our focus is on the creation of bespoke solutions and the timely, efficient communication of that solution to stakeholders.";
-		}
-		[data-section-header="Discovery"] {
-			display: block;
-		}
-		[data-section-header="Discovery"]::before {
-			content: "During Discovery, our focus is on analysis of issues, synthesis of insights and modelling of the people at the heart of the matter, the users.";
-		}
-		[data-section-header="Origination"] {
-			display: block;
-		}
-		[data-section-header="Origination"]::before {
-			content: "Origination is the most obviously creative phase of our methodology and, as you'd expect, the hardest part to describe. Experience of interface aesthetics, usability best practice and software interactivity plays a huge part in this inherently creative process. During Origination, our focus is on synthesis of ideas and creation of solutions.";
-		}
-	</style>
+	<style type="text/css">{{{ theme.styles.css }}}</style>
 </head>
 
 <body>
