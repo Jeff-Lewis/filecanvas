@@ -449,51 +449,31 @@ module.exports = function(database, options) {
 					});
 			}
 		}
+	}
 
-		function retrieveUserDefaultSiteName(username) {
-			var userService = new UserService(database);
-			return userService.retrieveUserDefaultSiteName(username);
-		}
+	function retrieveUserDefaultSiteName(username) {
+		var userService = new UserService(database);
+		return userService.retrieveUserDefaultSiteName(username);
+	}
 
-		function retrieveUser(username) {
-			var userService = new UserService(database);
-			return userService.retrieveUser(username);
-		}
+	function retrieveUser(username) {
+		var userService = new UserService(database);
+		return userService.retrieveUser(username);
+	}
 
-		function retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.retrieveSite(uid, siteName, {
-				published: published,
-				theme: includeTheme,
-				contents: includeContents,
-				users: false
-			});
-		}
-
-		function retrieveSiteDownloadLink(accessToken, uid, siteName, filePath) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.retrieveSiteDownloadLink(uid, siteName, filePath);
-		}
-
-		function retrieveSiteThumbnailLink(accessToken, uid, siteName, filePath) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.retrieveSiteThumbnailLink(uid, siteName, filePath);
-		}
+	function retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents) {
+		var siteService = new SiteService(database, {
+			host: host,
+			appKey: appKey,
+			appSecret: appSecret,
+			accessToken: accessToken
+		});
+		return siteService.retrieveSite(uid, siteName, {
+			published: published,
+			theme: includeTheme,
+			contents: includeContents,
+			users: false
+		});
 	}
 
 	function retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished) {
@@ -506,5 +486,25 @@ module.exports = function(database, options) {
 		return siteService.retrieveSiteAuthenticationDetails(uid, siteName, {
 			published: onlyPublished
 		});
+	}
+
+	function retrieveSiteDownloadLink(accessToken, uid, siteName, filePath) {
+		var siteService = new SiteService(database, {
+			host: host,
+			appKey: appKey,
+			appSecret: appSecret,
+			accessToken: accessToken
+		});
+		return siteService.retrieveSiteDownloadLink(uid, siteName, filePath);
+	}
+
+	function retrieveSiteThumbnailLink(accessToken, uid, siteName, filePath) {
+		var siteService = new SiteService(database, {
+			host: host,
+			appKey: appKey,
+			appSecret: appSecret,
+			accessToken: accessToken
+		});
+		return siteService.retrieveSiteThumbnailLink(uid, siteName, filePath);
 	}
 };
