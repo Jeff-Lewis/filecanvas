@@ -44,8 +44,8 @@
 	right: 0;
 	height: 66px;
 	padding: 15px;
-	background-color: white;
-	border-top: 1px solid rgba(0, 0, 0, 0.06);
+	background-color: #e8e8e8;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 .editor-sidepanel-content > .panel {
 	min-height: 100%;
