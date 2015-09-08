@@ -75,13 +75,8 @@ module.exports = function(database, options) {
 				.then(function(userModel) {
 					var uid = userModel.uid;
 					var accessToken = userModel.token;
-					var siteService = new SiteService(database, {
-						host: host,
-						appKey: appKey,
-						appSecret: appSecret,
-						accessToken: accessToken
-					});
-					return siteService.retrieveSiteAuthenticationDetails(uid, siteName)
+					var onlyPublished = true;
+					return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
 						.then(function(authenticationDetails) {
 							var isPrivate = authenticationDetails.private;
 							if (!isPrivate) {
@@ -125,13 +120,8 @@ module.exports = function(database, options) {
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
-						var siteService = new SiteService(database, {
-							host: host,
-							appKey: appKey,
-							appSecret: appSecret,
-							accessToken: accessToken
-						});
-						return siteService.retrieveSiteAuthenticationDetails(uid, siteName)
+						var onlyPublished = true;
+						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
 							.then(function(authenticationDetails) {
 								var isPrivate = authenticationDetails.private;
 								if (!isPrivate) {
@@ -246,7 +236,8 @@ module.exports = function(database, options) {
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
-						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName)
+						var onlyPublished = true;
+						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
 							.then(function(authenticationDetails) {
 								var isPrivate = authenticationDetails.private;
 								if (!isPrivate) { return redirectToSitePage(req, res); }
@@ -327,7 +318,8 @@ module.exports = function(database, options) {
 					.then(function(userModel) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
-						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName)
+						var onlyPublished = true;
+						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
 							.then(function(authenticationDetails) {
 								var isPrivate = authenticationDetails.private;
 								if (!isPrivate) { return next(); }
@@ -483,16 +475,6 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function retrieveSiteAuthenticationDetails(accessToken, uid, siteName) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.retrieveSiteAuthenticationDetails(uid, siteName);
-		}
-
 		function retrieveSiteDownloadLink(accessToken, uid, siteName, filePath) {
 			var siteService = new SiteService(database, {
 				host: host,
@@ -512,5 +494,17 @@ module.exports = function(database, options) {
 			});
 			return siteService.retrieveSiteThumbnailLink(uid, siteName, filePath);
 		}
+	}
+
+	function retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished) {
+		var siteService = new SiteService(database, {
+			host: host,
+			appKey: appKey,
+			appSecret: appSecret,
+			accessToken: accessToken
+		});
+		return siteService.retrieveSiteAuthenticationDetails(uid, siteName, {
+			published: onlyPublished
+		});
 	}
 };

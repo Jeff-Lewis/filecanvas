@@ -188,9 +188,11 @@ SiteService.prototype.deleteSite = function(uid, siteName) {
 		});
 };
 
-SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteName) {
+SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteName, options) {
+	options = options || {};
+	var onlyPublishedSites = Boolean(options.published);
 	var database = this.database;
-	return retrieveSiteAuthenticationDetails(database, uid, siteName);
+	return retrieveSiteAuthenticationDetails(database, uid, siteName, onlyPublishedSites);
 };
 
 SiteService.prototype.retrieveSiteCache = function(uid, siteName) {
@@ -328,8 +330,9 @@ function deleteSite(database, uid, siteName) {
 		});
 }
 
-function retrieveSiteAuthenticationDetails(database, uid, siteName) {
+function retrieveSiteAuthenticationDetails(database, uid, siteName, onlyPublishedSites) {
 	var query = { 'user': uid, 'name': siteName };
+	if (onlyPublishedSites) { query['published'] = true; }
 	var fields = [
 		'private',
 		'users'
