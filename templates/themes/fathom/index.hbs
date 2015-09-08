@@ -90,7 +90,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					<a href="http://www.fathomlondon.com/" class="logo"></a>
+					<a href="{{ theme.content.contactWebsite }}" class="logo"></a>
 				</div>
 				<nav>
 					{{#if site.private}}
@@ -113,7 +113,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
-						<a href="http://www.fathomlondon.com/" class="logo"></a>
+						<a href="{{ theme.content.contactWebsite }}" class="logo"></a>
 					</div>
 					<div class="span8">
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
@@ -227,15 +227,22 @@
 		<section class="footer">
 			<div class="container">
 				<div class="row">
-					<div class="span4">
+					<div class="contact span6">
 						<h5>Contact Us</h5>
-						<p><strong>E-mail:</strong> <a href="mailto:hello@fathomlondon.com" class="white-text">hello@fathomlondon.com</a><br />
-						<strong>Location:</strong> <span class="white-text">80 Coleman Street, London, EC3M 7AT</span></p>
+						{{#if theme.content.contactEmail}}
+						<p><strong>E-mail:</strong> <a href="mailto:{{ theme.content.contactEmail }}" class="white-text">{{ theme.content.contactEmail }}</a></p>
+						{{/if}}
+						{{#if theme.content.contactPhone}}
+						<p><strong>Phone:</strong> <span class="white-text">{{ theme.content.contactPhone }}</span></p>
+						{{/if}}
+						{{#if theme.content.contactAddress}}
+						<p><strong>Location:</strong> <span class="white-text">{{ theme.content.contactAddress }}</span></p>
+						{{/if}}
 					</div>
-					<div class="span4"></div>
+					<div class="span2"></div>
 					<div class="span4">
-						<h5>Your Extranet</h5>
-						<p>Providing private access to the latest resources from Fathom London.</p>
+						<h5>{{ theme.content.footerTitle }}</h5>
+						<p>{{ theme.content.footerText }}</p>
 					</div>
 				</div>
 			</div>
