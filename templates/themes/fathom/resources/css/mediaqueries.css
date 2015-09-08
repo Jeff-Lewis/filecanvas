@@ -355,6 +355,11 @@
 		display: none;
 	}
 
+	header .logo {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	.bg1, .bg2, .bg3, .bg4 {
 		background-attachment: scroll;
 		background-size: 150%;
