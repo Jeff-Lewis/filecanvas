@@ -79,6 +79,7 @@ SiteService.prototype.createSite = function(siteModel) {
 SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
+	var includeTheme = Boolean(options.theme);
 	var includeContents = Boolean(options.contents);
 	var includeUsers = Boolean(options.users);
 	var database = this.database;
@@ -87,6 +88,7 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 	var accessToken = this.accessToken;
 	return retrieveSite(database, uid, siteName, {
 		published: onlyPublishedSites,
+		theme: includeTheme,
 		contents: includeContents,
 		users: includeUsers
 	})
@@ -283,6 +285,7 @@ function createSite(database, siteModel) {
 function retrieveSite(database, uid, siteName, options) {
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
+	var includeTheme = Boolean(options.theme);
 	var includeContents = Boolean(options.contents);
 	var includeUsers = Boolean(options.users);
 
@@ -292,11 +295,11 @@ function retrieveSite(database, uid, siteName, options) {
 		'user',
 		'name',
 		'label',
-		'theme',
 		'root',
 		'private',
 		'published'
 	];
+	if (includeTheme) { fields.push('theme'); }
 	if (includeUsers) { fields.push('users'); }
 	if (includeContents) { fields.push('cache'); }
 	return database.collection(DB_COLLECTION_SITES).findOne(query, fields)

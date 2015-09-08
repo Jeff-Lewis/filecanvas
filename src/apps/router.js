@@ -49,7 +49,7 @@ module.exports = function(database, config) {
 				appSecret: config.dropbox.appSecret,
 				loginCallbackUrl: config.dropbox.loginCallbackUrl,
 				registerCallbackUrl: config.dropbox.registerCallbackUrl,
-				siteThemes: config.themes.options,
+				themesPath: path.resolve(__dirname, '../../templates/themes'),
 				defaultSiteTheme: config.themes.default,
 				themesUrl: config.themes.root
 			}),

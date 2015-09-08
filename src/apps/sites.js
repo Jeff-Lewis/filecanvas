@@ -367,13 +367,14 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var published = !isPreview;
+						var includeTheme = true;
 						var includeContents = false;
-						return retrieveSite(accessToken, uid, siteName, published, includeContents)
+						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents)
 							.then(function(siteModel) {
 								var context = {
 									siteRoot: getSiteRootUrl(req, '/login'),
 									themeRoot: themesUrl + siteModel.theme.name + '/',
-									theme: siteModel.theme.options,
+									theme: siteModel.theme.config,
 									site: {
 										private: siteModel.private
 									}
@@ -395,14 +396,15 @@ module.exports = function(database, options) {
 						var uid = userModel.uid;
 						var accessToken = userModel.token;
 						var published = !isPreview;
+						var includeTheme = true;
 						var includeContents = true;
-						return retrieveSite(accessToken, uid, siteName, published, includeContents)
+						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents)
 							.then(function(siteModel) {
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
 									siteRoot: getSiteRootUrl(req),
 									themeRoot: themesUrl + siteModel.theme.name + '/',
-									theme: siteModel.theme.options,
+									theme: siteModel.theme.config,
 									site: {
 										private: siteModel.private
 									},
@@ -466,7 +468,7 @@ module.exports = function(database, options) {
 			return userService.retrieveUser(username);
 		}
 
-		function retrieveSite(accessToken, uid, siteName, published, includeContents) {
+		function retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents) {
 			var siteService = new SiteService(database, {
 				host: host,
 				appKey: appKey,
@@ -475,6 +477,7 @@ module.exports = function(database, options) {
 			});
 			return siteService.retrieveSite(uid, siteName, {
 				published: published,
+				theme: includeTheme,
 				contents: includeContents,
 				users: false
 			});

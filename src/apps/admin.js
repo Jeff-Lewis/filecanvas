@@ -23,6 +23,8 @@ var UserService = require('../services/UserService');
 
 var faqData = require('../../templates/admin/faq.json');
 
+var THEME_MANIFEST_FILENAME = 'theme.json';
+
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
@@ -30,7 +32,7 @@ module.exports = function(database, options) {
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
 	var registerCallbackUrl = options.registerCallbackUrl;
-	var siteThemes = options.siteThemes;
+	var themesPath = options.themesPath;
 	var themesUrl = options.themesUrl;
 	var defaultSiteTheme = options.defaultSiteTheme;
 
@@ -39,12 +41,15 @@ module.exports = function(database, options) {
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
 	if (!registerCallbackUrl) { throw new Error('Missing Dropbox register callback URL'); }
-	if (!siteThemes) { throw new Error('Missing site themes'); }
+	if (!themesPath) { throw new Error('Missing site themes path'); }
 	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 
 	var app = express();
 	var passport = new Passport();
+
+	var themes = loadThemes(themesPath);
+	var defaultTheme = themes[defaultSiteTheme];
 
 	initAuth(app, passport, database, {
 		appKey: appKey,
@@ -53,15 +58,15 @@ module.exports = function(database, options) {
 		registerCallbackUrl: registerCallbackUrl
 	});
 	initAssetsRoot(app, '/assets', {
-		assetsRoot: path.resolve(__dirname, '../../templates/admin/assets')
+		assetsRoot: path.resolve(__dirname, '../../templates/admin') + '/assets'
 	});
 	initStaticPages(app, {
 		'/terms': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/terms/terms.html'), { encoding: 'utf8' }),
 		'/privacy': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/privacy/privacy.html'), { encoding: 'utf8' })
 	});
 	initRoutes(app, passport, database, {
-		siteThemes: siteThemes,
-		defaultSiteTheme: defaultSiteTheme,
+		themes: themes,
+		defaultTheme: defaultTheme,
 		themesUrl: themesUrl,
 		faqData: faqData
 	});
@@ -74,6 +79,40 @@ module.exports = function(database, options) {
 
 	return app;
 
+
+	function loadThemes(themesPath) {
+		var filenames = fs.readdirSync(themesPath)
+			.filter(function(filename) {
+				return filename.charAt(0) !== '.';
+			});
+		var themes = filenames.reduce(function(themes, filename) {
+			var themeManifestPath = path.join(themesPath, filename, THEME_MANIFEST_FILENAME);
+			var theme = require(themeManifestPath);
+			theme.id = filename;
+			theme.defaults = parseThemeConfigDefaults(theme);
+			themes[filename] = theme;
+			return themes;
+		}, {});
+		return themes;
+
+
+		function parseThemeConfigDefaults(theme) {
+			var configSchema = theme.config;
+			return configSchema.reduce(function(defaults, configGroup) {
+				var configGroupDefaults = parseConfigGroupDefaults(configGroup);
+				defaults[configGroup.name] = configGroupDefaults;
+				return defaults;
+			}, {});
+
+			function parseConfigGroupDefaults(configGroup) {
+				var configGroupFields = configGroup.fields;
+				return configGroupFields.reduce(function(defaults, field) {
+					defaults[field.name] = field.default;
+					return defaults;
+				}, {});
+			}
+		}
+	}
 
 	function initAssetsRoot(app, pathPrefix, options) {
 		options = options || {};
@@ -259,13 +298,13 @@ module.exports = function(database, options) {
 
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
-		var siteThemes = options.siteThemes;
-		var defaultSiteTheme = options.defaultSiteTheme;
+		var themes = options.themes;
+		var defaultTheme = options.defaultTheme;
 		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, themesUrl, faqData);
+		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData);
 		app.use(invalidRoute());
 
 
@@ -424,7 +463,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, siteThemes, defaultSiteTheme, themesUrl, faqData) {
+		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -631,10 +670,7 @@ module.exports = function(database, options) {
 					published: false,
 					home: false,
 					theme: {
-						name: defaultSiteTheme,
-						options: {
-							title: ''
-						}
+						name: defaultTheme.id
 					}
 				};
 				var templateData = {
@@ -651,7 +687,7 @@ module.exports = function(database, options) {
 					content: {
 						sites: res.locals.sites,
 						site: siteModel,
-						themes: siteThemes
+						themes: themes
 					}
 				};
 				renderAdminPage(req, res, 'sites', templateData)
@@ -671,9 +707,7 @@ module.exports = function(database, options) {
 					'label': req.body.label,
 					'theme': {
 						'name': req.body.theme,
-						'options': {
-							title: req.body['theme.title']
-						}
+						'config': themes[req.body.theme].defaults
 					},
 					'root': req.body.root || null,
 					'private': req.body.private === 'true',
@@ -706,9 +740,10 @@ module.exports = function(database, options) {
 				var defaultSiteName = userModel.defaultSite;
 				var accessToken = userModel.token;
 				var siteName = req.params.site;
+				var includeTheme = false;
 				var includeContents = false;
 				var includeUsers = true;
-				retrieveSite(accessToken, uid, siteName, includeContents, includeUsers)
+				retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var isDefaultSite = (siteModel.name === defaultSiteName);
 						siteModel.home = isDefaultSite;
@@ -759,13 +794,15 @@ module.exports = function(database, options) {
 				};
 				if (req.body.name) { updates.name = req.body.name; }
 				if (req.body.label) { updates.label = req.body.label; }
-				if (req.body.theme) {
-					updates.theme = {
-						'name': req.body.theme,
-						'options': {
-							title: req.body['theme.title']
-						}
-					};
+				var themeConfig = parseThemeConfig(req.body);
+				if (req.body.theme || themeConfig) {
+					updates.theme = {};
+					if (req.body.theme) {
+						updates.theme.name = req.body.theme;
+					}
+					if (themeConfig) {
+						updates.theme.config = themeConfig;
+					}
 				}
 				if (req.body.root) { updates.root = req.body.root || null; }
 				if (req.body.private) { updates.private = req.body.private === 'true'; }
@@ -787,6 +824,29 @@ module.exports = function(database, options) {
 					.catch(function(error) {
 						next(error);
 					});
+
+
+				function parseThemeConfig(requestBody) {
+					var CONFIG_FIELD_PREFIX = 'theme.config.';
+					var themeConfigFields = Object.keys(requestBody).filter(function(key) {
+						return key.indexOf(CONFIG_FIELD_PREFIX) === 0;
+					});
+					if (themeConfigFields.length === 0) { return null; }
+					return themeConfigFields.map(function(key) {
+						var unprefixedKey = key.slice(CONFIG_FIELD_PREFIX.length);
+						var segments = unprefixedKey.split('.');
+						var configGroup = segments[0];
+						var configField = segments[1];
+						var value = requestBody[key];
+						return { group: configGroup, field: configField, value: value };
+					})
+					.reduce(function(config, configItem) {
+						var configGroup = config[configItem.group] || {};
+						configGroup[configItem.field] = configItem.value;
+						config[configItem.group] = configGroup;
+						return config;
+					}, {});
+				}
 			}
 
 			function purgeSiteRoute(req, res, next) {
@@ -822,9 +882,10 @@ module.exports = function(database, options) {
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
 				var siteName = req.params.site;
+				var includeTheme = false;
 				var includeContents = false;
 				var includeUsers = true;
-				retrieveSite(accessToken, uid, siteName, includeContents, includeUsers)
+				retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Edit site users: ' + siteModel.label,
@@ -916,12 +977,13 @@ module.exports = function(database, options) {
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
 				var siteName = req.params.site;
+				var includeTheme = true;
 				var includeContents = false;
-				var includeUsers = true;
-				retrieveSite(accessToken, uid, siteName, includeContents, includeUsers)
+				var includeUsers = false;
+				retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers)
 					.then(function(siteModel) {
 						var templateData = {
-							title: 'Site theme: ' + siteModel.label,
+							title: 'Theme editor',
 							stylesheets: [
 								'/assets/css/bootstrap-colorpicker.min.css',
 								'/assets/css/shunt-editor.css'
@@ -952,7 +1014,7 @@ module.exports = function(database, options) {
 							],
 							content: {
 								site: siteModel,
-								themes: siteThemes
+								themes: themes
 							}
 						};
 						return renderAdminPage(req, res, 'sites/site/theme', templateData);
@@ -1038,7 +1100,7 @@ module.exports = function(database, options) {
 			return siteService.createSite(siteModel);
 		}
 
-		function retrieveSite(accessToken, uid, siteName, includeContents, includeUsers) {
+		function retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers) {
 			var siteService = new SiteService(database, {
 				host: host,
 				appKey: appKey,
@@ -1046,6 +1108,7 @@ module.exports = function(database, options) {
 				accessToken: accessToken
 			});
 			return siteService.retrieveSite(uid, siteName, {
+				theme: includeTheme,
 				contents: includeContents,
 				users: includeUsers
 			});
