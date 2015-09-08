@@ -64,7 +64,9 @@
 			var $formElement = $(event.currentTarget);
 			var sourceAttributeName = 'data-bind-id';
 			var validatorAttributeName = 'data-validate';
-			var $sourceElements = $formElement.find('[' + sourceAttributeName + ']');
+			var inputTypes = ['input', 'textarea', 'select'];
+			var inputSelectors = inputTypes.concat('[' + sourceAttributeName + ']');
+			var $sourceElements = $formElement.find(inputSelectors.join(','));
 			var $validatedElements = $formElement.find('[' + validatorAttributeName + ']');
 			setTimeout(function() {
 				$sourceElements.change();
