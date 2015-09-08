@@ -163,7 +163,7 @@
 					}
 				},
 				{
-					"name": "introHeader",
+					"name": "introTitle",
 					"type": "string",
 					"default": null,
 					"label": "Intro title",
@@ -219,7 +219,7 @@
 					}
 				},
 				{
-					"name": "contactHeader",
+					"name": "contactTitle",
 					"type": "string",
 					"default": "Contact us",
 					"label": "Contact section title",
