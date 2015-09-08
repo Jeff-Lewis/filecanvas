@@ -83,10 +83,12 @@ function createHandlebarsCompiler(config) {
 				return !item;
 			});
 			compiler.registerHelper('and', function(item1, item2, options) {
-				return item1 && item2;
+				var items = Array.prototype.slice.call(arguments, 0, -1);
+				return items.every(function(item) { return Boolean(item); });
 			});
 			compiler.registerHelper('or', function(item1, item2, options) {
-				return item1 || item2;
+				var items = Array.prototype.slice.call(arguments, 0, -1);
+				return items.some(function(item) { return Boolean(item); });
 			});
 			compiler.registerHelper('gt', function(item1, item2, options) {
 				return item1 > item2;
