@@ -40,7 +40,7 @@
 							placeholder="{{ field.editor.options.placeholder }}"
 							maxlength="{{ field.editor.options.maxLength }}"
 							rows="{{ field.editor.options.rows }}"
-						>{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}</textarea>
+						>{{ escapeNewlines (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) }}</textarea>
 						{{/if}}
 						{{#if (eq field.editor.name 'code')}}
 						<textarea class="form-control code-editor"
