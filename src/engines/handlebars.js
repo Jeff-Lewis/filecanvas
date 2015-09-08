@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var Handlebars = require('handlebars');
+var showdown = require('showdown');
 
 var templateCache = {};
 var compilerConfig = {};
@@ -131,6 +132,12 @@ function createHandlebarsCompiler(config) {
 		function registerSerializerHelpers(compiler) {
 			compiler.registerHelper('json', function(value, options) {
 				return JSON.stringify(value);
+			});
+			compiler.registerHelper('markdown', function(value, options) {
+				var safeValue = Handlebars.Utils.escapeExpression(value);
+				var converter = new showdown.Converter();
+				var html = converter.makeHtml(safeValue);
+				return new Handlebars.SafeString(html);
 			});
 		}
 
