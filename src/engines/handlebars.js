@@ -111,12 +111,17 @@ function createHandlebarsCompiler(config) {
 			compiler.registerHelper('replace', function(item1, item2, options) {
 				return options.fn(this).replace(item1, item2);
 			});
-			compiler.registerHelper('concat', function(item, options) {
+			compiler.registerHelper('concat', function(item1, options) {
 				var items = Array.prototype.slice.call(arguments, 0, -1);
 				return items.join('');
 			});
 			compiler.registerHelper('startsWith', function(haystack, needle, options) {
 				return haystack.indexOf(needle) === 0;
+			});
+			compiler.registerHelper('escapeNewlines', function(value, options) {
+				var safeValue = Handlebars.Utils.escapeExpression(value);
+				var escapedValue = safeValue.replace(/\n/g, '&#10;').replace(/\r/g, '&#13;');
+				return new Handlebars.SafeString(escapedValue);
 			});
 		}
 
