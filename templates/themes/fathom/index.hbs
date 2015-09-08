@@ -21,7 +21,9 @@
 	<style type="text/css">
 		a,
 		.logout:hover,
+		#slidecaption h2,
 		#slidecaption em,
+		#slidecaption strong,
 		.option-set li a:hover,
 		.option-set li a.selected {
 			color: {{ theme.styles.brandColor }};
@@ -91,7 +93,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					<a href="{{ theme.content.contactWebsite }}" class="logo"></a>
+					<a class="logo" href="{{ theme.content.contactWebsite }}" target="_blank"></a>
 				</div>
 				<nav>
 					{{#if site.private}}
@@ -115,7 +117,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
-						<a href="{{ theme.content.contactWebsite }}" class="logo"></a>
+						<a class="logo" href="{{ theme.content.contactWebsite }}" target="_blank"></a>
 					</div>
 					<div class="span8">
 						{{#if contents.folders}}
@@ -258,6 +260,7 @@
 			{{#if (or
 				theme.content.contactTitle
 				theme.content.contactEmail
+				theme.content.contactWebsite
 				theme.content.contactPhone
 				theme.content.contactAddress
 				theme.content.footerTitle
@@ -269,7 +272,10 @@
 						<div class="contact span6">
 							<h5>{{ theme.content.contactTitle }}</h5>
 							{{#if theme.content.contactEmail}}
-							<p><strong>E-mail:</strong> <a href="mailto:{{ theme.content.contactEmail }}" class="white-text">{{ theme.content.contactEmail }}</a></p>
+							<p><strong>E-mail:</strong> <a class="white-text" href="mailto:{{ theme.content.contactEmail }}">{{ theme.content.contactEmail }}</a></p>
+							{{/if}}
+							{{#if theme.content.contactWebsite}}
+							<p><strong>Web:</strong> <a class="white-text" href="{{ theme.content.contactWebsite }}" target="_blank">{{ theme.content.contactWebsite }}</a></p>
 							{{/if}}
 							{{#if theme.content.contactPhone}}
 							<p><strong>Phone:</strong> <span class="white-text">{{ theme.content.contactPhone }}</span></p>
@@ -279,7 +285,7 @@
 							{{/if}}
 						</div>
 						<div class="span2"></div>
-						<div class="span4">
+						<div class="about span4">
 							<h5>{{ theme.content.footerTitle }}</h5>
 							<p>{{ theme.content.footerText }}</p>
 						</div>
@@ -289,7 +295,7 @@
 			{{/if}}
 
 			<div class="copyright">
-				Powered by <a href="https://www.shunt.io/">Shunt.io</a> – The easiest way to showcase your files
+				Powered by <a href="https://www.shunt.io/">Shunt.io</a>
 			</div>
 		</footer>
 	</div>

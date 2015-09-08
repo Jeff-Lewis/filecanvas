@@ -8,20 +8,14 @@
 				{
 					"name": "brandColor",
 					"type": "color",
-					"default": "#d9534f",
+					"default": "#cc0000",
 					"label": "Brand colour",
 					"editor": {
 						"name": "colorpicker",
 						"options": {
 							"format": "hex",
 							"placeholder": null,
-							"presets": {
-								"#000000": "#000000",
-								"#d9534f": "#d9534f",
-								"#5cb85c": "#5cb85c",
-								"#5bc0de": "#5bc0de",
-								"#ffffff": "#ffffff"
-							}
+							"presets": null
 						}
 					}
 				},
@@ -35,53 +29,35 @@
 						"options": {
 							"format": "hex",
 							"placeholder": null,
-							"presets": {
-								"#000000": "#000000",
-								"#d9534f": "#d9534f",
-								"#5cb85c": "#5cb85c",
-								"#5bc0de": "#5bc0de",
-								"#ffffff": "#ffffff"
-							}
+							"presets": null
 						}
 					}
 				},
 				{
 					"name": "navItemRolloverColor",
 					"type": "color",
-					"default": "#ffffff",
+					"default": "#ffcccc",
 					"label": "Navigation item (rollover)",
 					"editor": {
 						"name": "colorpicker",
 						"options": {
 							"format": "hex",
 							"placeholder": null,
-							"presets": {
-								"#000000": "#000000",
-								"#d9534f": "#d9534f",
-								"#5cb85c": "#5cb85c",
-								"#5bc0de": "#5bc0de",
-								"#ffffff": "#ffffff"
-							}
+							"presets": null
 						}
 					}
 				},
 				{
 					"name": "navItemSelectedColor",
 					"type": "color",
-					"default": "#ffffff",
+					"default": "#333333",
 					"label": "Navigation item (selected)",
 					"editor": {
 						"name": "colorpicker",
 						"options": {
 							"format": "hex",
 							"placeholder": null,
-							"presets": {
-								"#000000": "#000000",
-								"#d9534f": "#d9534f",
-								"#5cb85c": "#5cb85c",
-								"#5bc0de": "#5bc0de",
-								"#ffffff": "#ffffff"
-							}
+							"presets": null
 						}
 					}
 				}
@@ -106,6 +82,20 @@
 					}
 				},
 				{
+					"name": "navLogo",
+					"type": "string",
+					"default": null,
+					"label": "Navigation bar logo",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "string",
+							"placeholder": "Enter a URL",
+							"maxLength": 4096
+						}
+					}
+				},
+				{
 					"name": "headerText",
 					"type": "string",
 					"default": null,
@@ -124,20 +114,6 @@
 					"type": "string",
 					"default": null,
 					"label": "Header logo",
-					"editor": {
-						"name": "input",
-						"options": {
-							"type": "string",
-							"placeholder": "Enter a URL",
-							"maxLength": 4096
-						}
-					}
-				},
-				{
-					"name": "navLogo",
-					"type": "string",
-					"default": null,
-					"label": "Navigation logo",
 					"editor": {
 						"name": "input",
 						"options": {
