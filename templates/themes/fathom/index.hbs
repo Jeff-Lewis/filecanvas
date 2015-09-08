@@ -19,67 +19,67 @@
 	<![endif]-->
 	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
 	<style type="text/css">
+		a,
+		.logout:hover,
+		#slidecaption em,
+		.option-set li a:hover,
+		.option-set li a.selected {
+			color: {{ theme.styles.brandColor }};
+		}
+		::selection,
+		nav#mainnav,
+		.project-wrp:hover,
+		.copyright {
+			background-color: {{ theme.styles.brandColor }};
+		}
+		.btn-primary,
+		.btn-primary:link,
+		.btn-primary:hover,
+		.btn-primary:active,
+		.btn-primary:focus {
+			background-color: {{ theme.styles.brandColor }} !important;
+		}
+		a,
+		hr,
+		hr.mini {
+			border-bottom: 1px solid {{ theme.styles.brandColor }};
+		}
+		::selection,
+		.logout,
+		#slidecaption,
+		nav #fluid-nav li a,
+		.project-wrp:hover .project-name,
+		.project-wrp:hover .project-client,
+		.project-wrp:hover .project-date,
+		.copyright,
+		.copyright a {
+			color: {{ theme.styles.navItemColor }};
+		}
+		.project-wrp:hover hr {
+			border-color: {{ theme.styles.navItemColor }};
+		}
+		nav #fluid-nav li a:hover {
+			color: {{ theme.styles.navItemRolloverColor }};
+		}
+		nav #fluid-nav li.current a {
+			color: {{ theme.styles.navItemSelectedColor }};
+		}
 
-	a,
-	.logout:hover,
-	#slidecaption em,
-	.option-set li a:hover,
-	.option-set li a.selected {
-		color: {{ theme.styles.brandColor }};
-	}
-	::selection,
-	nav#mainnav,
-	.project-wrp:hover,
-	.copyright {
-		background-color: {{ theme.styles.brandColor }};
-	}
-	.btn-primary,
-	.btn-primary:link,
-	.btn-primary:hover,
-	.btn-primary:active,
-	.btn-primary:focus {
-		background-color: {{ theme.styles.brandColor }} !important;
-	}
-	a,
-	hr,
-	hr.mini {
-		border-bottom: 1px solid {{ theme.styles.brandColor }};
-	}
-	::selection,
-	.logout,
-	#slidecaption,
-	nav #fluid-nav li a,
-	.project-wrp:hover .project-name,
-	.project-wrp:hover .project-client,
-	.project-wrp:hover .project-date,
-	.copyright,
-	.copyright a {
-		color: {{ theme.styles.navItemColor }};
-	}
-	.project-wrp:hover hr {
-		border-color: {{ theme.styles.navItemColor }};
-	}
-	nav #fluid-nav li a:hover {
-		color: {{ theme.styles.navItemRolloverColor }};
-	}
-	nav #fluid-nav li.current a {
-		color: {{ theme.styles.navItemSelectedColor }};
-	}
+		{{#if theme.content.headerLogo}}
+		header .logo {
+			background-image: url('{{{ theme.content.headerLogo }}}');
+		}
+		{{/if}}
 
-	{{#if theme.content.headerLogo}}
-	header .logo {
-		background-image: url('{{{ theme.content.headerLogo }}}');
-	}
-	{{/if}}
-
-	{{#if theme.content.navLogo}}
-	nav#mainnav .logo {
-		background-image: url('{{{ theme.content.navLogo }}}');
-	}
-	{{/if}}
+		{{#if theme.content.navLogo}}
+		nav#mainnav .logo {
+			background-image: url('{{{ theme.content.navLogo }}}');
+		}
+		{{/if}}
+	</style>
+	<style type="text/css">
 {{{ theme.styles.css }}}
 	</style>
-	<style type="text/css">{{{ theme.styles.css }}}</style>
 </head>
 
 <body>
