@@ -16,11 +16,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#010101",
+								"Black": "#000000",
 								"Red": "#d9534f",
 								"Green": "#5cb85c",
 								"Blue": "#5bc0de",
-								"White": "#fefefe"
+								"White": "#ffffff"
 							}
 						}
 					}
@@ -36,11 +36,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#010101",
+								"Black": "#000000",
 								"Red": "#d9534f",
 								"Green": "#5cb85c",
 								"Blue": "#5bc0de",
-								"White": "#fefefe"
+								"White": "#ffffff"
 							}
 						}
 					}
@@ -56,11 +56,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#010101",
+								"Black": "#000000",
 								"Red": "#d9534f",
 								"Green": "#5cb85c",
 								"Blue": "#5bc0de",
-								"White": "#fefefe"
+								"White": "#ffffff"
 							}
 						}
 					}
@@ -76,11 +76,11 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": {
-								"Black": "#010101",
+								"Black": "#000000",
 								"Red": "#d9534f",
 								"Green": "#5cb85c",
 								"Blue": "#5bc0de",
-								"White": "#fefefe"
+								"White": "#ffffff"
 							}
 						}
 					}
