@@ -235,7 +235,7 @@
 
 		<footer>
 			{{#if (or
-				theme.content.contactHeader
+				theme.content.contactTitle
 				theme.content.contactEmail
 				theme.content.contactPhone
 				theme.content.contactAddress
@@ -246,7 +246,7 @@
 				<div class="container">
 					<div class="row">
 						<div class="contact span6">
-							<h5>{{ theme.content.contactHeader }}</h5>
+							<h5>{{ theme.content.contactTitle }}</h5>
 							{{#if theme.content.contactEmail}}
 							<p><strong>E-mail:</strong> <a href="mailto:{{ theme.content.contactEmail }}" class="white-text">{{ theme.content.contactEmail }}</a></p>
 							{{/if}}
