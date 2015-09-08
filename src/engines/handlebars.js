@@ -68,6 +68,7 @@ function createHandlebarsCompiler(config) {
 		registerBooleanHelpers(compiler);
 		registerArrayHelpers(compiler);
 		registerStringHelpers(compiler);
+		registerSerializerHelpers(compiler);
 		registerSiteHelpers(compiler, config);
 
 
@@ -122,6 +123,12 @@ function createHandlebarsCompiler(config) {
 				var safeValue = Handlebars.Utils.escapeExpression(value);
 				var escapedValue = safeValue.replace(/\n/g, '&#10;').replace(/\r/g, '&#13;');
 				return new Handlebars.SafeString(escapedValue);
+			});
+		}
+
+		function registerSerializerHelpers(compiler) {
+			compiler.registerHelper('json', function(value, options) {
+				return JSON.stringify(value);
 			});
 		}
 
