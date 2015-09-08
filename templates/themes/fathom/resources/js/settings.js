@@ -229,7 +229,7 @@ $(document).ready(function(){
 // Footer spacing
 
 $(document).ready(function() {
-	$('.wrapper').css('paddingBottom', $('footer').outerHeight());
+	$('.pages').css('paddingBottom', $('footer').outerHeight());
 });
 
 
