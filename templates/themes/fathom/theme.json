@@ -142,9 +142,9 @@
 					"editor": {
 						"name": "input",
 						"options": {
-							"type": "url",
+							"type": "string",
 							"placeholder": "Enter a URL",
-							"maxLength": 128
+							"maxLength": 4096
 						}
 					}
 				},
@@ -156,9 +156,9 @@
 					"editor": {
 						"name": "input",
 						"options": {
-							"type": "url",
+							"type": "string",
 							"placeholder": "Enter a URL",
-							"maxLength": 128
+							"maxLength": 4096
 						}
 					}
 				},
