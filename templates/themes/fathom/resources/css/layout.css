@@ -35,12 +35,8 @@
 		-webkit-font-smoothing: antialiased;
 	}
 
-	::-moz-selection {background: #8bc53e; color: #fff; }
-	::selection {background: #8bc53e; color: #fff; }
-
-	a { color: #8bc53e;
+	a {
 		text-decoration: none;
-		border-bottom: 1px solid #8bc53e;
 		-webkit-transition: color 0.1s linear, border 0.1s linear, opacity 0.1s linear, background-color 0.1s linear;
 		   -moz-transition: color 0.1s linear, border 0.1s linear, opacity 0.1s linear, background-color 0.1s linear;
 		    -ms-transition: color 0.1s linear, border 0.1s linear, opacity 0.1s linear, background-color 0.1s linear;
@@ -122,10 +118,6 @@
 		width: 100%;
 	}
 
-	.color-text {
-		color: #8bc53e;
-	}
-
 	.white-text {
 		color: #fff;
 	}
@@ -134,11 +126,6 @@
 		padding-top: 78px;
 		padding-bottom: 90px;
 		background: #fff;
-	}
-
-	.page-gray {
-		background: #f7f7f7;
-		border-top: 1px solid #e5e5e5;
 	}
 
 	.title {
@@ -150,14 +137,6 @@
 		margin-bottom: 34px;
 	}
 
-	.lead {
-		font-size: 38px;
-		line-height: 1.4;
-		margin: 44px 0 46px 0;
-		font-weight: 300;
-		padding-right: 30%;
-	}
-
 	.lead-small {
 		font-size: 24px;
 		line-height: 1.4;
@@ -167,30 +146,13 @@
 
 	hr {
 		border: 0;
-		border-bottom: 1px solid #8bc53e;
-		margin: 10px 0;
-	}
-
-	hr.gray {
-		border: 0;
-		border-bottom: 1px solid #e5e5e5;
 		margin: 10px 0;
 	}
 
 	hr.mini {
 		width: 60px;
 		border: 0;
-		border-bottom: 1px solid #8bc53e;
 		margin: 10px 0;
-	}
-
-	hr.margin20 {
-		margin: 20px 0;
-	}
-
-	.vertical-text {
-		display: table-cell;
-		vertical-align: middle;
 	}
 
 	.pattern {
@@ -198,8 +160,6 @@
 		width: 100%;
 		position: absolute;
 	}
-
-	/* Home ------------------------------------------ */
 
 	header {
 		width: 100%;
@@ -211,10 +171,6 @@
 		background: #333 url(../img/header.png) no-repeat top center fixed;
 		background-size: 1280px;
 	}
-
-	#admin header,
-	#admin .pattern,
-	#admin .header-bg { height: 120px; }
 
 	header .pattern {
 		height: 700px;
@@ -236,11 +192,14 @@
 	#slidecaption {
 		position: absolute;
 		top: 30%;
-		color:#fff;
 		font: 48px 'Myriad Pro', 'Trebuchet MS', sans-serif;
 		text-transform: uppercase;
 		letter-spacing: 2px;
 		line-height: 1.3;
+	}
+
+	#slidecaption em {
+		font-style: normal;
 	}
 
 	#slidecaption .sub-caption {
@@ -268,9 +227,11 @@
 		margin: 0;
 		padding: 0;
 		line-height: 0;
-		border: None;
-		width: 205px;
-		height: 24px;
+		border: none;
+		width: 185px;
+		height: 70px;
+		background-repeat: no-repeat;
+		background-position: top left;
 	}
 
 	header .logo {
@@ -281,412 +242,66 @@
 		margin-top: 60px;
 	}
 
-
-			/* Navigation ------------------------------------------ */
-
-			nav ul {
-				display: inline-block;
-				font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-				float: right;
-			}
-
-
-			nav #fluid-nav li, nav #fixed-nav li {
-				display: inline-block;
-				margin-left: 12px;
-				color: #999;
-			}
-
-			nav #fluid-nav li:first-child, nav #fixed-nav li:first-child  {
-				margin-left: 0;
-			}
-
-			nav #fluid-nav li a, nav #fixed-nav li a {
-				color: #fff;
-				font-weight: 700;
-				text-transform: uppercase;
-				font-size: 12px;
-				border: none;
-			}
-
-			nav #fluid-nav li a:hover {
-				color: #333;
-				text-decoration: none;
-
-			}
-
-			nav #fluid-nav li.current a {
-				color: #710f27;
-			}
-
-			nav #fixed-nav li a:hover {
-				color: #8bc53e;
-				text-decoration: none;
-			}
-
-			nav #fixed-nav li.current a {
-				color: #fff;
-				padding-bottom: 5px;
-				border-bottom: 3px solid #8bc53e;
-			}
-
-			nav#mainnav {
-				width: 100%;
-				height: 51px;
-				background-color: #8bc53e;
-				overflow: hidden;
-				position: relative;
-				z-index: 999;
-			}
-
-			nav#mainnav .logo {
-	position: absolute;
-	top: 0px;
-			}
-
-			nav#mainnav #fluid-nav li {
-				margin-top: 16px;
-				color: #666;
-			}
-
-			.selectnav {
-				display: none;
-				font-size: 12px;
-				position: absolute;
-				text-transform: capitalize !important;
-			}
-
-			nav#mainnav .logo {
-				margin-top:6px;
-			}
-
-			header .logo {
-				text-align: left;
-			}
-
-
-/* ========================================================
-   Parallax
-======================================================== */
-
-	#parallax1, #parallax2, #parallax4 {
-		width: 100%;
-		height: 500px;
-		background-color: #333;
-		position: relative;
-		overflow: hidden;
+	nav ul {
+		display: inline-block;
+		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
+		float: right;
 	}
 
-	#parallax1 .vertical-text,
-	#parallax2 .vertical-text,
-	#parallax4 .vertical-text,
-	#parallax1 .pattern,
-	#parallax2 .pattern,
-	#parallax4 .pattern {
-		height: 500px;
+
+	nav #fluid-nav li {
+		display: inline-block;
+		margin-left: 12px;
+		color: #999;
 	}
 
-	/*Parallax1------------------------------------------*/
-
-	.bg1 {
-		background: #333 url(../img/parallax/Thames-3.jpg) 50% 50% repeat-y fixed;
-		width: 100%;
-		height: 100%;
-		margin: 0 auto;
-		position: absolute;
-		background-size: 160%;
-		-webkit-backface-visibility: visible;
+	nav #fluid-nav li:first-child  {
+		margin-left: 0;
 	}
-	.parallax-title {
-		z-index: 200;
-		position: relative;
-		font-size: 36px;
-		font-family: 'Montserrat', 'Trebuchet MS', sans-serif;
-		text-align: center;
+
+	nav #fluid-nav li a {
+		font-weight: 700;
 		text-transform: uppercase;
-		letter-spacing: 2px;
-		padding: 0 4%;
+		font-size: 12px;
+		border: none;
 	}
 
-	.parallax-title a {
-		border-bottom: 1px solid #c90606;
-	}
-
-	.parallax-title a:hover {
-		color: #fff;
-		border-bottom: 1px solid #fff;
+	nav #fluid-nav li a:hover {
 		text-decoration: none;
 	}
 
-	#twitter-parallax {
-		z-index: 200;
-		position: relative;
-		text-align: center;
-		color: #fff;
-	}
-
-	#twitter-parallax .twitter-title {
-		text-transform: uppercase;
-		letter-spacing: 1px;
-		font-family: 'Montserrat', 'Trebuchet MS', sans-serif;
-		font-size: 36px;
-	}
-
-	#twitter-parallax .username {
-		text-transform: uppercase;
-		letter-spacing: 1px;
-		font-family: 'Montserrat', 'Trebuchet MS', sans-serif;
-		font-size: 18px;
-	}
-
-	#twitter-parallax .tweet {
-		font-size: 24px;
-		margin-top: 28px;
-	}
-
-	#twitter-parallax .tweet-date {
-		display: block;
-		font-weight: 700;
-		margin-top: 23px;
-	}
-
-	#twitter-parallax a {
-		border: none;
-		-webkit-transition: all 0.1s linear;
-		   -moz-transition: all 0.1s linear;
-		    -ms-transition: all 0.1s linear;
-		     -o-transition: all 0.1s linear;
-		     	transition: all 0.1s linear;
-	}
-
-	#twitter-parallax a:hover {
-		border-bottom: 2px solid #c90606;
-	}
-
-	/*Parallax2------------------------------------------*/
-
-	.bg2 {
-		background: #333 url(../img/parallax/bg2.jpg) 50% 50% repeat-y fixed;
+	nav#mainnav {
 		width: 100%;
-		height: 100%;
-		margin: 0 auto;
-		position: absolute;
-		background-size: 120%;
-		-webkit-backface-visibility: visible;
-	}
-
-
-	/*Parallax3------------------------------------------*/
-
-#parallax3 {
-	width: 100%;
-	height: 620px;
-	background-color: #333;
-	position: relative;
-	overflow: hidden;
-	text-align: center;
-}
-
-#parallax3 .pattern {
-	height: 620px;
-}
-
-	#parallax3 h2 {
-		z-index: 200;
+		height: 51px;
+		overflow: hidden;
 		position: relative;
-		margin-top: 60px;
-		margin-bottom: 60px;
+		z-index: 999;
 	}
 
-	.bg3 {
-		background: url(../img/parallax/bg3.jpg) 50% 50% repeat-y fixed, url(../img/parallax/bg3.jpg) 50% 50% repeat-y scroll;
-		width: 100%;
-		height: 100%;
-		margin: 0 auto;
+	nav#mainnav .logo {
 		position: absolute;
-		background-size: 120%;
-		-webkit-backface-visibility: visible;
+		top: 0px;
 	}
 
-	/*Parallax4------------------------------------------*/
+	nav#mainnav #fluid-nav li {
+		margin-top: 16px;
+		color: #666;
+	}
 
-	.bg4 {
-		background: url(../img/parallax/bg4.jpg) 50% 50% repeat-y fixed, url(../img/parallax/bg4.jpg) 50% 50% repeat-y scroll;
-		width: 100%;
-		height: 100%;
-		margin: 0 auto;
+	.selectnav {
+		display: none;
+		font-size: 12px;
 		position: absolute;
-		background-size: 120%;
-		-webkit-backface-visibility: visible;
+		text-transform: capitalize !important;
 	}
 
-	#parallax4 {
-		text-align: center;
+	nav#mainnav .logo {
+		margin-top:6px;
 	}
 
-	#parallax4 h2 {
-		z-index: 200;
-		position: relative;
+	header .logo {
+		text-align: left;
 	}
-
-	#parallax4 .clients {
-		z-index: 200;
-		position: relative;
-		margin-top: 40px;
-	}
-
-	.clients li {
-		display: inline-block;
-		margin: 10px;
-	}
-
-	.clients li a {
-		border: none;
-	}
-
-	.clients li a:hover {
-		opacity: 0.7;
-	}
-
-/* ========================================================
-   Pages
-======================================================== */
-
-	/* About ------------------------------------------ */
-
-	.services {
-		background: #8bc53e;
-		color: #fff;
-		height: 322px;
-		padding: 30px;
-		box-sizing: border-box;
-	}
-
-@-moz-document url-prefix()
-{
-	.services { height: auto; box-shadow: border-box; overflow: hidden; padding-bottom: 18px; }
-}
-
-	.services-title {
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		text-transform: uppercase;
-		font-size: 18px;
-		letter-spacing: 1px;
-	}
-
-	.services-list {
-		list-style: none;
-		font-size: 14px;
-		line-height: 2;
-		margin-top: 10px;
-	}
-
-	.slider-services {
-		margin-bottom: 66px;
-	}
-
-
-	/* Team ------------------------------------------ */
-
-	.profile {
-		background-color: #f7f7f7;
-		padding-bottom: 20px;
-		border-bottom: 1px solid #8bc53e;
-	}
-
-	.profile img {
-		margin-bottom: 20px;
-	}
-
-	.profile-name {
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		font-size: 16px;
-		margin: 0 20px;
-		letter-spacing: 1px;
-		line-height: 1.2;
-		text-transform: uppercase;
-	}
-
-	.profile-job {
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		font-size: 10px;
-		color: #aaa;
-		margin: 0 20px 16px 20px;
-		text-transform: uppercase;
-	}
-
-	.profile-desc {
-		font-size: 13px;
-		margin: 0 20px 23px 20px;
-	}
-
-	.profile-social-icons {
-		margin: 0 20px;
-	}
-
-	.profile-social-icons li {
-		display: inline-block;
-	}
-
-	.profile-social-icons li a {
-		font-family: 'Web Symbols', sans-serif;
-		font-size: 15px;
-		color: #939aa2;
-		border: none;
-	}
-
-	.profile-social-icons li a:hover {
-		color: #8bc53e;
-	}
-
-
-	/* Projects ------------------------------------------ */
-
-	#projects {
-		background: #fff;
-		padding-top: 94px;
-	}
-
-	.projects-fix + .page {
-		padding-top: 55px;
-	}
-
-	#projects .title {
-		text-align: center;
-	}
-
-	.project-intro {
-		text-align: center;
-		padding: 0 20%;
-	}
-
-	.buy-section {
-		text-align: center;
-		margin-bottom: 42px;
-	}
-
-	.buy-section li {
-		display: inline-block;
-		font-size: 14px;
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		text-transform: uppercase;
-	}
-
-	.laptop-slider {
-		height: 480px;
-		background: url(../img/laptop.png) no-repeat center center;
-		margin: 55px 0 59px 0;
-	}
-
-	.display-slider {
-		height: 511px;
-		background: url(../img/display.png) no-repeat center center;
-		margin: 55px 0 110px 0;
-	}
-
-
-
-	/* Portfolio ------------------------------------------ */
 
 	.project-wrp {
 		display: block;
@@ -756,57 +371,10 @@
 		     	transition: all 0.1s linear;
 	}
 
-	.project-wrp .profile-icon {
-		opacity: 0;
-		-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-		filter: alpha(opacity=0);
-		position: absolute;
-		top: 2%;
-		left: 50%;
-		margin-left: -30px;
-		font-family: 'Web Symbols', sans-serif;
-		font-size: 60px;
-		color: #fff;
-		z-index: 2;
-		-webkit-transition: all 0.1s linear;
-		   -moz-transition: all 0.1s linear;
-		    -ms-transition: all 0.1s linear;
-		     -o-transition: all 0.1s linear;
-		     	transition: all 0.1s linear;
-	}
-
-	.project-wrp:hover {
-		background-color: #8bc53e;
-	}
-
 	.project-wrp:hover img {
 		opacity: 0.5;
 		-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 		filter: alpha(opacity=50);
-	}
-
-	.project-wrp:hover .project-name, .project-wrp:hover .project-client, .project-wrp:hover .project-date {
-		color: #fff;
-	}
-
-	.project-wrp:hover .profile-icon {
-		opacity: 1;
-		-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-		filter: alpha(opacity=100);
-		top: 50%;
-		margin-top: -50px;
-	}
-
-	.project-wrp:hover hr {
-		border-color: #fff;
-	}
-
-	.sub-title {
-		float: left;
-		margin-right: 15px;
-		text-transform: uppercase;
-		font-weight: 700;
-		font-size: 18px;
 	}
 
 	.option-set li {
@@ -822,328 +390,22 @@
 		border: none;
 	}
 
-	.option-set li a:hover {
-		color: #8bc53e;
-	}
-
 	.option-set li a.selected {
 		font-weight: 700;
-		color: #8bc53e;
 	}
 
-
-
-	/* Contact Us ------------------------------------------ */
-
-	.contact-name {
-		color: #777;
-		font-size: 18px;
-		text-transform: uppercase;
-		letter-spacing: 1px;
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		margin-bottom: 20px;
+	.footer {
+		background: #000;
+		padding: 46px 0 50px 0;
 	}
 
-	#contact hr.gray {
-		margin: 27px 0 26px 0;
-	}
-
-	#contact .address p {
-		font-size: 14px;
-	}
-
-	.social-icons li {
-		display: inline-block;
-	}
-
-	.social-icons li a {
-		font-family: 'Web Symbols', sans-serif;
-		font-size: 24px;
-		color: #333;
-		margin-right: 7px;
-		border: none;
-	}
-
-	.social-icons li a:hover {
-		color: #8bc53e;
-	}
-
-	#contact label {
-		display: none;
-	}
-
-	#contact .textarea-margin {
-		margin-top: 20px;
-	}
-
-	hr.feedbackline {
-		margin-top: 58px;
-		margin-bottom: 59px;
-	}
-
-	#contact form .btn {
-		margin-top: 40px;
-		position: relative;
-		left: 50%;
-		margin-left: -108px;
-	}
-
-
-
-	/* Sidebar ------------------------------------------ */
-
-		#sidebar {
-			background: #000;
-			padding: 46px 0 50px 0;
-		}
-
-		#sidebar h5 {
-			color: #fff;
-			font-weight: 700;
-		}
-
-
-
-	#copyright {
-		background: #8bc53e;
+	.footer h5 {
 		color: #fff;
+		font-weight: 700;
+	}
+
+	.copyright {
 		text-align: center;
 		font-size: 13px;
 		padding: 20px 0 20px 0;
-	}
-
-	#copyright a {
-		color: #fff;
-		border-bottom: 1px solid #fddada;
-	}
-
-	#copyright a:hover {
-		text-decoration: none;
-		border: none;
-	}
-
-
-	/* Other ------------------------------------------ */
-
-	#adv {
-		padding: 26px 0 27px 0;
-		background: #fff;
-	}
-
-	#adv .button-right .btn {
-		float: right;
-		margin-top: 16px;
-	}
-
-	.photostream {
-		max-height: 170px;
-		overflow: hidden;
-	}
-
-	.photostream li {
-		display: inline-block;
-		position: relative;
-		margin: 0 10px 10px 0;
-	}
-
-	.photostream li img {
-		width: 50px;
-		height: 50px;
-		-webkit-transition: all 0.1s linear;
-		   -moz-transition: all 0.1s linear;
-		    -ms-transition: all 0.1s linear;
-		     -o-transition: all 0.1s linear;
-		     	transition: all 0.1s linear;
-	}
-
-	.photostream li a {
-		display: block;
-		overflow: hidden;
-		position: absolute;
-		border: none;
-		width: 50px;
-		height: 50px;
-		opacity: 1;
-		filter: alpha(opacity=100);
-	}
-
-	.photostream li:hover img {
-		opacity: 0.5;
-		filter: alpha(opacity=50);
-		cursor: pointer;
-	}
-
-
-	.embed-container {
-	    position: relative;
-	    padding-bottom: 56.25%; /* 16/9 ratio */
-	    padding-top: 30px; /* IE6 workaround*/
-	    height: 0;
-	    overflow: hidden;
-	}
-
-	.embed-container iframe,
-	.embed-container object,
-	.embed-container embed {
-	    position: absolute;
-	    top: 0;
-	    left: 0;
-	    width: 100%;
-	    height: 100%;
-	}
-
-
-	/* Blog ------------------------------------------ */
-
-	#blog {
-		margin-bottom: 100px;
-	}
-
-	.blog-post {
-		background: #fff;
-		padding-top: 120px;
-	}
-
-	.blog-post-into {
-		text-align: center !important;
-	}
-
-	.blog-post-title {
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		text-transform: uppercase;
-		font-size: 32px;
-		letter-spacing: 1px;
-		margin-bottom: 30px;
-		border: none;
-		color: #333;
-		line-height: 1.3;
-	}
-
-	a.blog-post-title:hover {
-		color: #8bc53e;
-	}
-
-	.blog-post-info {
-		margin-top: 16px;
-		font-size: 13px;
-		color: #aaa;
-	}
-
-	.blog-post-info a {
-		color: #aaa;
-		border-color: #d4d4d4;
-	}
-
-	.blog-post-info a:hover {
-		color: #8bc53e;
-		border-bottom: 1px solid #8bc53e;
-	}
-
-	.blog-post-image {
-		margin-top: 45px;
-		margin-bottom: 45px;
-	}
-
-	.blog-post p {
-		font-size: 16px;
-		line-height: 1.7;
-	}
-
-	.read-more {
-		text-align: center;
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		text-transform: uppercase;
-		font-size: 13px;
-		margin-top: 32px;
-	}
-
-	.blog-post hr {
-		margin-top: 110px;
-		margin-bottom: 0;
-	}
-
-	.load-more {
-		text-align: center;
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		text-transform: uppercase;
-		font-size: 18px;
-		position: relative;
-		margin-top: 60px;
-		margin-bottom: 180px;
-	}
-
-	.load-more a {
-		border: none;
-	}
-
-	.load-more a:hover {
-		color: #777;
-	}
-
-	.load-more a:after {
-		content: 'É';
-		font-size: 36px;
-		display: block;
-		font-family: 'Web Symbols', sans-serif;
-		position: absolute;
-		top: 30px;
-		left: 50%;
-		margin-left: -18px;
-	}
-
-	.load-more a:hover:after {
-		content: 'Ê';
-		font-size: 36px;
-		display: block;
-		font-family: 'Web Symbols', sans-serif;
-	}
-
-	.comments-title {
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		text-transform: uppercase;
-		font-size: 24px;
-		border-bottom: 1px solid #8bc53e;
-		letter-spacing: 1px;
-		padding-bottom: 10px;
-		margin-top: 52px;
-	}
-
-	.comment {
-		border-bottom: 1px solid #e5e5e5;
-		padding: 40px 0;
-	}
-
-	.comment-author {
-		font-family: 'Myriad Pro', 'Trebuchet MS', sans-serif;
-		text-transform: uppercase;
-		font-size: 14px;
-		letter-spacing: 1px;
-	}
-
-	.comment-info {
-		font-size: 12px;
-		color: #aaa;
-		margin-bottom: 10px;
-	}
-
-	.comment-info a {
-		color: #aaa;
-		border-color: #d4d4d4;
-	}
-
-	.comment-info a:hover {
-		color: #8bc53e;
-		border-bottom: 1px solid #8bc53e;
-	}
-
-	.comment p {
-		font-size: 14px;
-	}
-
-	.add-comment {
-		margin-top: 40px;
-	}
-
-	.add-comment label {
-		display: none;
 	}
