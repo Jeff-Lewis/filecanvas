@@ -84,21 +84,6 @@
 							}
 						}
 					}
-				},
-				{
-					"name": "css",
-					"type": "css",
-					"default": null,
-					"label": "Custom CSS rules",
-					"editor": {
-						"name": "code",
-						"options": {
-							"language": "css",
-							"placeholder": "Paste custom CSS rules here",
-							"maxLength": 4096,
-							"rows": 6
-						}
-					}
 				}
 			]
 		},
@@ -285,6 +270,42 @@
 							"type": "text",
 							"placeholder": "Street address",
 							"maxLength": 128
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "scripts",
+			"label": "Custom scripts",
+			"fields": [
+				{
+					"name": "css",
+					"type": "css",
+					"default": null,
+					"label": "Custom CSS rules",
+					"editor": {
+						"name": "code",
+						"options": {
+							"language": "css",
+							"placeholder": "Paste custom CSS rules here",
+							"maxLength": 4096,
+							"rows": 6
+						}
+					}
+				},
+				{
+					"name": "js",
+					"type": "js",
+					"default": null,
+					"label": "Custom JS code",
+					"editor": {
+						"name": "code",
+						"options": {
+							"language": "js",
+							"placeholder": "Paste custom JS code here",
+							"maxLength": 4096,
+							"rows": 6
 						}
 					}
 				}
