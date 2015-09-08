@@ -2,6 +2,11 @@
 	'use strict';
 
 	$(function() {
-		$('[data-colorpicker]').colorpicker();
+		initColorpickers();
 	});
+
+
+	function initColorpickers() {
+		$('[data-colorpicker]').colorpicker();
+	}
 })();
