@@ -11,6 +11,7 @@ footer {
 	position: absolute;
 	width: 100%;
 	bottom: 0;
+	background: black;
 }
 
 #slidecaption p {
@@ -109,7 +110,28 @@ footer a:hover {
 	}
 }
 
+.copyright {
+	position: relative;
+	color: white;
+}
+.copyright::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	opacity: 0.75;
+}
+.copyright-message {
+	position: relative;
+	color: inherit;
+	font-size: inherit;
+	line-height: inherit;
+	margin-bottom: 0;
+}
 .copyright a {
+	color: inherit;
 	font-weight: bold;
 	border-bottom: none;
 	text-decoration: underline;

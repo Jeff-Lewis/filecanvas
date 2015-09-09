@@ -31,7 +31,7 @@
 		::selection,
 		nav#mainnav,
 		.project-wrp:hover,
-		.copyright {
+		.copyright::before {
 			background-color: {{ theme.styles.brandColor }};
 		}
 		.btn-primary,
@@ -52,9 +52,7 @@
 		nav #fluid-nav li a,
 		.project-wrp:hover .project-name,
 		.project-wrp:hover .project-client,
-		.project-wrp:hover .project-date,
-		.copyright,
-		.copyright a {
+		.project-wrp:hover .project-date {
 			color: {{ theme.styles.navItemColor }};
 		}
 		.project-wrp:hover hr {
@@ -153,6 +151,7 @@
 							{{#if theme.content.introText}}
 							<div class="lead-small">{{ markdown theme.content.introText }}</div>
 							{{/if}}
+							{{#if contents.files}}
 							<div class="posts row isotope ">
 								{{#each contents.files as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ file.timestamp }}">
@@ -179,6 +178,7 @@
 								</div>
 								{{/each}}
 							</div>
+							{{/if}}
 						</div>
 					</div>
 				</div>
@@ -304,7 +304,7 @@
 			{{/if}}
 
 			<div class="copyright">
-				Powered by <a href="https://www.shunt.io/">Shunt.io</a>
+				<p class="copyright-message">Powered by <a href="https://www.shunt.io/">Shunt.io</a></p>
 			</div>
 		</footer>
 	</div>

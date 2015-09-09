@@ -121,8 +121,8 @@
 	}
 
 	.page {
-		padding-top: 78px;
-		padding-bottom: 90px;
+		margin-top: 78px;
+		margin-bottom: 90px;
 		background: #fff;
 	}
 

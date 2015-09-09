@@ -8,7 +8,7 @@
 				{
 					"name": "brandColor",
 					"type": "color",
-					"default": "#cc0000",
+					"default": "#aa0000",
 					"label": "Brand colour",
 					"editor": {
 						"name": "colorpicker",
@@ -140,7 +140,7 @@
 				{
 					"name": "introText",
 					"type": "string",
-					"default": "Looks like you've created a brand new Shunt site! You can use the Theme Editor to change the site's look and feel (including this message). Drag files into your linked Dropbox folder to see them appear below.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
+					"default": "Looks like you've created a brand new Shunt site! You can use the Theme Editor to update the site's appearance (including this message). Drag files into your linked Dropbox folder and they'll show up in the section below when you refresh the page.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
