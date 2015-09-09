@@ -2,86 +2,76 @@
 	<div class="col-md-12 col-lg-10">
 		<div class="panel mb25">
 			<div class="panel-heading border">
-					<h4 class="no-margin text-uppercase"><i class="fa fa-globe mr10"></i>Site overview: {{ content.site.label }}</h4>
+				<h4 class="no-margin text-uppercase"><i class="fa fa-globe mr10"></i>Site overview: {{ content.site.label }}</h4>
 			</div>
-			<form class="panel-body" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-				<input type="hidden" name="_method" value="PUT"/>
-				<input type="hidden"
-					value="{{ content.site.root }}"
-					data-bind-id="site-overview-root"
-				/>
-				<input type="hidden"
-					name="published"
-					value="{{#if content.site.published}}false{{else}}true{{/if}}"
-				/>
-				<div class="row no-margin well">
-					<div class="col-md-4">
-						<div class="widget mb0">
-							{{#if content.site.published}}
-							<div class="widget-icon bg-success pull-left fa fa-check"></div>
-							{{else}}
-							<div class="widget-icon bg-danger pull-left fa fa-times"></div>
-							{{/if}}
-							<div class="overflow-hidden">
-								{{#if content.site.published}}
-								<span class="widget-title text-uppercase">Online</span>
-								{{else}}
-								<span class="widget-title text-uppercase">Offline</span>
-								{{/if}}
-								<span class="widget-subtitle text-uppercase">Site status</span>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="widget mb0"
-							data-bind-dropbox-folder-check="site-overview-root"
-							data-dropbox-folder-check-retries="2"
-						>
-							<div class="widget-icon bg-default pull-left fa fa-refresh fa-spin shunt-dropbox-check-loading"></div>
-							<div class="widget-icon bg-success pull-left fa fa-check shunt-dropbox-check-valid"></div>
-							<div class="widget-icon bg-danger pull-left fa fa-times shunt-dropbox-check-invalid"></div>
-							<div class="overflow-hidden">
-								<span class="widget-title text-uppercase">
-									<span class="shunt-dropbox-check-loading">Checking…</span>
-									<span class="shunt-dropbox-check-valid">Linked</span>
-									<span class="shunt-dropbox-check-invalid">Invalid</span>
-								</span>
-								<span class="widget-subtitle text-uppercase">Dropbox folder</span>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="widget mb0">
-							{{#if content.site.private}}
-							<div class="widget-icon bg-success pull-left fa fa-lock"></div>
-							{{else}}
-							<div class="widget-icon bg-default pull-left fa fa-unlock-alt"></div>
-							{{/if}}
-							<div class="overflow-hidden">
-								{{#if content.site.private}}
-								<span class="widget-title text-uppercase">Private</span>
-								{{else}}
-								<span class="widget-title text-uppercase">Public</span>
-								{{/if}}
-								<span class="widget-subtitle text-uppercase">Site access</span>
-							</div>
-						</div>
-					</div>
-				</div>
+			<div class="panel-body">
 				{{#if content.site.published}}
-				<p class="text-center mt15 mb15">
-					This site can be accessed at
-					<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
-				</p>
-				{{/if}}
-				<div class="row no-margin md-pl20 md-pr20">
-					<div class="col-md-4 col-md-offset-4">
-						<button type="submit" class="btn btn-{{#if content.site.published}}danger{{else}}success{{/if}} btn-icon {{#unless content.site.published}} mt20 {{/unless}}mb5 md-ml25">
-							<i class="fa fa-power-off"></i><span>Take site {{#if content.site.published}}offline{{else}}online{{/if}}</span>
-						</button>
+				<div class="alert alert-info">
+					<i class="pull-left fa fa-info-circle"></i>
+					<div>
+						<h5>This site has been published at
+							<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
+						</h5>
+						<ul>
+							<li>Click the <strong>Visit site</strong> button to see the live site</li>
+							<li>Use the <strong>Theme editor</strong> to change the appearance of the site. Any changes you make will be applied to the live site.</li>
+							<li>To take the site offline, click the <strong>Unpublish site</strong> button</li>
+						</ul>
 					</div>
 				</div>
-			</form>
+				{{else}}
+				<div class="alert alert-info">
+					<i class="pull-left fa fa-info-circle"></i>
+					<div>
+						<h5>This site is not currently published.</h5>
+						<ul>
+							<li>Use the <strong>Theme editor</strong> to change the appearance of the site</li>
+							<li>Click the <strong>Preview site</strong> button to see how the site will appear when it is published</li>
+							<li>Once you are ready to take the site live, click the <strong>Publish site</strong> button</li>
+						</ul>
+					</div>
+				</div>
+				{{/if}}
+				<div class="row">
+					{{#if content.site.published}}
+					<div class="col-md-4">
+						<a class="widget md-mb0 bg-info" href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">
+							<i class="widget-icon bg-white pull-left fa fa-globe"></i>
+							<h4>Visit site</h4>
+						</a>
+					</div>
+					{{/if}}
+					<div class="col-md-4">
+						<a class="widget md-mb0 bg-primary" href="{{ session.urls.sites }}/{{ content.site.name }}/theme">
+							<i class="widget-icon bg-white pull-left fa fa-paint-brush"></i>
+							<h4>Theme editor</h4>
+						</a>
+					</div>
+					{{#unless content.site.published}}
+					<div class="col-md-4">
+						<a class="widget md-mb0 bg-info" href="{{ session.urls.preview }}/{{ content.site.name }}" target="_blank">
+							<i class="widget-icon bg-white pull-left fa fa-eye"></i>
+							<h4>Preview site</h4>
+						</a>
+					</div>
+					{{/unless}}
+					<form class="col-md-4" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+						<input type="hidden" name="_method" value="PUT"/>
+						<input type="hidden"
+							value="{{ content.site.root }}"
+							data-bind-id="site-overview-root"
+						/>
+						<input type="hidden"
+							name="published"
+							value="{{#if content.site.published}}false{{else}}true{{/if}}"
+						/>
+						<button type="submit" class="widget mb0 btn btn-reset bg-{{#if content.site.published}}danger{{else}}success{{/if}}">
+							<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
+							<h4>{{#if content.site.published}}Unpublish site{{else}}Publish site{{/if}}</h4>
+						</button>
+					</form>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
