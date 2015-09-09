@@ -307,6 +307,8 @@
 
 	.page {
 		padding-top: 65px;
+	}
+	.page:last-child {
 		padding-bottom: 50px;
 	}
 

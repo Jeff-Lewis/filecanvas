@@ -121,9 +121,11 @@
 	}
 
 	.page {
-		margin-top: 78px;
-		margin-bottom: 90px;
+		padding-top: 78px;
 		background: #fff;
+	}
+	.page:last-child {
+		padding-bottom: 90px;
 	}
 
 	.title {
