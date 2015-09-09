@@ -25,6 +25,7 @@
   "dependencies": {
     "bcrypt": "^0.8.5",
     "clarify": "^1.0.5",
+    "clone": "^1.0.2",
     "cors": "^2.7.1",
     "dropbox": "ehfeng/dropbox-js#stable",
     "es6-template-strings": "^2.0.0",

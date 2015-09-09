@@ -3,6 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 var objectAssign = require('object-assign');
+var clone = require('clone');
 var express = require('express');
 var Passport = require('passport').Passport;
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
@@ -670,7 +671,8 @@ module.exports = function(database, options) {
 					published: false,
 					home: false,
 					theme: {
-						name: defaultTheme.id
+						name: defaultTheme.id,
+						config: defaultTheme.defaults
 					}
 				};
 				var templateData = {
@@ -701,13 +703,18 @@ module.exports = function(database, options) {
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
 
+				var themeConfig = clone(themes[req.body.theme].defaults);
+				if (req.body['theme.config.content.title']) {
+					themeConfig.content.title = req.body['theme.config.content.title'];
+				}
+
 				var siteModel = {
 					'user': uid,
 					'name': req.body.name,
 					'label': req.body.label,
 					'theme': {
 						'name': req.body.theme,
-						'config': themes[req.body.theme].defaults
+						'config': themeConfig
 					},
 					'root': req.body.root || null,
 					'private': req.body.private === 'true',
