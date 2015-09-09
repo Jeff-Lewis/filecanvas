@@ -266,40 +266,40 @@ DropboxClient.prototype.generateThumbnailLink = function(filePath) {
 
 DropboxClient.prototype.getErrorType = function(error) {
 	switch (error.status) {
-	case DropboxClient.ApiError.INVALID_TOKEN:
+	case Dropbox.ApiError.INVALID_TOKEN:
 		// If you're using dropbox.js, the only cause behind this error is that
 		// the user token expired.
 		// Get the user through the authentication flow again.
 		return 'DropboxClient.ApiError.INVALID_TOKEN';
 
-	case DropboxClient.ApiError.NOT_FOUND:
+	case Dropbox.ApiError.NOT_FOUND:
 		// The file or folder you tried to access is not in the user's DropboxClient.
 		// Handling this error is specific to your application.
 		return 'DropboxClient.ApiError.NOT_FOUND';
 
-	case DropboxClient.ApiError.OVER_QUOTA:
+	case Dropbox.ApiError.OVER_QUOTA:
 		// The user is over their DropboxClient quota.
 		// Tell them their DropboxClient is full. Refreshing the page won't help.
 		return 'DropboxClient.ApiError.OVER_QUOTA';
 
-	case DropboxClient.ApiError.RATE_LIMITED:
+	case Dropbox.ApiError.RATE_LIMITED:
 		// Too many API requests. Tell the user to try again later.
 		// Long-term, optimize your code to use fewer API calls.
 		return 'DropboxClient.ApiError.RATE_LIMITED';
 
-	case DropboxClient.ApiError.NETWORK_ERROR:
+	case Dropbox.ApiError.NETWORK_ERROR:
 		// An error occurred at the XMLHttpRequest layer.
 		// Most likely, the user's network connection is down.
 		// API calls will not succeed until the user gets back online.
 		return 'DropboxClient.ApiError.NETWORK_ERROR';
 
-	case DropboxClient.ApiError.INVALID_PARAM:
+	case Dropbox.ApiError.INVALID_PARAM:
 		return 'DropboxClient.ApiError.INVALID_PARAM';
 
-	case DropboxClient.ApiError.OAUTH_ERROR:
+	case Dropbox.ApiError.OAUTH_ERROR:
 		return 'DropboxClient.ApiError.OAUTH_ERROR';
 
-	case DropboxClient.ApiError.INVALID_METHOD:
+	case Dropbox.ApiError.INVALID_METHOD:
 		return 'DropboxClient.ApiError.INVALID_METHOD';
 
 	default:
