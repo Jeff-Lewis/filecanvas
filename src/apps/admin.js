@@ -767,8 +767,7 @@ module.exports = function(database, options) {
 								}
 							],
 							content: {
-								site: siteModel,
-								themes: siteThemes
+								site: siteModel
 							}
 						};
 						return renderAdminPage(req, res, 'sites/site', templateData);

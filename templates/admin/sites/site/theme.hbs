@@ -12,19 +12,6 @@
 	<div class="editor-sidepanel">
 		<div class="panel mb0">
 			<div class="panel-body bordered-group">
-				<fieldset class="form-group">
-					<label class="control-label">Theme</label>
-					<div>
-						<select class="form-control"
-							name="theme"
-							value="{{ content.site.theme.name }}"
-						>
-							{{#each content.themes as |theme|}}
-								<option value="{{ theme.id }}">{{ theme.name }}</option>
-							{{/each}}
-						</select>
-					</div>
-				</fieldset>
 				{{#each (lookup (lookup content.themes content.site.theme.name) 'config') as |configGroup|}}
 				<fieldset class="form-group">
 					<h4 class="text-uppercase mt0 mb0">{{ configGroup.label }}</h4>
