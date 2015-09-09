@@ -84,30 +84,40 @@
 
 <body>
 
-	<nav id="mainnav">
-		<div class="container">
-			<div class="row">
-				<div class="span4">
-					<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}"{{/if}}></a>
-				</div>
-				<div class="span8">
-				</div>
-			</div>
-		</div>
-	</nav>
+	<div class="wrapper">
 
-	<section class="page">
-		<div class="container">
-			<div class="row">
-				<form class="form-signin" role="form" action="{{ loginUrl }}" method="POST" autocomplete="off" style="text-align: center;">
-					<h2 class="form-signin-heading">Sign in</h2>
-					<div><input type="text" name="username" class="form-control" placeholder="Username" required autofocus></div>
-					<div><input type="password" name="password" class="form-control" placeholder="Password" required></div>
-					<div><button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button></div>
-				</form>
+		<nav id="mainnav">
+			<div class="container">
+				<div class="row">
+					<div class="span4">
+						<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}"{{/if}}></a>
+					</div>
+					<div class="span8">
+					</div>
+				</div>
 			</div>
-		</div>
-	</section>
+		</nav>
+
+		<section class="page">
+			<div class="container">
+				<div class="row">
+					<form class="form-signin" role="form" action="{{ loginUrl }}" method="POST" autocomplete="off" style="text-align: center;">
+						<h2 class="form-signin-heading">Sign in</h2>
+						<div><input type="text" name="username" class="form-control" placeholder="Username" required autofocus></div>
+						<div><input type="password" name="password" class="form-control" placeholder="Password" required></div>
+						<div><button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button></div>
+					</form>
+				</div>
+			</div>
+		</section>
+
+		<footer>
+			<div class="copyright">
+				<p class="copyright-message">Powered by <a href="https://www.shunt.io/">Shunt.io</a></p>
+			</div>
+		</footer>
+
+	</div>
 
 	<script>
 {{{ theme.scripts.js }}}
