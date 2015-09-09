@@ -1,6 +1,7 @@
 <form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
 	<input type="hidden" name="_method" value="PUT"/>
 	<input type="hidden" name="_action" value="theme"/>
+	<input type="hidden" name="theme" value="{{ content.site.theme.name }}"/>
 	<div class="editor-header">
 		<div class="editor-header-controls">
 			<button type="reset" class="btn btn-default mr5">Reset changes</button>
