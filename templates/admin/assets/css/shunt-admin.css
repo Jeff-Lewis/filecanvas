@@ -82,8 +82,166 @@ button.btn-reset {
 	transition: none;
 }
 
-button.bg-white:hover:not(:disabled) {
-	background-color: #e6e6e6;
+button.bg-primary:hover:not(:disabled) { background-color: #007399 }
+button.bg-primary-dark:hover:not(:disabled) { background-color: #006080 }
+button.bg-primary-light:hover:not(:disabled) { background-color: #0086b3 }
+button.bg-default:hover:not(:disabled) { background-color: #c9c9c9 }
+button.bg-default-dark:hover:not(:disabled) { background-color: #bcbcbc }
+button.bg-default-light:hover:not(:disabled) { background-color: #cecece }
+button.bg-warning:hover:not(:disabled) { background-color: #ffb42a }
+button.bg-warning-dark:hover:not(:disabled) { background-color: #ffab11 }
+button.bg-warning-light:hover:not(:disabled) { background-color: #ffbd44 }
+button.bg-success:hover:not(:disabled) { background-color: #25a25a }
+button.bg-success-dark:hover:not(:disabled) { background-color: #208e4e }
+button.bg-success-light:hover:not(:disabled) { background-color: #29b765 }
+button.bg-info:hover:not(:disabled) { background-color: #2aafc8 }
+button.bg-info-dark:hover:not(:disabled) { background-color: #269db3 }
+button.bg-info-light:hover:not(:disabled) { background-color: #37bcd5 }
+button.bg-danger:hover:not(:disabled) { background-color: #ce402f }
+button.bg-danger-dark:hover:not(:disabled) { background-color: #ba392a }
+button.bg-danger-light:hover:not(:disabled) { background-color: #d45242 }
+button.bg-white:hover:not(:disabled) { background-color: #e6e6e6 }
+button.bg-dark:hover:not(:disabled) { background-color: #363947 }
+button.bg-dark-dark:hover:not(:disabled) { background-color: #2b2d39 }
+button.bg-dark-light:hover:not(:disabled) { background-color: #414456 }
+button.bg-red:hover:not(:disabled) { background-color: #ea1c0d }
+button.bg-pink:hover:not(:disabled) { background-color: #c1134e }
+button.bg-purple:hover:not(:disabled) { background-color: #771e86 }
+button.bg-deeppurple:hover:not(:disabled) { background-color: #512e90 }
+button.bg-indigo:hover:not(:disabled) { background-color: #32408f }
+button.bg-blue:hover:not(:disabled) { background-color: #0c7cd5 }
+button.bg-lightblue:hover:not(:disabled) { background-color: #0286c2 }
+button.bg-cyan:hover:not(:disabled) { background-color: #008fa1 }
+button.bg-teal:hover:not(:disabled) { background-color: #00635a }
+button.bg-green:hover:not(:disabled) { background-color: #3d8b40 }
+button.bg-lightgreen:hover:not(:disabled) { background-color: #59a006 }
+button.bg-lime:hover:not(:disabled) { background-color: #b2c022 }
+button.bg-yellow:hover:not(:disabled) { background-color: #ffe608 }
+button.bg-amber:hover:not(:disabled) { background-color: #d39e00 }
+button.bg-orange:hover:not(:disabled) { background-color: #cc7a00 }
+button.bg-deeporange:hover:not(:disabled) { background-color: #ee3900 }
+button.bg-brown:hover:not(:disabled) { background-color: #593f35 }
+button.bg-grey:hover:not(:disabled) { background-color: #858585 }
+button.bg-bluegrey:hover:not(:disabled) { background-color: #4b626d }
+
+a.bg-primary:hover,
+a.bg-primary:active,
+button.bg-primary:hover:not(:disabled),
+a.bg-primary-dark:hover,
+a.bg-primary-dark:active,
+button.bg-primary-dark:hover:not(:disabled),
+a.bg-default:hover,
+a.bg-default:active,
+button.bg-default:hover:not(:disabled),
+a.bg-default-dark:hover,
+a.bg-default-dark:active,
+button.bg-default-dark:hover:not(:disabled),
+a.bg-default-light:hover,
+a.bg-default-light:active,
+button.bg-default-light:hover:not(:disabled),
+a.bg-warning:hover,
+a.bg-warning:active,
+button.bg-warning:hover:not(:disabled),
+a.bg-warning-dark:hover,
+a.bg-warning-dark:active,
+button.bg-warning-dark:hover:not(:disabled),
+a.bg-warning-light:hover,
+a.bg-warning-light:active,
+button.bg-warning-light:hover:not(:disabled),
+a.bg-success:hover,
+a.bg-success:active,
+button.bg-success:hover:not(:disabled),
+a.bg-success-dark:hover,
+a.bg-success-dark:active,
+button.bg-success-dark:hover:not(:disabled),
+a.bg-success-light:hover,
+a.bg-success-light:active,
+button.bg-success-light:hover:not(:disabled),
+a.bg-info:hover,
+a.bg-info:active,
+button.bg-info:hover:not(:disabled),
+a.bg-info-dark:hover,
+a.bg-info-dark:active,
+button.bg-info-dark:hover:not(:disabled),
+a.bg-info-light:hover,
+a.bg-info-light:active,
+button.bg-info-light:hover:not(:disabled),
+a.bg-danger:hover,
+a.bg-danger:active,
+button.bg-danger:hover:not(:disabled),
+a.bg-danger-dark:hover,
+a.bg-danger-dark:active,
+button.bg-danger-dark:hover:not(:disabled),
+a.bg-danger-light:hover,
+a.bg-danger-light:active,
+button.bg-danger-light:hover:not(:disabled),
+a.bg-dark:hover,
+a.bg-dark:active,
+button.bg-dark:hover:not(:disabled),
+a.bg-dark-dark:hover,
+a.bg-dark-dark:active,
+button.bg-dark-dark:hover:not(:disabled),
+a.bg-dark-light:hover,
+a.bg-dark-light:active,
+button.bg-dark-light:hover:not(:disabled),
+a.bg-red:hover,
+a.bg-red:active,
+button.bg-red:hover:not(:disabled),
+a.bg-pink:hover,
+a.bg-pink:active,
+button.bg-pink:hover:not(:disabled),
+a.bg-purple:hover,
+a.bg-purple:active,
+button.bg-purple:hover:not(:disabled),
+a.bg-deeppurple:hover,
+a.bg-deeppurple:active,
+button.bg-deeppurple:hover:not(:disabled),
+a.bg-indigo:hover,
+a.bg-indigo:active,
+button.bg-indigo:hover:not(:disabled),
+a.bg-blue:hover,
+a.bg-blue:active,
+button.bg-blue:hover:not(:disabled),
+a.bg-lightblue:hover,
+a.bg-lightblue:active,
+button.bg-lightblue:hover:not(:disabled),
+a.bg-cyan:hover,
+a.bg-cyan:active,
+button.bg-cyan:hover:not(:disabled),
+a.bg-teal:hover,
+a.bg-teal:active,
+button.bg-teal:hover:not(:disabled),
+a.bg-green:hover,
+a.bg-green:active,
+button.bg-green:hover:not(:disabled),
+a.bg-lightgreen:hover,
+a.bg-lightgreen:active,
+button.bg-lightgreen:hover:not(:disabled),
+a.bg-lime:hover,
+a.bg-lime:active,
+button.bg-lime:hover:not(:disabled),
+a.bg-yellow:hover,
+a.bg-yellow:active,
+button.bg-yellow:hover:not(:disabled),
+a.bg-amber:hover,
+a.bg-amber:active,
+button.bg-amber:hover:not(:disabled),
+a.bg-orange:hover,
+a.bg-orange:active,
+button.bg-orange:hover:not(:disabled),
+a.bg-deeporange:hover,
+a.bg-deeporange:active,
+button.bg-deeporange:hover:not(:disabled),
+a.bg-brown:hover,
+a.bg-brown:active,
+button.bg-brown:hover:not(:disabled),
+a.bg-grey:hover,
+a.bg-grey:active,
+button.bg-grey:hover:not(:disabled),
+a.bg-bluegrey:hover,
+a.bg-bluegrey:active,
+button.bg-bluegrey:hover :not(:disabled) {
+	color: white;
 }
 
 .login-form {
