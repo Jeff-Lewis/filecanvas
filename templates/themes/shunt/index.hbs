@@ -93,7 +93,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					<a class="logo" href="{{ theme.content.contactWebsite }}" target="_blank"></a>
+					<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
 				</div>
 				<nav>
 					{{#if site.private}}
@@ -117,7 +117,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
-						<a class="logo" href="{{ theme.content.contactWebsite }}" target="_blank"></a>
+						<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
 					</div>
 					<div class="span8">
 						{{#if contents.folders}}
