@@ -70,7 +70,7 @@
 				{
 					"name": "title",
 					"type": "string",
-					"default": "Your company",
+					"default": null,
 					"label": "Page title",
 					"editor": {
 						"name": "input",
@@ -84,7 +84,7 @@
 				{
 					"name": "navLogo",
 					"type": "string",
-					"default": "Your company slogan",
+					"default": null,
 					"label": "Navigation bar logo",
 					"editor": {
 						"name": "input",
