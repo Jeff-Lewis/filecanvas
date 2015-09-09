@@ -139,11 +139,20 @@
 
 		<section class="pages">
 
-			{{#if contents.files}}
+			{{#if (or theme.content.introTitle theme.content.introText contents.files)}}
 			<div class="page">
 				<div class="container">
 					<div class="row">
 						<div class="span12">
+							{{#if theme.content.introTitle}}
+							<div class="title">{{ theme.content.introTitle }}</div>
+							{{#if theme.content.introText}}
+							<hr/>
+							{{/if}}
+							{{/if}}
+							{{#if theme.content.introText}}
+							<div class="lead-small">{{ markdown theme.content.introText }}</div>
+							{{/if}}
 							<div class="posts row isotope ">
 								{{#each contents.files as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ file.timestamp }}">
@@ -183,7 +192,7 @@
 						<div class="span12">
 							<div class="title">{{ folder.label }}</div>
 							<hr/>
-							<div class="lead-small section-content" data-section-header="{{ folder.label }}"></div>
+							<div class="lead-small" data-section-header="{{ folder.label }}"></div>
 
 							{{#if folder.folders}}
 							<ul class="option-set" data-option-key="filter">
@@ -287,7 +296,7 @@
 						<div class="span2"></div>
 						<div class="about span4">
 							<h5>{{ theme.content.footerTitle }}</h5>
-							<p>{{ theme.content.footerText }}</p>
+							{{ markdown theme.content.footerText }}
 						</div>
 					</div>
 				</div>

@@ -20,9 +20,6 @@ footer {
 	margin-bottom: 0.25em;
 }
 
-.lead-small {
-	margin-bottom: 75px;
-}
 .btn-primary:hover {
 	opacity: 0.8;
 }
@@ -119,6 +116,18 @@ footer a:hover {
 }
 .copyright a:hover {
 	text-decoration: underline;
+	border-bottom: none;
+}
+
+
+.lead-small p {
+	color: inherit;
+	font-size: inherit;
+	line-height: inherit;
+}
+
+.option-set {
+	margin-top: 50px;
 }
 
 .profile-photo {

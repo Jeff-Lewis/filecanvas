@@ -358,6 +358,7 @@
 	header .logo {
 		margin-left: auto;
 		margin-right: auto;
+		background-position: center;
 	}
 
 	.bg1, .bg2, .bg3, .bg4 {

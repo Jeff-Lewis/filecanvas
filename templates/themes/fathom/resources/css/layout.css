@@ -136,9 +136,13 @@
 	}
 
 	.lead-small {
-		font-size: 24px;
+		font-size: 20px;
 		line-height: 1.4;
 		font-weight: 300;
+		margin-top: 40px;
+	}
+
+	.lead-small + .posts {
 		margin-top: 40px;
 	}
 
@@ -226,7 +230,7 @@
 		line-height: 0;
 		border: none;
 		background-repeat: no-repeat;
-		background-position: center;
+		background-position: left center;
 		background-size: contain;
 	}
 

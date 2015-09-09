@@ -126,7 +126,7 @@
 				{
 					"name": "introTitle",
 					"type": "string",
-					"default": null,
+					"default": "Welcome to your site",
 					"label": "Intro title",
 					"editor": {
 						"name": "input",
@@ -140,7 +140,7 @@
 				{
 					"name": "introText",
 					"type": "string",
-					"default": null,
+					"default": "Looks like you've created a brand new Shunt site! You can use the Theme Editor to change the site's look and feel (including this message). Drag files into your linked Dropbox folder to see them appear below.\n\n**Pro tip:** move your files into subfolders to show them as separate categories.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
@@ -154,7 +154,7 @@
 				{
 					"name": "footerTitle",
 					"type": "string",
-					"default": null,
+					"default": "About us",
 					"label": "Footer title",
 					"editor": {
 						"name": "input",
@@ -168,7 +168,7 @@
 				{
 					"name": "footerText",
 					"type": "string",
-					"default": null,
+					"default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
 					"label": "Footer text",
 					"editor": {
 						"name": "textarea",
@@ -196,7 +196,7 @@
 				{
 					"name": "contactEmail",
 					"type": "string",
-					"default": null,
+					"default": "info@example.com",
 					"label": "Contact: Email",
 					"editor": {
 						"name": "input",
@@ -210,7 +210,7 @@
 				{
 					"name": "contactWebsite",
 					"type": "url",
-					"default": null,
+					"default": "http://www.example.com/",
 					"label": "Contact: Website",
 					"editor": {
 						"name": "input",
@@ -224,7 +224,7 @@
 				{
 					"name": "contactPhone",
 					"type": "string",
-					"default": null,
+					"default": "+44 (0)123 456 7890",
 					"label": "Contact: Phone",
 					"editor": {
 						"name": "input",
@@ -238,7 +238,7 @@
 				{
 					"name": "contactAddress",
 					"type": "string",
-					"default": null,
+					"default": "123 Address St, London, E1 1AA",
 					"label": "Contact: Address",
 					"editor": {
 						"name": "input",
