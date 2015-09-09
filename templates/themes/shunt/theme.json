@@ -113,7 +113,7 @@
 				{
 					"name": "pageSubtitle",
 					"type": "string",
-					"default": "Your company",
+					"default": "Your company slogan",
 					"label": "Page subtitle",
 					"editor": {
 						"name": "textarea",
