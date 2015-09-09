@@ -70,7 +70,7 @@
 				{
 					"name": "title",
 					"type": "string",
-					"default": null,
+					"default": "Your company",
 					"label": "Page title",
 					"editor": {
 						"name": "input",
@@ -84,7 +84,7 @@
 				{
 					"name": "navLogo",
 					"type": "string",
-					"default": null,
+					"default": "Your company slogan",
 					"label": "Navigation bar logo",
 					"editor": {
 						"name": "input",
@@ -98,7 +98,7 @@
 				{
 					"name": "headerText",
 					"type": "string",
-					"default": null,
+					"default": "# Your company\n\n## Your company slogan",
 					"label": "Page header",
 					"editor": {
 						"name": "textarea",
@@ -140,7 +140,7 @@
 				{
 					"name": "introText",
 					"type": "string",
-					"default": "Looks like you've created a brand new Shunt site! You can use the Theme Editor to change the site's look and feel (including this message). Drag files into your linked Dropbox folder to see them appear below.\n\n**Pro tip:** move your files into subfolders to show them as separate categories.",
+					"default": "Looks like you've created a brand new Shunt site! You can use the Theme Editor to change the site's look and feel (including this message). Drag files into your linked Dropbox folder to see them appear below.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
