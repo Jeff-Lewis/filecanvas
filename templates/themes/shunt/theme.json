@@ -96,14 +96,29 @@
 					}
 				},
 				{
-					"name": "headerText",
+					"name": "pageHeader",
 					"type": "string",
-					"default": "# Your company\n\n## Your company slogan",
+					"default": "Your company",
 					"label": "Page header",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Main page header",
+							"maxLength": 128,
+							"rows": 3
+						}
+					}
+				},
+				{
+					"name": "pageSubtitle",
+					"type": "string",
+					"default": "Your company",
+					"label": "Page subtitle",
 					"editor": {
 						"name": "textarea",
 						"options": {
-							"placeholder": "Main page header",
+							"placeholder": "Main page subtitle",
 							"maxLength": 256,
 							"rows": 3
 						}

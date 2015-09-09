@@ -84,7 +84,7 @@
 
 <body>
 
-	{{#if theme.content.headerText}}
+	{{#if (or theme.content.pageHeader theme.content.pageSubtitle)}}
 	<header id="home">
 		<div class="header-bg"></div>
 		<div class="pattern"></div>
@@ -101,7 +101,9 @@
 			</div>
 			<div class="row">
 				<div class="span12">
-					<div id="slidecaption">{{ markdown theme.content.headerText }}</div>
+					<div id="slidecaption">
+						<h1>{{ markdown theme.content.pageHeader }}</h1>
+						<h2>{{ markdown theme.content.pageSubtitle }}</h2>
 					</div>
 				</div>
 			</div>
@@ -120,7 +122,7 @@
 					<div class="span8">
 						{{#if contents.folders}}
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
-							{{#if theme.content.headerText}}
+							{{#if (or theme.content.pageHeader theme.content.pageSubtitle)}}
 							<li><a class="scroll-link" href="#home">Home</a></li>
 							{{/if}}
 							{{#each contents.folders as |folder|}}
