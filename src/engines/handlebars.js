@@ -157,10 +157,6 @@ function createHandlebarsCompiler(config) {
 			compiler.registerHelper('thumbnailUrl', function(file) {
 				return config.context.siteRoot + 'thumbnail' + file.url;
 			});
-			compiler.registerHelper('hasThumbnail', function(file) {
-				var THUMBNAIL_MEDIA_TYPES = ['jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif', 'bmp', 'webp', 'wbmp'];
-				return THUMBNAIL_MEDIA_TYPES.indexOf(file.extension) !== -1;
-			});
 		}
 	}
 }
