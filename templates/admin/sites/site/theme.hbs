@@ -1,4 +1,4 @@
-<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 	<input type="hidden" name="_method" value="PUT"/>
 	<input type="hidden" name="_action" value="theme"/>
 	<input type="hidden" name="theme" value="{{ content.site.theme.name }}"/>
@@ -68,6 +68,6 @@
 		</div>
 	</div>
 	<div class="editor-main">
-		<iframe class="editor-preview" src="{{ session.urls.preview }}/{{ content.site.name }}" frameborder="0"></iframe>
+		<iframe class="editor-preview" src="{{ session.urls.preview }}/{{ content.site.name }}" frameborder="0" data-editor-preview></iframe>
 	</div>
 </form>
