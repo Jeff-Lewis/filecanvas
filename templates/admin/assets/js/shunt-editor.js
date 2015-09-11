@@ -8,14 +8,22 @@
 
 
 	function initColorpickers() {
-		$('[data-colorpicker]').colorpicker();
+		var isChanging = false;
+		$('[data-colorpicker]').colorpicker().on('changeColor.colorpicker', function(event) {
+			if (isChanging) { return; }
+			var $colorPickerElement = $(this);
+			var $inputElement = $colorPickerElement.data('colorpicker').input;
+			isChanging = true;
+			$inputElement.change();
+			isChanging = false;
+		});
 	}
 
 	function initLivePreview() {
 		var $formElement = $('[data-editor-form]');
 		var $previewElement = $('[data-editor-preview]');
 		var previewUrl = $previewElement.prop('src');
-		$formElement.on('change', onFieldChanged);
+		$formElement.on('change input', debounce(onFieldChanged, 1000));
 
 
 		function onFieldChanged() {
@@ -70,6 +78,21 @@
 					return key + '=' + encodeURIComponent(JSON.stringify(value));
 				}).join('&');
 			}
+		}
+
+		function debounce(func, wait, immediate) {
+			var timeout;
+			return function() {
+				var context = this, args = arguments;
+				var later = function() {
+					timeout = null;
+					if (!immediate) { func.apply(context, args); }
+				};
+				var callNow = immediate && !timeout;
+				clearTimeout(timeout);
+				timeout = setTimeout(later, wait);
+				if (callNow) { func.apply(context, args); }
+			};
 		}
 	}
 })();
