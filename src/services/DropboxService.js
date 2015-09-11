@@ -7,8 +7,6 @@ var slug = require('slug');
 
 var HttpError = require('../errors/HttpError');
 
-var SECONDS = 1000;
-var DROPBOX_DELTA_CACHE_EXPIRY = 5 * SECONDS;
 
 function DropboxService() {
 }
@@ -61,16 +59,6 @@ DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 
 	var cacheCursor = (folderCache && folderCache.cursor) || null;
 	var cacheRoot = (folderCache && folderCache.data) || null;
-	var cacheUpdated = (folderCache && folderCache.updated) || null;
-
-	var needsUpdate = checkWhetherNeedsUpdate(cacheUpdated, DROPBOX_DELTA_CACHE_EXPIRY);
-	if (!needsUpdate) {
-		var folderModel = parseStatModel(folderCache.data);
-		return Promise.resolve({
-			contents: folderModel,
-			cache: folderCache
-		});
-	}
 
 	var cursor = cacheCursor || 0;
 	var options = {
@@ -81,152 +69,150 @@ DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 
 	function loadFolder(client, cursor, options, cache) {
 		var rootPath = options.pathPrefix || '/';
-		return new Promise(function(resolve, reject) {
-			client.delta(cursor, options, function(error, pulledChanges) {
-				if (error) { return reject(new HttpError(error.status, self.getErrorType(error))); }
-				return resolve(pulledChanges);
-			});
-		})
-		.then(function(pulledChanges) {
-			var updatedCursor = pulledChanges.cursorTag;
+		return loadFolderDelta(client, cursor, options)
+			.catch(function(error) {
+				throw new HttpError(error.status, self.getErrorType(error));
+			})
+			.then(function(pulledChanges) {
+				var updatedCursor = pulledChanges.cursorTag;
 
-			var cacheRoot = getUpdatedCacheRoot(cache, pulledChanges, rootPath);
-			var cacheDictionary = buildCacheDictionary(cacheRoot);
+				cache = getUpdatedCacheRoot(cache, pulledChanges, rootPath);
+				var cacheDictionary = buildCacheDictionary(cache);
 
-			pulledChanges.changes.sort(function(changeModel1, changeModel2) {
-				return (changeModel1.path.toLowerCase() < changeModel2.path.toLowerCase() ? -1 : 1);
-			}).forEach(function(changeModel) {
-				var itemPath = changeModel.path.toLowerCase();
-				var parentPath = path.dirname(itemPath);
-				var parentFolder = cacheDictionary[parentPath] || null;
+				pulledChanges.changes.sort(function(changeModel1, changeModel2) {
+					return (changeModel1.path.toLowerCase() < changeModel2.path.toLowerCase() ? -1 : 1);
+				}).forEach(function(changeModel) {
+					var itemPath = changeModel.path.toLowerCase();
+					var parentPath = path.dirname(itemPath);
+					var parentFolder = cacheDictionary[parentPath] || null;
 
-				if (changeModel.wasRemoved) {
-					if (parentFolder && parentFolder.contents) {
-						parentFolder.contents = parentFolder.contents.filter(function(siblingItem) {
-							return siblingItem.path.toLowerCase() !== itemPath;
-						});
-					}
-				} else {
-					var fileModel = changeModel.stat.json();
-					if (fileModel.is_dir) { fileModel.contents = []; }
-					if (parentFolder && parentFolder.contents) {
-						parentFolder.contents = parentFolder.contents.filter(function(siblingItem) {
-							return siblingItem.path.toLowerCase() !== itemPath;
-						});
-						parentFolder.contents.push(fileModel);
-					}
-					cacheDictionary[itemPath] = fileModel;
-				}
-			});
-
-			if (pulledChanges.shouldPullAgain) {
-				return loadFolder(client, updatedCursor, options, cacheRoot);
-			} else {
-				var itemModel = parseStatModel(cacheRoot);
-				var itemCache = {
-					cursor: updatedCursor,
-					data: cacheRoot,
-					updated: new Date()
-				};
-				return {
-					contents: itemModel,
-					cache: itemCache
-				};
-			}
-
-
-			function getUpdatedCacheRoot(cacheRoot, pulledChanges, rootPath) {
-				if (pulledChanges.blankSlate) { cacheRoot = null; }
-				pulledChanges.changes.forEach(function(changeModel) {
-					var isRootFolder = (changeModel.path.toLowerCase() === rootPath.toLowerCase());
-					if (isRootFolder) {
-						if (changeModel.wasRemoved) {
-							cacheRoot = null;
-						} else {
-							var fileModel = changeModel.stat.json();
-							if (fileModel.is_dir) { fileModel.contents = []; }
-							cacheRoot = fileModel;
+					if (changeModel.wasRemoved) {
+						if (parentFolder && parentFolder.contents) {
+							parentFolder.contents = parentFolder.contents.filter(function(siblingItem) {
+								return siblingItem.path.toLowerCase() !== itemPath;
+							});
 						}
+						delete cacheDictionary[itemPath];
+					} else {
+						var fileModel = changeModel.stat.json();
+						if (fileModel.is_dir) { fileModel.contents = []; }
+						if (parentFolder && parentFolder.contents) {
+							parentFolder.contents = parentFolder.contents.filter(function(siblingItem) {
+								return siblingItem.path.toLowerCase() !== itemPath;
+							});
+							parentFolder.contents.push(fileModel);
+						}
+						cacheDictionary[itemPath] = fileModel;
 					}
 				});
-				return cacheRoot;
-			}
 
-			function buildCacheDictionary(cacheItem) {
-				var dictionary = {};
-				if (!cacheItem) { return dictionary; }
-				var key = cacheItem.path.toLowerCase();
-				dictionary[key] = cacheItem;
-				if (cacheItem.contents) {
-					var childEntries = cacheItem.contents.reduce(function(childEntries, cacheItem) {
-						var childDictionary = buildCacheDictionary(cacheItem);
-						objectAssign(childEntries, childDictionary);
-						return childEntries;
-					}, {});
-					objectAssign(dictionary, childEntries);
+				if (pulledChanges.shouldPullAgain) {
+					return loadFolder(client, updatedCursor, options, cache);
+				} else {
+					return {
+						contents: parseStatModel(cache),
+						cursor: updatedCursor,
+						data: cache
+					};
 				}
-				return dictionary;
-			}
-		});
-	}
 
 
-	function checkWhetherNeedsUpdate(lastUpdated, cacheDuration) {
-		if (!lastUpdated) { return true; }
-		var delta = (new Date() - lastUpdated);
-		return (delta > cacheDuration);
-	}
+				function getUpdatedCacheRoot(cache, pulledChanges, rootPath) {
+					if (pulledChanges.blankSlate) { cache = null; }
+					pulledChanges.changes.forEach(function(changeModel) {
+						var isRootFolder = (changeModel.path.toLowerCase() === rootPath.toLowerCase());
+						if (isRootFolder) {
+							if (changeModel.wasRemoved) {
+								cache = null;
+							} else {
+								var fileModel = changeModel.stat.json();
+								if (fileModel.is_dir) { fileModel.contents = []; }
+								cache = fileModel;
+							}
+						}
+					});
+					return cache;
+				}
 
-	function parseStatModel(statModel) {
-		if (!statModel) { return null; }
-		var fileMetadata = Object.keys(statModel)
-			.filter(function(property) {
-				return (property.charAt(0) !== '_') && (property !== 'contents');
-			}).reduce(function(fileMetadata, property) {
-				fileMetadata[property] = statModel[property];
-				return fileMetadata;
-			}, {});
+				function buildCacheDictionary(cacheItem) {
+					var dictionary = {};
+					if (!cacheItem) { return dictionary; }
+					var key = cacheItem.path.toLowerCase();
+					dictionary[key] = cacheItem;
+					if (cacheItem.contents) {
+						var childEntries = cacheItem.contents.reduce(function(childEntries, cacheItem) {
+							var childDictionary = buildCacheDictionary(cacheItem);
+							objectAssign(childEntries, childDictionary);
+							return childEntries;
+						}, {});
+						objectAssign(dictionary, childEntries);
+					}
+					return dictionary;
+				}
 
-		fileMetadata.name = path.basename(fileMetadata.path);
-		fileMetadata.alias = slug(fileMetadata.name, { lower: true });
+				function parseStatModel(statModel) {
+					if (!statModel) { return null; }
+					var fileMetadata = Object.keys(statModel)
+						.filter(function(property) {
+							return (property.charAt(0) !== '_') && (property !== 'contents');
+						}).reduce(function(fileMetadata, property) {
+							fileMetadata[property] = statModel[property];
+							return fileMetadata;
+						}, {});
 
-		var modifiedDate = new Date(fileMetadata.modified);
-		fileMetadata.date = formatDate(modifiedDate);
-		fileMetadata.timestamp = getTimestamp(modifiedDate);
+					fileMetadata.name = path.basename(fileMetadata.path);
+					fileMetadata.alias = slug(fileMetadata.name, { lower: true });
 
-		if (fileMetadata.is_dir) {
-			fileMetadata.label = stripLeadingNumber(fileMetadata.name);
-			fileMetadata.contents = statModel.contents.map(function(childStatModel) {
-				return parseStatModel(childStatModel);
+					var modifiedDate = new Date(fileMetadata.modified);
+					fileMetadata.date = formatDate(modifiedDate);
+					fileMetadata.timestamp = getTimestamp(modifiedDate);
+
+					if (fileMetadata.is_dir) {
+						fileMetadata.label = stripLeadingNumber(fileMetadata.name);
+						fileMetadata.contents = statModel.contents.map(function(childStatModel) {
+							return parseStatModel(childStatModel);
+						});
+					} else {
+						fileMetadata.label = stripLeadingNumber(stripFileExtension(fileMetadata.name));
+						fileMetadata.extension = getFileExtension(fileMetadata.name);
+					}
+					return fileMetadata;
+
+
+					function getTimestamp(date) {
+						return Math.floor(date.getTime() / 1000);
+					}
+
+					function formatDate(date) {
+						var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+						var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dev'];
+						return DAYS[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear();
+					}
+
+					function stripLeadingNumber(string) {
+						return string.replace(/^[0-9]+[ \.\-\|]*/, '');
+					}
+
+					function getFileExtension(filename) {
+						var extname = path.extname(filename);
+						return extname.substr(extname.indexOf('.') + 1);
+					}
+
+					function stripFileExtension(filename) {
+						return path.basename(filename, path.extname(filename));
+					}
+				}
 			});
-		} else {
-			fileMetadata.label = stripLeadingNumber(stripFileExtension(fileMetadata.name));
-			fileMetadata.extension = getFileExtension(fileMetadata.name);
+
+
+		function loadFolderDelta(client, cursor, options) {
+			return new Promise(function(resolve, reject) {
+				client.delta(cursor, options, function(error, pulledChanges) {
+					if (error) { return reject(error); }
+					return resolve(pulledChanges);
+				});
+			});
 		}
-		return fileMetadata;
-	}
-
-	function getTimestamp(date) {
-		return Math.floor(date.getTime() / 1000);
-	}
-
-	function formatDate(date) {
-		var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-		var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dev'];
-		return DAYS[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear();
-	}
-
-	function stripLeadingNumber(string) {
-		return string.replace(/^[0-9]+[ \.\-\|]*/, '');
-	}
-
-	function getFileExtension(filename) {
-		var extname = path.extname(filename);
-		return extname.substr(extname.indexOf('.') + 1);
-	}
-
-	function stripFileExtension(filename) {
-		return path.basename(filename, path.extname(filename));
 	}
 };
 

@@ -17,6 +17,8 @@ var AuthenticationService = require('../services/AuthenticationService');
 
 var constants = require('../constants');
 
+var SECONDS = 1000;
+var DROPBOX_CACHE_EXPIRY_DURATION = 5 * SECONDS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
 var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
@@ -82,6 +84,7 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 	var includeTheme = Boolean(options.theme);
 	var includeContents = Boolean(options.contents);
 	var includeUsers = Boolean(options.users);
+	var cacheDuration = (typeof options.cacheDuration === 'number' ? options.cacheDuration : DROPBOX_CACHE_EXPIRY_DURATION);
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
@@ -96,23 +99,49 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 			if (!includeContents) { return siteModel; }
 			var hasSiteFolder = (siteModel.root !== null);
 			if (!hasSiteFolder) { return null; }
+			var rootFolderPath = siteModel.root;
+			var canUseCachedContents = getIsCacheValid(siteModel.cache, cacheDuration);
+			if (canUseCachedContents) {
+				siteModel.contents = parseFileModel(siteModel.cache.contents, rootFolderPath);
+				return siteModel;
+			}
 			return loadSiteContents(siteModel, appKey, appSecret, accessToken, uid)
-				.then(function(folder) {
-					updateSiteCache(database, uid, siteName, folder.cache);
-					var contents = parseFileModel(folder.contents, siteModel.root);
-					siteModel.contents = contents;
-					siteModel.cache = folder.cache;
-					return siteModel;
+				.then(function(dropboxContents) {
+					var siteCache = {
+						contents: dropboxContents.contents,
+						data: dropboxContents.data,
+						cursor: dropboxContents.cursor,
+						updated: new Date()
+					};
+					return updateSiteCache(database, uid, siteName, siteCache)
+						.then(function() {
+							siteModel.cache = siteCache;
+							siteModel.contents = parseFileModel(siteModel.cache.contents, rootFolderPath);
+							return siteModel;
+						});
 				});
 		});
 
 
-	function parseFileModel(fileMetadata, rootFolderPath) {
-		if (!fileMetadata) { return null; }
+	function getIsCacheValid(cache, cacheDuration) {
+		if (!cache) { return false; }
+		var lastCacheUpdateDate = cache.updated;
+		var delta = (new Date() - lastCacheUpdateDate);
+		return (delta <= cacheDuration);
+	}
 
-		fileMetadata.url = getFileUrl(fileMetadata.path, rootFolderPath);
+	function parseFileModel(file, rootFolderPath) {
+		if (!file) { return null; }
 
-		Object.defineProperty(fileMetadata, 'folders', {
+		file.url = getFileUrl(file.path, rootFolderPath);
+
+		if (file.is_dir) {
+			file.contents = file.contents.map(function(file) {
+				return parseFileModel(file, rootFolderPath);
+			});
+		}
+
+		Object.defineProperty(file, 'folders', {
 			'get': function() {
 				if (!this.contents) { return null; }
 				var folders = this.contents.filter(function(fileModel) {
@@ -125,26 +154,30 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 			}
 		});
 
-		Object.defineProperty(fileMetadata, 'files', {
+		Object.defineProperty(file, 'files', {
 			'get': function() {
 				if (!this.contents) { return null; }
 				var files = this.contents.filter(function(fileModel) {
 					return !fileModel.is_dir;
 				});
-				var sortedFiles = files.sort(function sortByDate(a, b) {
-					return (a.modifiedAt - b.modifiedAt);
+				var sortedFiles = files.sort(function(file1, file2) {
+					var file1Filename = file1.path.split('/').pop();
+					var file2Filename = file2.path.split('/').pop();
+					var file1Prefix = parseInt(file1Filename);
+					var file2Prefix = parseInt(file2Filename);
+					if (!isNaN(file1Prefix) || !isNaN(file2Prefix)) {
+						if (isNaN(file1Prefix)) { return 1; }
+						if (isNaN(file2Prefix)) { return -1; }
+						return file1Prefix - file2Prefix;
+					} else {
+						return (file1.modifiedAt - file2.modifiedAt);
+					}
 				});
 				return sortedFiles;
 			}
 		});
 
-		if (fileMetadata.is_dir) {
-			fileMetadata.contents = fileMetadata.contents.map(function(fileMetadata) {
-				return parseFileModel(fileMetadata, rootFolderPath);
-			});
-		}
-
-		return fileMetadata;
+		return file;
 
 
 		function getFileUrl(path, rootFolderPath) {
