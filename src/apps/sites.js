@@ -361,7 +361,8 @@ module.exports = function(database, options) {
 						var published = !isPreview;
 						var includeTheme = true;
 						var includeContents = false;
-						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents)
+						var useCached = false;
+						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached)
 							.then(function(siteModel) {
 								var context = {
 									siteRoot: getSiteRootUrl(req, '/login'),
@@ -383,6 +384,7 @@ module.exports = function(database, options) {
 			function siteRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var useCached = (req.query.cached === 'true');
 				retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
@@ -390,7 +392,7 @@ module.exports = function(database, options) {
 						var published = !isPreview;
 						var includeTheme = true;
 						var includeContents = true;
-						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents)
+						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached)
 							.then(function(siteModel) {
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
@@ -461,7 +463,7 @@ module.exports = function(database, options) {
 		return userService.retrieveUser(username);
 	}
 
-	function retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents) {
+	function retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached) {
 		var siteService = new SiteService(database, {
 			host: host,
 			appKey: appKey,
@@ -472,7 +474,8 @@ module.exports = function(database, options) {
 			published: published,
 			theme: includeTheme,
 			contents: includeContents,
-			users: false
+			users: false,
+			cacheDuration: (useCached ? Infinity : null)
 		});
 	}
 
