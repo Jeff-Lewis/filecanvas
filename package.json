@@ -38,6 +38,7 @@
     "istextorbinary": "^1.0.2",
     "jshashes": "^1.0.5",
     "junk": "^1.0.2",
+    "lodash.merge": "^3.3.2",
     "method-override": "^2.3.5",
     "mongodb": "^2.0.42",
     "newrelic": "^1.22.0",

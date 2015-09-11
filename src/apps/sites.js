@@ -4,6 +4,7 @@ var path = require('path');
 var express = require('express');
 var Passport = require('passport').Passport;
 var LocalStrategy = require('passport-local').Strategy;
+var merge = require('lodash.merge');
 
 var transport = require('../middleware/transport');
 var invalidRoute = require('../middleware/invalidRoute');
@@ -385,6 +386,7 @@ module.exports = function(database, options) {
 				var username = req.params.user;
 				var siteName = req.params.site;
 				var useCached = (req.query.cached === 'true');
+				var themeConfigOverrides = (req.query.config ? JSON.parse(req.query.config) : null);
 				retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
@@ -394,11 +396,12 @@ module.exports = function(database, options) {
 						var includeContents = true;
 						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached)
 							.then(function(siteModel) {
+								var themeConfig = getOverriddenThemeConfig(siteModel.theme.config, themeConfigOverrides);
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
 									siteRoot: getSiteRootUrl(req),
 									themeRoot: themesUrl + siteModel.theme.name + '/',
-									theme: siteModel.theme.config,
+									theme: themeConfig,
 									site: {
 										private: siteModel.private
 									},
@@ -411,6 +414,11 @@ module.exports = function(database, options) {
 					.catch(function(error) {
 						next(error);
 					});
+
+				function getOverriddenThemeConfig(themeConfig, themeConfigOverrides) {
+					if (!themeConfigOverrides) { return themeConfig; }
+					return merge({}, themeConfig, themeConfigOverrides);
+				}
 			}
 
 			function downloadRoute(req, res, next) {
