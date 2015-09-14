@@ -50,5 +50,8 @@
     "showdown": "^1.2.3",
     "slug": "^0.9.1",
     "trace": "^1.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^1.12.1"
   }
 }
