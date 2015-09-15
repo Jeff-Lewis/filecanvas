@@ -37,6 +37,7 @@
     "html-pdf": "^1.4.0",
     "istextorbinary": "^1.0.2",
     "jshashes": "^1.0.5",
+    "json-loader": "^0.5.2",
     "junk": "^1.0.2",
     "lodash.merge": "^3.3.2",
     "method-override": "^2.3.5",
@@ -49,7 +50,9 @@
     "promise-map-series": "^0.2.1",
     "showdown": "^1.2.3",
     "slug": "^0.9.1",
-    "trace": "^1.2.0"
+    "trace": "^1.2.0",
+    "vdom-virtualize": "timkendrick/vdom-virtualize#feature/comment-nodes",
+    "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
     "webpack": "^1.12.1"
