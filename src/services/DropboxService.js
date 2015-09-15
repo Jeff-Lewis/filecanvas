@@ -71,6 +71,12 @@ DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 		var rootPath = options.pathPrefix || '/';
 		return loadFolderDelta(client, cursor, options)
 			.catch(function(error) {
+				var isUsingCursor = Boolean(cursor);
+				if (isUsingCursor && (error.status === Dropbox.ApiError.INVALID_PARAM)) {
+					cursor = 0;
+					cache = null;
+					return loadFolderDelta(client, cursor, options);
+				}
 				throw new HttpError(error.status, self.getErrorType(error));
 			})
 			.then(function(pulledChanges) {
