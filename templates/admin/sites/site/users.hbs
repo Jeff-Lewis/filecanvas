@@ -89,10 +89,10 @@
 		</div>
 		{{/if}}
 		<div>
-			<a class="widget bg-white mb0" data-toggle="collapse" href="#add-user" aria-expanded="false" aria-controls="add-user">
+			<button class="widget btn btn-reset bg-white mb0" data-toggle="collapse" data-target="#add-user" aria-expanded="false" aria-controls="add-user">
 				<i class="widget-icon bg-primary pull-left fa fa-user-plus"></i>
 				<h4>Add a user</h4>
-			</a>
+			</button>
 			<div class="widget bg-primary mb0">
 				<i class="widget-icon bg-white pull-left fa fa-user-plus"></i>
 				<h4>Add a user</h4>
@@ -129,9 +129,9 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<div class="col-sm-offset-3 col-sm-9" data-toggle="collapse" data-target="#add-user" aria-expanded="false" aria-controls="add-user" onclick="$(this).closest('.collapse').prev().hide().prev().show();">
+								<div class="col-sm-offset-3 col-sm-9">
 									<button type="submit" class="btn btn-success">Add user</button>
-									<button type="reset" class="btn btn-default ml5">Cancel</button>
+									<button type="reset" class="btn btn-default ml5" data-toggle="collapse" data-target="#add-user">Cancel</button>
 								</div>
 							</div>
 						</form>
