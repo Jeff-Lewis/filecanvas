@@ -69,8 +69,15 @@ function initFormResetButtons() {
 		var $validatedElements = $formElement.find('[' + validatorAttributeName + ']');
 		setTimeout(function() {
 			$sourceElements.change();
-			$validatedElements.trigger(event);
+			$validatedElements
+				.one('reset', preventEventBubbling)
+				.trigger('reset');
 		});
+
+
+		function preventEventBubbling(event) {
+			event.stopPropagation();
+		}
 	});
 }
 
