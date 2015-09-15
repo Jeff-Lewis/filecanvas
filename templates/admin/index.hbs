@@ -35,8 +35,10 @@
 						</li>
 						<li{{#if (eq session.location.pathname session.urls.faq)}} class="open"{{/if}}><a href="{{ session.urls.faq }}"><i class="fa fa-info-circle"></i><span>FAQ</span></a></li>
 						<li{{#if (eq session.location.pathname session.urls.support)}} class="open"{{/if}}><a href="{{ session.urls.support }}"><i class="fa fa-question-circle"></i><span>Support</span></a></li>
+						{{#if session.user}}
 						<li class="visible-xs {{#if (eq session.location.pathname session.urls.account)}} open{{/if}}"><a href="{{ session.urls.account }}"><i class="fa fa-user"></i><span>Your account</span></a></li>
 						<li class="visible-xs"><a href="{{ session.urls.logout }}"><i class="fa fa-sign-out"></i><span>Log out</span></a></li>
+						{{/if}}
 					</ul>
 				</nav>
 			</div>
@@ -64,6 +66,7 @@
 					</ol>
 					{{/if}}
 					<ul class="nav navbar-nav navbar-right hidden-xs">
+						{{#if session.user}}
 						<li>
 							<a href="javascript:;" data-toggle="dropdown" aria-expanded="false">
 								<span>{{ session.user.firstName }} {{ session.user.lastName }}</span>
@@ -78,6 +81,7 @@
 								</li>
 							</ul>
 						</li>
+						{{/if}}
 					</ul>
 				</header>
 				{{/if}}
