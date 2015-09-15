@@ -229,7 +229,19 @@ $(document).ready(function(){
 // Footer spacing
 
 $(document).ready(function() {
-	$('.pages').css('paddingBottom', $('footer').outerHeight());
+	var footerHeight = 0;
+	updateFooterHeight();
+	$(window).on('resize', function() {
+		updateFooterHeight();
+	});
+
+
+	function updateFooterHeight() {
+		var updatedFooterHeight = $('footer').outerHeight();
+		if (updatedFooterHeight === footerHeight) { return; }
+		footerHeight = updatedFooterHeight;
+		$('.pages').css('paddingBottom', footerHeight);
+	}
 });
 
 
