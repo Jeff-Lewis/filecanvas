@@ -231,7 +231,10 @@ module.exports = function(database, options) {
 				var username = req.params.user;
 				var siteName = req.params.site;
 				if (req.isAuthenticated()) {
-					return redirectToSitePage(req, res);
+					var isLoggedIntoDifferentSite = (req.params.user !== req.user.user) || (req.params.site !== req.user.site);
+					if (!isLoggedIntoDifferentSite) {
+						return redirectToSitePage(req, res);
+					}
 				}
 				retrieveUser(username)
 					.then(function(userModel) {
@@ -249,7 +252,7 @@ module.exports = function(database, options) {
 
 				function redirectToSitePage(req, res) {
 					var requestPath = req.originalUrl.split('?')[0];
-					var redirectParam = req.param('redirect');
+					var redirectParam = req.params.redirect;
 					var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
 					return res.redirect(redirectUrl);
 				}
@@ -261,17 +264,38 @@ module.exports = function(database, options) {
 					var loginWasSuccessful = Boolean(user);
 					var requestPath = req.originalUrl.split('?')[0];
 					if (loginWasSuccessful) {
-						req.login(user, function(error) {
-							if (error) { return next(error); }
-							var redirectParam = req.param('redirect');
-							var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
-							res.redirect(redirectUrl);
-						});
+						ensurePreviousUserLoggedOut(req)
+							.then(function() {
+								req.login(user, function(error) {
+									if (error) { return next(error); }
+									var redirectParam = req.params.redirect;
+									var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
+									res.redirect(redirectUrl);
+								});
+							})
+							.catch(function(error) {
+								next(error);
+							});
 					} else {
 						var siteLoginUrl = requestPath;
 						res.redirect(siteLoginUrl);
 					}
 				})(req, res, next);
+
+
+				function ensurePreviousUserLoggedOut(req) {
+					var isPreviousUserLoggedIn = req.isAuthenticated();
+					if (!isPreviousUserLoggedIn) { return Promise.resolve(); }
+					return new Promise(function(resolve, reject) {
+						req.logout();
+						var passportSession = req.session.passport;
+						req.session.regenerate(function(error) {
+							if (error) { return reject(error); }
+							req.session.passport = passportSession;
+							resolve();
+						});
+					});
+				}
 			}
 
 			function processLogoutRoute(req, res, next) {
@@ -308,10 +332,7 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				if (req.isAuthenticated()) {
 					var isLoggedIntoDifferentSite = (req.params.user !== req.user.user) || (req.params.site !== req.user.site);
-					if (isLoggedIntoDifferentSite) {
-						req.logout();
-						req.session.destroy();
-					} else {
+					if (!isLoggedIntoDifferentSite) {
 						return next();
 					}
 				}
