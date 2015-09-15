@@ -180,8 +180,8 @@ module.exports = function(database, options) {
 		var themesUrl = options.themesUrl;
 
 		initDefaultSiteRedirectRoutes(app);
-		initSiteRoutes(app, themesUrl, isPreview);
 		initAuthRoutes(app, passport, isPreview);
+		initSiteRoutes(app, themesUrl, isPreview);
 		app.use(invalidRoute());
 
 
