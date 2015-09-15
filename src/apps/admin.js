@@ -410,7 +410,6 @@ module.exports = function(database, options) {
 
 		function initPublicRoutes(app, passport) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
-			app.get('/logout', initAdminSession, retrieveLogoutRoute);
 			app.get('/login/oauth2', passport.authenticate('admin/dropbox'));
 			app.get('/login/oauth2/callback', passport.authenticate('admin/dropbox', { failureRedirect: '/login' }), onLoggedIn);
 			app.get('/register/oauth2', passport.authenticate('admin/register'));
@@ -456,12 +455,6 @@ module.exports = function(database, options) {
 						next(error);
 					});
 			}
-
-			function retrieveLogoutRoute(req, res, next) {
-				req.logout();
-				req.session.destroy();
-				res.redirect('/');
-			}
 		}
 
 		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData) {
@@ -490,6 +483,8 @@ module.exports = function(database, options) {
 			app.get('/sites/:site/theme', ensureAuth, initAdminSession, retrieveSiteThemeRoute);
 
 			app.get('/dropbox/metadata/*', ensureAuth, initAdminSession, retrieveDropboxMetadataRoute);
+
+			app.get('/logout', ensureAuth, initAdminSession, retrieveLogoutRoute);
 
 			app.use('/preview', createPreviewApp(database, {
 				host: host,
@@ -1046,6 +1041,23 @@ module.exports = function(database, options) {
 						}
 						next(error);
 					});
+			}
+
+			function retrieveLogoutRoute(req, res, next) {
+				req.logout();
+				req.session.destroy(function(error) {
+					if (error) { next(error); }
+					var templateData = {
+						title: 'Logout',
+						navigation: true,
+						footer: true,
+						content: null
+					};
+					renderAdminPage(req, res, 'logout', templateData)
+						.catch(function(error) {
+							next(error);
+						});
+				});
 			}
 
 			function createPreviewApp(database, options) {

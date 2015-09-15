@@ -43,6 +43,7 @@ $(function() {
 	initInputValidators(validators);
 	initAccordionAnchors();
 	initOffscreenSidebar();
+	initLogout();
 });
 
 
@@ -524,5 +525,12 @@ function initOffscreenSidebar() {
 		if (isOffscreenOpen && target !== offscreenToggleBtn) {
 			toggleMenu();
 		}
+	});
+}
+
+function initLogout() {
+	var $logoutIframe = $('[data-logout]');
+	$logoutIframe.on('load', function() {
+		document.location.href = '/login';
 	});
 }
