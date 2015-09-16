@@ -70,7 +70,7 @@
 				{
 					"name": "title",
 					"type": "string",
-					"default": null,
+					"default": "<%= site.label %>",
 					"label": "Page title",
 					"editor": {
 						"name": "input",
