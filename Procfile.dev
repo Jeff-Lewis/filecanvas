@@ -1,1 +1,1 @@
-web: supervisor --watch . --extensions js,hbs --ignore client,db,templates/admin/assets,templates/themes --debug server.js
+web: supervisor --watch . --extensions js,hbs,json --ignore client,db,templates/admin/assets,templates/themes --debug server.js
