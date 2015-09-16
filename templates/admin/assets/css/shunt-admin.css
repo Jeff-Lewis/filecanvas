@@ -485,6 +485,54 @@ a.panel-heading {
 	display: none;
 }
 
+.panel[data-toggle="panel"] .panel-body {
+	display: none;
+}
+.panel[data-toggle="panel"].panel-edit .panel-controls,
+.panel[data-toggle="panel"].panel-delete .panel-controls {
+	display: none;
+}
+.panel[data-toggle="panel"].panel-edit .panel-body-edit,
+.panel[data-toggle="panel"].panel-delete .panel-body-delete {
+	display: block;
+}
+.panel[data-toggle="panel"].panel-edit {
+    border-color: #09c
+}
+.panel[data-toggle="panel"].panel-edit > .panel-heading {
+    color: #fff;
+    background-color: #09c;
+    border-color: #09c;
+}
+.panel[data-toggle="panel"].panel-edit > .panel-heading+.panel-collapse .panel-body {
+    border-top-color: #09c;
+}
+.panel[data-toggle="panel"].panel-edit > .panel-heading .badge {
+    color: #09c;
+    background-color: #fff;
+}
+.panel[data-toggle="panel"].panel-edit > .panel-footer + .panel-collapse .panel-body {
+    border-bottom-color: #09c
+}
+.panel[data-toggle="panel"].panel-delete {
+    border-color: #d96557;
+}
+.panel[data-toggle="panel"].panel-delete > .panel-heading {
+    color: #fff;
+    background-color: #d96557;
+    border-color: #d96557;
+}
+.panel[data-toggle="panel"].panel-delete > .panel-heading + .panel-collapse .panel-body {
+    border-top-color: #d96557;
+}
+.panel[data-toggle="panel"].panel-delete > .panel-heading .badge {
+    color: #d96557;
+    background-color: #fff;
+}
+.panel[data-toggle="panel"].panel-delete > .panel-footer+.panel-collapse .panel-body {
+    border-bottom-color: #d96557;
+}
+
 .site-users .panel-heading {
 	font-weight: normal;
 }

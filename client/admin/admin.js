@@ -42,6 +42,7 @@ $(function() {
 	updateBindings(bindingSources);
 	initInputValidators(validators);
 	initAccordionAnchors();
+	initActionPanels();
 	initOffscreenSidebar();
 	initLogout();
 });
@@ -478,6 +479,67 @@ function initAccordionAnchors() {
 			$panelElement.collapse('show');
 		}
 	}
+}
+
+function initActionPanels() {
+	(function($) {
+
+		$.fn.panel = function(action) {
+			return this.each(function() {
+				var $element = $(this);
+				var targetSelector = $element.data('target');
+				var $contentElement = $(targetSelector);
+
+				if (action === 'edit') {
+					toggleEditPanel($element, $contentElement);
+				} else if (action === 'delete') {
+					toggleDeletePanel($element, $contentElement);
+				} else {
+					hidePanels($element, $contentElement);
+				}
+			});
+		};
+
+
+		function toggleEditPanel($element, $contentElement) {
+			var hasClass = $element.hasClass('panel-edit');
+			if (hasClass) {
+				$contentElement.collapse('hide').on('hidden.bs.collapse', function () {
+					$element.removeClass('panel-edit').attr('aria-expanded', false);
+				});
+			} else {
+				$element.removeClass('panel-delete').addClass('panel-edit').attr('aria-expanded', true);
+				$contentElement.collapse('show');
+			}
+		}
+
+		function toggleDeletePanel($element, $contentElement) {
+			var hasClass = $element.hasClass('panel-delete');
+			if (hasClass) {
+				$contentElement.collapse('hide').on('hidden.bs.collapse', function () {
+					$element.removeClass('panel-delete').attr('aria-expanded', false);
+				});
+			} else {
+				$element.removeClass('panel-edit').addClass('panel-delete').attr('aria-expanded', true);
+				$contentElement.collapse('show');
+			}
+		}
+
+		function hidePanels($element, $contentElement) {
+			$element.removeClass('panel-edit panel-delete');
+			$contentElement.collapse('hide');
+		}
+
+	})($);
+
+	$('[data-toggle="panel"]').panel();
+	$('[data-toggle="panel-action"]').click(function() {
+		var $element = $(this);
+		var targetSelector = $element.data('target');
+		var action = $element.data('panel-action');
+		var $targetElement = $(targetSelector);
+		$targetElement.panel(action);
+	});
 }
 
 function initOffscreenSidebar() {
