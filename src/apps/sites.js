@@ -388,13 +388,13 @@ module.exports = function(database, options) {
 							.then(function(siteModel) {
 								var context = {
 									siteRoot: getSiteRootUrl(req, '/login'),
-									themeRoot: themesUrl + siteModel.theme.name + '/',
+									themeRoot: themesUrl + siteModel.theme.id + '/',
 									theme: siteModel.theme.config,
 									site: {
 										private: siteModel.private
 									}
 								};
-								var templateName = siteModel.theme.name + '/login';
+								var templateName = siteModel.theme.id + '/login';
 								res.render(templateName, context);
 							});
 					})
@@ -417,29 +417,24 @@ module.exports = function(database, options) {
 						var includeContents = true;
 						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached)
 							.then(function(siteModel) {
-								var themeConfig = getOverriddenThemeConfig(siteModel.theme.config, themeConfigOverrides);
+								var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
 								var siteContents = siteModel.contents || { folders: null, files: null };
 								var context = {
 									siteRoot: getSiteRootUrl(req),
-									themeRoot: themesUrl + siteModel.theme.name + '/',
+									themeRoot: themesUrl + siteModel.theme.id + '/',
 									theme: themeConfig,
 									site: {
 										private: siteModel.private
 									},
 									contents: siteContents
 								};
-								var templateName = siteModel.theme.name + '/index';
+								var templateName = siteModel.theme.id + '/index';
 								res.render(templateName, context);
 							});
 					})
 					.catch(function(error) {
 						next(error);
 					});
-
-				function getOverriddenThemeConfig(themeConfig, themeConfigOverrides) {
-					if (!themeConfigOverrides) { return themeConfig; }
-					return merge({}, themeConfig, themeConfigOverrides);
-				}
 			}
 
 			function downloadRoute(req, res, next) {

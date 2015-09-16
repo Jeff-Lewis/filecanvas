@@ -1,7 +1,7 @@
 <form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 	<input type="hidden" name="_method" value="PUT"/>
 	<input type="hidden" name="_action" value="theme"/>
-	<input type="hidden" name="theme" value="{{ content.site.theme.name }}"/>
+	<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
 	<div class="editor-header">
 		<div class="editor-header-controls">
 			<button type="reset" class="btn btn-default mr5">Reset changes</button>
@@ -13,7 +13,7 @@
 	<div class="editor-sidepanel">
 		<div class="panel mb0">
 			<div class="panel-body bordered-group">
-				{{#each (lookup (lookup content.themes content.site.theme.name) 'config') as |configGroup|}}
+				{{#each (lookup (lookup content.themes content.site.theme.id) 'config') as |configGroup|}}
 				<fieldset class="form-group">
 					<h4 class="text-uppercase mt0 mb0">{{ configGroup.label }}</h4>
 					{{#each configGroup.fields as |field|}}

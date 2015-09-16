@@ -58,38 +58,50 @@ function initLivePreview() {
 
 	function onFieldChanged() {
 		var formFieldValues = parseFormFieldValues($formElement);
-		var themeConfigOverrides = formFieldValues.theme.config;
+		var nestedFormFieldValues = parseNestedPropertyValues(formFieldValues);
+		var themeConfigOverrides = nestedFormFieldValues.theme.config;
 		updatePreview(themeConfigOverrides);
 
 
 		function parseFormFieldValues($formElement) {
 			var fieldElements = Array.prototype.slice.call($formElement.prop('elements'));
-			var fieldValues = fieldElements.map(function(element) {
+			return fieldElements.map(function(element) {
 				var elementName = element.name;
 				var elementValue = element.value;
 				return {
-					'name': elementName,
+					'key': elementName,
 					'value': elementValue
 				};
-			}).filter(function(field) {
-				return Boolean(field.name) && (field.name.indexOf('theme.config.') === 0);
-			}).reduce(function(values, field) {
-				var fieldName = field.name;
-				var fieldValue = field.value;
-				var fieldNameSegments = fieldName.split('.');
-				fieldNameSegments.reduce(function(parent, fieldNameSegment, index, array) {
+			}).reduce(function(values, property) {
+				var key = property.key;
+				var value = property.value;
+				values[key] = value;
+				return values;
+			}, {});
+		}
+
+		function parseNestedPropertyValues(values) {
+			return Object.keys(values).map(function(key) {
+				return {
+					key: key,
+					value: values[key]
+				};
+			}).reduce(function(values, property) {
+				var propertyName = property.key;
+				var propertyValue = property.value;
+				var propertyNameSegments = propertyName.split('.');
+				propertyNameSegments.reduce(function(parent, propertyNameSegment, index, array) {
 					if (index === array.length - 1) {
-						parent[fieldNameSegment] = fieldValue;
-						return fieldValue;
+						parent[propertyNameSegment] = propertyValue;
+						return propertyValue;
 					}
-					if (!(fieldNameSegment in parent)) {
-						parent[fieldNameSegment] = {};
+					if (!(propertyNameSegment in parent)) {
+						parent[propertyNameSegment] = {};
 					}
-					return parent[fieldNameSegment];
+					return parent[propertyNameSegment];
 				}, values);
 				return values;
 			}, {});
-			return fieldValues;
 		}
 	}
 
