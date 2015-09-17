@@ -52,9 +52,7 @@
     "slug": "^0.9.1",
     "trace": "^1.2.0",
     "vdom-virtualize": "timkendrick/vdom-virtualize#feature/comment-nodes",
-    "virtual-dom": "^2.1.1"
-  },
-  "devDependencies": {
+    "virtual-dom": "^2.1.1",
     "webpack": "^1.12.1"
   }
 }
