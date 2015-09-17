@@ -829,7 +829,7 @@ module.exports = function(database, options) {
 						return updateUserDefaultSiteName(uid, updatedDefaultSiteName);
 					})
 					.then(function() {
-						res.redirect(303, '/sites/');
+						res.redirect(303, '/sites/' + updatedSiteName);
 					})
 					.catch(function(error) {
 						next(error);
