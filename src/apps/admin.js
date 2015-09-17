@@ -486,7 +486,7 @@ module.exports = function(database, options) {
 
 			app.get('/dropbox/metadata/*', ensureAuth, initAdminSession, retrieveDropboxMetadataRoute);
 
-			app.get('/logout', ensureAuth, initAdminSession, retrieveLogoutRoute);
+			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
 			app.use('/preview', createPreviewApp(database, {
 				host: host,
@@ -504,6 +504,13 @@ module.exports = function(database, options) {
 					return;
 				}
 				next();
+			}
+
+			function redirectIfLoggedOut(req, res, next) {
+				if (req.isAuthenticated()) {
+					return next();
+				}
+				res.redirect('/');
 			}
 
 			function retrieveHomeRoute(req, res, next) {
