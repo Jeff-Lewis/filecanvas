@@ -247,6 +247,10 @@ button.bg-bluegrey:hover :not(:disabled) {
 .form-centered {
 	color: #b2b6be;
 }
+.form-centered-icon {
+	font-size: 64px;
+	margin-bottom: 10px;
+}
 
 @media screen and (min-width:768px) {
 	.form-centered {

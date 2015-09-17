@@ -33,12 +33,13 @@ function initLivePreview() {
 	var patchIframeContent = null;
 	$formElement.on('change input', debounce(onFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
 
-	$previewElement.hide().on('load', function() {
+	$previewElement.addClass('loading').on('load', function() {
+		var $element = $(this);
 		loadHtml(previewUrl)
 			.then(function(html) {
-				var iframeDocumentElement = getIframeDomElement($previewElement[0]);
+				var iframeDocumentElement = getIframeDomElement($element[0]);
 				patchIframeContent = createDocumentPatcher(iframeDocumentElement, html);
-				$previewElement.show();
+				$element.removeClass('loading');
 			});
 	});
 
