@@ -7,6 +7,7 @@ var LIVE_UPDATE_DEBOUNCE_DURATION = 1000;
 
 $(function() {
 	initColorpickers();
+	initSidepanel();
 	initLivePreview();
 });
 
@@ -20,6 +21,14 @@ function initColorpickers() {
 		isChanging = true;
 		$inputElement.change();
 		isChanging = false;
+	});
+}
+
+function initSidepanel() {
+	$('[data-toggle="collapse-sidepanel"]').on('click', function(event) {
+		var targetSelector = $(this).data('target');
+		var $targetElement = $(targetSelector);
+		$targetElement.toggleClass('collapsed');
 	});
 }
 

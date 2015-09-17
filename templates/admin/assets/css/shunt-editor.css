@@ -9,10 +9,31 @@
 	left: 0;
 	width: 300px;
 	bottom: 0;
-	overflow: scroll;
+	overflow: hidden;
 }
-.editor-sidepanel > .panel {
-	min-height: 100%;
+.editor-sidepanel-title {
+	white-space: nowrap;
+	overflow: hidden;
+}
+.editor-sidepanel-collapsed-title {
+	position: absolute;
+	top: 51px;
+	left: 100%;
+	margin-left: -43px;
+	margin-top: 0;
+	margin-bottom: 0;
+	white-space: nowrap;
+	transform-origin: 0 10px;
+	transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
+}
+.editor-sidepanel-toggle {
+	color: rgba(255, 255, 255, 0.8);
+}
+.editor-sidepanel-toggle:hover {
+	color: white;
+}
+.editor-sidepanel-toggle i {
+	font-size: 16px;
 }
 .editor-header {
 	height: 55px;
@@ -20,8 +41,13 @@
 	background-color: #495469;
 	color: white;
 }
-.editor-header-title {
-	padding: 8px;
+.editor-header-title .brand {
+	height: 35px;
+}
+.editor-header-title .brand-logo {
+	margin: 0 10px;
+    line-height: 35px;
+    padding: 0;
 }
 .editor-header-controls {
 	float: right;
@@ -58,6 +84,47 @@
 }
 .editor-preview.loading + .editor-loading {
 	display: block;
+}
+
+.editor-sidepanel,
+.editor-sidepanel-title,
+.editor-sidepanel-collapsed-title,
+.editor-sidepanel > .panel > .panel-body,
+.editor-sidepanel + .editor-main {
+	transition: all 0.3s ease;
+}
+.editor-sidepanel.collapsed {
+	width: 43px;
+}
+.editor-sidepanel.collapsed + .editor-main {
+	left: 43px;
+}
+.editor-sidepanel-collapsed-title,
+.editor-sidepanel.collapsed > .panel > .panel-body,
+.editor-sidepanel.collapsed .editor-sidepanel-title {
+	opacity: 0;
+}
+.editor-sidepanel.collapsed .editor-sidepanel-collapsed-title {
+	opacity: 1;
+	transform: translate(20px, 0) rotate(90deg);
+}
+
+.editor-sidepanel > .panel {
+	height: 100%;
+}
+.editor-sidepanel > .panel > .panel-heading {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+.editor-sidepanel > .panel > .panel-body {
+	position: absolute;
+	top: 55px;
+	left: 0;
+	width: 100%;
+	bottom: 0;
+	overflow: scroll;
 }
 
 .colorpicker-element .input-group-addon i,

@@ -8,10 +8,23 @@
 			<button type="submit" class="btn btn-success mr5">Save changes</button>
 			<a href="{{ session.urls.sites }}/{{ content.site.name }}" class="p10" title="Back to site settings"><i class="fa fa-times"></i></a>
 		</div>
-		<h4 class="editor-header-title no-margin text-uppercase"><i class="fa fa-paint-brush mr10"></i>Theme editor</h4>
+		<div class="editor-header-title pull-left">
+			<div class="brand">
+				<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+			</div>
+		</div>
 	</div>
-	<div class="editor-sidepanel">
-		<div class="panel mb0">
+	<div class="editor-sidepanel" id="editor-sidepanel">
+		<div class="panel panel-primary mb0">
+			<div class="panel-heading">
+				<div class="panel-controls">
+					<a href="javascript:;" class="editor-sidepanel-toggle" data-toggle="collapse-sidepanel" data-target="#editor-sidepanel" aria-controls="editor-sidepanel">
+						<i class="fa fa-bars"></i>
+					</a>
+				</div>
+				<h4 class="editor-sidepanel-collapsed-title bg-white text-uppercase">Theme editor</h4>
+				<h4 class="editor-sidepanel-title no-margin text-uppercase"><i class="fa fa-paint-brush mr10"></i> Theme editor</h4>
+			</div>
 			<div class="panel-body bordered-group">
 				{{#each (lookup (lookup content.themes content.site.theme.id) 'config') as |configGroup|}}
 				<fieldset class="form-group">
