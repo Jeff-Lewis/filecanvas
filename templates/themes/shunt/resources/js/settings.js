@@ -127,15 +127,7 @@ $(function(){
 function isoInstance($group){
 
 	$group.isotope({
-		itemSelector : '.post',
-		getSortData : {
-			timeSinceModified : function(itemElem) {
-				var timestamp = parseInt($(itemElem).attr('data-file-modified'), 10);
-				var currentTimestamp = Math.floor(new Date().getTime() / 1000);
-				return currentTimestamp - timestamp;
-			}
-		},
-		sortBy : 'timeSinceModified'
+		itemSelector : '.post'
 	});
 
 	// Find filters
