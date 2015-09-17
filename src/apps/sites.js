@@ -281,21 +281,6 @@ module.exports = function(database, options) {
 						res.redirect(siteLoginUrl);
 					}
 				})(req, res, next);
-
-
-				function ensurePreviousUserLoggedOut(req) {
-					var isPreviousUserLoggedIn = req.isAuthenticated();
-					if (!isPreviousUserLoggedIn) { return Promise.resolve(); }
-					return new Promise(function(resolve, reject) {
-						req.logout();
-						var passportSession = req.session.passport;
-						req.session.regenerate(function(error) {
-							if (error) { return reject(error); }
-							req.session.passport = passportSession;
-							resolve();
-						});
-					});
-				}
 			}
 
 			function processLogoutRoute(req, res, next) {
@@ -344,7 +329,15 @@ module.exports = function(database, options) {
 						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
 							.then(function(authenticationDetails) {
 								var isPrivate = authenticationDetails.private;
-								if (!isPrivate) { return next(); }
+								if (!isPrivate) {
+									return ensurePreviousUserLoggedOut(req)
+										.then(function() {
+											return next();
+										})
+										.catch(function(error) {
+											return next(error);
+										});
+								}
 
 								var requestPath = req.originalUrl.split('?')[0];
 
@@ -474,6 +467,20 @@ module.exports = function(database, options) {
 						next(error);
 					});
 			}
+		}
+
+		function ensurePreviousUserLoggedOut(req) {
+			var isPreviousUserLoggedIn = req.isAuthenticated();
+			if (!isPreviousUserLoggedIn) { return Promise.resolve(); }
+			return new Promise(function(resolve, reject) {
+				req.logout();
+				var passportSession = req.session.passport;
+				req.session.regenerate(function(error) {
+					if (error) { return reject(error); }
+					req.session.passport = passportSession;
+					resolve();
+				});
+			});
 		}
 	}
 
