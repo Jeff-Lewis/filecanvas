@@ -244,12 +244,12 @@ button.bg-bluegrey:hover :not(:disabled) {
 	color: white;
 }
 
-.login-form {
+.form-centered {
 	color: #b2b6be;
 }
 
 @media screen and (min-width:768px) {
-	.login-form {
+	.form-centered {
 		margin-top: 130px;
 		margin-left: auto;
 		margin-right: auto;
