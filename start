@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+trap "killall mongod" EXIT
+
+cd $(dirname $0)
+
+(mongod --dbpath db/data/db) &
+
+(cd client/admin; webpack -d --watch) &
+(cd client/api; webpack -d --watch) &
+(cd client/editor; webpack -d --watch) &
+
+(NODE_ENV=development foreman start -f Procfile.dev)
