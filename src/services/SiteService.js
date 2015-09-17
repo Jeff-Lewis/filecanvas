@@ -147,8 +147,8 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 				var folders = this.contents.filter(function(fileModel) {
 					return fileModel.is_dir;
 				});
-				var sortedFolders = folders.sort(function sortAlphabetically(a, b) {
-					return (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1);
+				var sortedFolders = folders.sort(function(file1, file2) {
+					return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
 				});
 				return sortedFolders;
 			}
@@ -161,17 +161,7 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 					return !fileModel.is_dir;
 				});
 				var sortedFiles = files.sort(function(file1, file2) {
-					var file1Filename = file1.path.split('/').pop();
-					var file2Filename = file2.path.split('/').pop();
-					var file1Prefix = parseInt(file1Filename);
-					var file2Prefix = parseInt(file2Filename);
-					if (!isNaN(file1Prefix) || !isNaN(file2Prefix)) {
-						if (isNaN(file1Prefix)) { return 1; }
-						if (isNaN(file2Prefix)) { return -1; }
-						return file1Prefix - file2Prefix;
-					} else {
-						return (file1.modifiedAt - file2.modifiedAt);
-					}
+					return sortByPrefixedFilename(file1, file2) || sortByLastModified(file1, file2);
 				});
 				return sortedFiles;
 			}
@@ -185,6 +175,30 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 			var isExternalPath = path.toLowerCase().indexOf(rootFolderPath.toLowerCase()) !== 0;
 			if (isExternalPath) { throw new Error('Invalid file path: "' + path + '"'); }
 			return path.replace(rootFolderRegExp, '').split('/').map(encodeURIComponent).join('/');
+		}
+
+		function sortByPrefixedFilename(file1, file2) {
+			var file1Filename = file1.name;
+			var file2Filename = file2.name;
+			var file1Prefix = parseInt(file1Filename);
+			var file2Prefix = parseInt(file2Filename);
+			var file1HasPrefix = !isNaN(file1Prefix);
+			var file2HasPrefix = !isNaN(file2Prefix);
+			if (!file1HasPrefix && !file2HasPrefix) { return 0; }
+			if (file1HasPrefix && !file2HasPrefix) { return -1; }
+			if (file2HasPrefix && !file1HasPrefix) { return 1; }
+			if (file1Prefix === file2Prefix) {
+				return sortByFilename(file1, file2);
+			}
+			return file1Prefix - file2Prefix;
+		}
+
+		function sortByFilename(file1, file2) {
+			return (file1.name.toLowerCase() < file2.name.toLowerCase() ? -1 : 1);
+		}
+
+		function sortByLastModified(file1, file2) {
+			return (file2.timestamp - file1.timestamp);
 		}
 	}
 };
