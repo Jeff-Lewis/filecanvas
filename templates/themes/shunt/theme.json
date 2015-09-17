@@ -50,7 +50,7 @@
 				{
 					"name": "navItemSelectedColor",
 					"type": "color",
-					"default": "#333333",
+					"default": "#000000",
 					"label": "Navigation item (selected)",
 					"editor": {
 						"name": "colorpicker",
@@ -155,7 +155,7 @@
 				{
 					"name": "introText",
 					"type": "string",
-					"default": "Looks like you've created a brand new Shunt site! You can use the Theme Editor to update the site's appearance (including this message). Drag files into your linked Dropbox folder and they'll show up in the section below when you refresh the page.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
+					"default": "Looks like you've created a brand new Shunt site! You can use the Theme Editor to update the site's appearance (including this message). Drag files into your linked Dropbox folder and they'll show up in the section below when you load the page.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
