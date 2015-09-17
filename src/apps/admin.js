@@ -829,8 +829,7 @@ module.exports = function(database, options) {
 						return updateUserDefaultSiteName(uid, updatedDefaultSiteName);
 					})
 					.then(function() {
-						var isThemeUpdate = (formValues._action === 'theme');
-						res.redirect(303, (isThemeUpdate ? '/sites/' + updatedSiteName + '/theme' : '/sites/' + updatedSiteName));
+						res.redirect(303, '/sites/');
 					})
 					.catch(function(error) {
 						next(error);
