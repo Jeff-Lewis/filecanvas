@@ -664,8 +664,10 @@ module.exports = function(database, options) {
 				deleteUser(uid)
 					.then(function() {
 						req.logout();
-						req.session.destroy();
-						res.redirect(303, '/');
+						req.session.regenerate(function(error) {
+							if (error) { return next(error); }
+							res.redirect(303, '/');
+						});
 					})
 					.catch(function(error) {
 						next(error);
@@ -1035,7 +1037,7 @@ module.exports = function(database, options) {
 
 			function retrieveLogoutRoute(req, res, next) {
 				req.logout();
-				req.session.destroy(function(error) {
+				req.session.regenerate(function(error) {
 					if (error) { next(error); }
 					var templateData = {
 						title: 'Logout',
