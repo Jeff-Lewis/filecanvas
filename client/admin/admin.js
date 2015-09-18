@@ -41,6 +41,7 @@ $(function() {
 	initShunt(bindingSources, bindingFilters);
 	updateBindings(bindingSources);
 	initInputValidators(validators);
+	initSelectAllInputs();
 	initAccordionAnchors();
 	initActionPanels();
 	initOffscreenSidebar();
@@ -456,6 +457,12 @@ function initShunt(bindingSources, bindingFilters) {
 			}
 		}
 	}
+}
+
+function initSelectAllInputs() {
+	$('[data-select-all-input]').on('click', function(event) {
+		this.select();
+	});
 }
 
 function initAccordionAnchors() {
