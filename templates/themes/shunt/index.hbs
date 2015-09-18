@@ -81,7 +81,7 @@
 	</style>
 </head>
 
-<body>
+<body{{#if admin }} data-admin data-admin-upload{{/if}}>
 
 	{{#if (or theme.content.pageHeader theme.content.pageSubtitle)}}
 	<header id="home">

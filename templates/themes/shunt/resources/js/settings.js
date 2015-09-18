@@ -236,4 +236,15 @@ $(document).ready(function() {
 	}
 });
 
+// Admin upload hotspots
 
+$(document).ready(function() {
+	$('[data-admin-upload]').on('dragenter', function(event) {
+		$(this).addClass('dragging');
+	}).on('dragleave', function(event) {
+		var targetElement = event.target;
+		var containsTargetElement = targetElement && $.contains(this, targetElement);
+		if (containsTargetElement) { return; }
+		$(this).removeClass('dragging');
+	});
+});

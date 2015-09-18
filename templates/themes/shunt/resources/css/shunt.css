@@ -219,3 +219,18 @@ footer a:hover {
 	-moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 }
+
+[data-admin-upload].dragging::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	border: 10px solid rgba(255, 0, 0, 0.25);
+	z-index: 999;
+}
+body[data-admin-upload].dragging::after {
+	position: fixed;
+}
