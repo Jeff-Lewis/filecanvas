@@ -74,94 +74,98 @@
 </div>
 <div class="row">
 	<div class="col-md-12 col-lg-10">
-		<div class="panel mb25">
-			<div class="panel-heading border">
-				<h4 class="no-margin text-uppercase">Change your username</h4>
-			</div>
-			<div class="panel-body">
-				<div class="row no-margin">
-					<div class="col-lg-12">
-						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
-							<input type="hidden" name="_method" value="PUT"/>
-							<div class="alert alert-warning">
-								<i class="pull-left fa fa-exclamation-triangle"></i>
-								<div>
-									<h5>Before changing your username, bear the following points in mind:</h5>
-									<ul>
-										<li>Your username determines your Shunt web root, where your sites are located.</li>
-										<li>Changing your username will change the web address of <strong>all your Shunt sites</strong>.</li>
-										<li>Your Shunt sites will be accessible from your updated Shunt web root.</li>
-										<li>Any custom domain names will need to be updated to reflect your updated web root address.</li>
-									</ul>
+		<div class="panel panel-info mb5">
+			<a class="panel-heading collapsed" data-toggle="collapse" href="#change-username" aria-expanded="{{eq session.state.activeRegion 'change-username'}}" aria-controls="change-username" role="tab">
+				<div class="pull-left"><i class="fa fa-pencil mr10"></i>Change your username</div>
+				<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+			</a>
+			<div id="change-username" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'change-username')}} in{{/if}}" role="tabpanel">
+				<div class="panel-body">
+					<div class="row no-margin">
+						<div class="col-lg-12">
+							<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+								<input type="hidden" name="_method" value="PUT"/>
+								<input type="hidden" name="_state.activeRegion" value="change-username"/>
+								<div class="alert alert-warning">
+									<i class="pull-left fa fa-exclamation-triangle"></i>
+									<div>
+										<h5>Before changing your username, bear the following points in mind:</h5>
+										<ul>
+											<li>Your username determines your Shunt web root, where your sites are located.</li>
+											<li>Changing your username will change the web address of <strong>all your Shunt sites</strong>.</li>
+											<li>Your Shunt sites will be accessible from your updated Shunt web root.</li>
+											<li>Any custom domain names will need to be updated to reflect your updated web root address.</li>
+										</ul>
+									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Username</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control"
-										name="username"
-										placeholder="Username"
-										value="{{ content.user.username }}"
-										data-bind-id="username"
-										data-parser="slug"
-										data-validate="slug"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-									<p class="help-block">Sites will be moved to {{#replace '$0' content.user.username}}{{#replace '$0' '<strong data-bind-value="username">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Username</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control"
+											name="username"
+											placeholder="Username"
+											value="{{ content.user.username }}"
+											data-bind-id="username"
+											data-parser="slug"
+											data-validate="slug"
+											data-trigger="focus"
+										/>
+										<span class="form-control-feedback fa" aria-hidden="true"></span>
+										<p class="help-block">Sites will be moved to {{#replace '$0' content.user.username}}{{#replace '$0' '<strong data-bind-value="username">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
-									<button type="submit" class="btn btn-success">Save changes</button>
-									<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+								<div class="form-group">
+									<div class="col-sm-offset-2 col-sm-10">
+										<button type="submit" class="btn btn-success">Save changes</button>
+										<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+									</div>
 								</div>
-							</div>
-						</form>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12 col-lg-10">
-		<div class="panel panel-danger mb25">
-			<div class="panel-heading border">
-				<h4 class="no-margin text-uppercase">Delete your account</h4>
-			</div>
-			<div class="panel-body">
-				<div class="row no-margin">
-					<div class="col-lg-12">
-						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
-							<input type="hidden" name="_method" value="DELETE"/>
-							<div class="alert alert-danger">
-								<i class="pull-left fa fa-exclamation-circle"></i>
-								<div>
-									<h5>Before deleting your account, bear the following points in mind:</h5>
-									<ul>
-										<li>Deleting this account will <strong>permanently</strong> remove all Shunt sites located at <strong>{{ session.urls.webroot }}</strong></li>
-										<li>Deleting this site will unlink your Dropbox folder from the Shunt service.</li>
-										<li>Deleting this site will <strong>not</strong> delete the contents of your Dropbox folder.</li>
-									</ul>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Are you sure?</label>
-								<div class="col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete my account
-										</label>
+		<div class="panel panel-info mb5">
+			<a class="panel-heading collapsed" data-toggle="collapse" href="#delete-account" aria-expanded="{{eq session.state.activeRegion 'delete-account'}}" aria-controls="delete-account" role="tab">
+				<div class="pull-left"><i class="fa fa-trash mr10"></i>Delete your account</div>
+				<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+			</a>
+			<div id="delete-account" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'delete-account')}} in{{/if}}" role="tabpanel">
+				<div class="panel-body">
+					<div class="row no-margin">
+						<div class="col-lg-12">
+							<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+								<input type="hidden" name="_method" value="DELETE"/>
+								<input type="hidden" name="_state.activeRegion" value="delete-account"/>
+								<div class="alert alert-danger">
+									<i class="pull-left fa fa-exclamation-circle"></i>
+									<div>
+										<h5>Before deleting your account, bear the following points in mind:</h5>
+										<ul>
+											<li>Deleting this account will <strong>permanently</strong> remove all Shunt sites located at <strong>{{ session.urls.webroot }}</strong></li>
+											<li>Deleting this site will unlink your Dropbox folder from the Shunt service.</li>
+											<li>Deleting this site will <strong>not</strong> delete the contents of your Dropbox folder.</li>
+										</ul>
 									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
-									<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete my account</button>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Are you sure?</label>
+									<div class="col-sm-10">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete my account
+											</label>
+										</div>
+									</div>
 								</div>
-							</div>
-						</form>
+								<div class="form-group">
+									<div class="col-sm-offset-2 col-sm-10">
+										<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete my account</button>
+									</div>
+								</div>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
