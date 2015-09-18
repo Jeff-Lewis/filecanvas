@@ -57,6 +57,30 @@
 		</div>
 	</div>
 </div>
+{{#if content.site.published}}
+<div class="row">
+	<div class="col-md-12 col-lg-10">
+		<div class="panel mb25">
+			<div class="panel-heading border">
+				<h4 class="no-margin text-uppercase"><i class="fa fa-share-alt mr10"></i>Share this site</h4>
+			</div>
+			<div class="panel-body">
+				<p>Copy and paste this link to share your site:</p>
+				<p>
+					<input type="text" class="form-control input-lg mb15"
+						value="{{ session.urls.webroot }}{{ content.site.name }}"
+					/>
+				</p>
+				<p>
+				<a href="mailto:?body={{ session.urls.webroot }}{{ content.site.name }}" class="btn btn-success btn-sm btn-icon mr5">
+					<i class="fa fa-send mr5"></i>
+					<span>Share via email</span>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+{{/if}}
 <div class="row">
 	<div class="col-md-12 col-lg-10">
 		<div class="panel panel-info mb5">
