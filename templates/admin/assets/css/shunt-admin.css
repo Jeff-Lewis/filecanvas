@@ -74,6 +74,9 @@ a.widget:visited,
 	text-decoration: none;
 }
 
+.form-control.input-sm { font-size: 12px; }
+.form-control.input-lg { font-size: 18px; }
+
 button.btn-reset {
 	text-align: left;
 	-webkit-transition: none;
