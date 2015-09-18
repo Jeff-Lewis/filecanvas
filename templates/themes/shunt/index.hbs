@@ -96,7 +96,9 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
+					{{#if theme.content.headerLogo}}
 					<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
+					{{/if}}
 				</div>
 				<nav>
 					{{#if site.private}}
@@ -122,7 +124,9 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
+						{{#if theme.content.navLogo}}
 						<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
+						{{/if}}
 					</div>
 					<div class="span8">
 						{{#if contents.folders}}
