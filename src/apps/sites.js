@@ -401,6 +401,7 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				var useCached = (req.query.cached === 'true');
 				var themeConfigOverrides = (req.query.config ? JSON.parse(req.query.config) : null);
+				var adminUser = (isPreview ? req.user : null);
 				retrieveUser(username)
 					.then(function(userModel) {
 						var uid = userModel.uid;
@@ -416,6 +417,7 @@ module.exports = function(database, options) {
 									siteRoot: getSiteRootUrl(req),
 									themeRoot: themesUrl + siteModel.theme.id + '/',
 									theme: themeConfig,
+									admin: adminUser,
 									site: {
 										private: siteModel.private
 									},
