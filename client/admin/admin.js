@@ -464,7 +464,11 @@ function initAccordionAnchors() {
 	});
 	$('.collapse').on('hidden.bs.collapse', function() {
 		var isCurrentHash = location.hash === '#' + this.id;
-		if (isCurrentHash) { location.hash = ''; }
+		if (isCurrentHash) {
+			var scrollPosition = { x: window.scrollX, y: window.scrollY };
+			location.hash = '';
+			window.scrollTo(scrollPosition.x, scrollPosition.y);
+		}
 	});
 	$(window).on('hashchange', onHashChanged);
 	onHashChanged(null);
