@@ -13,6 +13,7 @@ var sitesApp = require('./sites');
 
 var transport = require('../middleware/transport');
 var nestedFormValues = require('../middleware/nestedFormValues');
+var sessionState = require('../middleware/sessionState');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
@@ -52,6 +53,7 @@ module.exports = function(database, options) {
 	var app = express();
 	app.use(transport());
 	app.use(nestedFormValues());
+	app.use(sessionState());
 	var passport = new Passport();
 
 	var themes = loadThemes(themesPath);
@@ -386,6 +388,7 @@ module.exports = function(database, options) {
 						}
 					};
 					var templateData = getTemplateData(req, res, context, templateOptions);
+					delete req.session.state;
 					res.render('index', templateData, function(error, data) {
 						if (error) { return reject(error); }
 						res.send(data);
@@ -406,6 +409,7 @@ module.exports = function(database, options) {
 
 			function getTemplateSessionData(req, res) {
 				var session = {
+					state: req.session.state,
 					user: req.user || null
 				};
 				return objectAssign({}, res.locals, session);
