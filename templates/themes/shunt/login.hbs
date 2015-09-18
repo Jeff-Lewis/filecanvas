@@ -19,6 +19,14 @@
 	<![endif]-->
 	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
 	<style type="text/css">
+		::selection {
+			background-color: {{ theme.styles.brandColor }};
+			color: {{ theme.styles.navItemColor }};
+		}
+		::-moz-selection {
+			background-color: {{ theme.styles.brandColor }};
+			color: {{ theme.styles.navItemColor }};
+		}
 		a,
 		.logout:hover,
 		#slidecaption h2,
@@ -28,7 +36,6 @@
 		.option-set li a.selected {
 			color: {{ theme.styles.brandColor }};
 		}
-		::selection,
 		nav#mainnav,
 		.project-wrp:hover,
 		.copyright {
@@ -46,7 +53,6 @@
 		hr.mini {
 			border-bottom: 1px solid {{ theme.styles.brandColor }};
 		}
-		::selection,
 		.logout,
 		nav #fluid-nav li a,
 		.project-wrp:hover .project-name,
