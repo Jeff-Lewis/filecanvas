@@ -1,58 +1,53 @@
 <div class="row">
 	<div class="col-md-12 col-lg-10">
-		<div class="panel panel-primary mb25">
-			<div class="panel-heading">
-				<h4 class="no-margin text-uppercase"><i class="fa fa-globe mr10"></i>Site overview: {{ content.site.label }}</h4>
+		<div class="mb25">
+			{{#if content.site.published}}
+			<div class="alert alert-success mb10">
+				<i class="pull-left fa fa-arrow-right"></i>
+				<div>
+					<h5>This site is published at
+						<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
+					</h5>
+					<ul>
+						<li>Use the <strong>Theme editor</strong> to change how the site looks. Any changes you make will be applied to the live site.</li>
+						<li>To take the site offline, click the <strong>Unpublish site</strong> button</li>
+					</ul>
+				</div>
 			</div>
-			<div class="panel-body">
-				{{#if content.site.published}}
-				<div class="alert alert-success">
-					<i class="pull-left fa fa-arrow-right"></i>
-					<div>
-						<h5>This site has been published at
-							<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
-						</h5>
-						<ul>
-							<li>Use the <strong>Theme editor</strong> to change how the site looks. Any changes you make will be applied to the live site.</li>
-							<li>To take the site offline, click the <strong>Unpublish site</strong> button</li>
-						</ul>
-					</div>
+			{{else}}
+			<div class="alert alert-info mb10">
+				<i class="pull-left fa fa-wrench"></i>
+				<div>
+					<h5>This site is not currently published.</h5>
+					<ul>
+						<li>Use the <strong>Theme editor</strong> to choose how the site will look</li>
+						<li>Once you're ready to take the site live, click the <strong>Publish site</strong> button. This will publish the site to <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
+					</ul>
 				</div>
-				{{else}}
-				<div class="alert alert-info">
-					<i class="pull-left fa fa-wrench"></i>
-					<div>
-						<h5>This site is not currently published.</h5>
-						<ul>
-							<li>Use the <strong>Theme editor</strong> to choose how the site will look</li>
-							<li>Once you're ready to take the site live, click the <strong>Publish site</strong> button. This will publish the site to <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
-						</ul>
-					</div>
+			</div>
+			{{/if}}
+			<div class="row">
+				<div class="col-md-6">
+					<a class="widget md-mb0 bg-primary" href="{{ session.urls.sites }}/{{ content.site.name }}/theme">
+						<i class="widget-icon bg-white pull-left fa fa-paint-brush"></i>
+						<h4>Theme editor</h4>
+					</a>
 				</div>
-				{{/if}}
-				<div class="row">
-					<div class="col-md-6">
-						<a class="widget md-mb0 bg-lightblue" href="{{ session.urls.sites }}/{{ content.site.name }}/theme">
-							<i class="widget-icon bg-white pull-left fa fa-paint-brush"></i>
-							<h4>Theme editor</h4>
-						</a>
-					</div>
-					<form class="col-md-6" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-						<input type="hidden" name="_method" value="PUT"/>
-						<input type="hidden"
-							value="{{ content.site.root }}"
-							data-bind-id="site-overview-root"
-						/>
-						<input type="hidden"
-							name="published"
-							value="{{#if content.site.published}}false{{else}}true{{/if}}"
-						/>
-						<button type="submit" class="widget mb0 btn btn-reset bg-{{#if content.site.published}}danger{{else}}success{{/if}}">
-							<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
-							<h4>{{#if content.site.published}}Unpublish site{{else}}Publish site{{/if}}</h4>
-						</button>
-					</form>
-				</div>
+				<form class="col-md-6" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+					<input type="hidden" name="_method" value="PUT"/>
+					<input type="hidden"
+						value="{{ content.site.root }}"
+						data-bind-id="site-overview-root"
+					/>
+					<input type="hidden"
+						name="published"
+						value="{{#if content.site.published}}false{{else}}true{{/if}}"
+					/>
+					<button type="submit" class="widget mb0 btn btn-reset bg-{{#if content.site.published}}danger{{else}}success{{/if}}">
+						<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
+						<h4>{{#if content.site.published}}Unpublish site{{else}}Publish site{{/if}}</h4>
+					</button>
+				</form>
 			</div>
 		</div>
 	</div>
