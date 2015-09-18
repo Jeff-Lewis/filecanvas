@@ -12,6 +12,7 @@ var slug = require('slug');
 var sitesApp = require('./sites');
 
 var transport = require('../middleware/transport');
+var nestedFormValues = require('../middleware/nestedFormValues');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
@@ -49,6 +50,8 @@ module.exports = function(database, options) {
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 
 	var app = express();
+	app.use(transport());
+	app.use(nestedFormValues());
 	var passport = new Passport();
 
 	var themes = loadThemes(themesPath);
@@ -142,7 +145,6 @@ module.exports = function(database, options) {
 		var loginCallbackUrl = options.loginCallbackUrl;
 		var registerCallbackUrl = options.registerCallbackUrl;
 
-		app.use(transport());
 		app.use(passport.initialize());
 		app.use(passport.session());
 
@@ -706,24 +708,23 @@ module.exports = function(database, options) {
 				var userModel = req.user;
 				var uid = userModel.uid;
 				var accessToken = userModel.token;
-				var formValues = parseNestedPropertyValues(req.body);
 
-				var isDefaultSite = (formValues.home === 'true');
-				var isPrivate = (formValues.private === 'true');
-				var isPublished = (formValues.published === 'true');
+				var isDefaultSite = (req.body.home === 'true');
+				var isPrivate = (req.body.private === 'true');
+				var isPublished = (req.body.published === 'true');
 
-				var themeId = formValues.theme && formValues.theme.id || defaultSiteTheme;
-				var themeConfig = formValues.theme && formValues.theme.config || null;
+				var themeId = req.body.theme && req.body.theme.id || defaultSiteTheme;
+				var themeConfig = req.body.theme && req.body.theme.config || null;
 
 				var siteModel = {
 					'user': uid,
-					'name': formValues.name,
-					'label': formValues.label,
+					'name': req.body.name,
+					'label': req.body.label,
 					'theme': {
 						'id': themeId,
 						'config': null
 					},
-					'root': formValues.root || null,
+					'root': req.body.root || null,
 					'private': isPrivate,
 					'users': [],
 					'published': isPublished,
@@ -807,20 +808,19 @@ module.exports = function(database, options) {
 				var defaultSiteName = userModel.defaultSite;
 				var accessToken = userModel.token;
 				var siteName = req.params.site;
-				var formValues = parseNestedPropertyValues(req.body);
 
 				var updates = {
 					'user': uid
 				};
-				if (formValues.name) { updates.name = formValues.name; }
-				if (formValues.label) { updates.label = formValues.label; }
-				if (formValues.theme) { updates.theme = formValues.theme; }
-				if (formValues.root) { updates.root = formValues.root || null; }
-				if (formValues.private) { updates.private = formValues.private === 'true'; }
-				if (formValues.published) { updates.published = formValues.published === 'true'; }
+				if (req.body.name) { updates.name = req.body.name; }
+				if (req.body.label) { updates.label = req.body.label; }
+				if (req.body.theme) { updates.theme = req.body.theme; }
+				if (req.body.root) { updates.root = req.body.root || null; }
+				if (req.body.private) { updates.private = req.body.private === 'true'; }
+				if (req.body.published) { updates.published = req.body.published === 'true'; }
 
 				var isDefaultSite = siteName === defaultSiteName;
-				var isUpdatedDefaultSite = ('home' in formValues ? formValues.home === 'true' : isDefaultSite);
+				var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
 				var updatedSiteName = ('name' in updates ? updates.name : siteName);
 				updateSite(accessToken, uid, siteName, updates)
 					.then(function() {
@@ -1187,30 +1187,6 @@ module.exports = function(database, options) {
 				accessToken: accessToken
 			});
 			return siteService.getDropboxFileMetadata(uid, dropboxPath);
-		}
-
-		function parseNestedPropertyValues(values) {
-			return Object.keys(values).map(function(key) {
-				return {
-					key: key,
-					value: values[key]
-				};
-			}).reduce(function(values, property) {
-				var propertyName = property.key;
-				var propertyValue = property.value;
-				var propertyNameSegments = propertyName.split('.');
-				propertyNameSegments.reduce(function(parent, propertyNameSegment, index, array) {
-					if (index === array.length - 1) {
-						parent[propertyNameSegment] = propertyValue;
-						return propertyValue;
-					}
-					if (!(propertyNameSegment in parent)) {
-						parent[propertyNameSegment] = {};
-					}
-					return parent[propertyNameSegment];
-				}, values);
-				return values;
-			}, {});
 		}
 	}
 };
