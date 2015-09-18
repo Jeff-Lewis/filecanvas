@@ -3,7 +3,6 @@
 module.exports = function() {
 	return function(req, res, next) {
 		req.body = parseNestedValues(req.body);
-		console.log('Request body:', req.body);
 		next();
 	};
 };
