@@ -59,196 +59,199 @@
 </div>
 <div class="row">
 	<div class="col-md-12 col-lg-10">
-		<div class="panel mb25">
-			<div class="panel-heading border">
-				<h4 class="no-margin text-uppercase">Site Settings</h4>
-			</div>
-			<div class="panel-body">
-				<div class="row no-margin">
-					<div class="col-lg-12">
-						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-							<input type="hidden" name="_method" value="PUT"/>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Name</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control"
-									 	name="label"
-										placeholder="Site name"
-										value="{{ content.site.label }}"
-										data-validate="notEmpty"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Site path</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control"
-									 	name="name"
-										placeholder="Site path"
-										value="{{ content.site.name }}"
-										data-bind-id="site-name"
-										data-parser="slug"
-										data-validate="slug"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-									<p class="help-block">The site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-name">{{ content.site.name }}</strong></p>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Dropbox folder</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control"
-									 	name="root"
-										placeholder="Dropbox folder"
-										value="{{ content.site.root }}"
-										data-bind-id="site-root"
-									/>
-									<p class="form-control-feedback fa" aria-hidden="true"
-										data-bind-dropbox-folder-check="site-root"
-									>
-										<span class="shunt-dropbox-check-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
-										<span class="shunt-dropbox-check-valid text-success"><i class="fa fa-check"></i></span>
-										<span class="shunt-dropbox-check-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
-									</p>
-									<p class="help-block">This tells Shunt where to find the site's files within your Dropbox</p>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Home site</label>
-								<div class="col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="hidden"
-												name="home"
-												value="false"
-											/>
-											<input type="checkbox"
-												name="home"
-												value="true"
-												{{#if content.site.home}}checked="checked"{{/if}}
-											/>
-											Use this as my home site
-										</label>
+		<div class="panel panel-info mb5">
+			<a class="panel-heading collapsed" data-toggle="collapse" href="#site-settings" aria-expanded="{{eq session.state.activeRegion 'site-settings'}}" aria-controls="site-settings" role="tab">
+				<div class="pull-left"><i class="fa fa-cog mr10"></i>Site settings</div>
+				<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+			</a>
+			<div id="site-settings" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'site-settings')}} in{{/if}}" role="tabpanel">
+				<div class="panel-body">
+					<div class="row no-margin">
+						<div class="col-lg-12">
+							<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+								<input type="hidden" name="_method" value="PUT"/>
+								<input type="hidden" name="_state.activeRegion" value="site-settings"/>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Name</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control"
+										 	name="label"
+											placeholder="Site name"
+											value="{{ content.site.label }}"
+											data-validate="notEmpty"
+											data-trigger="focus"
+										/>
+										<span class="form-control-feedback fa" aria-hidden="true"></span>
 									</div>
-									<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
 								</div>
-							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
-									<button type="submit" class="btn btn-success">Save changes</button>
-									<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Site path</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control"
+										 	name="name"
+											placeholder="Site path"
+											value="{{ content.site.name }}"
+											data-bind-id="site-name"
+											data-parser="slug"
+											data-validate="slug"
+											data-trigger="focus"
+										/>
+										<span class="form-control-feedback fa" aria-hidden="true"></span>
+										<p class="help-block">The site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-name">{{ content.site.name }}</strong></p>
+									</div>
 								</div>
-							</div>
-						</form>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Dropbox folder</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control"
+										 	name="root"
+											placeholder="Dropbox folder"
+											value="{{ content.site.root }}"
+											data-bind-id="site-root"
+										/>
+										<p class="form-control-feedback fa" aria-hidden="true"
+											data-bind-dropbox-folder-check="site-root"
+										>
+											<span class="shunt-dropbox-check-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
+											<span class="shunt-dropbox-check-valid text-success"><i class="fa fa-check"></i></span>
+											<span class="shunt-dropbox-check-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
+										</p>
+										<p class="help-block">This tells Shunt where to find the site's files within your Dropbox</p>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Home site</label>
+									<div class="col-sm-10">
+										<div class="checkbox">
+											<label>
+												<input type="hidden"
+													name="home"
+													value="false"
+												/>
+												<input type="checkbox"
+													name="home"
+													value="true"
+													{{#if content.site.home}}checked="checked"{{/if}}
+												/>
+												Use this as my home site
+											</label>
+										</div>
+										<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-offset-2 col-sm-10">
+										<button type="submit" class="btn btn-success">Save changes</button>
+										<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+									</div>
+								</div>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12 col-lg-10">
-		<div class="panel mb25">
-			<div class="panel-heading border">
-				<h4 class="no-margin text-uppercase">Password protection</h4>
-			</div>
-			<div class="panel-body">
-				<div class="row no-margin">
-					<div class="col-lg-12">
-						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-							<input type="hidden" name="_method" value="PUT"/>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Site access</label>
-								<div class="col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="hidden"
-												name="private"
-												value="false"
-											/>
-											<input type="checkbox"
-												name="private"
-												value="true"
-												{{#if content.site.private}}checked="checked"{{/if}}
-											/>
-											Password protect this site
-										</label>
+		<div class="panel panel-info mb5">
+			<a class="panel-heading collapsed" data-toggle="collapse" href="#password-protection" aria-expanded="{{eq session.state.activeRegion 'password-protection'}}" aria-controls="password-protection" role="tab">
+				<div class="pull-left"><i class="fa fa-lock mr10"></i>Password protection</div>
+				<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+			</a>
+			<div id="password-protection" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'password-protection')}} in{{/if}}" role="tabpanel">
+				<div class="panel-body">
+					<div class="row no-margin">
+						<div class="col-lg-12">
+							<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+								<input type="hidden" name="_method" value="PUT"/>
+								<input type="hidden" name="_state.activeRegion" value="password-protection"/>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Site access</label>
+									<div class="col-sm-10">
+										<div class="checkbox">
+											<label>
+												<input type="hidden"
+													name="private"
+													value="false"
+												/>
+												<input type="checkbox"
+													name="private"
+													value="true"
+													{{#if content.site.private}}checked="checked"{{/if}}
+												/>
+												Password protect this site
+											</label>
+										</div>
 									</div>
 								</div>
-							</div>
-							{{#if content.site.private}}
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Users</label>
-								<div class="col-sm-10">
-									<p class="form-control-static">
-										{{#if content.site.users}}
-										{{#if (eq content.site.users.length 1)}}
-										1 registered user
-										{{else}}
-										{{content.site.users.length}} registered users
-										{{/if}}
-										{{else}}
-										<span class="text-danger"><i class="fa fa-exclamation-circle"></i> Nobody is allowed to access this site</span>
-										{{/if}}
-										(<a href="{{ session.urls.sites }}/{{ content.site.name }}/users">edit</a>)
-									</p>
+								{{#if content.site.private}}
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Users</label>
+									<div class="col-sm-10">
+										<p class="form-control-static">
+											{{#if content.site.users}}
+											{{#if (eq content.site.users.length 1)}}
+											1 registered user
+											{{else}}
+											{{content.site.users.length}} registered users
+											{{/if}}
+											{{else}}
+											<span class="text-danger"><i class="fa fa-exclamation-circle"></i> Nobody is allowed to access this site</span>
+											{{/if}}
+											(<a href="{{ session.urls.sites }}/{{ content.site.name }}/users">edit</a>)
+										</p>
+									</div>
 								</div>
-							</div>
-							{{/if}}
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
-									<button type="submit" class="btn btn-success">Save changes</button>
-									<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+								{{/if}}
+								<div class="form-group">
+									<div class="col-sm-offset-2 col-sm-10">
+										<button type="submit" class="btn btn-success">Save changes</button>
+										<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+									</div>
 								</div>
-							</div>
-						</form>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-12 col-lg-10">
-		<div class="panel panel-danger mb25">
-			<div class="panel-heading border">
-				<h4 class="no-margin text-uppercase">Delete site</h4>
-			</div>
-			<div class="panel-body">
-				<div class="row no-margin">
-					<div class="col-lg-12">
-						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-							<input type="hidden" name="_method" value="DELETE"/>
-							<div class="alert alert-danger">
-								<i class="pull-left fa fa-exclamation-circle"></i>
-								<div>
-									<h5>Before deleting this site, bear the following points in mind:</h5>
-									<ul>
-										<li>Deleting this site will <strong>permanently</strong> remove the Shunt site located at <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
-										<li>Deleting this site will unlink the site’s Dropbox folder from the Shunt service.</li>
-										<li>Deleting this site will <strong>not</strong> delete the contents of your Dropbox folder.</li>
-									</ul>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Are you sure?</label>
-								<div class="col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete this Shunt site
-										</label>
+		<div class="panel panel-info mb5">
+			<a class="panel-heading collapsed" data-toggle="collapse" href="#delete-site" aria-expanded="false" aria-controls="delete-site" role="tab">
+				<div class="pull-left"><i class="fa fa-trash mr10"></i>Delete site</div>
+				<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+			</a>
+			<div id="delete-site" class="panel-collapse collapse" role="tabpanel">
+				<div class="panel-body">
+					<div class="row no-margin">
+						<div class="col-lg-12">
+							<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+								<input type="hidden" name="_method" value="DELETE"/>
+								<div class="alert alert-danger">
+									<i class="pull-left fa fa-exclamation-circle"></i>
+									<div>
+										<h5>Before deleting this site, bear the following points in mind:</h5>
+										<ul>
+											<li>Deleting this site will <strong>permanently</strong> remove the Shunt site located at <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
+											<li>Deleting this site will unlink the site’s Dropbox folder from the Shunt service.</li>
+											<li>Deleting this site will <strong>not</strong> delete the contents of your Dropbox folder.</li>
+										</ul>
 									</div>
 								</div>
-							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
-									<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete this site</button>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Are you sure?</label>
+									<div class="col-sm-10">
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete this Shunt site
+											</label>
+										</div>
+									</div>
 								</div>
-							</div>
-						</form>
+								<div class="form-group">
+									<div class="col-sm-offset-2 col-sm-10">
+										<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete this site</button>
+									</div>
+								</div>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
