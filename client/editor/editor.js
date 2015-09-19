@@ -204,6 +204,12 @@ function initLivePreview() {
 
 	function initInlineUploads() {
 		var $previewElement = $('[data-editor-preview]');
+		var $progressElement = $('[data-editor-progress]');
+		var $progressBarElement = $('[data-editor-progress-bar]');
+		setProgressBarValue($progressBarElement, {
+			loaded: 5000,
+			total: 10000
+		});
 		var previewWindow = $previewElement.prop('contentWindow');
 		var shuntApi = window.shunt;
 		var cookies = parseCookies(document.cookie);
@@ -250,11 +256,28 @@ function initLivePreview() {
 		}
 
 		function showUploadProgressIndicator() {
-
+			setProgressBarValue($progressBarElement, {
+				loaded: 0,
+				total: 0
+			});
+			$progressBarElement.attr('aria-valuenow', 0);
+			$progressElement.addClass('active');
 		}
 
 		function hideUploadProgressIndicator() {
+			$progressElement.removeClass('active');
+		}
 
+		function setProgressBarValue($element, options) {
+			options = options || {};
+			var loaded = options.loaded || 0;
+			var total = options.total || 0;
+			var percentLoaded = 100 * (loaded / total);
+			$element.attr('aria-valuemin', 0);
+			$element.attr('aria-valuemax', total);
+			$element.attr('aria-valuenow', loaded);
+			$element.attr('data-percent', percentLoaded);
+			$element.css('width', percentLoaded + '%');
 		}
 
 		function showUploadError(error) {
@@ -262,7 +285,10 @@ function initLivePreview() {
 		}
 
 		function setUploadProgress(uploadBatch) {
-
+			setProgressBarValue($progressBarElement, {
+				loaded: uploadBatch.bytesLoaded,
+				total: uploadBatch.bytesTotal
+			});
 		}
 	}
 }
