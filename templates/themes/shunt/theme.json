@@ -284,21 +284,6 @@
 							"rows": 6
 						}
 					}
-				},
-				{
-					"name": "js",
-					"type": "js",
-					"default": null,
-					"label": "Custom JS code",
-					"editor": {
-						"name": "code",
-						"options": {
-							"language": "js",
-							"placeholder": "Paste custom JS code here",
-							"maxLength": 4096,
-							"rows": 6
-						}
-					}
 				}
 			]
 		}
