@@ -25,6 +25,14 @@ footer {
 	margin-bottom: 0.25em;
 }
 
+.lead-small blockquote {
+	background-color: #f7f7f7;
+}
+
+.lead-small li {
+	margin: 0.5em 1.5em;
+}
+
 .btn-primary:hover {
 	opacity: 0.8;
 }
