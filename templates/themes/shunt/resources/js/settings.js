@@ -126,9 +126,11 @@ $(function(){
 // Allow for multiple instances of Isotope on the page
 function isoInstance($group){
 
+	/*
 	$group.isotope({
 		itemSelector : '.post'
 	});
+	*/
 
 	// Find filters
 	var $optionSets = $group.parent().find('.option-set');
@@ -145,6 +147,7 @@ function isoInstance($group){
 		$optionSet.find('.selected').removeClass('selected');
 		$this.addClass('selected');
 
+		/*
 		// make option object dynamically, i.e. { filter: '.my-filter-class' }
 		var options = {},
 			key = $optionSet.attr('data-option-key'),
@@ -160,6 +163,14 @@ function isoInstance($group){
 			// otherwise, apply new options
 			$group.isotope( options );
 		}
+		*/
+
+		var filterSelector = $this.attr('data-option-value');
+		$group.find('.post').each(function(index, element) {
+			var $element = $(element);
+			$element.toggleClass('hidden', !$element.is(filterSelector));
+		});
+
 		return false;
 	})
 }
