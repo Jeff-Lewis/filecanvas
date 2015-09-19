@@ -1010,11 +1010,27 @@ module.exports = function(database, options) {
 								themes: themes
 							}
 						};
+						setPageCookies(req, res, {
+							token: userModel.token,
+							path: siteModel.root
+						});
 						return renderAdminPage(req, res, 'sites/site/theme', templateData);
 					})
 					.catch(function(error) {
 						next(error);
 					});
+
+
+					function setPageCookies(req, res, cookies) {
+						var cookiePath = req.url.split('?')[0];
+						Object.keys(cookies).forEach(function(key) {
+							var value = cookies[key];
+							res.cookie(key, value, {
+								path: cookiePath,
+								secure: true
+							});
+						});
+					}
 			}
 
 			function retrieveDropboxMetadataRoute(req, res, next) {

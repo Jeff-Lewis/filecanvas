@@ -9,6 +9,7 @@ $(function() {
 	initColorpickers();
 	initSidepanel();
 	initLivePreview();
+	initInlineUploads();
 });
 
 
@@ -190,5 +191,56 @@ function initLivePreview() {
 			timeout = setTimeout(later, wait);
 			if (callNow) { func.apply(context, args); }
 		};
+	}
+}
+
+function initInlineUploads() {
+	var $previewElement = $('[data-editor-preview]');
+	var previewWindow = $previewElement.prop('contentWindow');
+	var shuntApi = window.shunt;
+	var cookies = parseCookies(document.cookie);
+	var accessToken = cookies.token;
+	var sitePath = cookies.path;
+	previewWindow.shunt = {
+		uploadFiles: function(files) {
+			shuntApi.uploadFiles(files, accessToken, {
+				path: sitePath,
+				overwrite: false,
+				autorename: true
+			})
+				.progress(function(uploadBatch) {
+					updateProgress(uploadBatch);
+				})
+				.then(function(uploadBatch) {
+					updateProgress(uploadBatch);
+				})
+				.fail(function(error) {
+					showUploadError(error);
+					console.log('Upload error', error);
+				});
+		}
+	};
+
+
+	function parseCookies(cookiesString) {
+		var cookies = cookiesString.split(/;\s*/).map(function(cookieString) {
+			var match = /^(.*?)=(.*)$/.exec(cookieString);
+			return {
+				key: match[1],
+				value: match[2]
+			};
+		}).reduce(function(cookies, cookie) {
+			cookies[cookie.key] = decodeURIComponent(cookie.value);
+			return cookies;
+		}, {});
+		return cookies;
+	}
+
+	function updateProgress(uploadBatch) {
+
+	}
+
+	function showUploadError(error) {
+
 	}
 }
