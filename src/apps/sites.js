@@ -25,11 +25,13 @@ module.exports = function(database, options) {
 	var appSecret = options.appSecret;
 	var themesUrl = options.themesUrl;
 	var isPreview = options.preview;
+	var siteAuthOptions = options.siteAuth;
 
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!isPreview && !siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
 	var app = express();
 	var passport = new Passport();
@@ -135,7 +137,7 @@ module.exports = function(database, options) {
 								}
 
 								var validUsers = authenticationDetails.users;
-								var authenticationService = new AuthenticationService();
+								var authenticationService = new AuthenticationService(siteAuthOptions);
 								return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
 									.then(function(siteUserModel) {
 										if (!siteUserModel) { return callback(null, false); }

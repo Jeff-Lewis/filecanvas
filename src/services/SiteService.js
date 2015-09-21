@@ -283,7 +283,7 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(uid, siteName, filePa
 		});
 };
 
-SiteService.prototype.createSiteUser = function(uid, siteName, authDetails) {
+SiteService.prototype.createSiteUser = function(uid, siteName, authDetails, siteAuthOptions) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
@@ -295,11 +295,11 @@ SiteService.prototype.createSiteUser = function(uid, siteName, authDetails) {
 			if (userAlreadyExists) {
 				throw new HttpError(409, 'A user already exists with this username');
 			}
-			return createSiteUser(database, uid, siteName, authDetails);
+			return createSiteUser(database, uid, siteName, authDetails, siteAuthOptions);
 		});
 };
 
-SiteService.prototype.updateSiteUser = function(uid, siteName, username, authDetails) {
+SiteService.prototype.updateSiteUser = function(uid, siteName, username, authDetails, siteAuthOptions) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
@@ -307,7 +307,7 @@ SiteService.prototype.updateSiteUser = function(uid, siteName, username, authDet
 	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
 	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
 	var database = this.database;
-	return updateSiteUser(database, uid, siteName, username, authDetails);
+	return updateSiteUser(database, uid, siteName, username, authDetails, siteAuthOptions);
 };
 
 
@@ -478,8 +478,8 @@ function checkWhetherSiteUserAlreadyExists(database, uid, siteName, username) {
 		});
 }
 
-function createSiteUser(database, uid, siteName, authDetails) {
-	var authenticationService = new AuthenticationService();
+function createSiteUser(database, uid, siteName, authDetails, siteAuthOptions) {
+	var authenticationService = new AuthenticationService(siteAuthOptions);
 	return authenticationService.create(authDetails.username, authDetails.password)
 		.then(function(siteUserModel) {
 			var filter = { 'user': uid, 'name': siteName };
@@ -494,8 +494,8 @@ function createSiteUser(database, uid, siteName, authDetails) {
 		});
 }
 
-function updateSiteUser(database, uid, siteName, username, authDetails) {
-	var authenticationService = new AuthenticationService();
+function updateSiteUser(database, uid, siteName, username, authDetails, siteAuthOptions) {
+	var authenticationService = new AuthenticationService(siteAuthOptions);
 	return authenticationService.create(authDetails.username, authDetails.password)
 		.then(function(siteUserModel) {
 			var filter = { 'user': uid, 'name': siteName, 'users.username': username };

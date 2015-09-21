@@ -51,13 +51,15 @@ module.exports = function(database, config) {
 				registerCallbackUrl: config.dropbox.registerCallbackUrl,
 				themesPath: path.resolve(__dirname, '../../templates/themes'),
 				defaultSiteTheme: config.themes.default,
-				themesUrl: config.themes.root
+				themesUrl: config.themes.root,
+				siteAuth: config.auth.site
 			}),
 			'sites': sitesApp(database, {
 				host: config.host,
 				appKey: config.dropbox.appKey,
 				appSecret: config.dropbox.appSecret,
-				themesUrl: config.themes.root
+				themesUrl: config.themes.root,
+				siteAuth: config.auth.site
 			}),
 			'test': redirectToSubdomain({
 				subdomain: 'www'

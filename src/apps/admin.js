@@ -40,6 +40,7 @@ module.exports = function(database, options) {
 	var themesPath = options.themesPath;
 	var themesUrl = options.themesUrl;
 	var defaultSiteTheme = options.defaultSiteTheme;
+	var siteAuthOptions = options.siteAuth;
 
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
@@ -49,6 +50,7 @@ module.exports = function(database, options) {
 	if (!themesPath) { throw new Error('Missing site themes path'); }
 	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
 	var app = express();
 	app.use(transport());
@@ -76,7 +78,8 @@ module.exports = function(database, options) {
 		themes: themes,
 		defaultTheme: defaultTheme,
 		themesUrl: themesUrl,
-		faqData: faqData
+		faqData: faqData,
+		siteAuth: siteAuthOptions
 	});
 	initErrorHandler(app, {
 		template: 'error'
@@ -309,9 +312,10 @@ module.exports = function(database, options) {
 		var defaultTheme = options.defaultTheme;
 		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
+		var siteAuthOptions = options.siteAuth;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData);
+		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions);
 		app.use(invalidRoute());
 
 
@@ -465,7 +469,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData) {
+		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -922,7 +926,7 @@ module.exports = function(database, options) {
 				createSiteUser(accessToken, uid, siteName, {
 					username: username,
 					password: password
-				})
+				}, siteAuthOptions)
 					.then(function(userModel) {
 						res.redirect(303, '/sites/' + siteName + '/users');
 					})
@@ -941,7 +945,7 @@ module.exports = function(database, options) {
 				updateSiteUser(accessToken, uid, siteName, username, {
 					username: username,
 					password: password
-				})
+				}, siteAuthOptions)
 					.then(function(userModel) {
 						res.redirect(303, '/sites/' + siteName + '/users');
 					})
@@ -1171,24 +1175,24 @@ module.exports = function(database, options) {
 			return siteService.deleteSite(uid, siteName);
 		}
 
-		function createSiteUser(accessToken, uid, siteName, authDetails) {
+		function createSiteUser(accessToken, uid, siteName, authDetails, siteAuthOptions) {
 			var siteService = new SiteService(database, {
 				host: host,
 				appKey: appKey,
 				appSecret: appSecret,
 				accessToken: accessToken
 			});
-			return siteService.createSiteUser(uid, siteName, authDetails);
+			return siteService.createSiteUser(uid, siteName, authDetails, siteAuthOptions);
 		}
 
-		function updateSiteUser(accessToken, uid, siteName, username, authDetails) {
+		function updateSiteUser(accessToken, uid, siteName, username, authDetails, siteAuthOptions) {
 			var siteService = new SiteService(database, {
 				host: host,
 				appKey: appKey,
 				appSecret: appSecret,
 				accessToken: accessToken
 			});
-			return siteService.updateSiteUser(uid, siteName, username, authDetails);
+			return siteService.updateSiteUser(uid, siteName, username, authDetails, siteAuthOptions);
 		}
 
 		function deleteSiteUser(accessToken, uid, siteName, username) {
