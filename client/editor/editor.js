@@ -46,6 +46,7 @@ function initLivePreview() {
 	initLiveUpdates();
 	initInlineUploads();
 
+
 	function initLiveUpdates() {
 		$formElement.on('change input', debounce(onFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
 
@@ -206,10 +207,6 @@ function initLivePreview() {
 		var $previewElement = $('[data-editor-preview]');
 		var $progressElement = $('[data-editor-progress]');
 		var $progressBarElement = $('[data-editor-progress-bar]');
-		setProgressBarValue($progressBarElement, {
-			loaded: 5000,
-			total: 10000
-		});
 		var previewWindow = $previewElement.prop('contentWindow');
 		var shuntApi = window.shunt;
 		var cookies = parseCookies(document.cookie);
