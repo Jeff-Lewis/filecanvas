@@ -269,7 +269,7 @@ function initLivePreview() {
 			options = options || {};
 			var loaded = options.loaded || 0;
 			var total = options.total || 0;
-			var percentLoaded = 100 * (loaded / total);
+			var percentLoaded = 100 * (total === 0 ? 0 : loaded / total);
 			$element.attr('aria-valuemin', 0);
 			$element.attr('aria-valuemax', total);
 			$element.attr('aria-valuenow', loaded);
