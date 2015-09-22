@@ -33,30 +33,23 @@ var THEME_MANIFEST_FILENAME = 'theme.json';
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
-	var appKey = options.appKey;
-	var appSecret = options.appSecret;
-	var loginCallbackUrl = options.loginCallbackUrl;
-	var registerCallbackUrl = options.registerCallbackUrl;
 	var themesPath = options.themesPath;
 	var themesUrl = options.themesUrl;
 	var defaultSiteTheme = options.defaultSiteTheme;
+	var providers = options.providers;
 	var siteAuthOptions = options.siteAuth;
 
 	if (!host) { throw new Error('Missing hostname'); }
-	if (!appKey) { throw new Error('Missing Dropbox app key'); }
-	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
-	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
-	if (!registerCallbackUrl) { throw new Error('Missing Dropbox register callback URL'); }
 	if (!themesPath) { throw new Error('Missing site themes path'); }
 	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!providers) { throw new Error('Missing providers configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
 	var userService = new UserService(database);
 	var siteService = new SiteService(database, {
 		host: host,
-		appKey: appKey,
-		appSecret: appSecret
+		providers: providers
 	});
 
 	var app = express();
@@ -68,12 +61,7 @@ module.exports = function(database, options) {
 	var themes = loadThemes(themesPath);
 	var defaultTheme = themes[defaultSiteTheme];
 
-	initAuth(app, passport, database, {
-		appKey: appKey,
-		appSecret: appSecret,
-		loginCallbackUrl: loginCallbackUrl,
-		registerCallbackUrl: registerCallbackUrl
-	});
+	initAuth(app, passport, database, providers);
 	initAssetsRoot(app, '/assets', {
 		assetsRoot: path.resolve(__dirname, '../../templates/admin') + '/assets'
 	});
@@ -86,6 +74,7 @@ module.exports = function(database, options) {
 		defaultTheme: defaultTheme,
 		themesUrl: themesUrl,
 		faqData: faqData,
+		providers: providers,
 		siteAuth: siteAuthOptions
 	});
 	initErrorHandler(app, {
@@ -150,12 +139,7 @@ module.exports = function(database, options) {
 		});
 	}
 
-	function initAuth(app, passport, database, options) {
-		options = options || {};
-		var appKey = options.appKey;
-		var appSecret = options.appSecret;
-		var loginCallbackUrl = options.loginCallbackUrl;
-		var registerCallbackUrl = options.registerCallbackUrl;
+	function initAuth(app, passport, database, providers) {
 
 		app.use(passport.initialize());
 		app.use(passport.session());
@@ -178,9 +162,9 @@ module.exports = function(database, options) {
 
 		passport.use('admin/dropbox', new DropboxOAuth2Strategy(
 			{
-				clientID: appKey,
-				clientSecret: appSecret,
-				callbackURL: loginCallbackUrl
+				clientID: providers.dropbox.appKey,
+				clientSecret: providers.dropbox.appSecret,
+				callbackURL: providers.dropbox.loginCallbackUrl
 			},
 			function(accessToken, refreshToken, profile, callback) {
 				var uid = profile.id;
@@ -207,11 +191,11 @@ module.exports = function(database, options) {
 						})
 						.then(function(userModel) {
 							var username = userModel.username;
-							var userProvider = userModel.providers.dropbox;
-							var hasUpdatedAccessToken = accessToken !== userProvider.token;
-							var hasUpdatedProfileFirstName = dropboxFirstName !== userProvider.firstName;
-							var hasUpdatedProfileLastName = dropboxLastName !== userProvider.lastName;
-							var hasUpdatedProfileEmail = dropboxEmail !== userProvider.email;
+							var dropboxProviderConfig = userModel.providers.dropbox;
+							var hasUpdatedAccessToken = accessToken !== dropboxProviderConfig.token;
+							var hasUpdatedProfileFirstName = dropboxFirstName !== dropboxProviderConfig.firstName;
+							var hasUpdatedProfileLastName = dropboxLastName !== dropboxProviderConfig.lastName;
+							var hasUpdatedProfileEmail = dropboxEmail !== dropboxProviderConfig.email;
 							var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
 							if (hasUpdatedUserDetails) {
 								return updateUserDetails(username, {
@@ -223,36 +207,37 @@ module.exports = function(database, options) {
 									}
 								})
 									.then(function() {
-										var userProvider = userModel.providers.dropbox;
-										userProvider.token = accessToken;
-										userProvider.firstName = dropboxFirstName;
-										userProvider.lastName = dropboxLastName;
-										userProvider.email = dropboxEmail;
+										var dropboxProviderConfig = userModel.providers.dropbox;
+										dropboxProviderConfig.token = accessToken;
+										dropboxProviderConfig.firstName = dropboxFirstName;
+										dropboxProviderConfig.lastName = dropboxLastName;
+										dropboxProviderConfig.email = dropboxEmail;
 										return userModel;
 									});
 							} else {
 								return userModel;
 							}
 						});
-				}
 
-				function loadDropboxUserModel(uid) {
-					var userService = new UserService(database);
-					return userService.retrieveDropboxUser(uid);
-				}
 
-				function updateUserDetails(username, updates) {
-					var userService = new UserService(database);
-					return userService.updateUser(username, updates);
+					function loadDropboxUserModel(uid) {
+						var userService = new UserService(database);
+						return userService.retrieveDropboxUser(uid);
+					}
+
+					function updateUserDetails(username, updates) {
+						var userService = new UserService(database);
+						return userService.updateUser(username, updates);
+					}
 				}
 			}
 		));
 
 		passport.use('admin/register', new DropboxOAuth2Strategy(
 			{
-				clientID: appKey,
-				clientSecret: appSecret,
-				callbackURL: registerCallbackUrl
+				clientID: providers.dropbox.appKey,
+				clientSecret: providers.dropbox.appSecret,
+				callbackURL: providers.dropbox.registerCallbackUrl
 			},
 			function(accessToken, refreshToken, profile, callback) {
 				var uid = profile.id;
@@ -331,10 +316,11 @@ module.exports = function(database, options) {
 		var defaultTheme = options.defaultTheme;
 		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
+		var providers = options.providers;
 		var siteAuthOptions = options.siteAuth;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions);
+		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, providers, siteAuthOptions);
 		app.use(invalidRoute());
 
 
@@ -488,7 +474,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions) {
+		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, providers, siteAuthOptions) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -519,9 +505,8 @@ module.exports = function(database, options) {
 
 			app.use('/preview', createPreviewApp(database, {
 				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				themesUrl: themesUrl
+				themesUrl: themesUrl,
+				providers: providers
 			}));
 
 
@@ -1119,9 +1104,8 @@ module.exports = function(database, options) {
 			function createPreviewApp(database, options) {
 				options = options || {};
 				var host = options.host;
-				var appKey = options.appKey;
-				var appSecret = options.appSecret;
 				var themesUrl = options.themesUrl;
+				var providers = options.providers;
 
 				var app = express();
 				app.use(ensureAuth);
@@ -1130,9 +1114,8 @@ module.exports = function(database, options) {
 				app.use(sitesApp(database, {
 					preview: true,
 					host: host,
-					appKey: appKey,
-					appSecret: appSecret,
-					themesUrl: themesUrl
+					themesUrl: themesUrl,
+					providers: providers
 				}));
 				return app;
 

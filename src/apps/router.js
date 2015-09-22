@@ -45,20 +45,16 @@ module.exports = function(database, config) {
 			}),
 			'my': adminApp(database, {
 				host: config.host,
-				appKey: config.dropbox.appKey,
-				appSecret: config.dropbox.appSecret,
-				loginCallbackUrl: config.dropbox.loginCallbackUrl,
-				registerCallbackUrl: config.dropbox.registerCallbackUrl,
 				themesPath: path.resolve(__dirname, '../../templates/themes'),
 				defaultSiteTheme: config.themes.default,
 				themesUrl: config.themes.root,
+				providers: config.providers,
 				siteAuth: config.auth.site
 			}),
 			'sites': sitesApp(database, {
 				host: config.host,
-				appKey: config.dropbox.appKey,
-				appSecret: config.dropbox.appSecret,
 				themesUrl: config.themes.root,
+				providers: config.providers,
 				siteAuth: config.auth.site
 			}),
 			'test': redirectToSubdomain({

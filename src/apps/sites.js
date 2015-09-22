@@ -21,22 +21,19 @@ var AuthenticationService = require('../services/AuthenticationService');
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
-	var appKey = options.appKey;
-	var appSecret = options.appSecret;
 	var themesUrl = options.themesUrl;
 	var isPreview = options.preview;
+	var providers = options.providers;
 	var siteAuthOptions = options.siteAuth;
 
 	if (!host) { throw new Error('Missing hostname'); }
-	if (!appKey) { throw new Error('Missing Dropbox app key'); }
-	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!providers) { throw new Error('Missing providers configuration'); }
 	if (!isPreview && !siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
 	var siteService = new SiteService(database, {
 		host: host,
-		appKey: appKey,
-		appSecret: appSecret
+		providers: providers
 	});
 	var userService = new UserService(database);
 

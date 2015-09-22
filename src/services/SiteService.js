@@ -27,13 +27,11 @@ var PROVIDER_ID_DROPBOX = 'dropbox';
 function SiteService(database, options) {
 	options = options || {};
 	var host = options.host;
-	var appKey = options.appKey;
-	var appSecret = options.appKey;
+	var providers = options.providers;
 
 	this.database = database;
 	this.host = host;
-	this.appKey = appKey;
-	this.appSecret = appSecret;
+	this.providers = providers;
 }
 
 SiteService.prototype.database = null;
@@ -42,8 +40,7 @@ SiteService.prototype.createSite = function(siteModel) {
 	if (!siteModel) { return Promise.reject(new HttpError(400, 'No site model specified')); }
 	var database = this.database;
 	var host = this.host;
-	var appKey = this.appKey;
-	var appSecret = this.appSecret;
+	var providers = this.providers;
 	var requireFullModel = true;
 	return validateSiteModel(siteModel, requireFullModel)
 		.then(function(siteModel) {
@@ -79,6 +76,8 @@ SiteService.prototype.createSite = function(siteModel) {
 							var siteProvider = siteRoot.provider;
 							switch (siteProvider) {
 								case PROVIDER_ID_DROPBOX:
+									var appKey = providers.dropbox.appKey;
+									var appSecret = providers.dropbox.appSecret;
 									var uid = userProviders.dropbox.uid;
 									var accessToken = userProviders.dropbox.token;
 									return initDropboxSiteFolder(appKey, appSecret, uid, accessToken, sitePath, siteFiles);
@@ -103,8 +102,7 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 	var includeUsers = Boolean(options.users);
 	var cacheDuration = (typeof options.cacheDuration === 'number' ? options.cacheDuration : DROPBOX_CACHE_EXPIRY_DURATION);
 	var database = this.database;
-	var appKey = this.appKey;
-	var appSecret = this.appSecret;
+	var providers = this.providers;
 	return retrieveSite(database, username, siteName, {
 		published: onlyPublishedSites,
 		theme: includeTheme,
@@ -144,6 +142,8 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 
 							switch (siteProvider) {
 								case PROVIDER_ID_DROPBOX:
+									var appKey = providers.dropbox.appKey;
+									var appSecret = providers.dropbox.appSecret;
 									var uid = userProviders.dropbox.uid;
 									var accessToken = userProviders.dropbox.token;
 									return loadDropoxFolderContents(appKey, appSecret, uid, accessToken, sitePath, siteCache)
@@ -318,8 +318,7 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
-	var appKey = this.appKey;
-	var appSecret = this.appSecret;
+	var providers = this.providers;
 	return retrieveSiteRoot(database, username, siteName)
 		.then(function(siteRoot) {
 			return retrieveUserProviders(database, username)
@@ -332,6 +331,8 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 						var sitePath = siteRoot.path;
 						switch (siteProvider) {
 							case PROVIDER_ID_DROPBOX:
+								var appKey = providers.dropbox.appKey;
+								var appSecret = providers.dropbox.appSecret;
 								var uid = userProviders.dropbox.uid;
 								var accessToken = userProviders.dropbox.token;
 								var dropboxFilePath = sitePath + '/' + filePath;
@@ -349,8 +350,7 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
-	var appKey = this.appKey;
-	var appSecret = this.appSecret;
+	var providers = this.providers;
 	return retrieveSiteRoot(database, username, siteName)
 		.then(function(siteRoot) {
 			return retrieveUserProviders(database, username)
@@ -363,6 +363,8 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 						var sitePath = siteRoot.path;
 						switch (siteProvider) {
 							case PROVIDER_ID_DROPBOX:
+								var appKey = providers.dropbox.appKey;
+								var appSecret = providers.dropbox.appSecret;
 								var uid = userProviders.dropbox.uid;
 								var accessToken = userProviders.dropbox.token;
 								var dropboxFilePath = sitePath + '/' + filePath;
@@ -416,8 +418,7 @@ SiteService.prototype.getFileMetadata = function(username, provider, filePath) {
 	if (!provider) { return Promise.reject(new HttpError(400, 'No provider specified')); }
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
-	var appKey = this.appKey;
-	var appSecret = this.appSecret;
+	var providers = this.providers;
 	return retrieveUserProviders(database, username)
 		.then(function(userProviders) {
 			return retrieveFileMetadata(provider, userProviders, filePath);
@@ -426,6 +427,8 @@ SiteService.prototype.getFileMetadata = function(username, provider, filePath) {
 			function retrieveFileMetadata(provider, userProviders, filePath) {
 				switch (provider) {
 					case PROVIDER_ID_DROPBOX:
+						var appKey = providers.dropbox.appKey;
+						var appSecret = providers.dropbox.appSecret;
 						var uid = userProviders.dropbox.uid;
 						var accessToken = userProviders.dropbox.token;
 						return getDropboxFileMetadata(appKey, appSecret, uid, accessToken, filePath);
