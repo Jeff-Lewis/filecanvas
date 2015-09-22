@@ -97,7 +97,7 @@ Shunt.prototype.validateDropboxFolder = function(path) {
 	if (!path || (path.charAt(0) !== '/')) {
 		return new $.Deferred().resolve(false).promise();
 	}
-	var url = '/dropbox/metadata' + path;
+	var url = '/metadata/dropbox' + path;
 	var settings = {
 		type: 'GET',
 		dataType: 'json'

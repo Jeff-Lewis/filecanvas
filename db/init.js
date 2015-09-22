@@ -14,17 +14,17 @@ print(' - Dropping \'sites\' collection...');
 shunt.sites.drop();
 
 
-print(' - Setting \'uid\' index on \'users\' collection...');
-shunt.users.createIndex({ 'uid': 1 }, { 'unique': true });
 print(' - Setting \'username\' index on \'users\' collection...');
 shunt.users.createIndex({ 'username': 1 }, { 'unique': true });
+print(' - Setting \'providers.dropbox.uid\' index on \'users\' collection...');
+shunt.users.createIndex({ 'providers.dropbox.uid': 1 }, { 'unique': true, 'sparse': true });
 
-print(' - Setting \'user, name\' index on \'sites\' collection...');
-shunt.sites.createIndex({ 'user': 1, 'name': 1 }, { 'unique': true });
-print(' - Setting \'user, name, published\' index on \'sites\' collection...');
-shunt.sites.createIndex({ 'user': 1, 'name': 1, 'published': 1 });
-print(' - Setting \'user\' index on \'sites\' collection...');
-shunt.sites.createIndex({ 'user': 1 });
+print(' - Setting \'owner, name\' index on \'sites\' collection...');
+shunt.sites.createIndex({ 'owner': 1, 'name': 1 }, { 'unique': true });
+print(' - Setting \'owner, name, published\' index on \'sites\' collection...');
+shunt.sites.createIndex({ 'owner': 1, 'name': 1, 'published': 1 });
+print(' - Setting \'owner\' index on \'sites\' collection...');
+shunt.sites.createIndex({ 'owner': 1 });
 
 
 print('');

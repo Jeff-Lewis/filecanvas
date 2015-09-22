@@ -39,10 +39,6 @@
 				<form class="col-md-6" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
 					<input type="hidden" name="_method" value="PUT"/>
 					<input type="hidden"
-						value="{{ content.site.root }}"
-						data-bind-id="site-overview-root"
-					/>
-					<input type="hidden"
 						name="published"
 						value="{{#if content.site.published}}false{{else}}true{{/if}}"
 					/>
@@ -125,10 +121,13 @@
 								<div class="form-group">
 									<label class="col-sm-2 control-label">Dropbox folder</label>
 									<div class="col-sm-10">
+										<input type="hidden" name="root.provider"
+											value="{{ content.site.root.provider }}"
+										/>
 										<input type="text" class="form-control"
-										 	name="root"
+										 	name="root.path"
 											placeholder="Dropbox folder"
-											value="{{ content.site.root }}"
+											value="{{ content.site.root.path }}"
 											data-bind-id="site-root"
 										/>
 										<p class="form-control-feedback fa" aria-hidden="true"

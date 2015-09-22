@@ -8,7 +8,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 
 | Web address | Site folder within ${user.profileName}'s Dropbox |
 | ----------- | ------------------------------------------------ |
-| [http://${user.username}.${host}/${site.name}](http://${user.username}.${host}/${site.name}) | `${site.root}` |
+| [http://${user.username}.${host}/${site.name}](http://${user.username}.${host}/${site.name}) | `${site.root.path}` |
 
 
 - This site's settings can be changed at any time by visiting its [settings page](https://my.${host}/sites/${site.name}/settings).

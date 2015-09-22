@@ -52,6 +52,13 @@ module.exports = function(database, options) {
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
+	var userService = new UserService(database);
+	var siteService = new SiteService(database, {
+		host: host,
+		appKey: appKey,
+		appSecret: appSecret
+	});
+
 	var app = express();
 	app.use(transport());
 	app.use(nestedFormValues());
@@ -154,13 +161,13 @@ module.exports = function(database, options) {
 		app.use(passport.session());
 
 		passport.serializeUser(function(userModel, callback) {
-			var uid = userModel.uid;
-			return callback && callback(null, uid);
+			var username = userModel.username;
+			return callback && callback(null, username);
 		});
 
-		passport.deserializeUser(function(uid, callback) {
+		passport.deserializeUser(function(username, callback) {
 			var userService = new UserService(database);
-			return userService.retrieveUser(uid)
+			return userService.retrieveUser(username)
 				.then(function(userModel) {
 					return callback(null, userModel);
 				})
@@ -187,6 +194,57 @@ module.exports = function(database, options) {
 					.catch(function(error) {
 						callback(error);
 					});
+
+
+
+				function loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail) {
+					return loadDropboxUserModel(uid)
+						.catch(function(error) {
+							if (error.status === 404) {
+								throw new HttpError(403, dropboxEmail + ' is not a registered user');
+							}
+							throw error;
+						})
+						.then(function(userModel) {
+							var username = userModel.username;
+							var userProvider = userModel.providers.dropbox;
+							var hasUpdatedAccessToken = accessToken !== userProvider.token;
+							var hasUpdatedProfileFirstName = dropboxFirstName !== userProvider.firstName;
+							var hasUpdatedProfileLastName = dropboxLastName !== userProvider.lastName;
+							var hasUpdatedProfileEmail = dropboxEmail !== userProvider.email;
+							var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
+							if (hasUpdatedUserDetails) {
+								return updateUserDetails(username, {
+									'provider.dropbox': {
+										token: accessToken,
+										firstName: dropboxFirstName,
+										lastName: dropboxLastName,
+										email: dropboxEmail
+									}
+								})
+									.then(function() {
+										var userProvider = userModel.providers.dropbox;
+										userProvider.token = accessToken;
+										userProvider.firstName = dropboxFirstName;
+										userProvider.lastName = dropboxLastName;
+										userProvider.email = dropboxEmail;
+										return userModel;
+									});
+							} else {
+								return userModel;
+							}
+						});
+				}
+
+				function loadDropboxUserModel(uid) {
+					var userService = new UserService(database);
+					return userService.retrieveDropboxUser(uid);
+				}
+
+				function updateUserDetails(username, updates) {
+					var userService = new UserService(database);
+					return userService.updateUser(username, updates);
+				}
 			}
 		));
 
@@ -208,84 +266,45 @@ module.exports = function(database, options) {
 					.catch(function(error) {
 						callback(error);
 					});
+
+
+				function registerUser(uid, accessToken, firstName, lastName, email) {
+					var fullName = firstName + ' ' + lastName;
+					var username = slug(fullName, { lower: true });
+					return generateUniqueUsername(username)
+						.then(function(username) {
+							var userModel = {
+								username: username,
+								firstName: firstName,
+								lastName: lastName,
+								email: email,
+								defaultSite: null,
+								providers: {
+									default: 'dropbox',
+									dropbox: {
+										uid: uid,
+										token: accessToken,
+										firstName: firstName,
+										lastName: lastName,
+										email: email
+									}
+								}
+							};
+							return createUser(userModel);
+						});
+				}
+
+				function generateUniqueUsername(username) {
+					var userService = new UserService(database);
+					return userService.generateUniqueUsername(username);
+				}
+
+				function createUser(userModel) {
+					var userService = new UserService(database);
+					return userService.createUser(userModel);
+				}
 			}
 		));
-
-
-		function loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail) {
-			return loadUserModel(uid)
-				.catch(function(error) {
-					if (error.status === 404) {
-						throw new HttpError(403, dropboxEmail + ' is not a registered user');
-					}
-					throw error;
-				})
-				.then(function(userModel) {
-					var hasUpdatedAccessToken = accessToken !== userModel.token;
-					var hasUpdatedProfileFirstName = dropboxFirstName !== userModel.dropboxFirstName;
-					var hasUpdatedProfileLastName = dropboxLastName !== userModel.dropboxLastName;
-					var hasUpdatedProfileEmail = dropboxEmail !== userModel.dropboxEmail;
-					var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
-					if (hasUpdatedUserDetails) {
-						return updateUserDetails(uid, {
-							token: accessToken,
-							dropboxFirstName: dropboxFirstName,
-							dropboxLastName: dropboxLastName,
-							dropboxEmail: dropboxEmail
-						})
-							.then(function() {
-								userModel.token = accessToken;
-								userModel.dropboxFirstName = dropboxFirstName;
-								userModel.dropboxLastName = dropboxLastName;
-								userModel.dropboxEmail = dropboxEmail;
-								return userModel;
-							});
-					} else {
-						return userModel;
-					}
-				});
-		}
-
-		function registerUser(uid, accessToken, firstName, lastName, email) {
-			var fullName = firstName + ' ' + lastName;
-			var username = slug(fullName, { lower: true });
-			return generateUniqueUsername(username)
-				.then(function(username) {
-					var userModel = {
-						uid: uid,
-						token: accessToken,
-						username: username,
-						firstName: firstName,
-						lastName: lastName,
-						email: email,
-						dropboxFirstName: firstName,
-						dropboxLastName: lastName,
-						dropboxEmail: email,
-						defaultSite: null
-					};
-					return createUser(userModel);
-				});
-		}
-
-		function loadUserModel(uid) {
-			var userService = new UserService(database);
-			return userService.retrieveUser(uid);
-		}
-
-		function updateUserDetails(uid, updates) {
-			var userService = new UserService(database);
-			return userService.updateUser(uid, updates);
-		}
-
-		function generateUniqueUsername(username) {
-			var userService = new UserService(database);
-			return userService.generateUniqueUsername(username);
-		}
-
-		function createUser(userModel) {
-			var userService = new UserService(database);
-			return userService.createUser(userModel);
-		}
 	}
 
 	function initViewEngine(app, options) {
@@ -334,7 +353,7 @@ module.exports = function(database, options) {
 
 			function loadSessionData(req) {
 				var userModel = req.user || null;
-				return Promise.resolve(userModel ? retrieveUserSites(userModel.uid) : null)
+				return Promise.resolve(userModel ? userService.retrieveUserSites(userModel.username) : null)
 					.then(function(siteModels) {
 						if (!siteModels) { return null; }
 						var defaultSiteName = userModel.defaultSite;
@@ -494,7 +513,7 @@ module.exports = function(database, options) {
 
 			app.get('/sites/:site/theme', ensureAuth, initAdminSession, retrieveSiteThemeRoute);
 
-			app.get('/dropbox/metadata/*', ensureAuth, initAdminSession, retrieveDropboxMetadataRoute);
+			app.get('/metadata/:provider/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
 			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
@@ -514,6 +533,16 @@ module.exports = function(database, options) {
 					return;
 				}
 				next();
+			}
+
+			function updatePassportUsername(req, userModel, username) {
+				return new Promise(function(resolve, reject) {
+					userModel.username = username;
+					req.login(userModel, function(error) {
+						if (error) { return reject(error); }
+						resolve();
+					});
+				});
 			}
 
 			function redirectIfLoggedOut(req, res, next) {
@@ -608,15 +637,20 @@ module.exports = function(database, options) {
 
 			function updateUserProfileRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
+				var username = userModel.username;
 				var updates = {
 					'username': req.body.username,
 					'firstName': req.body.firstName,
 					'lastName': req.body.lastName,
 					'email': req.body.email
 				};
-				updateUser(uid, updates)
-					.then(function(userModel) {
+				userService.updateUser(username, updates)
+					.then(function() {
+						var hasUpdatedUsername = ('username' in updates) && (updates.username !== userModel.username);
+						if (!hasUpdatedUsername) { return; }
+						return updatePassportUsername(req, userModel, updates.username);
+					})
+					.then(function() {
 						res.redirect(303, '/sites');
 					})
 					.catch(function(error) {
@@ -646,14 +680,19 @@ module.exports = function(database, options) {
 
 			function updateUserAccountRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
+				var username = userModel.username;
 				var updates = {};
 				if ('username' in req.body) { updates.username = req.body.username; }
 				if ('firstName' in req.body) { updates.firstName = req.body.firstName; }
 				if ('lastName' in req.body) { updates.lastName = req.body.lastName; }
 				if ('email' in req.body) { updates.email = req.body.email; }
 				if ('defaultSite' in req.body) { updates.defaultSite = req.body.defaultSite || null; }
-				updateUser(uid, updates)
+				userService.updateUser(username, updates)
+					.then(function() {
+						var hasUpdatedUsername = ('username' in updates) && (updates.username !== userModel.username);
+						if (!hasUpdatedUsername) { return; }
+						return updatePassportUsername(req, userModel, updates.username);
+					})
 					.then(function(userModel) {
 						res.redirect(303, '/account');
 					})
@@ -664,8 +703,8 @@ module.exports = function(database, options) {
 
 			function deleteUserAccountRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				deleteUser(uid)
+				var username = userModel.username;
+				userService.deleteUser(username)
 					.then(function() {
 						req.logout();
 						req.session.regenerate(function(error) {
@@ -682,7 +721,10 @@ module.exports = function(database, options) {
 				var siteModel = {
 					name: '',
 					label: '',
-					root: '',
+					root: {
+						provider: 'dropbox',
+						path: ''
+					},
 					private: false,
 					published: false,
 					home: false,
@@ -716,8 +758,7 @@ module.exports = function(database, options) {
 
 			function createSiteRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 
 				var isDefaultSite = (req.body.home === 'true');
 				var isPrivate = (req.body.private === 'true');
@@ -727,7 +768,7 @@ module.exports = function(database, options) {
 				var themeConfig = req.body.theme && req.body.theme.config || null;
 
 				var siteModel = {
-					'user': uid,
+					'owner': username,
 					'name': req.body.name,
 					'label': req.body.label,
 					'theme': {
@@ -749,10 +790,10 @@ module.exports = function(database, options) {
 				siteModel.theme.config = merge({}, defaultThemeConfig, themeConfig);
 
 
-				createSite(accessToken, siteModel)
+				siteService.createSite(siteModel)
 					.then(function(siteModel) {
 						if (!isDefaultSite) { return siteModel; }
-						return updateUserDefaultSiteName(uid, siteModel.name)
+						return userService.updateUserDefaultSiteName(username, siteModel.name)
 							.then(function() {
 								return siteModel;
 							});
@@ -767,14 +808,17 @@ module.exports = function(database, options) {
 
 			function retrieveSiteRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
+				var username = userModel.username;
 				var defaultSiteName = userModel.defaultSite;
-				var accessToken = userModel.token;
 				var siteName = req.params.site;
 				var includeTheme = false;
 				var includeContents = false;
 				var includeUsers = true;
-				retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers)
+				siteService.retrieveSite(username, siteName, {
+					theme: includeTheme,
+					contents: includeContents,
+					users: includeUsers
+				})
 					.then(function(siteModel) {
 						var isDefaultSite = (siteModel.name === defaultSiteName);
 						siteModel.home = isDefaultSite;
@@ -814,13 +858,12 @@ module.exports = function(database, options) {
 					return purgeSiteRoute(req, res, next);
 				}
 				var userModel = req.user;
-				var uid = userModel.uid;
+				var username = userModel.username;
 				var defaultSiteName = userModel.defaultSite;
-				var accessToken = userModel.token;
 				var siteName = req.params.site;
 
 				var updates = {
-					'user': uid
+					'owner': username
 				};
 				if (req.body.name) { updates.name = req.body.name; }
 				if (req.body.label) { updates.label = req.body.label; }
@@ -832,11 +875,11 @@ module.exports = function(database, options) {
 				var isDefaultSite = siteName === defaultSiteName;
 				var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
 				var updatedSiteName = ('name' in updates ? updates.name : siteName);
-				updateSite(accessToken, uid, siteName, updates)
+				siteService.updateSite(username, siteName, updates)
 					.then(function() {
 						var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));
 						if (updatedDefaultSiteName === defaultSiteName) { return; }
-						return updateUserDefaultSiteName(uid, updatedDefaultSiteName);
+						return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
 					})
 					.then(function() {
 						res.redirect(303, '/sites/' + updatedSiteName);
@@ -848,10 +891,10 @@ module.exports = function(database, options) {
 
 			function purgeSiteRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 				var siteName = req.params.site;
-				purgeSite(accessToken, uid, siteName)
+				var cache = null;
+				siteService.updateSiteCache(username, siteName, cache)
 					.then(function() {
 						res.redirect(303, '/sites/' + siteName);
 					})
@@ -862,10 +905,9 @@ module.exports = function(database, options) {
 
 			function deleteSiteRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 				var siteName = req.params.site;
-				deleteSite(accessToken, uid, siteName)
+				siteService.deleteSite(username, siteName)
 					.then(function(siteModel) {
 						res.redirect(303, '/sites');
 					})
@@ -876,13 +918,16 @@ module.exports = function(database, options) {
 
 			function retrieveSiteUsersRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 				var siteName = req.params.site;
 				var includeTheme = false;
 				var includeContents = false;
 				var includeUsers = true;
-				retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers)
+				siteService.retrieveSite(username, siteName, {
+					theme: includeTheme,
+					contents: includeContents,
+					users: includeUsers
+				})
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Edit site users: ' + siteModel.label,
@@ -918,15 +963,13 @@ module.exports = function(database, options) {
 
 			function createSiteUserRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 				var siteName = req.params.site;
-				var username = req.body.username;
-				var password = req.body.password;
-				createSiteUser(accessToken, uid, siteName, {
-					username: username,
-					password: password
-				}, siteAuthOptions)
+				var siteUserAuthDetails = {
+					username: req.body.username,
+					password: req.body.password
+				};
+				siteService.createSiteUser(username, siteName, siteUserAuthDetails, siteAuthOptions)
 					.then(function(userModel) {
 						res.redirect(303, '/sites/' + siteName + '/users');
 					})
@@ -937,15 +980,14 @@ module.exports = function(database, options) {
 
 			function updateSiteUserRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 				var siteName = req.params.site;
-				var username = req.params.username;
-				var password = req.body.password;
-				updateSiteUser(accessToken, uid, siteName, username, {
-					username: username,
-					password: password
-				}, siteAuthOptions)
+				var siteUsername = req.params.username;
+				var siteUserAuthDetails = {
+					username: req.params.username,
+					password: req.body.password
+				};
+				siteService.updateSiteUser(username, siteName, siteUsername, siteUserAuthDetails, siteAuthOptions)
 					.then(function(userModel) {
 						res.redirect(303, '/sites/' + siteName + '/users');
 					})
@@ -956,11 +998,10 @@ module.exports = function(database, options) {
 
 			function deleteSiteUserRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 				var siteName = req.params.site;
-				var username = req.params.username;
-				deleteSiteUser(accessToken, uid, siteName, username)
+				var siteUsername = req.params.username;
+				siteService.deleteSiteUser(username, siteName, siteUsername)
 					.then(function() {
 						res.redirect(303, '/sites/' + siteName + '/users');
 					})
@@ -971,13 +1012,16 @@ module.exports = function(database, options) {
 
 			function retrieveSiteThemeRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
+				var username = userModel.username;
 				var siteName = req.params.site;
 				var includeTheme = true;
 				var includeContents = false;
 				var includeUsers = false;
-				retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers)
+				siteService.retrieveSite(username, siteName, {
+					theme: includeTheme,
+					contents: includeContents,
+					users: includeUsers
+				})
 					.then(function(siteModel) {
 						var templateData = {
 							title: 'Theme editor',
@@ -1015,8 +1059,8 @@ module.exports = function(database, options) {
 							}
 						};
 						setPageCookies(req, res, {
-							token: userModel.token,
-							path: siteModel.root
+							token: userModel.providers[siteModel.root.provider].token,
+							path: siteModel.root.path
 						});
 						return renderAdminPage(req, res, 'sites/site/theme', templateData);
 					})
@@ -1037,12 +1081,12 @@ module.exports = function(database, options) {
 					}
 			}
 
-			function retrieveDropboxMetadataRoute(req, res, next) {
+			function retrieveFileMetadataRoute(req, res, next) {
 				var userModel = req.user;
-				var uid = userModel.uid;
-				var accessToken = userModel.token;
-				var dropboxPath = req.params[0];
-				getDropboxFileMetadata(accessToken, uid, dropboxPath)
+				var username = userModel.username;
+				var provider = req.params.provider;
+				var filePath = req.params[0];
+				siteService.getFileMetadata(username, provider, filePath)
 					.then(function(metadata) {
 						res.json(metadata);
 					})
@@ -1098,121 +1142,6 @@ module.exports = function(database, options) {
 					next();
 				}
 			}
-		}
-
-		function retrieveUserSites(uid) {
-			var userService = new UserService(database);
-			return userService.retrieveUserSites(uid);
-		}
-
-		function updateUser(uid, updates) {
-			var userService = new UserService(database);
-			return userService.updateUser(uid, updates);
-		}
-
-		function updateUserDefaultSiteName(uid, siteName) {
-			var userService = new UserService(database);
-			return userService.updateUserDefaultSiteName(uid, siteName);
-		}
-
-		function deleteUser(uid) {
-			var userService = new UserService(database);
-			return userService.deleteUser(uid);
-		}
-
-		function createSite(accessToken, siteModel) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.createSite(siteModel);
-		}
-
-		function retrieveSite(accessToken, uid, siteName, includeTheme, includeContents, includeUsers) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.retrieveSite(uid, siteName, {
-				theme: includeTheme,
-				contents: includeContents,
-				users: includeUsers
-			});
-		}
-
-		function updateSite(accessToken, uid, siteName, updates) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.updateSite(uid, siteName, updates);
-		}
-
-		function purgeSite(accessToken, uid, siteName) {
-			var cache = null;
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.updateSiteCache(uid, siteName, cache);
-		}
-
-		function deleteSite(accessToken, uid, siteName) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.deleteSite(uid, siteName);
-		}
-
-		function createSiteUser(accessToken, uid, siteName, authDetails, siteAuthOptions) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.createSiteUser(uid, siteName, authDetails, siteAuthOptions);
-		}
-
-		function updateSiteUser(accessToken, uid, siteName, username, authDetails, siteAuthOptions) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.updateSiteUser(uid, siteName, username, authDetails, siteAuthOptions);
-		}
-
-		function deleteSiteUser(accessToken, uid, siteName, username) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.deleteSiteUser(uid, siteName, username);
-		}
-
-		function getDropboxFileMetadata(accessToken, uid, dropboxPath) {
-			var siteService = new SiteService(database, {
-				host: host,
-				appKey: appKey,
-				appSecret: appSecret,
-				accessToken: accessToken
-			});
-			return siteService.getDropboxFileMetadata(uid, dropboxPath);
 		}
 	}
 };

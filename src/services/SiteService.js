@@ -20,31 +20,30 @@ var constants = require('../constants');
 var SECONDS = 1000;
 var DROPBOX_CACHE_EXPIRY_DURATION = 5 * SECONDS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
-var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
 var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
+
+var PROVIDER_ID_DROPBOX = 'dropbox';
 
 function SiteService(database, options) {
 	options = options || {};
 	var host = options.host;
 	var appKey = options.appKey;
 	var appSecret = options.appKey;
-	var accessToken = options.accessToken;
 
 	this.database = database;
 	this.host = host;
 	this.appKey = appKey;
 	this.appSecret = appSecret;
-	this.accessToken = accessToken;
 }
 
 SiteService.prototype.database = null;
 
 SiteService.prototype.createSite = function(siteModel) {
+	if (!siteModel) { return Promise.reject(new HttpError(400, 'No site model specified')); }
 	var database = this.database;
 	var host = this.host;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var accessToken = this.accessToken;
 	var requireFullModel = true;
 	return validateSiteModel(siteModel, requireFullModel)
 		.then(function(siteModel) {
@@ -58,19 +57,35 @@ SiteService.prototype.createSite = function(siteModel) {
 		})
 		.then(function() {
 			if (!siteModel.root) { return; }
-			var uid = siteModel.user;
-			return retrieveUser(database, uid)
+			var username = siteModel.owner;
+			return retrieveUser(database, username)
 				.then(function(userModel) {
+					var userProviders = userModel.providers;
 					var siteRoot = siteModel.root;
+					var sitePath = siteRoot.path;
 					var context = {
 						host: host,
 						user: userModel,
 						site: siteModel
 					};
-					return generateSiteFiles(siteRoot, context)
+					return generateSiteFiles(sitePath, context)
 						.then(function(siteFiles) {
-							initSiteFolder(appKey, appSecret, accessToken, uid, siteRoot, siteFiles);
+							return initSiteFolder(siteModel, siteFiles, userProviders);
 						});
+
+
+						function initSiteFolder(siteModel, siteFiles, userProviders) {
+							var siteRoot = siteModel.root;
+							var siteProvider = siteRoot.provider;
+							switch (siteProvider) {
+								case PROVIDER_ID_DROPBOX:
+									var uid = userProviders.dropbox.uid;
+									var accessToken = userProviders.dropbox.token;
+									return initDropboxSiteFolder(appKey, appSecret, uid, accessToken, sitePath, siteFiles);
+								default:
+									throw new Error('Invalid provider: ' + siteProvider);
+							}
+						}
 				});
 		})
 		.then(function() {
@@ -78,7 +93,9 @@ SiteService.prototype.createSite = function(siteModel) {
 		});
 };
 
-SiteService.prototype.retrieveSite = function(uid, siteName, options) {
+SiteService.prototype.retrieveSite = function(username, siteName, options) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
 	var includeTheme = Boolean(options.theme);
@@ -88,8 +105,7 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var accessToken = this.accessToken;
-	return retrieveSite(database, uid, siteName, {
+	return retrieveSite(database, username, siteName, {
 		published: onlyPublishedSites,
 		theme: includeTheme,
 		contents: includeContents,
@@ -99,26 +115,50 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 			if (!includeContents) { return siteModel; }
 			var hasSiteFolder = (siteModel.root !== null);
 			if (!hasSiteFolder) { return null; }
-			var rootFolderPath = siteModel.root;
-			var canUseCachedContents = getIsCacheValid(siteModel.cache, cacheDuration);
+			var siteRoot = siteModel.root;
+			var sitePath = siteRoot.path;
+			var siteCache = siteModel.cache;
+			var canUseCachedContents = getIsCacheValid(siteCache, cacheDuration);
 			if (canUseCachedContents) {
-				siteModel.contents = parseFileModel(siteModel.cache.contents, rootFolderPath);
+				siteModel.contents = parseFileModel(siteCache.contents, sitePath);
 				return siteModel;
 			}
-			return loadSiteContents(siteModel, appKey, appSecret, accessToken, uid)
-				.then(function(dropboxContents) {
-					var siteCache = {
-						contents: dropboxContents.contents,
-						data: dropboxContents.data,
-						cursor: dropboxContents.cursor,
-						updated: new Date()
-					};
-					return updateSiteCache(database, uid, siteName, siteCache)
-						.then(function() {
-							siteModel.cache = siteCache;
-							siteModel.contents = parseFileModel(siteModel.cache.contents, rootFolderPath);
-							return siteModel;
+			return retrieveUserProviders(database, username)
+				.then(function(userProviders) {
+					return loadFolderContents(siteModel, userProviders)
+						.then(function(folderCache) {
+							return updateSiteCache(database, username, siteName, folderCache)
+								.then(function() {
+									siteModel.cache = folderCache;
+									siteModel.contents = parseFileModel(folderCache.contents, sitePath);
+									return siteModel;
+								});
 						});
+
+
+						function loadFolderContents(siteModel, userProviders) {
+							var siteRoot = siteModel.root;
+							var siteProvider = siteRoot.provider;
+							var sitePath = siteRoot.path;
+							var siteCache = siteModel.cache;
+
+							switch (siteProvider) {
+								case PROVIDER_ID_DROPBOX:
+									var uid = userProviders.dropbox.uid;
+									var accessToken = userProviders.dropbox.token;
+									return loadDropoxFolderContents(appKey, appSecret, uid, accessToken, sitePath, siteCache)
+										.then(function(dropboxContents) {
+											return {
+												contents: dropboxContents.contents,
+												data: dropboxContents.data,
+												cursor: dropboxContents.cursor,
+												updated: new Date()
+											};
+										});
+								default:
+									throw new Error('Invalid provider: ' + siteProvider);
+							}
+						}
 				});
 		});
 
@@ -203,127 +243,197 @@ SiteService.prototype.retrieveSite = function(uid, siteName, options) {
 	}
 };
 
-SiteService.prototype.updateSite = function(uid, siteName, updates) {
+SiteService.prototype.updateSite = function(username, siteName, updates) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!updates) { return Promise.reject(new HttpError(400, 'No updates specified')); }
 	var database = this.database;
 	var requireFullModel = false;
 	return validateSiteModel(updates, requireFullModel)
 		.then(function(updates) {
-			return getSiteRoot(database, uid, siteName)
-				.then(function(existingSiteRoot) {
-					var siteRootHasChanged = (existingSiteRoot !== updates.root);
-					if (!siteRootHasChanged) {
-						delete updates.root;
-						delete updates.cache;
+			return checkWhetherIsChangingSiteRoot(username, siteName, updates)
+				.then(function(isChangingSiteRoot) {
+					if (isChangingSiteRoot) {
+						updates.cache = null;
 					}
-					return updateSite(database, uid, siteName, updates);
+					return updateSite(database, username, siteName, updates);
 				});
 		});
+
+
+	function checkWhetherIsChangingSiteRoot(username, siteName, updates) {
+		var isUpdatingSiteRoot = 'root' in updates;
+		if (!isUpdatingSiteRoot) { return Promise.resolve(false); }
+		return getSiteRoot(database, username, siteName)
+			.then(function(existingSiteRoot) {
+				var siteRootHasChanged =
+					(existingSiteRoot.provider !== updates.root.provider) ||
+					(existingSiteRoot.path !== updates.root.path);
+				return siteRootHasChanged;
+			});
+	}
 };
 
-SiteService.prototype.deleteSite = function(uid, siteName) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+SiteService.prototype.deleteSite = function(username, siteName) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	var database = this.database;
-	return checkWhetherSiteisUserDefaultSite(database, uid, siteName)
+	return checkWhetherSiteisUserDefaultSite(database, username, siteName)
 		.then(function(isDefaultSite) {
-			return deleteSite(database, uid, siteName)
+			return deleteSite(database, username, siteName)
 				.then(function() {
 					if (isDefaultSite) {
-						return resetUserDefaultSite(database, uid);
+						return resetUserDefaultSite(database, username);
 					}
 				});
 		});
 };
 
-SiteService.prototype.retrieveSiteAuthenticationDetails = function(uid, siteName, options) {
+SiteService.prototype.retrieveSiteAuthenticationDetails = function(username, siteName, options) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
 	var database = this.database;
-	return retrieveSiteAuthenticationDetails(database, uid, siteName, onlyPublishedSites);
+	return retrieveSiteAuthenticationDetails(database, username, siteName, onlyPublishedSites);
 };
 
-SiteService.prototype.retrieveSiteCache = function(uid, siteName) {
+SiteService.prototype.retrieveSiteCache = function(username, siteName) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	var database = this.database;
-	return retrieveSiteCache(database, uid, siteName);
+	return retrieveSiteCache(database, username, siteName);
 };
 
-SiteService.prototype.updateSiteCache = function(uid, siteName, cache) {
+SiteService.prototype.updateSiteCache = function(username, siteName, cache) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	cache = cache || null;
 	var database = this.database;
-	return updateSiteCache(database, uid, siteName, cache);
+	return updateSiteCache(database, username, siteName, cache);
 };
 
-SiteService.prototype.retrieveSiteDownloadLink = function(uid, siteName, filePath) {
+SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, filePath) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var accessToken = this.accessToken;
-	return retrieveSiteDropboxPath(database, uid, siteName)
-		.then(function(folderPath) {
-			return new DropboxService().connect(appKey, appSecret, accessToken)
-				.then(function(dropboxClient) {
-					var dropboxFilePath = folderPath + '/' + filePath;
-					return dropboxClient.generateDownloadLink(dropboxFilePath);
+	return retrieveSiteRoot(database, username, siteName)
+		.then(function(siteRoot) {
+			return retrieveUserProviders(database, username)
+				.then(function(userProviders) {
+					return retrieveDownloadLink(siteRoot, userProviders);
+
+
+					function retrieveDownloadLink(siteRoot, userProviders) {
+						var siteProvider = siteRoot.provider;
+						var sitePath = siteRoot.path;
+						switch (siteProvider) {
+							case PROVIDER_ID_DROPBOX:
+								var uid = userProviders.dropbox.uid;
+								var accessToken = userProviders.dropbox.token;
+								var dropboxFilePath = sitePath + '/' + filePath;
+								return retrieveDropboxDownloadLink(appKey, appSecret, uid, accessToken, dropboxFilePath);
+							default:
+								throw new Error('Invalid provider: ' + siteProvider);
+						}
+					}
 				});
 		});
 };
 
-SiteService.prototype.retrieveSiteThumbnailLink = function(uid, siteName, filePath) {
+SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, filePath) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var accessToken = this.accessToken;
-	return retrieveSiteDropboxPath(database, uid, siteName)
-		.then(function(folderPath) {
-			return new DropboxService().connect(appKey, appSecret, accessToken)
-				.then(function(dropboxClient) {
-					var dropboxFilePath = folderPath + '/' + filePath;
-					return dropboxClient.generateThumbnailLink(dropboxFilePath);
+	return retrieveSiteRoot(database, username, siteName)
+		.then(function(siteRoot) {
+			return retrieveUserProviders(database, username)
+				.then(function(userProviders) {
+					return retrieveThumbnailLink(siteRoot, userProviders);
+
+
+					function retrieveThumbnailLink(siteRoot, userProviders) {
+						var siteProvider = siteRoot.provider;
+						var sitePath = siteRoot.path;
+						switch (siteProvider) {
+							case PROVIDER_ID_DROPBOX:
+								var uid = userProviders.dropbox.uid;
+								var accessToken = userProviders.dropbox.token;
+								var dropboxFilePath = sitePath + '/' + filePath;
+								return retrieveDropboxThumbnailLink(appKey, appSecret, uid, accessToken, dropboxFilePath);
+							default:
+								throw new Error('Invalid provider: ' + siteProvider);
+						}
+					}
 				});
 		});
 };
 
-SiteService.prototype.createSiteUser = function(uid, siteName, authDetails, siteAuthOptions) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+SiteService.prototype.createSiteUser = function(username, siteName, authDetails, siteAuthOptions) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
 	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
 	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
 	var database = this.database;
-	return checkWhetherSiteUserAlreadyExists(database, uid, siteName, authDetails.username)
+	return checkWhetherSiteUserAlreadyExists(database, username, siteName, authDetails.username)
 		.then(function(userAlreadyExists) {
 			if (userAlreadyExists) {
 				throw new HttpError(409, 'A user already exists with this username');
 			}
-			return createSiteUser(database, uid, siteName, authDetails, siteAuthOptions);
+			return createSiteUser(database, username, siteName, authDetails, siteAuthOptions);
 		});
 };
 
-SiteService.prototype.updateSiteUser = function(uid, siteName, username, authDetails, siteAuthOptions) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+SiteService.prototype.updateSiteUser = function(username, siteName, siteUsername, authDetails, siteAuthOptions) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
+	if (!siteUsername) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
 	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
 	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
 	var database = this.database;
-	return updateSiteUser(database, uid, siteName, username, authDetails, siteAuthOptions);
+	return updateSiteUser(database, username, siteName, siteUsername, authDetails, siteAuthOptions);
 };
 
 
-SiteService.prototype.deleteSiteUser = function(uid, siteName, username) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+SiteService.prototype.deleteSiteUser = function(username, siteName, siteUsername) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!username) { return Promise.reject(new HttpError(400, 'No user specified')); }
+	if (!siteUsername) { return Promise.reject(new HttpError(400, 'No user specified')); }
 	var database = this.database;
-	return deleteSiteUser(database, uid, siteName, username);
+	return deleteSiteUser(database, username, siteName, siteUsername);
 };
 
-SiteService.prototype.getDropboxFileMetadata = function(uid, filePath) {
+SiteService.prototype.getFileMetadata = function(username, provider, filePath) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!provider) { return Promise.reject(new HttpError(400, 'No provider specified')); }
+	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
+	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
-	var accessToken = this.accessToken;
-	return getDropboxFileMetadata(appKey, appSecret, accessToken, uid, filePath);
+	return retrieveUserProviders(database, username)
+		.then(function(userProviders) {
+			return retrieveFileMetadata(provider, userProviders, filePath);
+
+
+			function retrieveFileMetadata(provider, userProviders, filePath) {
+				switch (provider) {
+					case PROVIDER_ID_DROPBOX:
+						var uid = userProviders.dropbox.uid;
+						var accessToken = userProviders.dropbox.token;
+						return getDropboxFileMetadata(appKey, appSecret, uid, accessToken, filePath);
+					default:
+						throw new Error('Invalid provider: ' + provider);
+				}
+			}
+		});
 };
 
 
@@ -331,17 +441,17 @@ function createSite(database, siteModel) {
 	return database.collection(DB_COLLECTION_SITES).insertOne(siteModel);
 }
 
-function retrieveSite(database, uid, siteName, options) {
+function retrieveSite(database, username, siteName, options) {
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
 	var includeTheme = Boolean(options.theme);
 	var includeContents = Boolean(options.contents);
 	var includeUsers = Boolean(options.users);
 
-	var query = { 'user': uid, 'name': siteName };
+	var query = { 'owner': username, 'name': siteName };
 	if (onlyPublishedSites) { query['published'] = true; }
 	var fields = [
-		'user',
+		'owner',
 		'name',
 		'label',
 		'root',
@@ -358,8 +468,8 @@ function retrieveSite(database, uid, siteName, options) {
 		});
 }
 
-function updateSite(database, uid, siteName, fields) {
-	var filter = { 'user': uid, 'name': siteName };
+function updateSite(database, username, siteName, fields) {
+	var filter = { 'owner': username, 'name': siteName };
 	var updates = { $set: fields };
 	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 		.then(function(error, numRecords) {
@@ -368,8 +478,8 @@ function updateSite(database, uid, siteName, fields) {
 		});
 }
 
-function deleteSite(database, uid, siteName) {
-	var filter = { 'user': uid, 'name': siteName };
+function deleteSite(database, username, siteName) {
+	var filter = { 'owner': username, 'name': siteName };
 	return database.collection(DB_COLLECTION_SITES).deleteOne(filter)
 		.then(function(numRecords) {
 			if (numRecords === 0) { throw new HttpError(404); }
@@ -377,8 +487,8 @@ function deleteSite(database, uid, siteName) {
 		});
 }
 
-function retrieveSiteAuthenticationDetails(database, uid, siteName, onlyPublishedSites) {
-	var query = { 'user': uid, 'name': siteName };
+function retrieveSiteAuthenticationDetails(database, username, siteName, onlyPublishedSites) {
+	var query = { 'owner': username, 'name': siteName };
 	if (onlyPublishedSites) { query['published'] = true; }
 	var fields = [
 		'private',
@@ -395,8 +505,8 @@ function retrieveSiteAuthenticationDetails(database, uid, siteName, onlyPublishe
 		});
 }
 
-function retrieveSiteDropboxPath(database, uid, siteName) {
-	var query = { 'user': uid, 'name': siteName };
+function retrieveSiteRoot(database, username, siteName) {
+	var query = { 'owner': username, 'name': siteName };
 	var fields = [
 		'root'
 	];
@@ -409,8 +519,8 @@ function retrieveSiteDropboxPath(database, uid, siteName) {
 		});
 }
 
-function retrieveSiteCache(database, uid, siteName) {
-	var query = { 'user': uid, 'name': siteName };
+function retrieveSiteCache(database, username, siteName) {
+	var query = { 'owner': username, 'name': siteName };
 	var fields = [
 		'cache'
 	];
@@ -422,8 +532,8 @@ function retrieveSiteCache(database, uid, siteName) {
 		});
 }
 
-function updateSiteCache(database, uid, siteName, cache) {
-	var filter = { 'user': uid, 'name': siteName };
+function updateSiteCache(database, username, siteName, cache) {
+	var filter = { 'owner': username, 'name': siteName };
 	var updates = { $set: { 'cache': cache } };
 	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 		.then(function(error, numRecords) {
@@ -432,32 +542,31 @@ function updateSiteCache(database, uid, siteName, cache) {
 		});
 }
 
-function checkWhetherSiteisUserDefaultSite(database, uid, siteName) {
-	var query = { 'uid': uid, 'defaultSite': siteName };
-	return database.collection(DB_COLLECTION_USERS).count(query)
-		.then(function(numRecords) {
-			var isDefaultSite = (numRecords > 0);
-			return isDefaultSite;
+function checkWhetherSiteisUserDefaultSite(database, username, siteName) {
+	var userService = new UserService(database);
+	return userService.retrieveUserDefaultSiteName(username)
+		.then(function(defaultSiteName) {
+			return siteName === defaultSiteName;
 		});
 }
 
-function resetUserDefaultSite(database, uid) {
+function resetUserDefaultSite(database, username) {
 	var userService = new UserService(database);
-	return userService.updateUserDefaultSiteName(uid, null)
+	return userService.updateUserDefaultSiteName(username, null)
 		.then(function(siteName) {
 			return;
 		});
 }
 
-function loadSiteContents(siteModel, appKey, appSecret, accessToken, uid) {
+function loadDropoxFolderContents(appKey, appSecret, uid, accessToken, folderPath, folderCache) {
 	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 		.then(function(dropboxClient) {
-			return dropboxClient.loadFolderContents(siteModel.root, siteModel.cache);
+			return dropboxClient.loadFolderContents(folderPath, folderCache);
 		});
 }
 
-function getSiteRoot(database, uid, siteName) {
-	var query = { 'user': uid, 'name': siteName };
+function getSiteRoot(database, username, siteName) {
+	var query = { 'owner': username, 'name': siteName };
 	var fields = [
 		'root'
 	];
@@ -469,8 +578,8 @@ function getSiteRoot(database, uid, siteName) {
 		});
 }
 
-function checkWhetherSiteUserAlreadyExists(database, uid, siteName, username) {
-	var query = { 'user': uid, 'name': siteName, 'users.username': username };
+function checkWhetherSiteUserAlreadyExists(database, username, siteName, siteUsername) {
+	var query = { 'owner': username, 'name': siteName, 'users.username': siteUsername };
 	return database.collection(DB_COLLECTION_SITES).count(query)
 		.then(function(numRecords) {
 			var userAlreadyExists = (numRecords > 0);
@@ -478,11 +587,11 @@ function checkWhetherSiteUserAlreadyExists(database, uid, siteName, username) {
 		});
 }
 
-function createSiteUser(database, uid, siteName, authDetails, siteAuthOptions) {
+function createSiteUser(database, username, siteName, authDetails, siteAuthOptions) {
 	var authenticationService = new AuthenticationService(siteAuthOptions);
 	return authenticationService.create(authDetails.username, authDetails.password)
 		.then(function(siteUserModel) {
-			var filter = { 'user': uid, 'name': siteName };
+			var filter = { 'owner': username, 'name': siteName };
 			var updates = { $push: { 'users': siteUserModel } };
 			return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 				.then(function(numRecords) {
@@ -494,11 +603,11 @@ function createSiteUser(database, uid, siteName, authDetails, siteAuthOptions) {
 		});
 }
 
-function updateSiteUser(database, uid, siteName, username, authDetails, siteAuthOptions) {
+function updateSiteUser(database, username, siteName, siteUsername, authDetails, siteAuthOptions) {
 	var authenticationService = new AuthenticationService(siteAuthOptions);
 	return authenticationService.create(authDetails.username, authDetails.password)
 		.then(function(siteUserModel) {
-			var filter = { 'user': uid, 'name': siteName, 'users.username': username };
+			var filter = { 'owner': username, 'name': siteName, 'users.username': siteUsername };
 			var updates = { $set: { 'users.$': siteUserModel } };
 			return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 				.then(function(error, numRecords) {
@@ -508,9 +617,9 @@ function updateSiteUser(database, uid, siteName, username, authDetails, siteAuth
 		});
 }
 
-function deleteSiteUser(database, uid, siteName, username) {
-	var filter = { 'user': uid, 'name': siteName };
-	var updates = { $pull: { 'users': { 'username': username } } };
+function deleteSiteUser(database, username, siteName, siteUsername) {
+	var filter = { 'owner': username, 'name': siteName };
+	var updates = { $pull: { 'users': { 'username': siteUsername } } };
 	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
 		.then(function(error, numRecords) {
 			if (numRecords === 0) { throw new HttpError(404); }
@@ -518,8 +627,12 @@ function deleteSiteUser(database, uid, siteName, username) {
 		});
 }
 
-function retrieveUser(database, uid) {
-	return new UserService(database).retrieveUser(uid);
+function retrieveUser(database, username) {
+	return new UserService(database).retrieveUser(username);
+}
+
+function retrieveUserProviders(database, username) {
+	return new UserService(database).retrieveUserProviders(username);
 }
 
 function generateSiteFiles(pathPrefix, context) {
@@ -632,10 +745,10 @@ function generateSiteFiles(pathPrefix, context) {
 	}
 }
 
-function initSiteFolder(appKey, appSecret, accessToken, uid, siteRoot, siteFiles) {
+function initDropboxSiteFolder(appKey, appSecret, uid, accessToken, sitePath, siteFiles) {
 	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 		.then(function(dropboxClient) {
-			return checkWhetherFileExists(dropboxClient, siteRoot)
+			return checkWhetherFileExists(dropboxClient, sitePath)
 				.then(function(folderExists) {
 					if (folderExists) { return; }
 					return copySiteFiles(dropboxClient, siteFiles);
@@ -685,7 +798,21 @@ function initSiteFolder(appKey, appSecret, accessToken, uid, siteRoot, siteFiles
 	}
 }
 
-function getDropboxFileMetadata(appKey, appSecret, accessToken, uid, filePath) {
+function retrieveDropboxDownloadLink(appKey, appSecret, uid, accessToken, filePath) {
+	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
+		.then(function(dropboxClient) {
+			return dropboxClient.generateDownloadLink(filePath);
+		});
+}
+
+function retrieveDropboxThumbnailLink(appKey, appSecret, uid, accessToken, filePath) {
+	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
+		.then(function(dropboxClient) {
+			return dropboxClient.generateThumbnailLink(filePath);
+		});
+}
+
+function getDropboxFileMetadata(appKey, appSecret, uid, accessToken, filePath) {
 	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 		.then(function(dropboxClient) {
 			return dropboxClient.getFileMetadata(filePath)
@@ -698,12 +825,12 @@ function getDropboxFileMetadata(appKey, appSecret, accessToken, uid, filePath) {
 function validateSiteModel(siteModel, requireFullModel) {
 	return new Promise(function(resolve, reject) {
 		if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
-		if ((requireFullModel || ('user' in siteModel)) && !siteModel.user) { throw new HttpError(400, 'No user specified'); }
+		if ((requireFullModel || ('owner' in siteModel)) && !siteModel.owner) { throw new HttpError(400, 'No owner specified'); }
 		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site path specified'); }
 		if ((requireFullModel || ('label' in siteModel)) && !siteModel.label) { throw new HttpError(400, 'No site name specified'); }
 		if ((requireFullModel || ('theme' in siteModel)) && !siteModel.theme) { throw new HttpError(400, 'No site theme specified'); }
 
-		// TODO: Validate organization when validating site model
+		// TODO: Validate owner when validating site model
 		// TODO: Validate name when validating site model
 		// TODO: Validate label when validating site model
 		// TODO: Validate theme when validating site model

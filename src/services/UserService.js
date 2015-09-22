@@ -16,6 +16,7 @@ function UserService(database) {
 UserService.prototype.database = null;
 
 UserService.prototype.generateUniqueUsername = function(username) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
 	return checkWhetherUsernameExists(database, username)
 		.then(function(usernameExists) {
@@ -25,6 +26,7 @@ UserService.prototype.generateUniqueUsername = function(username) {
 };
 
 UserService.prototype.createUser = function(userModel) {
+	if (!userModel) { return Promise.reject(new HttpError(400, 'No user model specified')); }
 	var database = this.database;
 	var requireFullModel = true;
 	return validateUserModel(userModel, requireFullModel)
@@ -39,53 +41,75 @@ UserService.prototype.createUser = function(userModel) {
 		});
 };
 
-UserService.prototype.retrieveUser = function(user) {
+UserService.prototype.retrieveUser = function(username) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
-	return retrieveUser(database, user);
+	return retrieveUser(database, username);
 };
 
-UserService.prototype.updateUser = function(user, updates) {
-	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
+UserService.prototype.retrieveDropboxUser = function(uid) {
+	if (!uid) { return Promise.reject(new HttpError(400, 'No uid specified')); }
+	var database = this.database;
+	return retrieveDropboxUser(database, uid);
+};
+
+UserService.prototype.retrieveUserProviders = function(username) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	var database = this.database;
+	return retrieveUserProviders(database, username);
+};
+
+UserService.prototype.updateUser = function(username, updates) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!updates) { return Promise.reject(new HttpError(400, 'No updates specified')); }
 	var database = this.database;
 	var requireFullModel = false;
 	return validateUserModel(updates, requireFullModel)
 		.then(function(updates) {
-			return updateUser(database, user, updates)
+			return updateUser(database, username, updates)
 				.catch(function(error) {
 					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
 						throw new HttpError(409, 'This username is being used by another user');
 					}
 					return;
+				})
+				.then(function() {
+					var usernameWasUpdated = ('username' in updates) && (updates.username !== username);
+					if (usernameWasUpdated) {
+						return updateSitesUsername(database, username, updates.username);
+					}
 				});
 		});
 };
 
-UserService.prototype.deleteUser = function(uid) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No user specified')); }
+UserService.prototype.deleteUser = function(username) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
-	return deleteUserSites(database, uid)
+	return deleteUserSites(database, username)
 		.then(function(numRecords) {
-			return deleteUser(database, uid);
+			return deleteUser(database, username);
 		});
 };
 
-UserService.prototype.retrieveUserDefaultSiteName = function(user) {
+UserService.prototype.retrieveUserDefaultSiteName = function(username) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
-	return retrieveUserDefaultSiteName(database, user);
+	return retrieveUserDefaultSiteName(database, username);
 };
 
-UserService.prototype.updateUserDefaultSiteName = function(user, siteName) {
-	if (!user) { return Promise.reject(new HttpError(400, 'No user specified')); }
+UserService.prototype.updateUserDefaultSiteName = function(username, siteName) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
 	siteName = siteName || null;
-	return updateUserDefaultSiteName(database, user, siteName);
+	return updateUserDefaultSiteName(database, username, siteName);
 };
 
-UserService.prototype.retrieveUserSites = function(uid) {
+UserService.prototype.retrieveUserSites = function(username) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
-	return retrieveUserSites(database, uid);
+	return retrieveUserSites(database, username);
 };
+
 
 function checkWhetherUsernameExists(database, username) {
 	var query = { 'username': username };
@@ -129,19 +153,15 @@ function createUser(database, userModel) {
 }
 
 
-function retrieveUser(database, user) {
-	var query = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
+function retrieveUser(database, username) {
+	var query = { 'username': username };
 	var fields = [
-		'uid',
-		'token',
 		'username',
 		'firstName',
 		'lastName',
 		'email',
-		'dropboxFirstName',
-		'dropboxLastName',
-		'dropboxEmail',
-		'defaultSite'
+		'defaultSite',
+		'providers'
 	];
 	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 		.then(function(userModel) {
@@ -150,9 +170,38 @@ function retrieveUser(database, user) {
 		});
 }
 
+function retrieveDropboxUser(database, uid) {
+	var query = { 'providers.dropbox.uid': uid };
+	var fields = [
+		'username',
+		'firstName',
+		'lastName',
+		'email',
+		'defaultSite',
+		'providers'
+	];
+	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
+		.then(function(userModel) {
+			if (!userModel) { throw new HttpError(404); }
+			return userModel;
+		});
+}
 
-function updateUser(database, user, fields) {
-	var filter = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
+function retrieveUserProviders(database, username) {
+	var query = { 'username': username };
+	var fields = [
+		'providers'
+	];
+	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
+		.then(function(userModel) {
+			if (!userModel) { throw new HttpError(404); }
+			return userModel.providers;
+		});
+}
+
+
+function updateUser(database, username, fields) {
+	var filter = { 'username': username };
 	var updates = { $set: fields };
 	return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 		.then(function(numRecords) {
@@ -161,13 +210,19 @@ function updateUser(database, user, fields) {
 		});
 }
 
-function deleteUserSites(database, uid) {
-	var filter = { 'user': uid };
+function updateSitesUsername(database, oldUsername, newUsername) {
+	var filter = { 'owner': oldUsername };
+	var updates = { $set: { 'owner': newUsername } };
+	return database.collection(DB_COLLECTION_SITES).updateMany(filter, updates);
+}
+
+function deleteUserSites(database, username) {
+	var filter = { 'owner': username };
 	return database.collection(DB_COLLECTION_SITES).deleteMany(filter);
 }
 
-function deleteUser(database, uid) {
-	var filter = { 'uid': uid };
+function deleteUser(database, username) {
+	var filter = { 'username': username };
 	return database.collection(DB_COLLECTION_USERS).deleteOne(filter)
 		.then(function(numRecords) {
 			if (numRecords === 0) { throw new HttpError(404); }
@@ -175,8 +230,8 @@ function deleteUser(database, uid) {
 		});
 }
 
-function retrieveUserDefaultSiteName(database, user) {
-	var query = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
+function retrieveUserDefaultSiteName(database, username) {
+	var query = { 'username': username };
 	var fields = [
 		'defaultSite'
 	];
@@ -188,8 +243,8 @@ function retrieveUserDefaultSiteName(database, user) {
 		});
 }
 
-function updateUserDefaultSiteName(database, user, siteName) {
-	var filter = (typeof user === 'string' ? { 'username': user } : { 'uid': user });
+function updateUserDefaultSiteName(database, username, siteName) {
+	var filter = { 'username': username };
 	var updates = { $set: { 'defaultSite': siteName } };
 	return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
 		.then(function(numRecords) {
@@ -198,10 +253,10 @@ function updateUserDefaultSiteName(database, user, siteName) {
 		});
 }
 
-function retrieveUserSites(database, uid) {
-	var query = { 'user': uid };
+function retrieveUserSites(database, username) {
+	var query = { 'owner': username };
 	var fields = [
-		'user',
+		'owner',
 		'name',
 		'label',
 		'theme',
@@ -214,22 +269,19 @@ function retrieveUserSites(database, uid) {
 
 function validateUserModel(userModel, requireFullModel) {
 	return new Promise(function(resolve, reject) {
-		if (!userModel) { throw new HttpError(400, 'No user specified'); }
-		if ((requireFullModel || ('uid' in userModel)) && !userModel.uid) { throw new HttpError(400, 'No user ID specified'); }
-		if ((requireFullModel || ('token' in userModel)) && !userModel.token) { throw new HttpError(400, 'No access token specified'); }
+		if (!userModel) { throw new HttpError(400, 'No user model specified'); }
 		if ((requireFullModel || ('username' in userModel)) && !userModel.username) { throw new HttpError(400, 'No username specified'); }
 		if ((requireFullModel || ('firstName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No first name specified'); }
-		if ((requireFullModel || ('lastName' in userModel)) && !userModel.firstName) { throw new HttpError(400, 'No last name specified'); }
 		if ((requireFullModel || ('email' in userModel)) && !userModel.email) { throw new HttpError(400, 'No email specified'); }
+		if (requireFullModel && !('lastName' in userModel)) { throw new HttpError(400, 'No last name specified'); }
 		if (requireFullModel && !('defaultSite' in userModel)) { throw new HttpError(400, 'No default site specified'); }
 
-		// TODO: Validate uid when validating user model
-		// TODO: Validate token when validating user model
 		// TODO: Validate username when validating user model
 		// TODO: Validate firstName when validating user model
 		// TODO: Validate lastName when validating user model
 		// TODO: Validate email when validating user model
-		// TODO: Validate default when validating user model
+		// TODO: Validate defaultSite when validating user model
+		// TODO: Validate provider when validating user model
 
 		return resolve(userModel);
 	});

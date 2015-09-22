@@ -33,6 +33,13 @@ module.exports = function(database, options) {
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!isPreview && !siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
+	var siteService = new SiteService(database, {
+		host: host,
+		appKey: appKey,
+		appSecret: appSecret
+	});
+	var userService = new UserService(database);
+
 	var app = express();
 	var passport = new Passport();
 
@@ -73,40 +80,35 @@ module.exports = function(database, options) {
 			var siteName = deserializedUser.site;
 			var siteUsername = deserializedUser.siteUser;
 
-			var userService = new UserService(database);
-			userService.retrieveUser(username)
-				.then(function(userModel) {
-					var uid = userModel.uid;
-					var accessToken = userModel.token;
-					var onlyPublished = true;
-					return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
-						.then(function(authenticationDetails) {
-							var isPrivate = authenticationDetails.private;
-							if (!isPrivate) {
-								var anonymousUser = {
-									user: username,
-									site: siteName,
-									model: null
-								};
-								return callback(null, anonymousUser);
-							}
-							var validUsers = authenticationDetails.users;
-							var matchedUsers = validUsers.filter(function(validUser) {
-								return validUser.username === siteUsername;
-							});
+			siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+				published: true
+			})
+				.then(function(authenticationDetails) {
+					var isPrivate = authenticationDetails.private;
+					if (!isPrivate) {
+						var anonymousUser = {
+							user: username,
+							site: siteName,
+							model: null
+						};
+						return callback(null, anonymousUser);
+					}
+					var validUsers = authenticationDetails.users;
+					var matchedUsers = validUsers.filter(function(validUser) {
+						return validUser.username === siteUsername;
+					});
 
-							if (matchedUsers.length === 0) {
-								throw new Error('Username not found: "' + siteUsername + '"');
-							}
+					if (matchedUsers.length === 0) {
+						throw new Error('Username not found: "' + siteUsername + '"');
+					}
 
-							var siteUserModel = matchedUsers[0];
-							var passportUser = {
-								user: username,
-								site: siteName,
-								model: siteUserModel
-							};
-							return callback(null, passportUser);
-						});
+					var siteUserModel = matchedUsers[0];
+					var passportUser = {
+						user: username,
+						site: siteName,
+						model: siteUserModel
+					};
+					return callback(null, passportUser);
 				})
 				.catch(function(error) {
 					return callback(error);
@@ -118,37 +120,32 @@ module.exports = function(database, options) {
 				var username = req.params.user;
 				var siteName = req.params.site;
 
-				var userService = new UserService(database);
-				userService.retrieveUser(username)
-					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
-						var onlyPublished = true;
-						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
-							.then(function(authenticationDetails) {
-								var isPrivate = authenticationDetails.private;
-								if (!isPrivate) {
-									var passportUser = {
-										user: username,
-										site: siteName,
-										model: null
-									};
-									return callback(null, passportUser);
-								}
+				siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+					published: true
+				})
+					.then(function(authenticationDetails) {
+						var isPrivate = authenticationDetails.private;
+						if (!isPrivate) {
+							var passportUser = {
+								user: username,
+								site: siteName,
+								model: null
+							};
+							return callback(null, passportUser);
+						}
 
-								var validUsers = authenticationDetails.users;
-								var authenticationService = new AuthenticationService(siteAuthOptions);
-								return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
-									.then(function(siteUserModel) {
-										if (!siteUserModel) { return callback(null, false); }
+						var validUsers = authenticationDetails.users;
+						var authenticationService = new AuthenticationService(siteAuthOptions);
+						return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
+							.then(function(siteUserModel) {
+								if (!siteUserModel) { return callback(null, false); }
 
-										var passportUser = {
-											user: username,
-											site: siteName,
-											model: siteUserModel
-										};
-										return callback(null, passportUser);
-									});
+								var passportUser = {
+									user: username,
+									site: siteName,
+									model: siteUserModel
+								};
+								return callback(null, passportUser);
 							});
 					})
 					.catch(function(error) {
@@ -200,7 +197,7 @@ module.exports = function(database, options) {
 				pathSuffix = pathSuffix || '';
 				return function(req, res, next) {
 					var username = req.params.user;
-					retrieveUserDefaultSiteName(username)
+					userService.retrieveUserDefaultSiteName(username)
 						.then(function(siteName) {
 							if (!siteName) {
 								throw new HttpError(404);
@@ -238,17 +235,16 @@ module.exports = function(database, options) {
 						return redirectToSitePage(req, res);
 					}
 				}
-				retrieveUser(username)
-					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
-						var onlyPublished = true;
-						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
-							.then(function(authenticationDetails) {
-								var isPrivate = authenticationDetails.private;
-								if (!isPrivate) { return redirectToSitePage(req, res); }
-								next();
-							});
+				siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+					published: true
+				})
+					.then(function(authenticationDetails) {
+						var isPrivate = authenticationDetails.private;
+						if (!isPrivate) { return redirectToSitePage(req, res); }
+						next();
+					})
+					.catch(function(error) {
+						next(error);
 					});
 
 
@@ -323,36 +319,32 @@ module.exports = function(database, options) {
 						return next();
 					}
 				}
-				retrieveUser(username)
-					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
-						var onlyPublished = true;
-						return retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished)
-							.then(function(authenticationDetails) {
-								var isPrivate = authenticationDetails.private;
-								if (!isPrivate) {
-									return ensurePreviousUserLoggedOut(req)
-										.then(function() {
-											return next();
-										})
-										.catch(function(error) {
-											return next(error);
-										});
-								}
+				siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+					published: true
+				})
+					.then(function(authenticationDetails) {
+						var isPrivate = authenticationDetails.private;
+						if (!isPrivate) {
+							return ensurePreviousUserLoggedOut(req)
+								.then(function() {
+									return next();
+								})
+								.catch(function(error) {
+									return next(error);
+								});
+						}
 
-								var requestPath = req.originalUrl.split('?')[0];
+						var requestPath = req.originalUrl.split('?')[0];
 
-								var siteLoginUrl = '/login';
-								var isDownloadLink = (requestPath.indexOf('/download') === 0);
-								if (isDownloadLink) {
-									// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
-									siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
-								} else {
-									siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
-								}
-								res.redirect(siteLoginUrl);
-							});
+						var siteLoginUrl = '/login';
+						var isDownloadLink = (requestPath.indexOf('/download') === 0);
+						if (isDownloadLink) {
+							// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
+							siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
+						} else {
+							siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
+						}
+						res.redirect(siteLoginUrl);
 					})
 					.catch(function(error) {
 						next(error);
@@ -371,15 +363,22 @@ module.exports = function(database, options) {
 			function loginRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
-				retrieveUser(username)
+				userService.retrieveUser(username)
 					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
+						var username = userModel.username;
 						var published = !isPreview;
 						var includeTheme = true;
 						var includeContents = false;
+						var includeUsers = false;
 						var useCached = false;
-						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached)
+
+						return siteService.retrieveSite(username, siteName, {
+							published: published,
+							theme: includeTheme,
+							contents: includeContents,
+							users: includeUsers,
+							cacheDuration: (useCached ? Infinity : null)
+						})
 							.then(function(siteModel) {
 								var context = {
 									siteRoot: getSiteRootUrl(req, '/login'),
@@ -404,14 +403,20 @@ module.exports = function(database, options) {
 				var useCached = (req.query.cached === 'true');
 				var themeConfigOverrides = (req.query.config ? JSON.parse(req.query.config) : null);
 				var adminUser = (isPreview ? req.user : null);
-				retrieveUser(username)
+				userService.retrieveUser(username)
 					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
+						var username = userModel.username;
 						var published = !isPreview;
 						var includeTheme = true;
 						var includeContents = true;
-						return retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached)
+						var includeUsers = false;
+						return siteService.retrieveSite(username, siteName, {
+							published: published,
+							theme: includeTheme,
+							contents: includeContents,
+							users: includeUsers,
+							cacheDuration: (useCached ? Infinity : null)
+						})
 							.then(function(siteModel) {
 								var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
 								var siteContents = siteModel.contents || { folders: null, files: null };
@@ -439,14 +444,9 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				var filePath = req.params[0];
 
-				retrieveUser(username)
-					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
-						return retrieveSiteDownloadLink(accessToken, uid, siteName, filePath)
-							.then(function(downloadUrl) {
-								res.redirect(downloadUrl);
-							});
+				siteService.retrieveSiteDownloadLink(username, siteName, filePath)
+					.then(function(downloadUrl) {
+						res.redirect(downloadUrl);
 					})
 					.catch(function(error) {
 						next(error);
@@ -458,14 +458,9 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				var filePath = req.params[0];
 
-				retrieveUser(username)
-					.then(function(userModel) {
-						var uid = userModel.uid;
-						var accessToken = userModel.token;
-						return retrieveSiteThumbnailLink(accessToken, uid, siteName, filePath)
-							.then(function(thumbnailUrl) {
-								res.redirect(thumbnailUrl);
-							});
+				siteService.retrieveSiteThumbnailLink(username, siteName, filePath)
+					.then(function(thumbnailUrl) {
+						res.redirect(thumbnailUrl);
 					})
 					.catch(function(error) {
 						next(error);
@@ -486,63 +481,5 @@ module.exports = function(database, options) {
 				});
 			});
 		}
-	}
-
-	function retrieveUserDefaultSiteName(username) {
-		var userService = new UserService(database);
-		return userService.retrieveUserDefaultSiteName(username);
-	}
-
-	function retrieveUser(username) {
-		var userService = new UserService(database);
-		return userService.retrieveUser(username);
-	}
-
-	function retrieveSite(accessToken, uid, siteName, published, includeTheme, includeContents, useCached) {
-		var siteService = new SiteService(database, {
-			host: host,
-			appKey: appKey,
-			appSecret: appSecret,
-			accessToken: accessToken
-		});
-		return siteService.retrieveSite(uid, siteName, {
-			published: published,
-			theme: includeTheme,
-			contents: includeContents,
-			users: false,
-			cacheDuration: (useCached ? Infinity : null)
-		});
-	}
-
-	function retrieveSiteAuthenticationDetails(accessToken, uid, siteName, onlyPublished) {
-		var siteService = new SiteService(database, {
-			host: host,
-			appKey: appKey,
-			appSecret: appSecret,
-			accessToken: accessToken
-		});
-		return siteService.retrieveSiteAuthenticationDetails(uid, siteName, {
-			published: onlyPublished
-		});
-	}
-
-	function retrieveSiteDownloadLink(accessToken, uid, siteName, filePath) {
-		var siteService = new SiteService(database, {
-			host: host,
-			appKey: appKey,
-			appSecret: appSecret,
-			accessToken: accessToken
-		});
-		return siteService.retrieveSiteDownloadLink(uid, siteName, filePath);
-	}
-
-	function retrieveSiteThumbnailLink(accessToken, uid, siteName, filePath) {
-		var siteService = new SiteService(database, {
-			host: host,
-			appKey: appKey,
-			appSecret: appSecret,
-			accessToken: accessToken
-		});
-		return siteService.retrieveSiteThumbnailLink(uid, siteName, filePath);
 	}
 };
