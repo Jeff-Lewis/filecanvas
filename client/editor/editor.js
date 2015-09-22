@@ -210,9 +210,9 @@ function initLivePreview() {
 		var previewWindow = $previewElement.prop('contentWindow');
 		var shuntApi = window.shunt;
 		var cookies = parseCookies(document.cookie);
-		var providerConfig = JSON.parse(cookies.provider);
-		var accessToken = providerConfig.token;
-		var sitePath = providerConfig.path;
+		var adapterConfig = JSON.parse(cookies.adapter);
+		var accessToken = adapterConfig.token;
+		var sitePath = adapterConfig.path;
 		previewWindow.shunt = {
 			uploadFiles: function(files) {
 				showUploadProgressIndicator();

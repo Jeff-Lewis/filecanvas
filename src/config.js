@@ -14,14 +14,14 @@ config.https.port = process.env.HTTPS_PORT || null;
 config.https.key = process.env.HTTPS_KEY ? fs.readFileSync(process.env.HTTPS_KEY) : null;
 config.https.cert = process.env.HTTPS_CERT ? fs.readFileSync(process.env.HTTPS_CERT) : null;
 
-config.providers = {};
+config.adapters = {};
 
 if (process.env.DROPBOX_APP_KEY) {
-	config.providers.dropbox = {};
-	config.providers.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
-	config.providers.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
-	config.providers.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
-	config.providers.dropbox.registerCallbackUrl = process.env.DROPBOX_OAUTH2_REGISTER_CALLBACK || null;
+	config.adapters.dropbox = {};
+	config.adapters.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
+	config.adapters.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
+	config.adapters.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
+	config.adapters.dropbox.registerCallbackUrl = process.env.DROPBOX_OAUTH2_REGISTER_CALLBACK || null;
 }
 
 config.db = {};

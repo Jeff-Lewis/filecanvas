@@ -16,7 +16,7 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
-var loadProviders = require('../utils/loadProviders');
+var loadAdapters = require('../utils/loadAdapters');
 var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
 
 var SiteService = require('../services/SiteService');
@@ -33,7 +33,7 @@ module.exports = function(database, options) {
 	var themesPath = options.themesPath;
 	var themesUrl = options.themesUrl;
 	var defaultSiteTheme = options.defaultSiteTheme;
-	var providersConfig = options.providers;
+	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
 
 	if (!database) { throw new Error('Missing database'); }
@@ -41,15 +41,15 @@ module.exports = function(database, options) {
 	if (!themesPath) { throw new Error('Missing site themes path'); }
 	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
-	if (!providersConfig) { throw new Error('Missing providers configuration'); }
+	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
-	var providers = loadProviders(providersConfig, database);
+	var adapters = loadAdapters(adaptersConfig, database);
 
 	var userService = new UserService(database);
 	var siteService = new SiteService(database, {
 		host: host,
-		providers: providers
+		adapters: adapters
 	});
 
 	var app = express();
@@ -61,7 +61,7 @@ module.exports = function(database, options) {
 	var themes = loadThemes(themesPath);
 	var defaultTheme = themes[defaultSiteTheme];
 
-	initAuth(app, passport, database, providers);
+	initAuth(app, passport, database, adapters);
 	initAssetsRoot(app, '/assets', {
 		assetsRoot: path.resolve(__dirname, '../../templates/admin') + '/assets'
 	});
@@ -74,8 +74,8 @@ module.exports = function(database, options) {
 		defaultTheme: defaultTheme,
 		themesUrl: themesUrl,
 		faqData: faqData,
-		providers: providers,
-		providersConfig: providersConfig,
+		adapters: adapters,
+		adaptersConfig: adaptersConfig,
 		siteAuth: siteAuthOptions
 	});
 	initErrorHandler(app, {
@@ -140,12 +140,12 @@ module.exports = function(database, options) {
 		});
 	}
 
-	function initAuth(app, passport, database, providers) {
+	function initAuth(app, passport, database, adapters) {
 		app.use(passport.initialize());
 		app.use(passport.session());
 
 		initAuthSerializers(passport);
-		initProviderAuthentication(passport, database, providers);
+		initAdapterAuthentication(passport, database, adapters);
 
 
 		function initAuthSerializers(passport) {
@@ -165,20 +165,20 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function initProviderAuthentication(passport, database, providers) {
-			Object.keys(providers).forEach(function(key) {
-				var providerName = key;
-				var provider = providers[key];
-				registerProvider(providerName, provider);
+		function initAdapterAuthentication(passport, database, adapters) {
+			Object.keys(adapters).forEach(function(key) {
+				var adapterName = key;
+				var adapter = adapters[key];
+				registerAdapter(adapterName, adapter);
 			});
 
 
-			function registerProvider(providerName, provider) {
-				var loginMiddleware = provider.loginMiddleware(passport, { failureRedirect: '/login' }, onLoggedIn);
-				var registerMiddleware = provider.registerMiddleware(passport, { failureRedirect: '/login' }, onRegistered);
+			function registerAdapter(adapterName, adapter) {
+				var loginMiddleware = adapter.loginMiddleware(passport, { failureRedirect: '/login' }, onLoggedIn);
+				var registerMiddleware = adapter.registerMiddleware(passport, { failureRedirect: '/login' }, onRegistered);
 
-				app.use('/login/' + providerName, loginMiddleware);
-				app.use('/register/' + providerName, registerMiddleware);
+				app.use('/login/' + adapterName, loginMiddleware);
+				app.use('/register/' + adapterName, registerMiddleware);
 			}
 
 			function onLoggedIn(req, res) {
@@ -228,11 +228,11 @@ module.exports = function(database, options) {
 		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
 		var siteAuthOptions = options.siteAuth;
-		var providers = options.providers;
-		var providersConfig = options.providersConfig;
+		var adapters = options.adapters;
+		var adaptersConfig = options.adaptersConfig;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, providers, providersConfig);
+		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -259,7 +259,7 @@ module.exports = function(database, options) {
 					})
 					.then(function(sortedSiteModels) {
 						var urlService = new UrlService(req);
-						var adminUrls = getAdminUrls(urlService, userModel, providers);
+						var adminUrls = getAdminUrls(urlService, userModel, adapters);
 						return {
 							urls: adminUrls,
 							location: urlService.location,
@@ -276,8 +276,8 @@ module.exports = function(database, options) {
 					});
 				}
 
-				function getAdminUrls(urlService, userModel, providers) {
-					var authUrls = getAuthPaths(providers);
+				function getAdminUrls(urlService, userModel, adapters) {
+					var authUrls = getAuthPaths(adapters);
 					return {
 						webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 						domain: urlService.getSubdomainUrl('$0'),
@@ -296,13 +296,13 @@ module.exports = function(database, options) {
 					};
 
 
-					function getAuthPaths(providers) {
-						return Object.keys(providers).reduce(function(authPaths, key) {
-							var providerName = key;
-							var provider = providers[key];
-							authPaths[providerName] = {
-								login: '/login/' + providerName + provider.loginPath,
-								redirect: '/login/' + providerName + provider.redirectPath
+					function getAuthPaths(adapters) {
+						return Object.keys(adapters).reduce(function(authPaths, key) {
+							var adapterName = key;
+							var adapter = adapters[key];
+							authPaths[adapterName] = {
+								login: '/login/' + adapterName + adapter.loginPath,
+								register: '/register/' + adapterName + adapter.registerPath
 							};
 							return authPaths;
 						}, {});
@@ -375,7 +375,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, providers, providersConfig) {
+		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -400,14 +400,14 @@ module.exports = function(database, options) {
 
 			app.get('/sites/:site/theme', ensureAuth, initAdminSession, retrieveSiteThemeRoute);
 
-			app.get('/metadata/:provider/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
+			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
 			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
 			app.use('/preview', createPreviewApp(database, {
 				host: host,
 				themesUrl: themesUrl,
-				providersConfig: providersConfig
+				adaptersConfig: adaptersConfig
 			}));
 
 
@@ -604,13 +604,13 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveSitesRoute(req, res, next) {
-				var userProviders = req.user.providers;
-				var defaultProviderName = userProviders.default;
+				var userAdapters = req.user.adapters;
+				var defaultAdapterName = userAdapters.default;
 				var siteModel = {
 					name: '',
 					label: '',
 					root: {
-						provider: defaultProviderName,
+						adapter: defaultAdapterName,
 						path: ''
 					},
 					private: false,
@@ -901,7 +901,7 @@ module.exports = function(database, options) {
 			function retrieveSiteThemeRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
-				var userProviders = req.user.providers;
+				var userAdapters = req.user.adapters;
 				var siteName = req.params.site;
 				var includeTheme = true;
 				var includeContents = false;
@@ -947,14 +947,14 @@ module.exports = function(database, options) {
 								themes: themes
 							}
 						};
-						var siteProvider = siteModel.root.provider;
+						var siteAdapter = siteModel.root.adapter;
 						var sitePath = siteModel.root.path;
-						var providerOptions = userProviders[siteProvider];
-						var provider = providers[siteProvider];
-						var providerConfig = provider.getUploadConfig(sitePath, providerOptions);
-						if (providerConfig) {
+						var adapterOptions = userAdapters[siteAdapter];
+						var adapter = adapters[siteAdapter];
+						var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
+						if (adapterConfig) {
 							setPageCookies(req, res, {
-								provider: JSON.stringify(providerConfig)
+								adapter: JSON.stringify(adapterConfig)
 							});
 						}
 						return renderAdminPage(req, res, 'sites/site/theme', templateData);
@@ -979,9 +979,9 @@ module.exports = function(database, options) {
 			function retrieveFileMetadataRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
-				var provider = req.params.provider;
+				var adapter = req.params.adapter;
 				var filePath = req.params[0];
-				siteService.retrieveFileMetadata(username, provider, filePath)
+				siteService.retrieveFileMetadata(username, adapter, filePath)
 					.then(function(metadata) {
 						res.json(metadata);
 					})
@@ -1015,7 +1015,7 @@ module.exports = function(database, options) {
 				options = options || {};
 				var host = options.host;
 				var themesUrl = options.themesUrl;
-				var providersConfig = options.providersConfig;
+				var adaptersConfig = options.adaptersConfig;
 
 				var app = express();
 				app.use(ensureAuth);
@@ -1025,7 +1025,7 @@ module.exports = function(database, options) {
 					preview: true,
 					host: host,
 					themesUrl: themesUrl,
-					providers: providersConfig
+					adapters: adaptersConfig
 				}));
 				return app;
 

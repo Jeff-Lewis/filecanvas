@@ -18,7 +18,7 @@ function UserService(database) {
 
 UserService.prototype.database = null;
 
-UserService.prototype.registerUser = function(userDetails, providerName, providerConfig) {
+UserService.prototype.registerUser = function(userDetails, adapterName, adapterConfig) {
 	var database = this.database;
 	var username = userDetails.username;
 	return retrieveUniqueUsername(database, username)
@@ -29,13 +29,13 @@ UserService.prototype.registerUser = function(userDetails, providerName, provide
 				lastName: null,
 				email: null,
 				defaultSite: null,
-				providers: {
+				adapters: {
 					default: null
 				}
 			}, userDetails);
 
-			userModel.providers.default = providerName;
-			userModel.providers[providerName] = providerConfig;
+			userModel.adapters.default = adapterName;
+			userModel.adapters[adapterName] = adapterConfig;
 
 			var requireFullModel = true;
 			return validateUserModel(userModel, requireFullModel)
@@ -67,16 +67,16 @@ UserService.prototype.retrieveUser = function(username) {
 	return retrieveUser(database, username);
 };
 
+UserService.prototype.retrieveUserAdapters = function(username) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	var database = this.database;
+	return retrieveUserAdapters(database, username);
+};
+
 UserService.prototype.retrieveDropboxUser = function(uid) {
 	if (!uid) { return Promise.reject(new HttpError(400, 'No uid specified')); }
 	var database = this.database;
 	return retrieveDropboxUser(database, uid);
-};
-
-UserService.prototype.retrieveUserProviders = function(username) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	var database = this.database;
-	return retrieveUserProviders(database, username);
 };
 
 UserService.prototype.updateUser = function(username, updates) {
@@ -181,7 +181,7 @@ function retrieveUser(database, username) {
 		'lastName',
 		'email',
 		'defaultSite',
-		'providers'
+		'adapters'
 	];
 	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 		.then(function(userModel) {
@@ -191,14 +191,14 @@ function retrieveUser(database, username) {
 }
 
 function retrieveDropboxUser(database, uid) {
-	var query = { 'providers.dropbox.uid': uid };
+	var query = { 'adapters.dropbox.uid': uid };
 	var fields = [
 		'username',
 		'firstName',
 		'lastName',
 		'email',
 		'defaultSite',
-		'providers'
+		'adapters'
 	];
 	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 		.then(function(userModel) {
@@ -207,15 +207,15 @@ function retrieveDropboxUser(database, uid) {
 		});
 }
 
-function retrieveUserProviders(database, username) {
+function retrieveUserAdapters(database, username) {
 	var query = { 'username': username };
 	var fields = [
-		'providers'
+		'adapters'
 	];
 	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
 		.then(function(userModel) {
 			if (!userModel) { throw new HttpError(404); }
-			return userModel.providers;
+			return userModel.adapters;
 		});
 }
 
@@ -301,7 +301,7 @@ function validateUserModel(userModel, requireFullModel) {
 		// TODO: Validate lastName when validating user model
 		// TODO: Validate email when validating user model
 		// TODO: Validate defaultSite when validating user model
-		// TODO: Validate provider when validating user model
+		// TODO: Validate adapter when validating user model
 
 		return resolve(userModel);
 	});

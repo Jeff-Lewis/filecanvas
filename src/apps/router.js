@@ -48,13 +48,13 @@ module.exports = function(database, config) {
 				themesPath: path.resolve(__dirname, '../../templates/themes'),
 				defaultSiteTheme: config.themes.default,
 				themesUrl: config.themes.root,
-				providers: config.providers,
+				adapters: config.adapters,
 				siteAuth: config.auth.site
 			}),
 			'sites': sitesApp(database, {
 				host: config.host,
 				themesUrl: config.themes.root,
-				providers: config.providers,
+				adapters: config.adapters,
 				siteAuth: config.auth.site
 			}),
 			'test': redirectToSubdomain({

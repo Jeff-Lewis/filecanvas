@@ -10,7 +10,7 @@ var UserService = require('../services/UserService');
 
 var HttpError = require('../errors/HttpError');
 
-function DropboxProvider(database, options) {
+function DropboxAdapter(database, options) {
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
@@ -29,10 +29,10 @@ function DropboxProvider(database, options) {
 	this.registerCallbackUrl = registerCallbackUrl;
 }
 
-DropboxProvider.prototype.loginPath = '/oauth2';
-DropboxProvider.prototype.registerPath = '/oauth2';
+DropboxAdapter.prototype.loginPath = '/oauth2';
+DropboxAdapter.prototype.registerPath = '/oauth2';
 
-DropboxProvider.prototype.getUploadConfig = function(sitePath, options) {
+DropboxAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	return {
 		name: 'dropbox',
 		path: sitePath,
@@ -40,7 +40,7 @@ DropboxProvider.prototype.getUploadConfig = function(sitePath, options) {
 	};
 };
 
-DropboxProvider.prototype.loginMiddleware = function(passport, passportOptions, callback) {
+DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
@@ -81,15 +81,16 @@ DropboxProvider.prototype.loginMiddleware = function(passport, passportOptions, 
 					})
 					.then(function(userModel) {
 						var username = userModel.username;
-						var dropboxProviderConfig = userModel.providers.dropbox;
-						var hasUpdatedAccessToken = accessToken !== dropboxProviderConfig.token;
-						var hasUpdatedProfileFirstName = dropboxFirstName !== dropboxProviderConfig.firstName;
-						var hasUpdatedProfileLastName = dropboxLastName !== dropboxProviderConfig.lastName;
-						var hasUpdatedProfileEmail = dropboxEmail !== dropboxProviderConfig.email;
+						var dropboxAdapterConfig = userModel.adapters.dropbox;
+						var hasUpdatedAccessToken = accessToken !== dropboxAdapterConfig.token;
+						var hasUpdatedProfileFirstName = dropboxFirstName !== dropboxAdapterConfig.firstName;
+						var hasUpdatedProfileLastName = dropboxLastName !== dropboxAdapterConfig.lastName;
+						var hasUpdatedProfileEmail = dropboxEmail !== dropboxAdapterConfig.email;
 						var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
 						if (hasUpdatedUserDetails) {
 							return userService.updateUser(username, {
-								'provider.dropbox': {
+								'adapters.dropbox': {
+									uid: uid,
 									token: accessToken,
 									firstName: dropboxFirstName,
 									lastName: dropboxLastName,
@@ -97,11 +98,11 @@ DropboxProvider.prototype.loginMiddleware = function(passport, passportOptions, 
 								}
 							})
 								.then(function() {
-									var dropboxProviderConfig = userModel.providers.dropbox;
-									dropboxProviderConfig.token = accessToken;
-									dropboxProviderConfig.firstName = dropboxFirstName;
-									dropboxProviderConfig.lastName = dropboxLastName;
-									dropboxProviderConfig.email = dropboxEmail;
+									var dropboxAdapterConfig = userModel.adapters.dropbox;
+									dropboxAdapterConfig.token = accessToken;
+									dropboxAdapterConfig.firstName = dropboxFirstName;
+									dropboxAdapterConfig.lastName = dropboxLastName;
+									dropboxAdapterConfig.email = dropboxEmail;
 									return userModel;
 								});
 						} else {
@@ -115,7 +116,7 @@ DropboxProvider.prototype.loginMiddleware = function(passport, passportOptions, 
 	return app;
 };
 
-DropboxProvider.prototype.registerMiddleware = function(passport, passportOptions, callback) {
+DropboxAdapter.prototype.registerMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
@@ -155,7 +156,7 @@ DropboxProvider.prototype.registerMiddleware = function(passport, passportOption
 					lastName: lastName,
 					email: email
 				};
-				var providerConfig = {
+				var adapterConfig = {
 					uid: uid,
 					token: accessToken,
 					firstName: firstName,
@@ -163,7 +164,7 @@ DropboxProvider.prototype.registerMiddleware = function(passport, passportOption
 					email: email
 				};
 				var userService = new UserService(database);
-				return userService.registerUser(userDetails, 'dropbox', providerConfig);
+				return userService.registerUser(userDetails, 'dropbox', adapterConfig);
 			}
 		}
 	));
@@ -171,7 +172,7 @@ DropboxProvider.prototype.registerMiddleware = function(passport, passportOption
 	return app;
 };
 
-DropboxProvider.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
+DropboxAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -228,7 +229,7 @@ DropboxProvider.prototype.initSiteFolder = function(sitePath, siteFiles, options
 	}
 };
 
-DropboxProvider.prototype.loadFolderContents = function(folderPath, folderCache, options) {
+DropboxAdapter.prototype.loadFolderContents = function(folderPath, folderCache, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -247,7 +248,7 @@ DropboxProvider.prototype.loadFolderContents = function(folderPath, folderCache,
 		});
 };
 
-DropboxProvider.prototype.retrieveDownloadLink = function(filePath, options) {
+DropboxAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -258,7 +259,7 @@ DropboxProvider.prototype.retrieveDownloadLink = function(filePath, options) {
 		});
 };
 
-DropboxProvider.prototype.retrieveThumbnailLink = function(filePath, options) {
+DropboxAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -269,7 +270,7 @@ DropboxProvider.prototype.retrieveThumbnailLink = function(filePath, options) {
 		});
 };
 
-DropboxProvider.prototype.retrieveFileMetadata = function(filePath, options) {
+DropboxAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -283,4 +284,4 @@ DropboxProvider.prototype.retrieveFileMetadata = function(filePath, options) {
 		});
 };
 
-module.exports = DropboxProvider;
+module.exports = DropboxAdapter;

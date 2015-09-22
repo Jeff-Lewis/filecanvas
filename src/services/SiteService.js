@@ -23,15 +23,15 @@ var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 function SiteService(database, options) {
 	options = options || {};
 	var host = options.host;
-	var providers = options.providers;
+	var adapters = options.adapters;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
-	if (!providers) { throw new Error('Missing providers configuration'); }
+	if (!adapters) { throw new Error('Missing adapters configuration'); }
 
 	this.database = database;
 	this.host = host;
-	this.providers = providers;
+	this.adapters = adapters;
 }
 
 SiteService.prototype.database = null;
@@ -40,7 +40,7 @@ SiteService.prototype.createSite = function(siteModel) {
 	if (!siteModel) { return Promise.reject(new HttpError(400, 'No site model specified')); }
 	var database = this.database;
 	var host = this.host;
-	var providers = this.providers;
+	var adapters = this.adapters;
 	var requireFullModel = true;
 	return validateSiteModel(siteModel, requireFullModel)
 		.then(function(siteModel) {
@@ -57,7 +57,7 @@ SiteService.prototype.createSite = function(siteModel) {
 			var username = siteModel.owner;
 			return retrieveUser(database, username)
 				.then(function(userModel) {
-					var userProviders = userModel.providers;
+					var userAdapters = userModel.adapters;
 					var siteRoot = siteModel.root;
 					var sitePath = siteRoot.path;
 					var context = {
@@ -68,10 +68,10 @@ SiteService.prototype.createSite = function(siteModel) {
 					return generateSiteFiles(sitePath, context)
 						.then(function(siteFiles) {
 							var siteRoot = siteModel.root;
-							var siteProvider = siteRoot.provider;
-							var provider = providers[siteProvider];
-							var providerOptions = userProviders[siteProvider];
-							return provider.initSiteFolder(sitePath, siteFiles, providerOptions);
+							var siteAdapter = siteRoot.adapter;
+							var adapter = adapters[siteAdapter];
+							var adapterOptions = userAdapters[siteAdapter];
+							return adapter.initSiteFolder(sitePath, siteFiles, adapterOptions);
 						});
 				});
 		})
@@ -90,7 +90,7 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 	var includeUsers = Boolean(options.users);
 	var cacheDuration = (typeof options.cacheDuration === 'number' ? options.cacheDuration : DROPBOX_CACHE_EXPIRY_DURATION);
 	var database = this.database;
-	var providers = this.providers;
+	var adapters = this.adapters;
 	return retrieveSite(database, username, siteName, {
 		published: onlyPublishedSites,
 		theme: includeTheme,
@@ -109,15 +109,15 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 				siteModel.contents = parseFileModel(siteCache.contents, sitePath);
 				return siteModel;
 			}
-			return retrieveUserProviders(database, username)
-				.then(function(userProviders) {
+			return retrieveUserAdapters(database, username)
+				.then(function(userAdapters) {
 					var siteRoot = siteModel.root;
-					var siteProvider = siteRoot.provider;
+					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
 					var siteCache = siteModel.cache;
-					var provider = providers[siteProvider];
-					var providerOptions = userProviders[siteProvider];
-					return provider.loadFolderContents(sitePath, siteCache, providerOptions)
+					var adapter = adapters[siteAdapter];
+					var adapterOptions = userAdapters[siteAdapter];
+					return adapter.loadFolderContents(sitePath, siteCache, adapterOptions)
 						.then(function(folderCache) {
 							return updateSiteCache(database, username, siteName, folderCache)
 								.then(function() {
@@ -234,7 +234,7 @@ SiteService.prototype.updateSite = function(username, siteName, updates) {
 		return getSiteRoot(database, username, siteName)
 			.then(function(existingSiteRoot) {
 				var siteRootHasChanged =
-					(existingSiteRoot.provider !== updates.root.provider) ||
+					(existingSiteRoot.adapter !== updates.root.adapter) ||
 					(existingSiteRoot.path !== updates.root.path);
 				return siteRootHasChanged;
 			});
@@ -285,17 +285,17 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
-	var providers = this.providers;
+	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
 		.then(function(siteRoot) {
-			return retrieveUserProviders(database, username)
-				.then(function(userProviders) {
-					var siteProvider = siteRoot.provider;
+			return retrieveUserAdapters(database, username)
+				.then(function(userAdapters) {
+					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
 					var dropboxFilePath = sitePath + '/' + filePath;
-					var provider = providers[siteProvider];
-					var providerOptions = userProviders[siteProvider];
-					return provider.retrieveDownloadLink(dropboxFilePath, providerOptions);
+					var adapter = adapters[siteAdapter];
+					var adapterOptions = userAdapters[siteAdapter];
+					return adapter.retrieveDownloadLink(dropboxFilePath, adapterOptions);
 				});
 		});
 };
@@ -305,17 +305,17 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
-	var providers = this.providers;
+	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
 		.then(function(siteRoot) {
-			return retrieveUserProviders(database, username)
-				.then(function(userProviders) {
-					var siteProvider = siteRoot.provider;
+			return retrieveUserAdapters(database, username)
+				.then(function(userAdapters) {
+					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
 					var dropboxFilePath = sitePath + '/' + filePath;
-					var provider = providers[siteProvider];
-					var providerOptions = userProviders[siteProvider];
-					return provider.retrieveThumbnailLink(dropboxFilePath, providerOptions);
+					var adapter = adapters[siteAdapter];
+					var adapterOptions = userAdapters[siteAdapter];
+					return adapter.retrieveThumbnailLink(dropboxFilePath, adapterOptions);
 				});
 		});
 };
@@ -356,17 +356,17 @@ SiteService.prototype.deleteSiteUser = function(username, siteName, siteUsername
 	return deleteSiteUser(database, username, siteName, siteUsername);
 };
 
-SiteService.prototype.retrieveFileMetadata = function(username, providerName, filePath) {
+SiteService.prototype.retrieveFileMetadata = function(username, adapterName, filePath) {
 	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!providerName) { return Promise.reject(new HttpError(400, 'No provider specified')); }
+	if (!adapterName) { return Promise.reject(new HttpError(400, 'No adapter specified')); }
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
-	var providers = this.providers;
-	return retrieveUserProviders(database, username)
-		.then(function(userProviders) {
-			var provider = providers[providerName];
-			var providerOptions = userProviders[providerName];
-			return provider.retrieveFileMetadata(filePath, providerOptions);
+	var adapters = this.adapters;
+	return retrieveUserAdapters(database, username)
+		.then(function(userAdapters) {
+			var adapter = adapters[adapterName];
+			var adapterOptions = userAdapters[adapterName];
+			return adapter.retrieveFileMetadata(filePath, adapterOptions);
 		});
 };
 
@@ -558,8 +558,8 @@ function retrieveUser(database, username) {
 	return new UserService(database).retrieveUser(username);
 }
 
-function retrieveUserProviders(database, username) {
-	return new UserService(database).retrieveUserProviders(username);
+function retrieveUserAdapters(database, username) {
+	return new UserService(database).retrieveUserAdapters(username);
 }
 
 function generateSiteFiles(pathPrefix, context) {
