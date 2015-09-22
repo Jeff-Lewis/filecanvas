@@ -70,15 +70,15 @@
 			color: {{ theme.styles.navItemSelectedColor }};
 		}
 
-		{{#if theme.content.headerLogo}}
+		{{#if theme.styles.headerLogo}}
 		header .logo {
-			background-image: url('{{{ theme.content.headerLogo }}}');
+			background-image: url('{{{ theme.styles.headerLogo }}}');
 		}
 		{{/if}}
 
-		{{#if theme.content.navLogo}}
+		{{#if theme.styles.navLogo}}
 		nav#mainnav .logo {
-			background-image: url('{{{ theme.content.navLogo }}}');
+			background-image: url('{{{ theme.styles.navLogo }}}');
 		}
 		{{/if}}
 	</style>
@@ -96,7 +96,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					{{#if theme.content.headerLogo}}
+					{{#if theme.styles.headerLogo}}
 					<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
 					{{/if}}
 				</div>
@@ -124,7 +124,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
-						{{#if theme.content.navLogo}}
+						{{#if theme.styles.navLogo}}
 						<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
 						{{/if}}
 					</div>

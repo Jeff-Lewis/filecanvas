@@ -2,68 +2,6 @@
 	"name": "Shunt",
 	"config": [
 		{
-			"name": "styles",
-			"label": "Styles",
-			"fields": [
-				{
-					"name": "brandColor",
-					"type": "color",
-					"default": "#aa0000",
-					"label": "Brand colour",
-					"editor": {
-						"name": "colorpicker",
-						"options": {
-							"format": "hex",
-							"placeholder": null,
-							"presets": null
-						}
-					}
-				},
-				{
-					"name": "navItemColor",
-					"type": "color",
-					"default": "#ffffff",
-					"label": "Navigation item",
-					"editor": {
-						"name": "colorpicker",
-						"options": {
-							"format": "hex",
-							"placeholder": null,
-							"presets": null
-						}
-					}
-				},
-				{
-					"name": "navItemRolloverColor",
-					"type": "color",
-					"default": "#ffcccc",
-					"label": "Navigation item (rollover)",
-					"editor": {
-						"name": "colorpicker",
-						"options": {
-							"format": "hex",
-							"placeholder": null,
-							"presets": null
-						}
-					}
-				},
-				{
-					"name": "navItemSelectedColor",
-					"type": "color",
-					"default": "#000000",
-					"label": "Navigation item (selected)",
-					"editor": {
-						"name": "colorpicker",
-						"options": {
-							"format": "hex",
-							"placeholder": null,
-							"presets": null
-						}
-					}
-				}
-			]
-		},
-		{
 			"name": "content",
 			"label": "Site content",
 			"fields": [
@@ -78,20 +16,6 @@
 							"type": "text",
 							"placeholder": "Browser tab title",
 							"maxLength": 128
-						}
-					}
-				},
-				{
-					"name": "navLogo",
-					"type": "string",
-					"default": null,
-					"label": "Navigation bar logo",
-					"editor": {
-						"name": "input",
-						"options": {
-							"type": "string",
-							"placeholder": "Enter a URL",
-							"maxLength": 4096
 						}
 					}
 				},
@@ -121,20 +45,6 @@
 							"placeholder": "Main page subtitle",
 							"maxLength": 256,
 							"rows": 3
-						}
-					}
-				},
-				{
-					"name": "headerLogo",
-					"type": "string",
-					"default": null,
-					"label": "Header logo",
-					"editor": {
-						"name": "input",
-						"options": {
-							"type": "string",
-							"placeholder": "Enter a URL",
-							"maxLength": 4096
 						}
 					}
 				},
@@ -261,6 +171,96 @@
 							"type": "text",
 							"placeholder": "Street address",
 							"maxLength": 128
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "styles",
+			"label": "Styles",
+			"fields": [
+				{
+					"name": "brandColor",
+					"type": "color",
+					"default": "#aa0000",
+					"label": "Brand colour",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "navItemColor",
+					"type": "color",
+					"default": "#ffffff",
+					"label": "Navigation item",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "navItemRolloverColor",
+					"type": "color",
+					"default": "#ffcccc",
+					"label": "Navigation item (rollover)",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "navItemSelectedColor",
+					"type": "color",
+					"default": "#000000",
+					"label": "Navigation item (selected)",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "navLogo",
+					"type": "string",
+					"default": null,
+					"label": "Navigation bar logo",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "string",
+							"placeholder": "Enter a URL",
+							"maxLength": 4096
+						}
+					}
+				},
+				{
+					"name": "headerLogo",
+					"type": "string",
+					"default": null,
+					"label": "Header logo",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "string",
+							"placeholder": "Enter a URL",
+							"maxLength": 4096
 						}
 					}
 				}
