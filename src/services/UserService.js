@@ -1,5 +1,6 @@
 'use strict';
 
+var objectAssign = require('object-assign');
 var escapeRegExp = require('escape-regexp');
 
 var HttpError = require('../errors/HttpError');
@@ -10,35 +11,54 @@ var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 
 function UserService(database) {
+	if (!database) { throw new Error('Missing database'); }
+
 	this.database = database;
 }
 
 UserService.prototype.database = null;
 
-UserService.prototype.generateUniqueUsername = function(username) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+UserService.prototype.registerUser = function(userDetails, providerName, providerConfig) {
 	var database = this.database;
-	return checkWhetherUsernameExists(database, username)
-		.then(function(usernameExists) {
-			if (!usernameExists) { return username; }
-			return generateUniqueUsername(database, username);
-		});
-};
+	var username = userDetails.username;
+	return retrieveUniqueUsername(database, username)
+		.then(function(username) {
+			var userModel = objectAssign({
+				username: null,
+				firstName: null,
+				lastName: null,
+				email: null,
+				defaultSite: null,
+				providers: {
+					default: null
+				}
+			}, userDetails);
 
-UserService.prototype.createUser = function(userModel) {
-	if (!userModel) { return Promise.reject(new HttpError(400, 'No user model specified')); }
-	var database = this.database;
-	var requireFullModel = true;
-	return validateUserModel(userModel, requireFullModel)
-		.then(function(userModel) {
-			return createUser(database, userModel)
-				.catch(function(error) {
-					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
-						throw new HttpError(409, 'This account has already been registered');
-					}
-					throw error;
+			userModel.providers.default = providerName;
+			userModel.providers[providerName] = providerConfig;
+
+			var requireFullModel = true;
+			return validateUserModel(userModel, requireFullModel)
+				.then(function(userModel) {
+					return createUser(database, userModel)
+						.catch(function(error) {
+							if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
+								throw new HttpError(409, 'This account has already been registered');
+							}
+							throw error;
+						});
 				});
 		});
+
+
+	function retrieveUniqueUsername(database, username) {
+		if (!username) { return Promise.resolve(null); }
+		return checkWhetherUsernameExists(database, username)
+			.then(function(usernameExists) {
+				if (!usernameExists) { return username; }
+				return generateUniqueUsername(database, username);
+			});
+	}
 };
 
 UserService.prototype.retrieveUser = function(username) {

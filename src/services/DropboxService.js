@@ -12,6 +12,10 @@ function DropboxService() {
 }
 
 DropboxService.prototype.connect = function(appKey, appSecret, accessToken, uid) {
+	if (!appKey) { return Promise.reject(new Error('No app key specified')); }
+	if (!appSecret) { return Promise.reject(new Error('No access token specified')); }
+	if (!uid) { return Promise.reject(new Error('No user ID specified')); }
+
 	return new Promise(function(resolve, reject) {
 		new Dropbox.Client({
 			key: appKey,
@@ -37,12 +41,12 @@ function DropboxClient(client) {
 
 DropboxClient.prototype.client = null;
 
-DropboxClient.prototype.getFileMetadata = function(filePath) {
+DropboxClient.prototype.retrieveFileMetadata = function(filePath) {
 	var client = this.client;
-	return getFileMetadata(client, filePath);
+	return retrieveFileMetadata(client, filePath);
 
 
-	function getFileMetadata(client, filePath) {
+	function retrieveFileMetadata(client, filePath) {
 		return new Promise(function(resolve, reject) {
 			var options = {};
 			client.stat(filePath, options, function(error, stat) {

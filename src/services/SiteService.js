@@ -1,6 +1,5 @@
 'use strict';
 
-var mapSeries = require('promise-map-series');
 var escapeRegExp = require('escape-regexp');
 var path = require('path');
 var objectAssign = require('object-assign');
@@ -10,7 +9,6 @@ var pdf = require('html-pdf');
 
 var HttpError = require('../errors/HttpError');
 
-var DropboxService = require('../services/DropboxService');
 var UserService = require('../services/UserService');
 var MarkdownService = require('./MarkdownService');
 var AuthenticationService = require('../services/AuthenticationService');
@@ -22,12 +20,14 @@ var DROPBOX_CACHE_EXPIRY_DURATION = 5 * SECONDS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 
-var PROVIDER_ID_DROPBOX = 'dropbox';
-
 function SiteService(database, options) {
 	options = options || {};
 	var host = options.host;
 	var providers = options.providers;
+
+	if (!database) { throw new Error('Missing database'); }
+	if (!host) { throw new Error('Missing hostname'); }
+	if (!providers) { throw new Error('Missing providers configuration'); }
 
 	this.database = database;
 	this.host = host;
@@ -67,24 +67,12 @@ SiteService.prototype.createSite = function(siteModel) {
 					};
 					return generateSiteFiles(sitePath, context)
 						.then(function(siteFiles) {
-							return initSiteFolder(siteModel, siteFiles, userProviders);
-						});
-
-
-						function initSiteFolder(siteModel, siteFiles, userProviders) {
 							var siteRoot = siteModel.root;
 							var siteProvider = siteRoot.provider;
-							switch (siteProvider) {
-								case PROVIDER_ID_DROPBOX:
-									var appKey = providers.dropbox.appKey;
-									var appSecret = providers.dropbox.appSecret;
-									var uid = userProviders.dropbox.uid;
-									var accessToken = userProviders.dropbox.token;
-									return initDropboxSiteFolder(appKey, appSecret, uid, accessToken, sitePath, siteFiles);
-								default:
-									throw new Error('Invalid provider: ' + siteProvider);
-							}
-						}
+							var provider = providers[siteProvider];
+							var providerOptions = userProviders[siteProvider];
+							return provider.initSiteFolder(sitePath, siteFiles, providerOptions);
+						});
 				});
 		})
 		.then(function() {
@@ -123,7 +111,13 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 			}
 			return retrieveUserProviders(database, username)
 				.then(function(userProviders) {
-					return loadFolderContents(siteModel, userProviders)
+					var siteRoot = siteModel.root;
+					var siteProvider = siteRoot.provider;
+					var sitePath = siteRoot.path;
+					var siteCache = siteModel.cache;
+					var provider = providers[siteProvider];
+					var providerOptions = userProviders[siteProvider];
+					return provider.loadFolderContents(sitePath, siteCache, providerOptions)
 						.then(function(folderCache) {
 							return updateSiteCache(database, username, siteName, folderCache)
 								.then(function() {
@@ -132,33 +126,6 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 									return siteModel;
 								});
 						});
-
-
-						function loadFolderContents(siteModel, userProviders) {
-							var siteRoot = siteModel.root;
-							var siteProvider = siteRoot.provider;
-							var sitePath = siteRoot.path;
-							var siteCache = siteModel.cache;
-
-							switch (siteProvider) {
-								case PROVIDER_ID_DROPBOX:
-									var appKey = providers.dropbox.appKey;
-									var appSecret = providers.dropbox.appSecret;
-									var uid = userProviders.dropbox.uid;
-									var accessToken = userProviders.dropbox.token;
-									return loadDropoxFolderContents(appKey, appSecret, uid, accessToken, sitePath, siteCache)
-										.then(function(dropboxContents) {
-											return {
-												contents: dropboxContents.contents,
-												data: dropboxContents.data,
-												cursor: dropboxContents.cursor,
-												updated: new Date()
-											};
-										});
-								default:
-									throw new Error('Invalid provider: ' + siteProvider);
-							}
-						}
 				});
 		});
 
@@ -323,24 +290,12 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 		.then(function(siteRoot) {
 			return retrieveUserProviders(database, username)
 				.then(function(userProviders) {
-					return retrieveDownloadLink(siteRoot, userProviders);
-
-
-					function retrieveDownloadLink(siteRoot, userProviders) {
-						var siteProvider = siteRoot.provider;
-						var sitePath = siteRoot.path;
-						switch (siteProvider) {
-							case PROVIDER_ID_DROPBOX:
-								var appKey = providers.dropbox.appKey;
-								var appSecret = providers.dropbox.appSecret;
-								var uid = userProviders.dropbox.uid;
-								var accessToken = userProviders.dropbox.token;
-								var dropboxFilePath = sitePath + '/' + filePath;
-								return retrieveDropboxDownloadLink(appKey, appSecret, uid, accessToken, dropboxFilePath);
-							default:
-								throw new Error('Invalid provider: ' + siteProvider);
-						}
-					}
+					var siteProvider = siteRoot.provider;
+					var sitePath = siteRoot.path;
+					var dropboxFilePath = sitePath + '/' + filePath;
+					var provider = providers[siteProvider];
+					var providerOptions = userProviders[siteProvider];
+					return provider.retrieveDownloadLink(dropboxFilePath, providerOptions);
 				});
 		});
 };
@@ -355,24 +310,12 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 		.then(function(siteRoot) {
 			return retrieveUserProviders(database, username)
 				.then(function(userProviders) {
-					return retrieveThumbnailLink(siteRoot, userProviders);
-
-
-					function retrieveThumbnailLink(siteRoot, userProviders) {
-						var siteProvider = siteRoot.provider;
-						var sitePath = siteRoot.path;
-						switch (siteProvider) {
-							case PROVIDER_ID_DROPBOX:
-								var appKey = providers.dropbox.appKey;
-								var appSecret = providers.dropbox.appSecret;
-								var uid = userProviders.dropbox.uid;
-								var accessToken = userProviders.dropbox.token;
-								var dropboxFilePath = sitePath + '/' + filePath;
-								return retrieveDropboxThumbnailLink(appKey, appSecret, uid, accessToken, dropboxFilePath);
-							default:
-								throw new Error('Invalid provider: ' + siteProvider);
-						}
-					}
+					var siteProvider = siteRoot.provider;
+					var sitePath = siteRoot.path;
+					var dropboxFilePath = sitePath + '/' + filePath;
+					var provider = providers[siteProvider];
+					var providerOptions = userProviders[siteProvider];
+					return provider.retrieveThumbnailLink(dropboxFilePath, providerOptions);
 				});
 		});
 };
@@ -413,29 +356,17 @@ SiteService.prototype.deleteSiteUser = function(username, siteName, siteUsername
 	return deleteSiteUser(database, username, siteName, siteUsername);
 };
 
-SiteService.prototype.getFileMetadata = function(username, provider, filePath) {
+SiteService.prototype.retrieveFileMetadata = function(username, providerName, filePath) {
 	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!provider) { return Promise.reject(new HttpError(400, 'No provider specified')); }
+	if (!providerName) { return Promise.reject(new HttpError(400, 'No provider specified')); }
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
 	var providers = this.providers;
 	return retrieveUserProviders(database, username)
 		.then(function(userProviders) {
-			return retrieveFileMetadata(provider, userProviders, filePath);
-
-
-			function retrieveFileMetadata(provider, userProviders, filePath) {
-				switch (provider) {
-					case PROVIDER_ID_DROPBOX:
-						var appKey = providers.dropbox.appKey;
-						var appSecret = providers.dropbox.appSecret;
-						var uid = userProviders.dropbox.uid;
-						var accessToken = userProviders.dropbox.token;
-						return getDropboxFileMetadata(appKey, appSecret, uid, accessToken, filePath);
-					default:
-						throw new Error('Invalid provider: ' + provider);
-				}
-			}
+			var provider = providers[providerName];
+			var providerOptions = userProviders[providerName];
+			return provider.retrieveFileMetadata(filePath, providerOptions);
 		});
 };
 
@@ -558,13 +489,6 @@ function resetUserDefaultSite(database, username) {
 	return userService.updateUserDefaultSiteName(username, null)
 		.then(function(siteName) {
 			return;
-		});
-}
-
-function loadDropoxFolderContents(appKey, appSecret, uid, accessToken, folderPath, folderCache) {
-	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
-		.then(function(dropboxClient) {
-			return dropboxClient.loadFolderContents(folderPath, folderCache);
 		});
 }
 
@@ -746,83 +670,6 @@ function generateSiteFiles(pathPrefix, context) {
 			return path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)) + extension);
 		}
 	}
-}
-
-function initDropboxSiteFolder(appKey, appSecret, uid, accessToken, sitePath, siteFiles) {
-	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
-		.then(function(dropboxClient) {
-			return checkWhetherFileExists(dropboxClient, sitePath)
-				.then(function(folderExists) {
-					if (folderExists) { return; }
-					return copySiteFiles(dropboxClient, siteFiles);
-				});
-		});
-
-	function checkWhetherFileExists(dropboxClient, filePath) {
-		return dropboxClient.getFileMetadata(filePath)
-			.then(function(stat) {
-				if (stat.isRemoved) { return false; }
-				return true;
-			})
-			.catch(function(error) {
-				if (error.status === 404) {
-					return false;
-				}
-				throw error;
-			});
-	}
-
-	function copySiteFiles(dropboxClient, dirContents) {
-		var files = getFileListing(dirContents);
-		var writeOptions = {};
-		return Promise.resolve(mapSeries(files, function(fileMetaData) {
-			var filePath = fileMetaData.path;
-			var fileContents = fileMetaData.contents;
-			return dropboxClient.writeFile(filePath, fileContents, writeOptions);
-		}).then(function(results) {
-			return;
-		}));
-
-
-		function getFileListing(dirContents) {
-			var files = Object.keys(dirContents)
-				.sort(function(filePath1, filePath2) {
-					return (filePath1 < filePath2 ? -1 : 1);
-				})
-				.map(function(filePath) {
-					var file = dirContents[filePath];
-					return {
-						path: filePath,
-						contents: file
-					};
-				});
-			return files;
-		}
-	}
-}
-
-function retrieveDropboxDownloadLink(appKey, appSecret, uid, accessToken, filePath) {
-	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
-		.then(function(dropboxClient) {
-			return dropboxClient.generateDownloadLink(filePath);
-		});
-}
-
-function retrieveDropboxThumbnailLink(appKey, appSecret, uid, accessToken, filePath) {
-	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
-		.then(function(dropboxClient) {
-			return dropboxClient.generateThumbnailLink(filePath);
-		});
-}
-
-function getDropboxFileMetadata(appKey, appSecret, uid, accessToken, filePath) {
-	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
-		.then(function(dropboxClient) {
-			return dropboxClient.getFileMetadata(filePath)
-				.then(function(stat) {
-					return stat.json();
-				});
-		});
 }
 
 function validateSiteModel(siteModel, requireFullModel) {

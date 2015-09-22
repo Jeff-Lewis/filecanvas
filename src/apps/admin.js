@@ -6,8 +6,6 @@ var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 var express = require('express');
 var Passport = require('passport').Passport;
-var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
-var slug = require('slug');
 
 var sitesApp = require('./sites');
 
@@ -18,8 +16,7 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
-var HttpError = require('../errors/HttpError');
-
+var loadProviders = require('../utils/loadProviders');
 var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
 
 var SiteService = require('../services/SiteService');
@@ -36,15 +33,18 @@ module.exports = function(database, options) {
 	var themesPath = options.themesPath;
 	var themesUrl = options.themesUrl;
 	var defaultSiteTheme = options.defaultSiteTheme;
-	var providers = options.providers;
+	var providersConfig = options.providers;
 	var siteAuthOptions = options.siteAuth;
 
+	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!themesPath) { throw new Error('Missing site themes path'); }
 	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
-	if (!providers) { throw new Error('Missing providers configuration'); }
+	if (!providersConfig) { throw new Error('Missing providers configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
+
+	var providers = loadProviders(providersConfig, database);
 
 	var userService = new UserService(database);
 	var siteService = new SiteService(database, {
@@ -75,6 +75,7 @@ module.exports = function(database, options) {
 		themesUrl: themesUrl,
 		faqData: faqData,
 		providers: providers,
+		providersConfig: providersConfig,
 		siteAuth: siteAuthOptions
 	});
 	initErrorHandler(app, {
@@ -140,156 +141,66 @@ module.exports = function(database, options) {
 	}
 
 	function initAuth(app, passport, database, providers) {
-
 		app.use(passport.initialize());
 		app.use(passport.session());
 
-		passport.serializeUser(function(userModel, callback) {
-			var username = userModel.username;
-			return callback && callback(null, username);
-		});
+		initAuthSerializers(passport);
+		initProviderAuthentication(passport, database, providers);
 
-		passport.deserializeUser(function(username, callback) {
-			var userService = new UserService(database);
-			return userService.retrieveUser(username)
-				.then(function(userModel) {
-					return callback(null, userModel);
-				})
-				.catch(function(error) {
-					return callback(error);
-				});
-		});
 
-		passport.use('admin/dropbox', new DropboxOAuth2Strategy(
-			{
-				clientID: providers.dropbox.appKey,
-				clientSecret: providers.dropbox.appSecret,
-				callbackURL: providers.dropbox.loginCallbackUrl
-			},
-			function(accessToken, refreshToken, profile, callback) {
-				var uid = profile.id;
-				var dropboxFirstName = profile._json.name_details.given_name;
-				var dropboxLastName = profile._json.name_details.surname;
-				var dropboxEmail = profile.emails[0].value;
-				return loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail)
+		function initAuthSerializers(passport) {
+			passport.serializeUser(function(userModel, callback) {
+				var username = userModel.username;
+				return callback && callback(null, username);
+			});
+
+			passport.deserializeUser(function(username, callback) {
+				return userService.retrieveUser(username)
 					.then(function(userModel) {
-						callback(null, userModel);
+						return callback(null, userModel);
 					})
 					.catch(function(error) {
-						callback(error);
+						return callback(error);
 					});
+			});
+		}
+
+		function initProviderAuthentication(passport, database, providers) {
+			Object.keys(providers).forEach(function(key) {
+				var providerName = key;
+				var provider = providers[key];
+				registerProvider(providerName, provider);
+			});
 
 
+			function registerProvider(providerName, provider) {
+				var loginMiddleware = provider.loginMiddleware(passport, { failureRedirect: '/login' }, onLoggedIn);
+				var registerMiddleware = provider.registerMiddleware(passport, { failureRedirect: '/login' }, onRegistered);
 
-				function loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail) {
-					return loadDropboxUserModel(uid)
-						.catch(function(error) {
-							if (error.status === 404) {
-								throw new HttpError(403, dropboxEmail + ' is not a registered user');
-							}
-							throw error;
-						})
-						.then(function(userModel) {
-							var username = userModel.username;
-							var dropboxProviderConfig = userModel.providers.dropbox;
-							var hasUpdatedAccessToken = accessToken !== dropboxProviderConfig.token;
-							var hasUpdatedProfileFirstName = dropboxFirstName !== dropboxProviderConfig.firstName;
-							var hasUpdatedProfileLastName = dropboxLastName !== dropboxProviderConfig.lastName;
-							var hasUpdatedProfileEmail = dropboxEmail !== dropboxProviderConfig.email;
-							var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
-							if (hasUpdatedUserDetails) {
-								return updateUserDetails(username, {
-									'provider.dropbox': {
-										token: accessToken,
-										firstName: dropboxFirstName,
-										lastName: dropboxLastName,
-										email: dropboxEmail
-									}
-								})
-									.then(function() {
-										var dropboxProviderConfig = userModel.providers.dropbox;
-										dropboxProviderConfig.token = accessToken;
-										dropboxProviderConfig.firstName = dropboxFirstName;
-										dropboxProviderConfig.lastName = dropboxLastName;
-										dropboxProviderConfig.email = dropboxEmail;
-										return userModel;
-									});
-							} else {
-								return userModel;
-							}
-						});
+				app.use('/login/' + providerName, loginMiddleware);
+				app.use('/register/' + providerName, registerMiddleware);
+			}
 
-
-					function loadDropboxUserModel(uid) {
-						var userService = new UserService(database);
-						return userService.retrieveDropboxUser(uid);
-					}
-
-					function updateUserDetails(username, updates) {
-						var userService = new UserService(database);
-						return userService.updateUser(username, updates);
-					}
+			function onLoggedIn(req, res) {
+				if (req.session.loginRedirect) {
+					var redirectUrl = req.session.loginRedirect;
+					delete req.session.loginRedirect;
+					res.redirect(redirectUrl);
+				} else {
+					res.redirect('/');
 				}
 			}
-		));
 
-		passport.use('admin/register', new DropboxOAuth2Strategy(
-			{
-				clientID: providers.dropbox.appKey,
-				clientSecret: providers.dropbox.appSecret,
-				callbackURL: providers.dropbox.registerCallbackUrl
-			},
-			function(accessToken, refreshToken, profile, callback) {
-				var uid = profile.id;
-				var dropboxFirstName = profile._json.name_details.given_name;
-				var dropboxLastName = profile._json.name_details.surname;
-				var dropboxEmail = profile.emails[0].value;
-				return registerUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail)
-					.then(function(userModel) {
-						callback(null, userModel);
-					})
-					.catch(function(error) {
-						callback(error);
-					});
-
-
-				function registerUser(uid, accessToken, firstName, lastName, email) {
-					var fullName = firstName + ' ' + lastName;
-					var username = slug(fullName, { lower: true });
-					return generateUniqueUsername(username)
-						.then(function(username) {
-							var userModel = {
-								username: username,
-								firstName: firstName,
-								lastName: lastName,
-								email: email,
-								defaultSite: null,
-								providers: {
-									default: 'dropbox',
-									dropbox: {
-										uid: uid,
-										token: accessToken,
-										firstName: firstName,
-										lastName: lastName,
-										email: email
-									}
-								}
-							};
-							return createUser(userModel);
-						});
-				}
-
-				function generateUniqueUsername(username) {
-					var userService = new UserService(database);
-					return userService.generateUniqueUsername(username);
-				}
-
-				function createUser(userModel) {
-					var userService = new UserService(database);
-					return userService.createUser(userModel);
+			function onRegistered(req, res) {
+				if (req.session.loginRedirect) {
+					var redirectUrl = req.session.loginRedirect;
+					delete req.session.loginRedirect;
+					res.redirect(redirectUrl);
+				} else {
+					res.redirect('/profile');
 				}
 			}
-		));
+		}
 	}
 
 	function initViewEngine(app, options) {
@@ -316,11 +227,12 @@ module.exports = function(database, options) {
 		var defaultTheme = options.defaultTheme;
 		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
-		var providers = options.providers;
 		var siteAuthOptions = options.siteAuth;
+		var providers = options.providers;
+		var providersConfig = options.providersConfig;
 
 		initPublicRoutes(app, passport);
-		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, providers, siteAuthOptions);
+		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, providers, providersConfig);
 		app.use(invalidRoute());
 
 
@@ -347,7 +259,7 @@ module.exports = function(database, options) {
 					})
 					.then(function(sortedSiteModels) {
 						var urlService = new UrlService(req);
-						var adminUrls = getAdminUrls(urlService, userModel);
+						var adminUrls = getAdminUrls(urlService, userModel, providers);
 						return {
 							urls: adminUrls,
 							location: urlService.location,
@@ -364,7 +276,8 @@ module.exports = function(database, options) {
 					});
 				}
 
-				function getAdminUrls(urlService, userModel) {
+				function getAdminUrls(urlService, userModel, providers) {
+					var authUrls = getAuthPaths(providers);
 					return {
 						webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 						domain: urlService.getSubdomainUrl('$0'),
@@ -374,14 +287,26 @@ module.exports = function(database, options) {
 						account: '/account',
 						profile: '/profile',
 						login: '/login',
-						loginAuth: '/login/oauth2',
-						registerAuth: '/register/oauth2',
 						logout: '/logout',
 						sites: '/sites',
 						preview: '/preview',
 						terms: '/terms',
-						privacy: '/privacy'
+						privacy: '/privacy',
+						auth: authUrls
 					};
+
+
+					function getAuthPaths(providers) {
+						return Object.keys(providers).reduce(function(authPaths, key) {
+							var providerName = key;
+							var provider = providers[key];
+							authPaths[providerName] = {
+								login: '/login/' + providerName + provider.loginPath,
+								redirect: '/login/' + providerName + provider.redirectPath
+							};
+							return authPaths;
+						}, {});
+					}
 				}
 			}
 		}
@@ -427,31 +352,7 @@ module.exports = function(database, options) {
 
 		function initPublicRoutes(app, passport) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
-			app.get('/login/oauth2', passport.authenticate('admin/dropbox'));
-			app.get('/login/oauth2/callback', passport.authenticate('admin/dropbox', { failureRedirect: '/login' }), onLoggedIn);
-			app.get('/register/oauth2', passport.authenticate('admin/register'));
-			app.get('/register/oauth2/callback', passport.authenticate('admin/register', { failureRedirect: '/login' }), onRegistered);
 
-
-			function onLoggedIn(req, res) {
-				if (req.session.loginRedirect) {
-					var redirectUrl = req.session.loginRedirect;
-					delete req.session.loginRedirect;
-					res.redirect(redirectUrl);
-				} else {
-					res.redirect('/');
-				}
-			}
-
-			function onRegistered(req, res) {
-				if (req.session.loginRedirect) {
-					var redirectUrl = req.session.loginRedirect;
-					delete req.session.loginRedirect;
-					res.redirect(redirectUrl);
-				} else {
-					res.redirect('/profile');
-				}
-			}
 
 			function redirectIfLoggedIn(req, res, next) {
 				if (!req.isAuthenticated()) {
@@ -474,7 +375,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, providers, siteAuthOptions) {
+		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, providers, providersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -506,7 +407,7 @@ module.exports = function(database, options) {
 			app.use('/preview', createPreviewApp(database, {
 				host: host,
 				themesUrl: themesUrl,
-				providers: providers
+				providersConfig: providersConfig
 			}));
 
 
@@ -703,11 +604,13 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveSitesRoute(req, res, next) {
+				var userProviders = req.user.providers;
+				var defaultProviderName = userProviders.default;
 				var siteModel = {
 					name: '',
 					label: '',
 					root: {
-						provider: 'dropbox',
+						provider: defaultProviderName,
 						path: ''
 					},
 					private: false,
@@ -998,6 +901,7 @@ module.exports = function(database, options) {
 			function retrieveSiteThemeRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
+				var userProviders = req.user.providers;
 				var siteName = req.params.site;
 				var includeTheme = true;
 				var includeContents = false;
@@ -1043,10 +947,16 @@ module.exports = function(database, options) {
 								themes: themes
 							}
 						};
-						setPageCookies(req, res, {
-							token: userModel.providers[siteModel.root.provider].token,
-							path: siteModel.root.path
-						});
+						var siteProvider = siteModel.root.provider;
+						var sitePath = siteModel.root.path;
+						var providerOptions = userProviders[siteProvider];
+						var provider = providers[siteProvider];
+						var providerConfig = provider.getUploadConfig(sitePath, providerOptions);
+						if (providerConfig) {
+							setPageCookies(req, res, {
+								provider: JSON.stringify(providerConfig)
+							});
+						}
 						return renderAdminPage(req, res, 'sites/site/theme', templateData);
 					})
 					.catch(function(error) {
@@ -1071,7 +981,7 @@ module.exports = function(database, options) {
 				var username = userModel.username;
 				var provider = req.params.provider;
 				var filePath = req.params[0];
-				siteService.getFileMetadata(username, provider, filePath)
+				siteService.retrieveFileMetadata(username, provider, filePath)
 					.then(function(metadata) {
 						res.json(metadata);
 					})
@@ -1105,7 +1015,7 @@ module.exports = function(database, options) {
 				options = options || {};
 				var host = options.host;
 				var themesUrl = options.themesUrl;
-				var providers = options.providers;
+				var providersConfig = options.providersConfig;
 
 				var app = express();
 				app.use(ensureAuth);
@@ -1115,7 +1025,7 @@ module.exports = function(database, options) {
 					preview: true,
 					host: host,
 					themesUrl: themesUrl,
-					providers: providers
+					providers: providersConfig
 				}));
 				return app;
 

@@ -12,6 +12,7 @@ var errorHandler = require('../middleware/errorHandler');
 
 var handlebarsEngine = require('../engines/handlebars');
 
+var loadProviders = require('../utils/loadProviders');
 var HttpError = require('../errors/HttpError');
 
 var UserService = require('../services/UserService');
@@ -23,13 +24,16 @@ module.exports = function(database, options) {
 	var host = options.host;
 	var themesUrl = options.themesUrl;
 	var isPreview = options.preview;
-	var providers = options.providers;
+	var providersConfig = options.providers;
 	var siteAuthOptions = options.siteAuth;
 
+	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
-	if (!providers) { throw new Error('Missing providers configuration'); }
+	if (!providersConfig) { throw new Error('Missing providers configuration'); }
 	if (!isPreview && !siteAuthOptions) { throw new Error('Missing site authentication options'); }
+
+	var providers = loadProviders(providersConfig, database);
 
 	var siteService = new SiteService(database, {
 		host: host,
