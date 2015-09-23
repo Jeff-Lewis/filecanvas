@@ -561,20 +561,20 @@ a.panel-heading {
 .shunt-sync-success { display: none; }
 .shunt-sync-error { display: none; }
 
-.-shunt-sync-loading .shunt-sync-idle { display: none; }
-.-shunt-sync-loading .shunt-sync-loading { display: inline; }
-.-shunt-sync-loading .shunt-sync-success { display: none; }
-.-shunt-sync-loading .shunt-sync-error { display: none; }
+.is-shunt-sync-loading .shunt-sync-idle { display: none; }
+.is-shunt-sync-loading .shunt-sync-loading { display: inline; }
+.is-shunt-sync-loading .shunt-sync-success { display: none; }
+.is-shunt-sync-loading .shunt-sync-error { display: none; }
 
-.-shunt-sync-success .shunt-sync-idle { display: none; }
-.-shunt-sync-success .shunt-sync-loading { display: none; }
-.-shunt-sync-success .shunt-sync-success { display: inline }
-.-shunt-sync-success .shunt-sync-error { display: none; }
+.is-shunt-sync-success .shunt-sync-idle { display: none; }
+.is-shunt-sync-success .shunt-sync-loading { display: none; }
+.is-shunt-sync-success .shunt-sync-success { display: inline }
+.is-shunt-sync-success .shunt-sync-error { display: none; }
 
-.-shunt-sync-error .shunt-sync-idle { display: none; }
-.-shunt-sync-error .shunt-sync-loading { display: none; }
-.-shunt-sync-error .shunt-sync-success { display: none; }
-.-shunt-sync-error .shunt-sync-error { display: inline }
+.is-shunt-sync-error .shunt-sync-idle { display: none; }
+.is-shunt-sync-error .shunt-sync-loading { display: none; }
+.is-shunt-sync-error .shunt-sync-success { display: none; }
+.is-shunt-sync-error .shunt-sync-error { display: inline }
 
 
 .shunt-check-folder-exists-loading { display: none; }

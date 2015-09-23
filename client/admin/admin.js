@@ -283,6 +283,8 @@ function parseBindingExpression(bindingExpression, bindingSources, bindingFilter
 					return Number(filterArgument);
 				} else if (/^'.*'$/.test(filterArgument)) {
 					return filterArgument.substr(1, filterArgument.length - 1 - 1);
+				} else {
+					throw new Error('Invalid filter argument:' + filterArgument);
 				}
 			});
 		}
@@ -371,19 +373,19 @@ function initShunt(bindingSources, bindingFilters) {
 				var $purgeButtonElement = $(event.currentTarget);
 				var siteAlias = $purgeButtonElement.attr(attributeName);
 				$purgeButtonElement.prop('disabled', true);
-				$purgeButtonElement.addClass('-shunt-sync-loading');
+				$purgeButtonElement.addClass('is-shunt-sync-loading');
 				shunt.purgeSiteCache(siteAlias)
 					.always(function() {
 						$purgeButtonElement.prop('disabled', false);
-						$purgeButtonElement.removeClass('-shunt-sync-loading');
+						$purgeButtonElement.removeClass('is-shunt-sync-loading');
 					})
 					.done(function() {
 						var successTimeoutDuration = 3000;
-						setButtonState($purgeButtonElement, '-shunt-sync-success', successTimeoutDuration);
+						setButtonState($purgeButtonElement, 'is-shunt-sync-success', successTimeoutDuration);
 					})
 					.fail(function(error) {
 						var errorTimeoutDuration = 3000;
-						setButtonState($purgeButtonElement, '-shunt-sync-error', errorTimeoutDuration);
+						setButtonState($purgeButtonElement, 'is-shunt-sync-error', errorTimeoutDuration);
 						return;
 					});
 			}
