@@ -227,21 +227,23 @@ DropboxAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options)
 	}
 };
 
-DropboxAdapter.prototype.loadFolderContents = function(folderPath, folderCache, options) {
+DropboxAdapter.prototype.loadFolderContents = function(folderPath, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
+	var cache = options.cache;
 	return new DropboxService().connect(appKey, appSecret, accessToken, uid)
 		.then(function(dropboxClient) {
-			return dropboxClient.loadFolderContents(folderPath, folderCache);
+			return dropboxClient.loadFolderContents(folderPath, cache);
 		})
 		.then(function(dropboxContents) {
 			return {
-				contents: dropboxContents.contents,
-				updated: new Date(),
-				data: dropboxContents.data,
-				cursor: dropboxContents.cursor
+				files: dropboxContents.files,
+				cache: {
+					data: dropboxContents.cache,
+					cursor: dropboxContents.cursor
+				}
 			};
 		});
 };

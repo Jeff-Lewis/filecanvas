@@ -120,9 +120,9 @@ DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 					return loadFolder(client, updatedCursor, options, cache);
 				} else {
 					return {
-						contents: parseStatModel(cache),
-						cursor: updatedCursor,
-						data: cache
+						files: parseStatModel(cache),
+						cache: cache,
+						cursor: updatedCursor
 					};
 				}
 

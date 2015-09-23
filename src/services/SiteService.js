@@ -104,9 +104,9 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 			var siteRoot = siteModel.root;
 			var sitePath = siteRoot.path;
 			var siteCache = siteModel.cache;
-			var canUseCachedContents = getIsCacheValid(siteCache, cacheDuration);
+			var canUseCachedContents = Boolean(siteCache) && getIsCacheValid(siteCache.site, cacheDuration);
 			if (canUseCachedContents) {
-				siteModel.contents = parseFileModel(siteCache.contents, sitePath);
+				siteModel.contents = parseFileModel(siteCache.site.contents, sitePath);
 				return siteModel;
 			}
 			return retrieveUserAdapters(database, username)
@@ -116,13 +116,22 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 					var sitePath = siteRoot.path;
 					var siteCache = siteModel.cache;
 					var adapter = adapters[siteAdapter];
-					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.loadFolderContents(sitePath, siteCache, adapterOptions)
-						.then(function(folderCache) {
-							return updateSiteCache(database, username, siteName, folderCache)
+					var adapterOptions = objectAssign(userAdapters[siteAdapter], {
+						cache: siteCache && siteCache.adapter || null
+					});
+					return adapter.loadFolderContents(sitePath, adapterOptions)
+						.then(function(folder) {
+							var siteCache = {
+								site: {
+									contents: folder.files,
+									updated: new Date()
+								},
+								adapter: folder.cache
+							};
+							return updateSiteCache(database, username, siteName, siteCache)
 								.then(function() {
-									siteModel.cache = folderCache;
-									siteModel.contents = parseFileModel(folderCache.contents, sitePath);
+									siteModel.cache = siteCache;
+									siteModel.contents = parseFileModel(siteCache.site.contents, sitePath);
 									return siteModel;
 								});
 						});
