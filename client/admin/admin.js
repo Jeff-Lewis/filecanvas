@@ -352,7 +352,7 @@ function initShunt(bindingSources, bindingFilters) {
 	var shunt = window.shunt;
 
 	initPurgeLinks(shunt);
-	initDropboxFolderChecks(shunt, bindingSources, bindingFilters);
+	initFolderChecks(shunt, bindingSources, bindingFilters);
 
 
 	function initPurgeLinks(shunt) {
@@ -399,38 +399,40 @@ function initShunt(bindingSources, bindingFilters) {
 		}
 	}
 
-	function initDropboxFolderChecks(shunt, bindingSources, bindingFilters) {
-		var targetAttributeName = 'data-bind-dropbox-folder-check';
+	function initFolderChecks(shunt, bindingSources, bindingFilters) {
+		var targetAttributeName = 'data-bind-check-folder-exists';
+		var targetAdapterAttributeName = 'data-bind-check-folder-exists-adapter';
 		var $targetElements = $('[' + targetAttributeName + ']');
 
 		$targetElements.each(function(index, targetElement) {
 			var $targetElement = $(targetElement);
 			var bindingExpression = $targetElement.attr(targetAttributeName);
-			assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters);
+			var adapterName = $targetElement.attr(targetAdapterAttributeName);
+			assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters, adapterName);
 		});
 
 
-		function assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters) {
+		function assignBindingTarget($targetElement, bindingExpression, bindingSources, bindingFilters, adapterName) {
 			var binding = parseBindingExpression(bindingExpression, bindingSources, bindingFilters);
 			var bindingSource = binding.source;
 			var bindingFilter = binding.filter;
 			var currentState = null;
 			var currentRequest = null;
-			var classPrefix = '-shunt-dropbox-check-';
+			var classPrefix = 'is-shunt-check-folder-exists-';
 
 			bindingSource.bind(function(value) {
 				value = bindingFilter(value);
-				updateBindingTarget($targetElement, value);
+				updateBindingTarget($targetElement, adapterName, value);
 			});
 
 
-			function updateBindingTarget($targetElement, path) {
+			function updateBindingTarget($targetElement, adapterName, path) {
 				setCurrentState($targetElement, 'loading');
 				var debounceDuration = 500;
 				var request = delay(debounceDuration)
 					.then(function() {
 						if (currentRequest !== request) { return; }
-						return shunt.validateDropboxFolder(path);
+						return shunt.validateFolder(adapterName, path);
 					})
 					.done(function(isValid) {
 						if (currentRequest !== request) { return; }

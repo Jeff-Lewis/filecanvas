@@ -72,7 +72,7 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 
 			function loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail) {
 				var userService = new UserService(database);
-				return userService.retrieveDropboxUser(uid)
+				return userService.retrieveAdapterUser('dropbox', { 'uid': uid })
 					.catch(function(error) {
 						if (error.status === 404) {
 							throw new HttpError(403, dropboxEmail + ' is not a registered user');
@@ -88,14 +88,12 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 						var hasUpdatedProfileEmail = dropboxEmail !== dropboxAdapterConfig.email;
 						var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
 						if (hasUpdatedUserDetails) {
-							return userService.updateUser(username, {
-								'adapters.dropbox': {
-									uid: uid,
-									token: accessToken,
-									firstName: dropboxFirstName,
-									lastName: dropboxLastName,
-									email: dropboxEmail
-								}
+							return userService.updateUserAdapterSettings(username, 'dropbox', {
+								uid: uid,
+								token: accessToken,
+								firstName: dropboxFirstName,
+								lastName: dropboxLastName,
+								email: dropboxEmail
 							})
 								.then(function() {
 									var dropboxAdapterConfig = userModel.adapters.dropbox;

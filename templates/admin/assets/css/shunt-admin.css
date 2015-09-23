@@ -577,25 +577,25 @@ a.panel-heading {
 .-shunt-sync-error .shunt-sync-error { display: inline }
 
 
-.shunt-dropbox-check-loading { display: none; }
-.shunt-dropbox-check-valid { display: none; }
-.shunt-dropbox-check-invalid { display: none; }
-.shunt-dropbox-check-error { display: none; }
+.shunt-check-folder-exists-loading { display: none; }
+.shunt-check-folder-exists-valid { display: none; }
+.shunt-check-folder-exists-invalid { display: none; }
+.shunt-check-folder-exists-error { display: none; }
 
-.-shunt-dropbox-check-loading .shunt-dropbox-check-loading { display: inline; }
-.-shunt-dropbox-check-valid .shunt-dropbox-check-valid { display: inline; }
-.-shunt-dropbox-check-invalid .shunt-dropbox-check-invalid { display: inline; }
-.-shunt-dropbox-check-error .shunt-dropbox-check-error { display: inline; }
+.is-shunt-check-folder-exists-loading .shunt-check-folder-exists-loading { display: inline; }
+.is-shunt-check-folder-exists-valid .shunt-check-folder-exists-valid { display: inline; }
+.is-shunt-check-folder-exists-invalid .shunt-check-folder-exists-invalid { display: inline; }
+.is-shunt-check-folder-exists-error .shunt-check-folder-exists-error { display: inline; }
 
-.widget-icon.shunt-dropbox-check-loading { display: none; }
-.widget-icon.shunt-dropbox-check-valid { display: none; }
-.widget-icon.shunt-dropbox-check-invalid { display: none; }
-.widget-icon.shunt-dropbox-check-error { display: none; }
+.widget-icon.shunt-check-folder-exists-loading { display: none; }
+.widget-icon.shunt-check-folder-exists-valid { display: none; }
+.widget-icon.shunt-check-folder-exists-invalid { display: none; }
+.widget-icon.shunt-check-folder-exists-error { display: none; }
 
-.-shunt-dropbox-check-loading .widget-icon.shunt-dropbox-check-loading { display: block; }
-.-shunt-dropbox-check-valid .widget-icon.shunt-dropbox-check-valid { display: block; }
-.-shunt-dropbox-check-invalid .widget-icon.shunt-dropbox-check-invalid { display: block; }
-.-shunt-dropbox-check-error .widget-icon.shunt-dropbox-check-error { display: block; }
+.is-shunt-check-folder-exists-loading .widget-icon.shunt-check-folder-exists-loading { display: block; }
+.is-shunt-check-folder-exists-valid .widget-icon.shunt-check-folder-exists-valid { display: block; }
+.is-shunt-check-folder-exists-invalid .widget-icon.shunt-check-folder-exists-invalid { display: block; }
+.is-shunt-check-folder-exists-error .widget-icon.shunt-check-folder-exists-error { display: block; }
 
 .logout {
 	display: none;

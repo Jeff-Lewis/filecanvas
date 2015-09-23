@@ -26,6 +26,7 @@
     "bcrypt": "^0.8.5",
     "clarify": "^1.0.5",
     "cors": "^2.7.1",
+    "dot-object": "^1.2.0",
     "dropbox": "ehfeng/dropbox-js#stable",
     "es6-template-strings": "^2.0.0",
     "escape-regexp": "0.0.1",

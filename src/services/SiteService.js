@@ -292,10 +292,10 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
-					var dropboxFilePath = sitePath + '/' + filePath;
+					var fullPath = sitePath + '/' + filePath;
 					var adapter = adapters[siteAdapter];
 					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrieveDownloadLink(dropboxFilePath, adapterOptions);
+					return adapter.retrieveDownloadLink(fullPath, adapterOptions);
 				});
 		});
 };
@@ -312,10 +312,10 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
-					var dropboxFilePath = sitePath + '/' + filePath;
+					var fullPath = sitePath + '/' + filePath;
 					var adapter = adapters[siteAdapter];
 					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrieveThumbnailLink(dropboxFilePath, adapterOptions);
+					return adapter.retrieveThumbnailLink(fullPath, adapterOptions);
 				});
 		});
 };

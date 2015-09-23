@@ -128,14 +128,15 @@
 										 	name="root.path"
 											placeholder="Dropbox folder"
 											value="{{ content.site.root.path }}"
-											data-bind-id="site-root"
+											data-bind-id="site-root-path"
 										/>
 										<p class="form-control-feedback fa" aria-hidden="true"
-											data-bind-dropbox-folder-check="site-root"
+											data-bind-check-folder-exists="site-root-path"
+											data-bind-check-folder-exists-adapter="{{ content.site.root.adapter }}"
 										>
-											<span class="shunt-dropbox-check-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
-											<span class="shunt-dropbox-check-valid text-success"><i class="fa fa-check"></i></span>
-											<span class="shunt-dropbox-check-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
+											<span class="shunt-check-folder-exists-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
+											<span class="shunt-check-folder-exists-valid text-success"><i class="fa fa-check"></i></span>
+											<span class="shunt-check-folder-exists-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
 										</p>
 										<p class="help-block">This tells Shunt where to find the site's files within your Dropbox</p>
 									</div>

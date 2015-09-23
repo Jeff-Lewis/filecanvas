@@ -2,6 +2,7 @@
 
 var objectAssign = require('object-assign');
 var escapeRegExp = require('escape-regexp');
+var dotObject = require('dot-object');
 
 var HttpError = require('../errors/HttpError');
 
@@ -64,19 +65,29 @@ UserService.prototype.registerUser = function(userDetails, adapterName, adapterC
 UserService.prototype.retrieveUser = function(username) {
 	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
-	return retrieveUser(database, username);
+	return retrieveUser(database, { 'username': username });
+};
+
+UserService.prototype.retrieveAdapterUser = function(adapterName, query) {
+	if (!query) { return Promise.reject(new HttpError(400, 'No query specified')); }
+	var database = this.database;
+	var nestedQuery = {
+		adapters: {}
+	};
+	nestedQuery.adapters[adapterName] = query;
+	var dotNotationQuery = flattenNestedQuery(nestedQuery);
+	return retrieveUser(database, dotNotationQuery);
+
+
+	function flattenNestedQuery(nestedQuery) {
+		return dotObject.dot(nestedQuery);
+	}
 };
 
 UserService.prototype.retrieveUserAdapters = function(username) {
 	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	var database = this.database;
 	return retrieveUserAdapters(database, username);
-};
-
-UserService.prototype.retrieveDropboxUser = function(uid) {
-	if (!uid) { return Promise.reject(new HttpError(400, 'No uid specified')); }
-	var database = this.database;
-	return retrieveDropboxUser(database, uid);
 };
 
 UserService.prototype.updateUser = function(username, updates) {
@@ -100,6 +111,17 @@ UserService.prototype.updateUser = function(username, updates) {
 					}
 				});
 		});
+};
+
+UserService.prototype.updateUserAdapterSettings = function(username, adapter, updates) {
+	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!adapter) { return Promise.reject(new HttpError(400, 'No adapter specified')); }
+	if (!updates) { return Promise.reject(new HttpError(400, 'No updates specified')); }
+	var nestedUpdates = {
+		'adapters': {}
+	};
+	nestedUpdates.adapters[adapter] = updates;
+	return this.updateUser(username, nestedUpdates);
 };
 
 UserService.prototype.deleteUser = function(username) {
@@ -173,25 +195,7 @@ function createUser(database, userModel) {
 }
 
 
-function retrieveUser(database, username) {
-	var query = { 'username': username };
-	var fields = [
-		'username',
-		'firstName',
-		'lastName',
-		'email',
-		'defaultSite',
-		'adapters'
-	];
-	return database.collection(DB_COLLECTION_USERS).findOne(query, fields)
-		.then(function(userModel) {
-			if (!userModel) { throw new HttpError(404); }
-			return userModel;
-		});
-}
-
-function retrieveDropboxUser(database, uid) {
-	var query = { 'adapters.dropbox.uid': uid };
+function retrieveUser(database, query) {
 	var fields = [
 		'username',
 		'firstName',
