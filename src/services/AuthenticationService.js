@@ -7,27 +7,7 @@ var Hashes = require('jshashes');
 var STRATEGY_BCRYPT = 'bcrypt';
 var STRATEGY_SHA256 = 'sha256';
 
-var DEFAULT_STRATEGY = STRATEGY_BCRYPT;
-var DEFAULT_BCRYPT_STRENGTH = 10;
-var DEFAULT_SHA256_SALT_LENGTH = 64;
-
-function AuthenticationService(options) {
-	options = options || {};
-	var strategyOptions = options.strategies || {};
-	var bcryptOptions = strategyOptions.bcrypt || {};
-	var sha256Options = strategyOptions.sha256 || {};
-	var bcryptStrength = bcryptOptions.strength || DEFAULT_BCRYPT_STRENGTH;
-	var sha256SaltLength = sha256Options.saltLength || DEFAULT_SHA256_SALT_LENGTH;
-	var defaultStrategy = options.defaultStrategy || DEFAULT_STRATEGY;
-	this.strategyOptions = {
-		bcrypt: {
-			strength: bcryptStrength
-		},
-		sha256: {
-			saltLength: sha256SaltLength
-		}
-	};
-	this.defaultStrategy = defaultStrategy;
+function AuthenticationService() {
 }
 
 AuthenticationService.prototype.authenticate = function(username, password, validUsers) {
@@ -83,9 +63,16 @@ AuthenticationService.prototype.authenticate = function(username, password, vali
 
 AuthenticationService.prototype.create = function(username, password, options) {
 	options = options || {};
-	var strategy = options.strategy || this.defaultStrategy;
+	var strategy = options.strategy || null;
+	if (!strategy) { return Promise.reject('No authentication strategy specified'); }
+	var strategyOptions = Object.keys(options).filter(
+		function(key) { return key !== 'strategy'; }
+	).reduce(function(strategyOptions, key) {
+		strategyOptions[key] = options[key];
+		return strategyOptions;
+	}, {});
 
-	return generatePasswordHash(strategy, password, this.strategyOptions)
+	return generatePasswordHash(strategy, password, strategyOptions)
 		.then(function(hash) {
 			return {
 				strategy: strategy,
@@ -98,9 +85,9 @@ AuthenticationService.prototype.create = function(username, password, options) {
 	function generatePasswordHash(strategy, password, strategyOptions) {
 		switch (strategy) {
 			case STRATEGY_BCRYPT:
-				return generateBcryptPasswordHash(password, strategyOptions.bcrypt);
+				return generateBcryptPasswordHash(password, strategyOptions);
 			case STRATEGY_SHA256:
-				return generateSha256PasswordHash(password, strategyOptions.sha256);
+				return generateSha256PasswordHash(password, strategyOptions);
 			default:
 				throw new Error('Invalid strategy: ' + strategy);
 		}
@@ -108,6 +95,7 @@ AuthenticationService.prototype.create = function(username, password, options) {
 		function generateBcryptPasswordHash(password, options) {
 			options = options || {};
 			var strength = options.strength;
+			if (!strength) { return Promise.reject(new Error('No bcrypt strength specified')); }
 
 			return new Promise(function(resolve, reject) {
 				bcrypt.hash(password, strength, function(error, hash) {
@@ -120,6 +108,7 @@ AuthenticationService.prototype.create = function(username, password, options) {
 		function generateSha256PasswordHash(password, options) {
 			options = options || {};
 			var saltLength = options.saltLength;
+			if (!saltLength) { return Promise.reject(new Error('No SHA256 salt length specified')); }
 
 			return new Promise(function(resolve, reject) {
 				var salt = generateRandomHexString(saltLength);

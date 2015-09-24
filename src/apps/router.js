@@ -54,8 +54,7 @@ module.exports = function(database, config) {
 			'sites': sitesApp(database, {
 				host: config.host,
 				themesUrl: config.themes.root,
-				adapters: config.adapters,
-				siteAuth: config.auth.site
+				adapters: config.adapters
 			}),
 			'test': redirectToSubdomain({
 				subdomain: 'www'

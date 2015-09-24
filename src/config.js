@@ -35,11 +35,10 @@ config.themes.default = process.env.THEMES_DEFAULT || null;
 
 config.auth = {};
 config.auth.site = {};
-config.auth.site.strategies = {};
-config.auth.site.strategies.bcrypt = {};
-config.auth.site.strategies.bcrypt.strength = process.env.AUTH_SITE_BCRYPT_STRENGTH || 10;
-config.auth.site.strategies.sha256 = {};
-config.auth.site.strategies.sha256.saltLength = process.env.AUTH_SITE_SHA256_SALT_LENGTH || 64;
-config.auth.site.defaultStrategy = process.env.AUTH_SITE_STRATEGY || 'bcrypt';
+config.auth.site.strategy = 'bcrypt';
+config.auth.site.strength = process.env.AUTH_SITE_BCRYPT_STRENGTH || 10;
+config.auth.local = {};
+config.auth.local.strategy = 'bcrypt';
+config.auth.local.strength = process.env.AUTH_LOCAL_BCRYPT_STRENGTH || 10;
 
 module.exports = config;

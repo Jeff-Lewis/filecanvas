@@ -445,8 +445,8 @@ function checkWhetherSiteUserAlreadyExists(database, username, siteName, siteUse
 }
 
 function createSiteUser(database, username, siteName, authDetails, siteAuthOptions) {
-	var authenticationService = new AuthenticationService(siteAuthOptions);
-	return authenticationService.create(authDetails.username, authDetails.password)
+	var authenticationService = new AuthenticationService();
+	return authenticationService.create(authDetails.username, authDetails.password, siteAuthOptions)
 		.then(function(siteUserModel) {
 			var filter = { 'owner': username, 'name': siteName };
 			var updates = { $push: { 'users': siteUserModel } };
@@ -461,8 +461,8 @@ function createSiteUser(database, username, siteName, authDetails, siteAuthOptio
 }
 
 function updateSiteUser(database, username, siteName, siteUsername, authDetails, siteAuthOptions) {
-	var authenticationService = new AuthenticationService(siteAuthOptions);
-	return authenticationService.create(authDetails.username, authDetails.password)
+	var authenticationService = new AuthenticationService();
+	return authenticationService.create(authDetails.username, authDetails.password, siteAuthOptions)
 		.then(function(siteUserModel) {
 			var filter = { 'owner': username, 'name': siteName, 'users.username': siteUsername };
 			var updates = { $set: { 'users.$': siteUserModel } };

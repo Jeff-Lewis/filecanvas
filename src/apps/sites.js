@@ -25,13 +25,11 @@ module.exports = function(database, options) {
 	var themesUrl = options.themesUrl;
 	var isPreview = options.preview;
 	var adaptersConfig = options.adapters;
-	var siteAuthOptions = options.siteAuth;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
-	if (!isPreview && !siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
 	var adapters = loadAdapters(adaptersConfig, database);
 
@@ -136,7 +134,7 @@ module.exports = function(database, options) {
 						}
 
 						var validUsers = authenticationDetails.users;
-						var authenticationService = new AuthenticationService(siteAuthOptions);
+						var authenticationService = new AuthenticationService();
 						return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
 							.then(function(siteUserModel) {
 								if (!siteUserModel) { return callback(null, false); }
