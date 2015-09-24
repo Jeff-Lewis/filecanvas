@@ -600,12 +600,13 @@ module.exports = function(database, options) {
 			function retrieveSitesRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
 				var defaultAdapterName = userAdapters.default;
+				var sitesRoot = adaptersConfig[defaultAdapterName].sitesPath;
 				var siteModel = {
 					name: '',
 					label: '',
 					root: {
 						adapter: defaultAdapterName,
-						path: ''
+						path: sitesRoot
 					},
 					private: false,
 					published: false,
@@ -629,6 +630,7 @@ module.exports = function(database, options) {
 					content: {
 						sites: res.locals.sites,
 						site: siteModel,
+						sitesRoot: sitesRoot,
 						themes: themes
 					}
 				};

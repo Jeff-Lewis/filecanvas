@@ -19,6 +19,7 @@ config.adapters = {};
 
 if (process.env.LOCAL === 'true') {
 	config.adapters.local = {};
+	config.adapters.local.sitesPath = '/';
 	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../sites');
 	config.adapters.local.auth = {};
 	config.adapters.local.auth.strategy = 'bcrypt';
@@ -27,6 +28,7 @@ if (process.env.LOCAL === 'true') {
 
 if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox = {};
+	config.adapters.dropbox.sitesPath = '/shunt/';
 	config.adapters.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
 	config.adapters.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
 	config.adapters.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
