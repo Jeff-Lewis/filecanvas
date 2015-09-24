@@ -19,56 +19,50 @@ function UserService(database) {
 
 UserService.prototype.database = null;
 
-UserService.prototype.registerUser = function(userDetails, adapterName, adapterConfig) {
+UserService.prototype.createUser = function(userDetails, adapterName, adapterConfig) {
 	var database = this.database;
-	var username = userDetails.username;
-	return retrieveUniqueUsername(database, username)
-		.then(function(username) {
-			var userModel = objectAssign({
-				username: null,
-				firstName: null,
-				lastName: null,
-				email: null,
-				defaultSite: null,
-				adapters: {
-					default: null
-				}
-			}, userDetails);
+	var userModel = objectAssign({
+		username: null,
+		firstName: null,
+		lastName: null,
+		email: null,
+		defaultSite: null,
+		adapters: {}
+	}, userDetails);
 
-			userModel.adapters.default = adapterName;
-			userModel.adapters[adapterName] = adapterConfig;
+	userModel.adapters.default = adapterName;
+	userModel.adapters[adapterName] = adapterConfig;
 
-			var requireFullModel = true;
-			return validateUserModel(userModel, requireFullModel)
-				.then(function(userModel) {
-					return createUser(database, userModel)
-						.catch(function(error) {
-							if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
-								throw new HttpError(409, 'This account has already been registered');
-							}
-							throw error;
-						});
+	var requireFullModel = true;
+	return validateUserModel(userModel, requireFullModel)
+		.then(function(userModel) {
+			return createUser(database, userModel)
+				.catch(function(error) {
+					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
+						throw new HttpError(409, 'This account has already been registered');
+					}
+					throw error;
 				});
+		});
+};
+
+UserService.prototype.generateUsername = function(username) {
+	if (!username) { return Promise.resolve(null); }
+	var database = this.database;
+	return checkWhetherUsernameExists(database, username)
+		.then(function(usernameExists) {
+			if (!usernameExists) { return username; }
+			return generateUniqueUsername(database, username);
 		});
 
 
-	function retrieveUniqueUsername(database, username) {
-		if (!username) { return Promise.resolve(null); }
-		return checkWhetherUsernameExists(database, username)
-			.then(function(usernameExists) {
-				if (!usernameExists) { return username; }
-				return generateUniqueUsername(database, username);
+	function generateUniqueUsername(database, username) {
+		return getExistingUsernames(database, username)
+			.then(function(existingUsernames) {
+				var index = 1;
+				while (existingUsernames.indexOf(username + index) !== -1) { index++; }
+				return username + index;
 			});
-
-
-		function generateUniqueUsername(database, username) {
-			return getExistingUsernames(database, username)
-				.then(function(existingUsernames) {
-					var index = 1;
-					while (existingUsernames.indexOf(username + index) !== -1) { index++; }
-					return username + index;
-				});
-		}
 	}
 };
 

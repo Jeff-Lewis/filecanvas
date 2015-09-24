@@ -22,6 +22,7 @@ var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
 var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
+var RegistrationService = require('../services/RegistrationService');
 
 var faqData = require('../../templates/admin/faq.json');
 
@@ -169,17 +170,9 @@ module.exports = function(database, options) {
 			Object.keys(adapters).forEach(function(key) {
 				var adapterName = key;
 				var adapter = adapters[key];
-				registerAdapter(adapterName, adapter);
+				app.use('/login/' + adapterName, adapter.loginMiddleware(passport, { failureRedirect: '/register' }, onLoggedIn));
 			});
 
-
-			function registerAdapter(adapterName, adapter) {
-				var loginMiddleware = adapter.loginMiddleware(passport, { failureRedirect: '/login' }, onLoggedIn);
-				var registerMiddleware = adapter.registerMiddleware(passport, { failureRedirect: '/login' }, onRegistered);
-
-				app.use('/login/' + adapterName, loginMiddleware);
-				app.use('/register/' + adapterName, registerMiddleware);
-			}
 
 			function onLoggedIn(req, res) {
 				if (req.session.loginRedirect) {
@@ -188,16 +181,6 @@ module.exports = function(database, options) {
 					res.redirect(redirectUrl);
 				} else {
 					res.redirect('/');
-				}
-			}
-
-			function onRegistered(req, res) {
-				if (req.session.loginRedirect) {
-					var redirectUrl = req.session.loginRedirect;
-					delete req.session.loginRedirect;
-					res.redirect(redirectUrl);
-				} else {
-					res.redirect('/profile');
 				}
 			}
 		}
@@ -284,7 +267,6 @@ module.exports = function(database, options) {
 						faq: '/faq',
 						support: '/support',
 						account: '/account',
-						profile: '/profile',
 						login: '/login',
 						register: '/register',
 						logout: '/logout',
@@ -338,13 +320,24 @@ module.exports = function(database, options) {
 
 		function initPublicRoutes(app, passport) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
+			app.get('/register', redirectIfLoggedIn, redirectIfNoPendingUser, initAdminSession, retrieveRegisterRoute);
+			app.post('/register', redirectIfLoggedIn, redirectIfNoPendingUser, initAdminSession, processRegisterRoute);
 
 
 			function redirectIfLoggedIn(req, res, next) {
-				if (!req.isAuthenticated()) {
-					return next();
+				if (req.isAuthenticated()) {
+					return res.redirect('/');
 				}
-				res.redirect('/');
+				next();
+			}
+
+			function redirectIfNoPendingUser(req, res, next) {
+				var registrationService = new RegistrationService(req);
+				var hasPendingUser = registrationService.hasPendingUser();
+				if (!hasPendingUser) {
+					return res.redirect('/');
+				}
+				return next();
 			}
 
 			function retrieveLoginRoute(req, res, next) {
@@ -359,6 +352,55 @@ module.exports = function(database, options) {
 						next(error);
 					});
 			}
+
+			function retrieveRegisterRoute(req, res, next) {
+				var registrationService = new RegistrationService(req);
+				var pendingUser = registrationService.getPendingUser();
+				var userDetails = pendingUser.user;
+				var username = userDetails.username;
+				userService.generateUsername(username)
+					.then(function(username) {
+						userDetails = objectAssign(userDetails, {
+							username: username
+						});
+						var templateData = {
+							title: 'Your profile',
+							navigation: false,
+							footer: true,
+							content: {
+								user: pendingUser.user
+							}
+						};
+						renderAdminPage(req, res, 'register', templateData)
+							.catch(function(error) {
+								next(error);
+							});
+					});
+			}
+
+			function processRegisterRoute(req, res, next) {
+				var registrationService = new RegistrationService(req);
+				var pendingUser = registrationService.getPendingUser();
+				var adapter = pendingUser.adapter;
+				var adapterConfig = pendingUser.adapterConfig;
+				var userDetails = {
+					username: req.body.username,
+					firstName: req.body.firstName,
+					lastName: req.body.lastName,
+					email: req.body.email
+				};
+				userService.createUser(userDetails, adapter, adapterConfig)
+					.then(function(userModel) {
+						registrationService.clearPendingUser();
+						req.login(userModel, function(error) {
+							if (error) { return next(error); }
+							res.redirect('/');
+						});
+					})
+					.catch(function(error) {
+						next(error);
+					});
+			}
 		}
 
 		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig) {
@@ -367,8 +409,6 @@ module.exports = function(database, options) {
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
 			app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
 
-			app.get('/profile', ensureAuth, initAdminSession, retrieveUserProfileRoute);
-			app.put('/profile', ensureAuth, initAdminSession, updateUserProfileRoute);
 			app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
 			app.put('/account', ensureAuth, initAdminSession, updateUserAccountRoute);
 			app.delete('/account', ensureAuth, initAdminSession, deleteUserAccountRoute);
@@ -482,49 +522,6 @@ module.exports = function(database, options) {
 					content: null
 				};
 				renderAdminPage(req, res, 'support', templateData)
-					.catch(function(error) {
-						next(error);
-					});
-			}
-
-			function retrieveUserProfileRoute(req, res, next) {
-				var userModel = req.user;
-				var templateData = {
-					title: 'Your profile',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/profile',
-							icon: 'user',
-							label: 'Your profile'
-						}
-					],
-					content: {
-						user: userModel
-					}
-				};
-				return renderAdminPage(req, res, 'profile', templateData);
-			}
-
-			function updateUserProfileRoute(req, res, next) {
-				var userModel = req.user;
-				var username = userModel.username;
-				var updates = {
-					'username': req.body.username,
-					'firstName': req.body.firstName,
-					'lastName': req.body.lastName,
-					'email': req.body.email
-				};
-				userService.updateUser(username, updates)
-					.then(function() {
-						var hasUpdatedUsername = ('username' in updates) && (updates.username !== userModel.username);
-						if (!hasUpdatedUsername) { return; }
-						return updatePassportUsername(req, userModel, updates.username);
-					})
-					.then(function() {
-						res.redirect(303, '/sites');
-					})
 					.catch(function(error) {
 						next(error);
 					});

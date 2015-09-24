@@ -7,26 +7,4 @@
 			<h4>Sign in using Dropbox</h4>
 		</button>
 	</form>
-	<button type="button" class="btn btn-reset widget bg-white mb0" data-toggle="collapse" data-target="#create-account" aria-expanded="false" aria-controls="create-account">
-		<i class="widget-icon bg-primary pull-left fa fa-user-plus"></i>
-		<h4>Create an account</h4>
-	</button>
-	<div class="widget bg-primary mb0">
-		<i class="widget-icon bg-white pull-left fa fa-user-plus"></i>
-		<h4>Create an account</h4>
-	</div>
-	<div class="collapse" id="create-account">
-		<form class="panel-body bg-white" method="POST" action="{{ session.urls.register }}/dropbox">
-			<div class="text-center">
-				<p class="mt5 mb20">
-					<label>
-						<input type="checkbox"
-							data-bind-id="confirm-terms"
-						/><span class="ml10">I agree to the Shunt <a href="{{ session.urls.terms }}" target="_blank">terms and conditions</a></span>
-					</label>
-				</p>
-				<button type="submit" class="btn btn-primary mb10" disabled="disabled" data-bind-value="confirm-terms">Create account</button>
-			</div>
-		</form>
-	</div>
 </div>

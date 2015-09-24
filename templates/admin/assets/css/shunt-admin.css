@@ -254,8 +254,16 @@ button.bg-bluegrey:hover :not(:disabled) {
 	font-size: 64px;
 	margin-bottom: 10px;
 }
+.register-panel {
+}
+.register-panel .checkbox label {
+	cursor: default;
+}
 
 @media screen and (min-width:768px) {
+	.register-panel {
+		margin-top: 130px;
+	}
 	.form-centered {
 		margin-top: 130px;
 		margin-left: auto;

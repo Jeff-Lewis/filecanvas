@@ -3,12 +3,14 @@
 var path = require('path');
 var express = require('express');
 var objectAssign = require('object-assign');
+var isEqual = require('lodash.isequal');
 var slug = require('slug');
 var mapSeries = require('promise-map-series');
 var Dropbox = require('dropbox');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
 var UserService = require('../services/UserService');
+var RegistrationService = require('../services/RegistrationService');
 
 var FileModel = require('../models/FileModel');
 
@@ -54,115 +56,80 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 	passport.use('dropbox/login', new DropboxOAuth2Strategy({
 			clientID: appKey,
 			clientSecret: appSecret,
-			callbackURL: loginCallbackUrl
+			callbackURL: loginCallbackUrl,
+			passReqToCallback: true
 		},
-		function(accessToken, refreshToken, profile, callback) {
+		function(req, accessToken, refreshToken, profile, callback) {
 			var uid = profile.id;
-			var dropboxFirstName = profile._json.name_details.given_name;
-			var dropboxLastName = profile._json.name_details.surname;
-			var dropboxEmail = profile.emails[0].value;
-			return loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail)
+			var firstName = profile._json.name_details.given_name;
+			var lastName = profile._json.name_details.surname;
+			var email = profile.emails[0].value;
+			var userDetails = {
+				firstName: firstName,
+				lastName: lastName,
+				email: email
+			};
+			return loginUser(req, uid, accessToken, userDetails)
 				.then(function(userModel) {
 					callback(null, userModel);
 				})
 				.catch(function(error) {
+					if (error.status === 401) {
+						return callback(null, false);
+					}
 					callback(error);
 				});
 
 
-			function loginUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail) {
+			function loginUser(req, uid, accessToken, userDetails) {
+				var adapterConfig = objectAssign({
+					uid: uid,
+					token: accessToken
+				}, userDetails);
 				var userService = new UserService(database);
+				var registrationService = new RegistrationService(req);
+				registrationService.clearPendingUser();
 				return userService.retrieveAdapterUser('dropbox', { 'uid': uid })
 					.catch(function(error) {
 						if (error.status === 404) {
-							throw new HttpError(403, dropboxEmail + ' is not a registered user');
+							var fullName = firstName + ' ' + lastName;
+							var username = slug(fullName, { lower: true });
+							var userDetails = {
+								username: username,
+								firstName: firstName,
+								lastName: lastName,
+								email: email
+							};
+							var adapterConfig = {
+								uid: uid,
+								token: accessToken,
+								firstName: firstName,
+								lastName: lastName,
+								email: email
+							};
+							registrationService.setPendingUser(userDetails, 'dropbox', adapterConfig);
+							throw new HttpError(401);
 						}
 						throw error;
 					})
 					.then(function(userModel) {
 						var username = userModel.username;
-						var dropboxAdapterConfig = userModel.adapters.dropbox;
-						var hasUpdatedAccessToken = accessToken !== dropboxAdapterConfig.token;
-						var hasUpdatedProfileFirstName = dropboxFirstName !== dropboxAdapterConfig.firstName;
-						var hasUpdatedProfileLastName = dropboxLastName !== dropboxAdapterConfig.lastName;
-						var hasUpdatedProfileEmail = dropboxEmail !== dropboxAdapterConfig.email;
-						var hasUpdatedUserDetails = hasUpdatedAccessToken || hasUpdatedProfileFirstName || hasUpdatedProfileLastName || hasUpdatedProfileEmail;
+						var userAdapterConfig = userModel.adapters.dropbox;
+						var hasUpdatedUserDetails = !isEqual(userAdapterConfig, adapterConfig);
 						if (hasUpdatedUserDetails) {
-							return userService.updateUserAdapterSettings(username, 'dropbox', {
-								uid: uid,
-								token: accessToken,
-								firstName: dropboxFirstName,
-								lastName: dropboxLastName,
-								email: dropboxEmail
-							})
+							return userService.updateUserAdapterSettings(username, 'dropbox', adapterConfig)
 								.then(function() {
-									var dropboxAdapterConfig = userModel.adapters.dropbox;
-									dropboxAdapterConfig.token = accessToken;
-									dropboxAdapterConfig.firstName = dropboxFirstName;
-									dropboxAdapterConfig.lastName = dropboxLastName;
-									dropboxAdapterConfig.email = dropboxEmail;
+									var userAdapterConfig = userModel.adapters.dropbox;
+									userAdapterConfig.token = accessToken;
+									userAdapterConfig.firstName = firstName;
+									userAdapterConfig.lastName = lastName;
+									userAdapterConfig.email = email;
 									return userModel;
 								});
 						} else {
 							return userModel;
 						}
 					});
-			}
-		}
-	));
-
-	return app;
-};
-
-DropboxAdapter.prototype.registerMiddleware = function(passport, passportOptions, callback) {
-	var database = this.database;
-	var appKey = this.appKey;
-	var appSecret = this.appSecret;
-	var registerCallbackUrl = this.registerCallbackUrl;
-
-	var app = express();
-
-	app.post('/', passport.authenticate('dropbox/register'));
-	app.get('/oauth2/callback', passport.authenticate('dropbox/register', passportOptions), callback);
-
-	passport.use('dropbox/register', new DropboxOAuth2Strategy(
-		{
-			clientID: appKey,
-			clientSecret: appSecret,
-			callbackURL: registerCallbackUrl
-		},
-		function(accessToken, refreshToken, profile, callback) {
-			var uid = profile.id;
-			var dropboxFirstName = profile._json.name_details.given_name;
-			var dropboxLastName = profile._json.name_details.surname;
-			var dropboxEmail = profile.emails[0].value;
-			return registerUser(uid, accessToken, dropboxFirstName, dropboxLastName, dropboxEmail)
-				.then(function(userModel) {
-					callback(null, userModel);
-				})
-				.catch(function(error) {
-					callback(error);
-				});
-
-
-			function registerUser(uid, accessToken, firstName, lastName, email) {
-				var fullName = firstName + ' ' + lastName;
-				var username = slug(fullName, { lower: true });
-				var userDetails = {
-					username: username,
-					firstName: firstName,
-					lastName: lastName,
-					email: email
-				};
-				var adapterConfig = {
-					uid: uid,
-					token: accessToken,
-					firstName: firstName,
-					lastName: lastName,
-					email: email
-				};
-				var userService = new UserService(database);
-				return userService.registerUser(userDetails, 'dropbox', adapterConfig);
 			}
 		}
 	));
@@ -316,7 +283,6 @@ DropboxConnector.prototype.connect = function(appKey, appSecret, accessToken, ui
 		return new DropboxClient(client);
 	});
 };
-
 
 function parseStatModel(statModel, rootPath) {
 	rootPath = rootPath || '';
