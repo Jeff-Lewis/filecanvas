@@ -108,7 +108,7 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 				return siteModel;
 			}
 			var userService = new UserService(database);
-			return userService.retrieveUserAdapters(database, username)
+			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteRoot = siteModel.root;
 					var siteAdapter = siteRoot.adapter;
@@ -245,7 +245,7 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 		.then(function(siteRoot) {
 			if (!siteRoot) { throw new HttpError(404); }
 			var userService = new UserService(database);
-			return userService.retrieveUserAdapters(database, username)
+			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
@@ -267,7 +267,7 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 		.then(function(siteRoot) {
 			if (!siteRoot) { throw new HttpError(404); }
 			var userService = new UserService(database);
-			return userService.retrieveUserAdapters(database, username)
+			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
@@ -322,7 +322,7 @@ SiteService.prototype.retrieveFileMetadata = function(username, adapterName, fil
 	var database = this.database;
 	var adapters = this.adapters;
 	var userService = new UserService(database);
-	return userService.retrieveUserAdapters(database, username)
+	return userService.retrieveUserAdapters(username)
 		.then(function(userAdapters) {
 			var adapter = adapters[adapterName];
 			var adapterOptions = userAdapters[adapterName];
