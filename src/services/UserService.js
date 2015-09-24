@@ -73,13 +73,13 @@ UserService.prototype.registerUser = function(userDetails, adapterName, adapterC
 };
 
 UserService.prototype.retrieveUser = function(username) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
 	var database = this.database;
 	return retrieveUser(database, { 'username': username });
 };
 
 UserService.prototype.retrieveAdapterUser = function(adapterName, query) {
-	if (!query) { return Promise.reject(new HttpError(400, 'No query specified')); }
+	if (!query) { return Promise.reject(new Error('No query specified')); }
 	var database = this.database;
 	var nestedQuery = {
 		adapters: {}
@@ -95,14 +95,14 @@ UserService.prototype.retrieveAdapterUser = function(adapterName, query) {
 };
 
 UserService.prototype.retrieveUserAdapters = function(username) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
 	var database = this.database;
 	return retrieveUserAdapters(database, username);
 };
 
 UserService.prototype.updateUser = function(username, updates) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!updates) { return Promise.reject(new HttpError(400, 'No updates specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!updates) { return Promise.reject(new Error('No updates specified')); }
 	var database = this.database;
 	var requireFullModel = false;
 	return validateUserModel(updates, requireFullModel)
@@ -124,9 +124,9 @@ UserService.prototype.updateUser = function(username, updates) {
 };
 
 UserService.prototype.updateUserAdapterSettings = function(username, adapter, updates) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!adapter) { return Promise.reject(new HttpError(400, 'No adapter specified')); }
-	if (!updates) { return Promise.reject(new HttpError(400, 'No updates specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!adapter) { return Promise.reject(new Error('No adapter specified')); }
+	if (!updates) { return Promise.reject(new Error('No updates specified')); }
 	var nestedUpdates = {
 		'adapters': {}
 	};
@@ -135,7 +135,7 @@ UserService.prototype.updateUserAdapterSettings = function(username, adapter, up
 };
 
 UserService.prototype.deleteUser = function(username) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
 	var database = this.database;
 	return deleteUserSites(database, username)
 		.then(function(numRecords) {
@@ -144,20 +144,20 @@ UserService.prototype.deleteUser = function(username) {
 };
 
 UserService.prototype.retrieveUserDefaultSiteName = function(username) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
 	var database = this.database;
 	return retrieveUserDefaultSiteName(database, username);
 };
 
 UserService.prototype.updateUserDefaultSiteName = function(username, siteName) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
 	var database = this.database;
 	siteName = siteName || null;
 	return updateUserDefaultSiteName(database, username, siteName);
 };
 
 UserService.prototype.retrieveUserSites = function(username) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
 	var database = this.database;
 	return retrieveUserSites(database, username);
 };

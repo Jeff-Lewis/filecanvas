@@ -36,7 +36,7 @@ function SiteService(database, options) {
 SiteService.prototype.database = null;
 
 SiteService.prototype.createSite = function(siteModel) {
-	if (!siteModel) { return Promise.reject(new HttpError(400, 'No site model specified')); }
+	if (!siteModel) { return Promise.reject(new Error('No site model specified')); }
 	var database = this.database;
 	var host = this.host;
 	var adapters = this.adapters;
@@ -81,8 +81,8 @@ SiteService.prototype.createSite = function(siteModel) {
 };
 
 SiteService.prototype.retrieveSite = function(username, siteName, options) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
 	var includeTheme = Boolean(options.theme);
@@ -147,9 +147,9 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 };
 
 SiteService.prototype.updateSite = function(username, siteName, updates) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!updates) { return Promise.reject(new HttpError(400, 'No updates specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!updates) { return Promise.reject(new Error('No updates specified')); }
 	var database = this.database;
 	var requireFullModel = false;
 	return validateSiteModel(updates, requireFullModel)
@@ -181,8 +181,8 @@ SiteService.prototype.updateSite = function(username, siteName, updates) {
 };
 
 SiteService.prototype.deleteSite = function(username, siteName) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
 	var database = this.database;
 	var userService = new UserService(database);
 	return checkWhetherSiteisUserDefaultSite(username, siteName)
@@ -212,8 +212,8 @@ SiteService.prototype.deleteSite = function(username, siteName) {
 };
 
 SiteService.prototype.retrieveSiteAuthenticationDetails = function(username, siteName, options) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
 	var database = this.database;
@@ -221,24 +221,24 @@ SiteService.prototype.retrieveSiteAuthenticationDetails = function(username, sit
 };
 
 SiteService.prototype.retrieveSiteCache = function(username, siteName) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
 	var database = this.database;
 	return retrieveSiteCache(database, username, siteName);
 };
 
 SiteService.prototype.updateSiteCache = function(username, siteName, cache) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
 	cache = cache || null;
 	var database = this.database;
 	return updateSiteCache(database, username, siteName, cache);
 };
 
 SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, filePath) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
 	var database = this.database;
 	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
@@ -258,9 +258,9 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 };
 
 SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, filePath) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
 	var database = this.database;
 	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
@@ -280,11 +280,11 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 };
 
 SiteService.prototype.createSiteUser = function(username, siteName, authDetails, siteAuthOptions) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
-	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
-	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!authDetails) { return Promise.reject(new Error('No auth details specified')); }
+	if (!authDetails.username) { return Promise.reject(new Error('No auth username specified')); }
+	if (!authDetails.password) { return Promise.reject(new Error('No auth password specified')); }
 	var database = this.database;
 	return checkWhetherSiteUserAlreadyExists(database, username, siteName, authDetails.username)
 		.then(function(userAlreadyExists) {
@@ -296,29 +296,29 @@ SiteService.prototype.createSiteUser = function(username, siteName, authDetails,
 };
 
 SiteService.prototype.updateSiteUser = function(username, siteName, siteUsername, authDetails, siteAuthOptions) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!siteUsername) { return Promise.reject(new HttpError(400, 'No user specified')); }
-	if (!authDetails) { return Promise.reject(new HttpError(400, 'No auth details specified')); }
-	if (!authDetails.username) { return Promise.reject(new HttpError(400, 'No auth username specified')); }
-	if (!authDetails.password) { return Promise.reject(new HttpError(400, 'No auth password specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!siteUsername) { return Promise.reject(new Error('No user specified')); }
+	if (!authDetails) { return Promise.reject(new Error('No auth details specified')); }
+	if (!authDetails.username) { return Promise.reject(new Error('No auth username specified')); }
+	if (!authDetails.password) { return Promise.reject(new Error('No auth password specified')); }
 	var database = this.database;
 	return updateSiteUser(database, username, siteName, siteUsername, authDetails, siteAuthOptions);
 };
 
 
 SiteService.prototype.deleteSiteUser = function(username, siteName, siteUsername) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
-	if (!siteUsername) { return Promise.reject(new HttpError(400, 'No user specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!siteUsername) { return Promise.reject(new Error('No user specified')); }
 	var database = this.database;
 	return deleteSiteUser(database, username, siteName, siteUsername);
 };
 
 SiteService.prototype.retrieveFileMetadata = function(username, adapterName, filePath) {
-	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
-	if (!adapterName) { return Promise.reject(new HttpError(400, 'No adapter specified')); }
-	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!adapterName) { return Promise.reject(new Error('No adapter specified')); }
+	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
 	var database = this.database;
 	var adapters = this.adapters;
 	var userService = new UserService(database);
