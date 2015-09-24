@@ -1,8 +1,11 @@
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 var Handlebars = require('handlebars');
 var showdown = require('showdown');
+var slug = require('slug');
+var bytes = require('bytes');
 
 var templateCache = {};
 var compilerConfig = {};
@@ -69,8 +72,10 @@ function createHandlebarsCompiler(config) {
 		registerBooleanHelpers(compiler);
 		registerArrayHelpers(compiler);
 		registerStringHelpers(compiler);
+		registerDateHelpers(compiler);
 		registerSerializerHelpers(compiler);
 		registerSiteHelpers(compiler, config);
+		registerFileHelpers(compiler);
 
 
 		function registerBooleanHelpers(compiler) {
@@ -106,8 +111,8 @@ function createHandlebarsCompiler(config) {
 		}
 
 		function registerArrayHelpers(compiler) {
-			compiler.registerHelper('is-array', function(item, options) {
-				return Array.isArray(item);
+			compiler.registerHelper('is-array', function(value, options) {
+				return Array.isArray(value);
 			});
 		}
 
@@ -126,6 +131,20 @@ function createHandlebarsCompiler(config) {
 				var safeValue = Handlebars.Utils.escapeExpression(value);
 				var escapedValue = safeValue.replace(/\n/g, '&#10;').replace(/\r/g, '&#13;');
 				return new Handlebars.SafeString(escapedValue);
+			});
+			compiler.registerHelper('slug', function(value, options) {
+				return slug(value, { lower: true });
+			});
+		}
+
+		function registerDateHelpers(compiler) {
+			compiler.registerHelper('timestamp', function(value, options) {
+				return (value ? Math.floor(value.getTime() / 1000) : null);
+			});
+			compiler.registerHelper('date', function(value, options) {
+				var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+				var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dev'];
+				return DAYS[value.getDay()] + ' ' + value.getDate() + ' ' + MONTHS[value.getMonth()] + ' ' + value.getFullYear();
 			});
 		}
 
@@ -158,11 +177,77 @@ function createHandlebarsCompiler(config) {
 				return config.context.themeRoot + filePath;
 			});
 			compiler.registerHelper('downloadUrl', function(file) {
-				return config.context.siteRoot + 'download' + file.url;
+				return config.context.siteRoot + 'download' + file.path;
 			});
 			compiler.registerHelper('thumbnailUrl', function(file) {
-				return config.context.siteRoot + 'thumbnail' + file.url;
+				return config.context.siteRoot + 'thumbnail' + file.path;
 			});
+		}
+
+		function registerFileHelpers(compiler) {
+			compiler.registerHelper('label', function(value, options) {
+				var label = path.basename(value.path, path.extname(value.path));
+				return stripLeadingNumber(label);
+
+
+				function stripLeadingNumber(string) {
+					return string.replace(/^[0-9]+[ \.\-\|]*/, '');
+				}
+			});
+			compiler.registerHelper('basename', function(value, options) {
+				return path.basename(value.path);
+			});
+			compiler.registerHelper('extension', function(value, options) {
+				return path.extname(value.path).replace(/^\./, '');
+			});
+			compiler.registerHelper('filesize', function(value, options) {
+				return bytes.format(value.size, { precision: 1 });
+			});
+			compiler.registerHelper('files', function(value, options) {
+				if (!value.contents) { return null; }
+				return value.contents.filter(function(file) {
+					return !file.directory;
+				}).sort(function(file1, file2) {
+					return sortByPrefixedFilename(file1, file2) || sortByLastModified(file1, file2);
+				});
+			});
+			compiler.registerHelper('folders', function(value, options) {
+				if (!value.contents) { return null; }
+				return value.contents.filter(function(file) {
+					return file.directory;
+				}).sort(function(file1, file2) {
+					return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
+				});
+			});
+
+
+			function sortByPrefixedFilename(file1, file2) {
+				var file1Filename = path.basename(file1.path);
+				var file2Filename = path.basename(file2.path);
+				var file1Prefix = parseInt(file1Filename);
+				var file2Prefix = parseInt(file2Filename);
+				var file1HasPrefix = !isNaN(file1Prefix);
+				var file2HasPrefix = !isNaN(file2Prefix);
+				if (!file1HasPrefix && !file2HasPrefix) { return 0; }
+				if (file1HasPrefix && !file2HasPrefix) { return -1; }
+				if (file2HasPrefix && !file1HasPrefix) { return 1; }
+				if (file1Prefix === file2Prefix) {
+					return sortByFilename(file1, file2);
+				}
+				return file1Prefix - file2Prefix;
+			}
+
+			function sortByFilename(file1, file2) {
+				var file1Filename = path.basename(file1.path);
+				var file2Filename = path.basename(file2.path);
+				return (file1Filename.toLowerCase() < file2Filename.toLowerCase() ? -1 : 1);
+			}
+
+			function sortByLastModified(file1, file2) {
+				var file1Date = file1.modified;
+				var file2Date = file2.modified;
+				return file2Date.getTime() - file1Date.getTime();
+			}
 		}
 	}
 }
