@@ -15,6 +15,7 @@ var FileModel = require('../models/FileModel');
 var HttpError = require('../errors/HttpError');
 
 function DropboxAdapter(database, options) {
+	options = options || {};
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
@@ -33,13 +34,11 @@ function DropboxAdapter(database, options) {
 	this.registerCallbackUrl = registerCallbackUrl;
 }
 
-DropboxAdapter.prototype.getUploadConfig = function(sitePath, options) {
-	return {
-		name: 'dropbox',
-		path: sitePath,
-		token: options.token
-	};
-};
+DropboxAdapter.prototype.database = null;
+DropboxAdapter.prototype.appKey = null;
+DropboxAdapter.prototype.appSecret = null;
+DropboxAdapter.prototype.loginCallbackUrl = null;
+DropboxAdapter.prototype.registerCallbackUrl = null;
 
 DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;
@@ -281,6 +280,14 @@ DropboxAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 					return parseStatModel(stat);
 				});
 		});
+};
+
+DropboxAdapter.prototype.getUploadConfig = function(sitePath, options) {
+	return {
+		name: 'dropbox',
+		path: sitePath,
+		token: options.token
+	};
 };
 
 
