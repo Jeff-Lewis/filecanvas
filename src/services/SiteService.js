@@ -167,6 +167,9 @@ SiteService.prototype.updateSite = function(username, siteName, updates) {
 		if (!isUpdatingSiteRoot) { return Promise.resolve(false); }
 		return getSiteRoot(database, username, siteName)
 			.then(function(existingSiteRoot) {
+				if (!existingSiteRoot || !updates.root) {
+					return existingSiteRoot !== updates.root;
+				}
 				var siteRootHasChanged =
 					(existingSiteRoot.adapter !== updates.root.adapter) ||
 					(existingSiteRoot.path !== updates.root.path);
