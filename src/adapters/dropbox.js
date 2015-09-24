@@ -277,7 +277,7 @@ DropboxAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 		.then(function(dropboxClient) {
 			return dropboxClient.retrieveFileMetadata(filePath)
 				.then(function(stat) {
-					return parseStatModel(stat);
+					return parseStatModel(stat.json());
 				});
 		});
 };
@@ -332,9 +332,11 @@ function parseStatModel(statModel, rootPath) {
 	};
 	if (statModel.is_dir) {
 		fileMetadata.directory = true;
-		fileMetadata.contents = statModel.contents.map(function(childStatModel) {
-			return parseStatModel(childStatModel, rootPath);
-		});
+		if (statModel.contents) {
+			fileMetadata.contents = statModel.contents.map(function(childStatModel) {
+				return parseStatModel(childStatModel, rootPath);
+			});
+		}
 	}
 	return new FileModel(fileMetadata);
 }
