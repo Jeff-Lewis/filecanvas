@@ -24,6 +24,7 @@ function LocalAdaptor(database, options) {
 }
 
 LocalAdaptor.prototype.database = null;
+LocalAdaptor.prototype.authConfig = null;
 
 LocalAdaptor.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;
