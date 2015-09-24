@@ -104,7 +104,7 @@ Shunt.prototype.validateFolder = function(adapter, path) {
 	};
 	return $.ajax(url, settings)
 		.then(function(data, textStatus, jqXHR) {
-			var isValidFolder = data && data.is_dir && !data.is_deleted;
+			var isValidFolder = Boolean(data && data.directory);
 			return isValidFolder;
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {

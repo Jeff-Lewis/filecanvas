@@ -245,26 +245,6 @@ DropboxAdapter.prototype.loadFolderContents = function(folderPath, options) {
 				cache: dropboxContents
 			};
 		});
-
-
-		function parseStatModel(statModel, folderPath) {
-			if (!statModel) { return null; }
-			var fileMetadata = {
-				path: statModel.path.replace(folderPath, '') || '/',
-				mimeType: statModel.mime_type,
-				size: statModel.bytes,
-				modified: new Date(statModel.modified),
-				readOnly: statModel.read_only,
-				thumbnail: statModel.thumb_exists
-			};
-			if (statModel.is_dir) {
-				fileMetadata.directory = true;
-				fileMetadata.contents = statModel.contents.map(function(childStatModel) {
-					return parseStatModel(childStatModel, folderPath);
-				});
-			}
-			return new FileModel(fileMetadata);
-		}
 };
 
 DropboxAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
@@ -298,7 +278,7 @@ DropboxAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 		.then(function(dropboxClient) {
 			return dropboxClient.retrieveFileMetadata(filePath)
 				.then(function(stat) {
-					return stat.json();
+					return parseStatModel(stat);
 				});
 		});
 };
@@ -329,6 +309,28 @@ DropboxConnector.prototype.connect = function(appKey, appSecret, accessToken, ui
 		return new DropboxClient(client);
 	});
 };
+
+
+function parseStatModel(statModel, rootPath) {
+	rootPath = rootPath || '';
+	if (!statModel) { return null; }
+	if (statModel.is_deleted) { return null; }
+	var fileMetadata = {
+		path: statModel.path.replace(rootPath, '') || '/',
+		mimeType: statModel.mime_type,
+		size: statModel.bytes,
+		modified: new Date(statModel.modified),
+		readOnly: statModel.read_only,
+		thumbnail: statModel.thumb_exists
+	};
+	if (statModel.is_dir) {
+		fileMetadata.directory = true;
+		fileMetadata.contents = statModel.contents.map(function(childStatModel) {
+			return parseStatModel(childStatModel, rootPath);
+		});
+	}
+	return new FileModel(fileMetadata);
+}
 
 
 function DropboxClient(client) {
