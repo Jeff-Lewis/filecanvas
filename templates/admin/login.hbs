@@ -1,10 +1,12 @@
-<form class="form-centered center-block mb25" method="GET" action="{{ session.urls.auth.dropbox.login }}">
+<div class="form-centered center-block mb25">
 	<h1 class="text-center mb0 pl0 pr0 pb0" style="color: #e3e5e8;">Welcome to <strong>Shunt.</strong></h1>
 	<h4 class="text-center mt5 mb25">The easiest way to showcase your files</h4>
-	<button type="submit" class="btn btn-reset widget bg-white mb5">
-		<i class="widget-icon bg-success pull-left fa fa-sign-in"></i>
-		<h4>Sign in using Dropbox</h4>
-	</button>
+	<form method="POST" action="{{ session.urls.login }}/dropbox">
+		<button type="submit" class="btn btn-reset widget bg-white mb5">
+			<i class="widget-icon bg-success pull-left fa fa-sign-in"></i>
+			<h4>Sign in using Dropbox</h4>
+		</button>
+	</form>
 	<button type="button" class="btn btn-reset widget bg-white mb0" data-toggle="collapse" data-target="#create-account" aria-expanded="false" aria-controls="create-account">
 		<i class="widget-icon bg-primary pull-left fa fa-user-plus"></i>
 		<h4>Create an account</h4>
@@ -14,7 +16,7 @@
 		<h4>Create an account</h4>
 	</div>
 	<div class="collapse" id="create-account">
-		<div class="panel-body bg-white">
+		<form class="panel-body bg-white" method="POST" action="{{ session.urls.register }}/dropbox">
 			<div class="text-center">
 				<p class="mt5 mb20">
 					<label>
@@ -23,8 +25,8 @@
 						/><span class="ml10">I agree to the Shunt <a href="{{ session.urls.terms }}" target="_blank">terms and conditions</a></span>
 					</label>
 				</p>
-				<button type="submit" class="btn btn-primary mb10" formaction="{{ session.urls.auth.dropbox.register }}" disabled="disabled" data-bind-value="confirm-terms">Create account</button>
+				<button type="submit" class="btn btn-primary mb10" disabled="disabled" data-bind-value="confirm-terms">Create account</button>
 			</div>
-		</div>
+		</form>
 	</div>
-</form>
+</div>

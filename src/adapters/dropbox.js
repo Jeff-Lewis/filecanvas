@@ -33,9 +33,6 @@ function DropboxAdapter(database, options) {
 	this.registerCallbackUrl = registerCallbackUrl;
 }
 
-DropboxAdapter.prototype.loginPath = '/oauth2';
-DropboxAdapter.prototype.registerPath = '/oauth2';
-
 DropboxAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	return {
 		name: 'dropbox',
@@ -52,7 +49,7 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 
 	var app = express();
 
-	app.get('/oauth2', passport.authenticate('dropbox/login'));
+	app.post('/', passport.authenticate('dropbox/login'));
 	app.get('/oauth2/callback', passport.authenticate('dropbox/login', passportOptions), callback);
 
 	passport.use('dropbox/login', new DropboxOAuth2Strategy({
@@ -126,7 +123,7 @@ DropboxAdapter.prototype.registerMiddleware = function(passport, passportOptions
 
 	var app = express();
 
-	app.get('/oauth2', passport.authenticate('dropbox/register'));
+	app.post('/', passport.authenticate('dropbox/register'));
 	app.get('/oauth2/callback', passport.authenticate('dropbox/register', passportOptions), callback);
 
 	passport.use('dropbox/register', new DropboxOAuth2Strategy(

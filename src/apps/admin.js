@@ -277,7 +277,6 @@ module.exports = function(database, options) {
 				}
 
 				function getAdminUrls(urlService, userModel, adapters) {
-					var authUrls = getAuthPaths(adapters);
 					return {
 						webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 						domain: urlService.getSubdomainUrl('$0'),
@@ -287,26 +286,13 @@ module.exports = function(database, options) {
 						account: '/account',
 						profile: '/profile',
 						login: '/login',
+						register: '/register',
 						logout: '/logout',
 						sites: '/sites',
 						preview: '/preview',
 						terms: '/terms',
-						privacy: '/privacy',
-						auth: authUrls
+						privacy: '/privacy'
 					};
-
-
-					function getAuthPaths(adapters) {
-						return Object.keys(adapters).reduce(function(authPaths, key) {
-							var adapterName = key;
-							var adapter = adapters[key];
-							authPaths[adapterName] = {
-								login: '/login/' + adapterName + adapter.loginPath,
-								register: '/register/' + adapterName + adapter.registerPath
-							};
-							return authPaths;
-						}, {});
-					}
 				}
 			}
 		}
