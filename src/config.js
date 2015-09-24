@@ -16,6 +16,13 @@ config.https.cert = process.env.HTTPS_CERT ? fs.readFileSync(process.env.HTTPS_C
 
 config.adapters = {};
 
+if (process.env.LOCAL === 'true') {
+	config.adapters.local = {};
+	config.adapters.local.auth = {};
+	config.adapters.local.auth.strategy = 'bcrypt';
+	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };
+}
+
 if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox = {};
 	config.adapters.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
@@ -36,9 +43,6 @@ config.themes.default = process.env.THEMES_DEFAULT || null;
 config.auth = {};
 config.auth.site = {};
 config.auth.site.strategy = 'bcrypt';
-config.auth.site.strength = process.env.AUTH_SITE_BCRYPT_STRENGTH || 10;
-config.auth.local = {};
-config.auth.local.strategy = 'bcrypt';
-config.auth.local.strength = process.env.AUTH_LOCAL_BCRYPT_STRENGTH || 10;
+config.auth.site.options = { strength: process.env.SITE_USER_BCRYPT_STRENGTH || 10 };
 
 module.exports = config;

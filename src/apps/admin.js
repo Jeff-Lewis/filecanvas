@@ -170,18 +170,23 @@ module.exports = function(database, options) {
 			Object.keys(adapters).forEach(function(key) {
 				var adapterName = key;
 				var adapter = adapters[key];
-				app.use('/login/' + adapterName, adapter.loginMiddleware(passport, { failureRedirect: '/register' }, onLoggedIn));
+				var loginCallback = createLoginCallback(adapterName);
+				var loginMiddleware = adapter.loginMiddleware(passport, { failureRedirect: '/register' }, loginCallback);
+				app.use('/login/' + adapterName, loginMiddleware);
 			});
 
 
-			function onLoggedIn(req, res) {
-				if (req.session.loginRedirect) {
-					var redirectUrl = req.session.loginRedirect;
-					delete req.session.loginRedirect;
-					res.redirect(redirectUrl);
-				} else {
-					res.redirect('/');
-				}
+			function createLoginCallback(adapterName) {
+				return function(req, res) {
+					req.session.adapter = adapterName;
+					if (req.session.loginRedirect) {
+						var redirectUrl = req.session.loginRedirect;
+						delete req.session.loginRedirect;
+						res.redirect(redirectUrl);
+					} else {
+						res.redirect('/');
+					}
+				};
 			}
 		}
 	}
@@ -214,7 +219,7 @@ module.exports = function(database, options) {
 		var adapters = options.adapters;
 		var adaptersConfig = options.adaptersConfig;
 
-		initPublicRoutes(app, passport);
+		initPublicRoutes(app, passport, adapters);
 		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
@@ -318,7 +323,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPublicRoutes(app, passport) {
+		function initPublicRoutes(app, passport, adapters) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
 			app.get('/register', redirectIfLoggedIn, redirectIfNoPendingUser, initAdminSession, retrieveRegisterRoute);
 			app.post('/register', redirectIfLoggedIn, redirectIfNoPendingUser, initAdminSession, processRegisterRoute);
@@ -341,11 +346,17 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveLoginRoute(req, res, next) {
+				var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
+					adaptersHash[key] = true;
+					return adaptersHash;
+				}, {});
 				var templateData = {
 					title: 'Login',
 					navigation: false,
 					footer: true,
-					content: null
+					content: {
+						adapters: adaptersHash
+					}
 				};
 				renderAdminPage(req, res, 'login', templateData)
 					.catch(function(error) {
@@ -978,14 +989,20 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveLogoutRoute(req, res, next) {
+				var adapterName = req.session.adapter;
 				req.logout();
 				req.session.regenerate(function(error) {
-					if (error) { next(error); }
+					if (error) { return next(error); }
+					if (adapterName === 'local') {
+						return res.redirect('/');
+					}
 					var templateData = {
 						title: 'Logout',
 						navigation: true,
 						footer: true,
-						content: null
+						content: {
+							adapter: adapterName
+						}
 					};
 					renderAdminPage(req, res, 'logout', templateData)
 						.catch(function(error) {

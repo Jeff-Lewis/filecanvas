@@ -61,18 +61,10 @@ AuthenticationService.prototype.authenticate = function(username, password, vali
 	}
 };
 
-AuthenticationService.prototype.create = function(username, password, options) {
+AuthenticationService.prototype.create = function(username, password, strategy, options) {
 	options = options || {};
-	var strategy = options.strategy || null;
 	if (!strategy) { return Promise.reject('No authentication strategy specified'); }
-	var strategyOptions = Object.keys(options).filter(
-		function(key) { return key !== 'strategy'; }
-	).reduce(function(strategyOptions, key) {
-		strategyOptions[key] = options[key];
-		return strategyOptions;
-	}, {});
-
-	return generatePasswordHash(strategy, password, strategyOptions)
+	return generatePasswordHash(strategy, password, options)
 		.then(function(hash) {
 			return {
 				strategy: strategy,
@@ -82,12 +74,12 @@ AuthenticationService.prototype.create = function(username, password, options) {
 		});
 
 
-	function generatePasswordHash(strategy, password, strategyOptions) {
+	function generatePasswordHash(strategy, password, options) {
 		switch (strategy) {
 			case STRATEGY_BCRYPT:
-				return generateBcryptPasswordHash(password, strategyOptions);
+				return generateBcryptPasswordHash(password, options);
 			case STRATEGY_SHA256:
-				return generateSha256PasswordHash(password, strategyOptions);
+				return generateSha256PasswordHash(password, options);
 			default:
 				throw new Error('Invalid strategy: ' + strategy);
 		}
