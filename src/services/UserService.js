@@ -59,6 +59,16 @@ UserService.prototype.registerUser = function(userDetails, adapterName, adapterC
 				if (!usernameExists) { return username; }
 				return generateUniqueUsername(database, username);
 			});
+
+
+		function generateUniqueUsername(database, username) {
+			return getExistingUsernames(database, username)
+				.then(function(existingUsernames) {
+					var index = 1;
+					while (existingUsernames.indexOf(username + index) !== -1) { index++; }
+					return username + index;
+				});
+		}
 	}
 };
 
@@ -162,15 +172,6 @@ function checkWhetherUsernameExists(database, username) {
 		});
 }
 
-function generateUniqueUsername(database, username) {
-	return getExistingUsernames(database, username)
-		.then(function(existingUsernames) {
-			var index = 1;
-			while (existingUsernames.indexOf(username + index) !== -1) { index++; }
-			return username + index;
-		});
-}
-
 function getExistingUsernames(database, username) {
 	var pattern = new RegExp('^' + escapeRegExp(username) + '\d+$');
 	var query = { username: pattern };
@@ -186,14 +187,12 @@ function getExistingUsernames(database, username) {
 		});
 }
 
-
 function createUser(database, userModel) {
 	return database.collection(DB_COLLECTION_USERS).insertOne(userModel)
 		.then(function() {
 			return userModel;
 		});
 }
-
 
 function retrieveUser(database, query) {
 	var fields = [
@@ -222,7 +221,6 @@ function retrieveUserAdapters(database, username) {
 			return userModel.adapters;
 		});
 }
-
 
 function updateUser(database, username, fields) {
 	var filter = { 'username': username };
