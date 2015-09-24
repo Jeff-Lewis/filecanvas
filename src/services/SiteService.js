@@ -65,7 +65,7 @@ SiteService.prototype.createSite = function(siteModel) {
 						user: userModel,
 						site: siteModel
 					};
-					return generateSiteFiles(sitePath, context)
+					return generateSiteFiles(context)
 						.then(function(siteFiles) {
 							var siteRoot = siteModel.root;
 							var siteAdapter = siteRoot.adapter;
@@ -492,14 +492,15 @@ function deleteSiteUser(database, username, siteName, siteUsername) {
 		});
 }
 
-function generateSiteFiles(pathPrefix, context) {
+function generateSiteFiles(context) {
 	var templateFiles = SITE_TEMPLATE_FILES;
-	var flattenedTemplateFiles = flattenPathHierarchy(templateFiles, pathPrefix);
+	var flattenedTemplateFiles = flattenPathHierarchy(templateFiles);
 	var expandedTemplateFiles = expandPlaceholders(flattenedTemplateFiles, context);
 	return convertMarkdownFiles(expandedTemplateFiles, { pdf: false });
 
 
 	function flattenPathHierarchy(tree, pathPrefix) {
+		pathPrefix = pathPrefix || '';
 		var flattenedFiles = Object.keys(tree).reduce(function(flattenedFiles, filename) {
 			var filePath = path.join(pathPrefix, filename);
 			var fileObject = tree[filename];

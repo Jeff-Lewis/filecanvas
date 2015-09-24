@@ -147,9 +147,10 @@ DropboxAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options)
 			return checkWhetherFileExists(dropboxClient, sitePath)
 				.then(function(folderExists) {
 					if (folderExists) { return; }
-					return copySiteFiles(dropboxClient, siteFiles);
+					return copySiteFiles(dropboxClient, sitePath, siteFiles);
 				});
 		});
+
 
 	function checkWhetherFileExists(dropboxClient, filePath) {
 		return dropboxClient.retrieveFileMetadata(filePath)
@@ -165,11 +166,11 @@ DropboxAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options)
 			});
 	}
 
-	function copySiteFiles(dropboxClient, dirContents) {
+	function copySiteFiles(dropboxClient, sitePath, dirContents) {
 		var files = getFileListing(dirContents);
 		var writeOptions = {};
 		return Promise.resolve(mapSeries(files, function(fileMetaData) {
-			var filePath = fileMetaData.path;
+			var filePath = sitePath + '/' + fileMetaData.path;
 			var fileContents = fileMetaData.contents;
 			return dropboxClient.writeFile(filePath, fileContents, writeOptions);
 		}).then(function(results) {
@@ -288,7 +289,7 @@ function parseStatModel(statModel, rootPath) {
 	rootPath = rootPath || '';
 	if (!statModel) { return null; }
 	if (statModel.is_deleted) { return null; }
-	var fileMetadata = {
+	var fileMetaData = {
 		path: statModel.path.replace(rootPath, '') || '/',
 		mimeType: statModel.mime_type,
 		size: statModel.bytes,
@@ -297,14 +298,14 @@ function parseStatModel(statModel, rootPath) {
 		thumbnail: statModel.thumb_exists
 	};
 	if (statModel.is_dir) {
-		fileMetadata.directory = true;
+		fileMetaData.directory = true;
 		if (statModel.contents) {
-			fileMetadata.contents = statModel.contents.map(function(childStatModel) {
+			fileMetaData.contents = statModel.contents.map(function(childStatModel) {
 				return parseStatModel(childStatModel, rootPath);
 			});
 		}
 	}
-	return new FileModel(fileMetadata);
+	return new FileModel(fileMetaData);
 }
 
 
