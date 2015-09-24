@@ -8,6 +8,8 @@ var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 var DropboxService = require('../services/DropboxService');
 var UserService = require('../services/UserService');
 
+var FileModel = require('../models/FileModel');
+
 var HttpError = require('../errors/HttpError');
 
 function DropboxAdapter(database, options) {
@@ -238,14 +240,32 @@ DropboxAdapter.prototype.loadFolderContents = function(folderPath, options) {
 			return dropboxClient.loadFolderContents(folderPath, cache);
 		})
 		.then(function(dropboxContents) {
+			var folder = parseStatModel(dropboxContents.data, folderPath);
 			return {
-				files: dropboxContents.files,
-				cache: {
-					data: dropboxContents.cache,
-					cursor: dropboxContents.cursor
-				}
+				root: folder,
+				cache: dropboxContents
 			};
 		});
+
+
+		function parseStatModel(statModel, folderPath) {
+			if (!statModel) { return null; }
+			var fileMetadata = {
+				path: statModel.path.replace(folderPath, '') || '/',
+				mimeType: statModel.mime_type,
+				size: statModel.bytes,
+				modified: new Date(statModel.modified),
+				readOnly: statModel.read_only,
+				thumbnail: statModel.thumb_exists
+			};
+			if (statModel.is_dir) {
+				fileMetadata.directory = true;
+				fileMetadata.contents = statModel.contents.map(function(childStatModel) {
+					return parseStatModel(childStatModel, folderPath);
+				});
+			}
+			return new FileModel(fileMetadata);
+		}
 };
 
 DropboxAdapter.prototype.retrieveDownloadLink = function(filePath, options) {

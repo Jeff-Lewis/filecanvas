@@ -1,6 +1,5 @@
 'use strict';
 
-var escapeRegExp = require('escape-regexp');
 var path = require('path');
 var objectAssign = require('object-assign');
 var isTextOrBinary = require('istextorbinary');
@@ -101,12 +100,10 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 			if (!includeContents) { return siteModel; }
 			var hasSiteFolder = (siteModel.root !== null);
 			if (!hasSiteFolder) { return null; }
-			var siteRoot = siteModel.root;
-			var sitePath = siteRoot.path;
 			var siteCache = siteModel.cache;
 			var canUseCachedContents = Boolean(siteCache) && getIsCacheValid(siteCache.site, cacheDuration);
 			if (canUseCachedContents) {
-				siteModel.contents = parseFileModel(siteCache.site.contents, sitePath);
+				siteModel.contents = siteCache.site.contents;
 				return siteModel;
 			}
 			return retrieveUserAdapters(database, username)
@@ -123,7 +120,7 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 						.then(function(folder) {
 							var siteCache = {
 								site: {
-									contents: folder.files,
+									contents: folder.root,
 									updated: new Date()
 								},
 								adapter: folder.cache
@@ -131,7 +128,7 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 							return updateSiteCache(database, username, siteName, siteCache)
 								.then(function() {
 									siteModel.cache = siteCache;
-									siteModel.contents = parseFileModel(siteCache.site.contents, sitePath);
+									siteModel.contents = siteCache.site.contents;
 									return siteModel;
 								});
 						});
@@ -144,78 +141,6 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 		var lastCacheUpdateDate = cache.updated;
 		var delta = (new Date() - lastCacheUpdateDate);
 		return (delta <= cacheDuration);
-	}
-
-	function parseFileModel(file, rootFolderPath) {
-		if (!file) { return null; }
-
-		file.url = getFileUrl(file.path, rootFolderPath);
-
-		if (file.is_dir) {
-			file.contents = file.contents.map(function(file) {
-				return parseFileModel(file, rootFolderPath);
-			});
-		}
-
-		Object.defineProperty(file, 'folders', {
-			'get': function() {
-				if (!this.contents) { return null; }
-				var folders = this.contents.filter(function(fileModel) {
-					return fileModel.is_dir;
-				});
-				var sortedFolders = folders.sort(function(file1, file2) {
-					return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
-				});
-				return sortedFolders;
-			}
-		});
-
-		Object.defineProperty(file, 'files', {
-			'get': function() {
-				if (!this.contents) { return null; }
-				var files = this.contents.filter(function(fileModel) {
-					return !fileModel.is_dir;
-				});
-				var sortedFiles = files.sort(function(file1, file2) {
-					return sortByPrefixedFilename(file1, file2) || sortByLastModified(file1, file2);
-				});
-				return sortedFiles;
-			}
-		});
-
-		return file;
-
-
-		function getFileUrl(path, rootFolderPath) {
-			var rootFolderRegExp = new RegExp('^' + escapeRegExp(rootFolderPath), 'i');
-			var isExternalPath = path.toLowerCase().indexOf(rootFolderPath.toLowerCase()) !== 0;
-			if (isExternalPath) { throw new Error('Invalid file path: "' + path + '"'); }
-			return path.replace(rootFolderRegExp, '').split('/').map(encodeURIComponent).join('/');
-		}
-
-		function sortByPrefixedFilename(file1, file2) {
-			var file1Filename = file1.name;
-			var file2Filename = file2.name;
-			var file1Prefix = parseInt(file1Filename);
-			var file2Prefix = parseInt(file2Filename);
-			var file1HasPrefix = !isNaN(file1Prefix);
-			var file2HasPrefix = !isNaN(file2Prefix);
-			if (!file1HasPrefix && !file2HasPrefix) { return 0; }
-			if (file1HasPrefix && !file2HasPrefix) { return -1; }
-			if (file2HasPrefix && !file1HasPrefix) { return 1; }
-			if (file1Prefix === file2Prefix) {
-				return sortByFilename(file1, file2);
-			}
-			return file1Prefix - file2Prefix;
-		}
-
-		function sortByFilename(file1, file2) {
-			return (file1.name.toLowerCase() < file2.name.toLowerCase() ? -1 : 1);
-		}
-
-		function sortByLastModified(file1, file2) {
-			return (file2.timestamp - file1.timestamp);
-		}
 	}
 };
 

@@ -3,7 +3,6 @@
 var path = require('path');
 var Dropbox = require('dropbox');
 var objectAssign = require('object-assign');
-var slug = require('slug');
 
 var HttpError = require('../errors/HttpError');
 
@@ -120,8 +119,7 @@ DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 					return loadFolder(client, updatedCursor, options, cache);
 				} else {
 					return {
-						files: parseStatModel(cache),
-						cache: cache,
+						data: cache,
 						cursor: updatedCursor
 					};
 				}
@@ -158,59 +156,6 @@ DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 						objectAssign(dictionary, childEntries);
 					}
 					return dictionary;
-				}
-
-				function parseStatModel(statModel) {
-					if (!statModel) { return null; }
-					var fileMetadata = Object.keys(statModel)
-						.filter(function(property) {
-							return (property.charAt(0) !== '_') && (property !== 'contents');
-						}).reduce(function(fileMetadata, property) {
-							fileMetadata[property] = statModel[property];
-							return fileMetadata;
-						}, {});
-
-					fileMetadata.name = path.basename(fileMetadata.path);
-					fileMetadata.alias = slug(fileMetadata.name, { lower: true });
-
-					var modifiedDate = new Date(fileMetadata.modified);
-					fileMetadata.date = formatDate(modifiedDate);
-					fileMetadata.timestamp = getTimestamp(modifiedDate);
-
-					if (fileMetadata.is_dir) {
-						fileMetadata.label = stripLeadingNumber(fileMetadata.name);
-						fileMetadata.contents = statModel.contents.map(function(childStatModel) {
-							return parseStatModel(childStatModel);
-						});
-					} else {
-						fileMetadata.label = stripLeadingNumber(stripFileExtension(fileMetadata.name));
-						fileMetadata.extension = getFileExtension(fileMetadata.name);
-					}
-					return fileMetadata;
-
-
-					function getTimestamp(date) {
-						return Math.floor(date.getTime() / 1000);
-					}
-
-					function formatDate(date) {
-						var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-						var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dev'];
-						return DAYS[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear();
-					}
-
-					function stripLeadingNumber(string) {
-						return string.replace(/^[0-9]+[ \.\-\|]*/, '');
-					}
-
-					function getFileExtension(filename) {
-						var extname = path.extname(filename);
-						return extname.substr(extname.indexOf('.') + 1);
-					}
-
-					function stripFileExtension(filename) {
-						return path.basename(filename, path.extname(filename));
-					}
 				}
 			});
 
