@@ -6,15 +6,13 @@ var mapSeries = require('promise-map-series');
 var express = require('express');
 var LocalStrategy = require('passport-local').Strategy;
 var mkdirp = require('mkdirp');
-var Mode = require('stat-mode');
-var mime = require('mime');
 var slug = require('slug');
 
 var AuthenticationService = require('../services/AuthenticationService');
 var RegistrationService = require('../services/RegistrationService');
 var UserService = require('../services/UserService');
 
-var FileModel = require('../models/FileModel');
+var parseStatModel = require('../utils/parseStatModel');
 
 var HttpError = require('../errors/HttpError');
 
@@ -212,7 +210,7 @@ LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 	return new Promise(function(resolve, reject) {
 		fs.stat(filePath, function(error, stat) {
 			if (error) { return reject(error); }
-			var fileModel = parseStatModel(stat);
+			var fileModel = parseStatModel(stat, filePath);
 			resolve(fileModel);
 		});
 	});
@@ -235,18 +233,6 @@ LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	};
 };
 
-function parseStatModel(stat, filePath) {
-	var ownerCanWrite = new Mode(stat).owner.write;
-	var fileMetaData = {
-		path: filePath,
-		mimeType: stat.isFile() ? mime.lookup(filePath) : null,
-		size: stat.size,
-		modified: stat.mtime,
-		readOnly: !ownerCanWrite,
-		thumbnail: false,
-		directory: stat.isDirectory()
-	};
-	return new FileModel(fileMetaData);
-}
+
 
 module.exports = LocalAdapter;
