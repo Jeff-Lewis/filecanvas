@@ -2,6 +2,7 @@
 /*.env
 
 /db/data/
+/sites
 
 /keys/cert.pem
 /keys/key.pem
