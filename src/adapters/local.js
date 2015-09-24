@@ -117,7 +117,7 @@ LocalAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 		var fullPath = path.join(sitesRoot, filePath);
 		return new Promise(function(resolve, reject) {
 			fs.stat(fullPath, function(error, stat) {
-				if (error.code === 'ENOENT') {
+				if (error && (error.code === 'ENOENT')) {
 					return resolve(false);
 				}
 				if (error) { return reject(error); }
