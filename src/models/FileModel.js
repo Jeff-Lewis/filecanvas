@@ -9,7 +9,7 @@ function FileModel(options) {
 	this.thumbnail = Boolean(options.thumbnail);
 	if (options.directory) {
 		this.directory = Boolean(options.directory);
-		this.contents = options.contents ? options.contents.slice() : [];
+		this.contents = options.contents ? options.contents.slice() : null;
 	}
 }
 
