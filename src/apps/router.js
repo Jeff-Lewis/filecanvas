@@ -24,6 +24,48 @@ module.exports = function(database, config) {
 
 	var app = express();
 
+	if (config.adapters.local) {
+		config.adapters.local.download = getSubdomainUrl('download', {
+			host: host,
+			httpPort: config.http.port,
+			httpsPort: config.https.port
+		});
+	}
+
+	var subdomains = {
+		'ping': pingApp(),
+		'www': wwwApp({
+			sitePath: path.resolve(__dirname, '../../templates/www')
+		}),
+		'themes': themesApp({
+			themesPath: path.resolve(__dirname, '../../templates/themes')
+		}),
+		'my': adminApp(database, {
+			host: config.host,
+			themesPath: path.resolve(__dirname, '../../templates/themes'),
+			defaultSiteTheme: config.themes.default,
+			themesUrl: config.themes.root,
+			adapters: config.adapters,
+			siteAuth: config.auth.site
+		}),
+		'sites': sitesApp(database, {
+			host: config.host,
+			themesUrl: config.themes.root,
+			adapters: config.adapters
+		}),
+		'test': redirectToSubdomain({
+			subdomain: 'www'
+		}),
+		'*': 'sites',
+		'': redirectToSubdomain({
+			subdomain: 'www'
+		})
+	};
+
+	if (config.adapters.local) {
+		subdomains['download'] = express.static(config.adapters.local.root);
+	}
+
 	initMiddleware(app, {
 		host: config.host,
 		https: Boolean(config.https.port)
@@ -35,35 +77,7 @@ module.exports = function(database, config) {
 
 	initSubdomains(app, {
 		host: config.host,
-		subdomains: {
-			'ping': pingApp(),
-			'www': wwwApp({
-				sitePath: path.resolve(__dirname, '../../templates/www')
-			}),
-			'themes': themesApp({
-				themesPath: path.resolve(__dirname, '../../templates/themes')
-			}),
-			'my': adminApp(database, {
-				host: config.host,
-				themesPath: path.resolve(__dirname, '../../templates/themes'),
-				defaultSiteTheme: config.themes.default,
-				themesUrl: config.themes.root,
-				adapters: config.adapters,
-				siteAuth: config.auth.site
-			}),
-			'sites': sitesApp(database, {
-				host: config.host,
-				themesUrl: config.themes.root,
-				adapters: config.adapters
-			}),
-			'test': redirectToSubdomain({
-				subdomain: 'www'
-			}),
-			'*': 'sites',
-			'': redirectToSubdomain({
-				subdomain: 'www'
-			})
-		}
+		subdomains: subdomains
 	});
 
 	initErrorHandler(app, {
@@ -148,5 +162,17 @@ module.exports = function(database, config) {
 		var template = options.template;
 
 		app.use(errorHandler({ template: template }));
+	}
+
+	function getSubdomainUrl(subdomain, options) {
+		options = options || {};
+		var host = options.host;
+		var httpPort = options.httpPort;
+		var httpsPort = options.httpsPort;
+		if (httpsPort) {
+			return 'https://' + subdomain + '.' + host + (httpsPort === 443 ? '' : ':' + httpsPort) + '/';
+		} else {
+			return 'http://' + subdomain + '.' + host + (httpPort === 80 ? '' : ':' + httpPort) + '/';
+		}
 	}
 };

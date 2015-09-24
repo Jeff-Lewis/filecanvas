@@ -1,32 +1,48 @@
 'use strict';
 
+var path = require('path');
+var fs = require('fs');
+var mapSeries = require('promise-map-series');
 var express = require('express');
 var LocalStrategy = require('passport-local').Strategy;
+var mkdirp = require('mkdirp');
+var Mode = require('stat-mode');
+var mime = require('mime');
 var slug = require('slug');
 
 var AuthenticationService = require('../services/AuthenticationService');
 var RegistrationService = require('../services/RegistrationService');
 var UserService = require('../services/UserService');
 
+var FileModel = require('../models/FileModel');
+
 var HttpError = require('../errors/HttpError');
 
-function LocalAdaptor(database, options) {
+function LocalAdapter(database, options) {
 	options = options || {};
 	var authConfig = options.auth || null;
+	var sitesRoot = options.root || null;
+	var downloadUrl = options.download || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!authConfig) { throw new Error('Missing local auth config'); }
 	if (!authConfig.strategy) { throw new Error('Missing local auth strategy'); }
 	if (!authConfig.options) { throw new Error('Missing local auth options'); }
+	if (!sitesRoot) { throw new Error('Missing local sites root'); }
+	if (!downloadUrl) { throw new Error('Missing local download URL'); }
 
 	this.database = database;
 	this.authConfig = authConfig;
+	this.sitesRoot = sitesRoot;
+	this.downloadUrl = downloadUrl;
 }
 
-LocalAdaptor.prototype.database = null;
-LocalAdaptor.prototype.authConfig = null;
+LocalAdapter.prototype.database = null;
+LocalAdapter.prototype.authConfig = null;
+LocalAdapter.prototype.sitesRoot = null;
+LocalAdapter.prototype.downloadUrl = null;
 
-LocalAdaptor.prototype.loginMiddleware = function(passport, passportOptions, callback) {
+LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;
 	var authConfig = this.authConfig;
 	var userService = new UserService(database);
@@ -88,4 +104,149 @@ LocalAdaptor.prototype.loginMiddleware = function(passport, passportOptions, cal
 	return app;
 };
 
-module.exports = LocalAdaptor;
+LocalAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
+	var sitesRoot = this.sitesRoot;
+	return checkWhetherFileExists(sitePath)
+		.then(function(folderExists) {
+			if (folderExists) { return; }
+			return copySiteFiles(sitePath, siteFiles);
+		});
+
+
+	function checkWhetherFileExists(filePath) {
+		var fullPath = path.join(sitesRoot, filePath);
+		return new Promise(function(resolve, reject) {
+			fs.stat(fullPath, function(error, stat) {
+				if (error.code === 'ENOENT') {
+					return resolve(false);
+				}
+				if (error) { return reject(error); }
+				var fileExists = Boolean(stat);
+				return resolve(fileExists);
+			});
+		});
+	}
+
+	function copySiteFiles(sitePath, dirContents) {
+		var files = getFileListing(dirContents);
+		return Promise.resolve(mapSeries(files, function(fileMetaData) {
+			var filePath = path.join(sitePath, fileMetaData.path);
+			var fullPath = path.join(sitesRoot, filePath);
+			var fileContents = fileMetaData.contents;
+			return writeFile(fullPath, fileContents);
+		}).then(function(results) {
+			return;
+		}));
+
+
+		function getFileListing(namedFiles) {
+			var files = Object.keys(namedFiles)
+				.sort(function(filePath1, filePath2) {
+					return (filePath1 < filePath2 ? -1 : 1);
+				})
+				.map(function(filePath) {
+					var file = namedFiles[filePath];
+					return {
+						path: filePath,
+						contents: file
+					};
+				});
+			return files;
+		}
+
+		function writeFile(filePath, fileContents) {
+			return new Promise(function(resolve, reject) {
+				var parentPath = path.dirname(filePath);
+				mkdirp(parentPath, function(error) {
+					if (error) { return reject(error); }
+					var stream = fs.createWriteStream(filePath);
+					stream.on('finish', resolve);
+					stream.on('error', reject);
+					stream.write(fileContents);
+					stream.end();
+				});
+			});
+		}
+	}
+};
+
+LocalAdapter.prototype.loadFolderContents = function(folderPath, options) {
+	var sitesRoot = this.sitesRoot;
+	var fullPath = path.join(sitesRoot, folderPath);
+	return loadFileListing(fullPath, fullPath)
+		.then(function(rootFolder) {
+			return {
+				root: rootFolder,
+				cache: null
+			};
+		});
+
+
+	function loadFileListing(filePath, rootPath) {
+		return new Promise(function(resolve, reject) {
+			fs.stat(filePath, function(error, stat) {
+				if (error) { return reject(error); }
+				var relativePath = filePath.replace(rootPath, '') || '/';
+				var fileModel = parseStatModel(stat, relativePath);
+				if (stat.isFile()) {
+					return resolve(fileModel);
+				}
+				fs.readdir(filePath, function(error, filenames) {
+					if (error) { return reject(error); }
+					mapSeries(filenames, function(filename) {
+						var childFilePath = path.join(filePath, filename);
+						return loadFileListing(childFilePath, rootPath);
+					}).then(function(files) {
+						fileModel.contents = files;
+						return fileModel;
+					}).then(function(fileModel) {
+						resolve(fileModel);
+					});
+				});
+			});
+		});
+	}
+};
+
+LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
+	return new Promise(function(resolve, reject) {
+		fs.stat(filePath, function(error, stat) {
+			if (error) { return reject(error); }
+			var fileModel = parseStatModel(stat);
+			resolve(fileModel);
+		});
+	});
+};
+
+LocalAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
+	var downloadUrl = this.downloadUrl;
+	var relativePath = filePath.replace(/^\//, '');
+	return Promise.resolve(downloadUrl + relativePath);
+};
+
+LocalAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
+	return Promise.reject(new HttpError(501));
+};
+
+LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {
+	return {
+		name: 'local',
+		path: sitePath
+	};
+};
+
+function parseStatModel(stat, filePath) {
+	var ownerCanWrite = new Mode(stat).owner.write;
+	var fileMetaData = {
+		path: filePath,
+		mimeType: stat.isFile() ? mime.lookup(filePath) : null,
+		size: stat.size,
+		modified: stat.mtime,
+		readOnly: !ownerCanWrite,
+		thumbnail: false,
+		directory: stat.isDirectory()
+	};
+	return new FileModel(fileMetaData);
+}
+
+module.exports = LocalAdapter;

@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var fs = require('fs');
 
 var config = {};
@@ -18,6 +19,7 @@ config.adapters = {};
 
 if (process.env.LOCAL === 'true') {
 	config.adapters.local = {};
+	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../sites');
 	config.adapters.local.auth = {};
 	config.adapters.local.auth.strategy = 'bcrypt';
 	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };
