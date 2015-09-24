@@ -123,15 +123,12 @@ UserService.prototype.updateUser = function(username, updates) {
 		});
 };
 
-UserService.prototype.updateUserAdapterSettings = function(username, adapter, updates) {
+UserService.prototype.updateUserAdapterSettings = function(username, adapter, adapterSettings) {
 	if (!username) { return Promise.reject(new Error('No username specified')); }
 	if (!adapter) { return Promise.reject(new Error('No adapter specified')); }
-	if (!updates) { return Promise.reject(new Error('No updates specified')); }
-	var nestedUpdates = {
-		'adapters': {}
-	};
-	nestedUpdates.adapters[adapter] = updates;
-	return this.updateUser(username, nestedUpdates);
+	if (!adapterSettings) { return Promise.reject(new Error('No adapter settings specified')); }
+	var database = this.database;
+	return updateUserAdapterSettings(database, username, adapter, adapterSettings);
 };
 
 UserService.prototype.deleteUser = function(username) {
@@ -230,6 +227,13 @@ function updateUser(database, username, fields) {
 			if (numRecords === 0) { throw new HttpError(404); }
 			return;
 		});
+}
+
+function updateUserAdapterSettings(database, username, adapter, adapterSettings) {
+	var fieldName = 'adapters.' + adapter;
+	var updates = {};
+	updates[fieldName] = adapterSettings;
+	return updateUser(database, username, updates);
 }
 
 function updateSitesUsername(database, oldUsername, newUsername) {
