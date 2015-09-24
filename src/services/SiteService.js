@@ -54,7 +54,8 @@ SiteService.prototype.createSite = function(siteModel) {
 		.then(function() {
 			if (!siteModel.root) { return; }
 			var username = siteModel.owner;
-			return retrieveUser(database, username)
+			var userService = new UserService(database);
+			return userService.retrieveUser(username)
 				.then(function(userModel) {
 					var userAdapters = userModel.adapters;
 					var siteRoot = siteModel.root;
@@ -106,7 +107,8 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 				siteModel.contents = siteCache.site.contents;
 				return siteModel;
 			}
-			return retrieveUserAdapters(database, username)
+			var userService = new UserService(database);
+			return userService.retrieveUserAdapters(database, username)
 				.then(function(userAdapters) {
 					var siteRoot = siteModel.root;
 					var siteAdapter = siteRoot.adapter;
@@ -165,7 +167,7 @@ SiteService.prototype.updateSite = function(username, siteName, updates) {
 	function checkWhetherIsChangingSiteRoot(username, siteName, updates) {
 		var isUpdatingSiteRoot = 'root' in updates;
 		if (!isUpdatingSiteRoot) { return Promise.resolve(false); }
-		return getSiteRoot(database, username, siteName)
+		return retrieveSiteRoot(database, username, siteName)
 			.then(function(existingSiteRoot) {
 				if (!existingSiteRoot || !updates.root) {
 					return existingSiteRoot !== updates.root;
@@ -182,15 +184,31 @@ SiteService.prototype.deleteSite = function(username, siteName) {
 	if (!username) { return Promise.reject(new HttpError(400, 'No username specified')); }
 	if (!siteName) { return Promise.reject(new HttpError(400, 'No site specified')); }
 	var database = this.database;
-	return checkWhetherSiteisUserDefaultSite(database, username, siteName)
+	var userService = new UserService(database);
+	return checkWhetherSiteisUserDefaultSite(username, siteName)
 		.then(function(isDefaultSite) {
 			return deleteSite(database, username, siteName)
 				.then(function() {
 					if (isDefaultSite) {
-						return resetUserDefaultSite(database, username);
+						return resetUserDefaultSite(username);
 					}
 				});
 		});
+
+
+	function checkWhetherSiteisUserDefaultSite(username, siteName) {
+		return userService.retrieveUserDefaultSiteName(username)
+			.then(function(defaultSiteName) {
+				return siteName === defaultSiteName;
+			});
+	}
+
+	function resetUserDefaultSite(username) {
+		return userService.updateUserDefaultSiteName(username, null)
+			.then(function(siteName) {
+				return;
+			});
+	}
 };
 
 SiteService.prototype.retrieveSiteAuthenticationDetails = function(username, siteName, options) {
@@ -225,7 +243,9 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
 		.then(function(siteRoot) {
-			return retrieveUserAdapters(database, username)
+			if (!siteRoot) { throw new HttpError(404); }
+			var userService = new UserService(database);
+			return userService.retrieveUserAdapters(database, username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
@@ -245,7 +265,9 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
 		.then(function(siteRoot) {
-			return retrieveUserAdapters(database, username)
+			if (!siteRoot) { throw new HttpError(404); }
+			var userService = new UserService(database);
+			return userService.retrieveUserAdapters(database, username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
 					var sitePath = siteRoot.path;
@@ -299,7 +321,8 @@ SiteService.prototype.retrieveFileMetadata = function(username, adapterName, fil
 	if (!filePath) { return Promise.reject(new HttpError(400, 'No file path specified')); }
 	var database = this.database;
 	var adapters = this.adapters;
-	return retrieveUserAdapters(database, username)
+	var userService = new UserService(database);
+	return userService.retrieveUserAdapters(database, username)
 		.then(function(userAdapters) {
 			var adapter = adapters[adapterName];
 			var adapterOptions = userAdapters[adapterName];
@@ -384,7 +407,6 @@ function retrieveSiteRoot(database, username, siteName) {
 	return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 		.then(function(siteModel) {
 			if (!siteModel) { throw new HttpError(404); }
-			if (!siteModel.root) { throw new HttpError(404); }
 			var siteRoot = siteModel.root;
 			return siteRoot;
 		});
@@ -410,35 +432,6 @@ function updateSiteCache(database, username, siteName, cache) {
 		.then(function(error, numRecords) {
 			if (numRecords === 0) { throw new HttpError(404); }
 			return;
-		});
-}
-
-function checkWhetherSiteisUserDefaultSite(database, username, siteName) {
-	var userService = new UserService(database);
-	return userService.retrieveUserDefaultSiteName(username)
-		.then(function(defaultSiteName) {
-			return siteName === defaultSiteName;
-		});
-}
-
-function resetUserDefaultSite(database, username) {
-	var userService = new UserService(database);
-	return userService.updateUserDefaultSiteName(username, null)
-		.then(function(siteName) {
-			return;
-		});
-}
-
-function getSiteRoot(database, username, siteName) {
-	var query = { 'owner': username, 'name': siteName };
-	var fields = [
-		'root'
-	];
-	return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
-		.then(function(siteModel) {
-			if (!siteModel) { throw new HttpError(404); }
-			var siteRoot = siteModel.root;
-			return siteRoot;
 		});
 }
 
@@ -489,14 +482,6 @@ function deleteSiteUser(database, username, siteName, siteUsername) {
 			if (numRecords === 0) { throw new HttpError(404); }
 			return;
 		});
-}
-
-function retrieveUser(database, username) {
-	return new UserService(database).retrieveUser(username);
-}
-
-function retrieveUserAdapters(database, username) {
-	return new UserService(database).retrieveUserAdapters(username);
 }
 
 function generateSiteFiles(pathPrefix, context) {
