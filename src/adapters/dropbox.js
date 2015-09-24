@@ -50,10 +50,10 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 
 	var app = express();
 
-	app.post('/', passport.authenticate('dropbox/login'));
-	app.get('/oauth2/callback', passport.authenticate('dropbox/login', passportOptions), callback);
+	app.post('/', passport.authenticate('admin/dropbox'));
+	app.get('/oauth2/callback', passport.authenticate('admin/dropbox', passportOptions), callback);
 
-	passport.use('dropbox/login', new DropboxOAuth2Strategy({
+	passport.use('admin/dropbox', new DropboxOAuth2Strategy({
 			clientID: appKey,
 			clientSecret: appSecret,
 			callbackURL: loginCallbackUrl,
