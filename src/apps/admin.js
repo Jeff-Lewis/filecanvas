@@ -42,8 +42,8 @@ module.exports = function(database, options) {
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!themesPath) { throw new Error('Missing site themes path'); }
-	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
@@ -441,7 +441,7 @@ module.exports = function(database, options) {
 			app.put('/sites/:site/users/:username', ensureAuth, initAdminSession, updateSiteUserRoute);
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
-			app.get('/sites/:site/theme', ensureAuth, initAdminSession, retrieveSiteThemeRoute);
+			app.get('/sites/:site/edit', ensureAuth, initAdminSession, retrieveSiteEditRoute);
 
 			app.get('/themes/:theme/thumbnail', ensureAuth, initAdminSession, createThemeThumbnailServer(themes, themesPath));
 
@@ -902,7 +902,7 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function retrieveSiteThemeRoute(req, res, next) {
+			function retrieveSiteEditRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
 				var userAdapters = req.user.adapters;
@@ -917,7 +917,7 @@ module.exports = function(database, options) {
 				})
 					.then(function(siteModel) {
 						var templateData = {
-							title: 'Theme editor',
+							title: 'Site editor',
 							stylesheets: [
 								'/assets/css/bootstrap-colorpicker.min.css',
 								'/assets/css/shunt-editor.css'
@@ -961,7 +961,7 @@ module.exports = function(database, options) {
 								adapter: JSON.stringify(adapterConfig)
 							});
 						}
-						return renderAdminPage(req, res, 'sites/site/theme', templateData);
+						return renderAdminPage(req, res, 'sites/site/edit', templateData);
 					})
 					.catch(function(error) {
 						next(error);
