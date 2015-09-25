@@ -230,7 +230,7 @@ LocalAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
 
 LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	return {
-		name: 'local',
+		adapter: 'local',
 		path: sitePath
 	};
 };

@@ -211,16 +211,10 @@ function initLivePreview() {
 		var shuntApi = window.shunt;
 		var cookies = parseCookies(document.cookie);
 		var adapterConfig = JSON.parse(cookies.adapter);
-		var accessToken = adapterConfig.token;
-		var sitePath = adapterConfig.path;
 		previewWindow.shunt = {
 			uploadFiles: function(files) {
 				showUploadProgressIndicator();
-				shuntApi.uploadFiles(files, accessToken, {
-					path: sitePath,
-					overwrite: false,
-					autorename: true
-				})
+				shuntApi.uploadFiles(files, adapterConfig)
 					.progress(function(uploadBatch) {
 						setUploadProgress(uploadBatch);
 					})

@@ -2,8 +2,11 @@
 
 var junk = require('junk');
 
-var DROPBOX_UPLOAD_API_ENDPOINT = 'https://content.dropboxapi.com/1/files_put/auto';
 var DROPBOX_UPLOAD_API_METHOD = 'PUT';
+var DROPBOX_UPLOAD_API_ENDPOINT = 'https://content.dropboxapi.com/1/files_put/auto';
+
+var LOCAL_UPLOAD_API_METHOD = 'POST';
+var LOCAL_UPLOAD_API_ENDPOINT = document.location.protocol + '//upload.' + document.location.host.split('.').slice(1).join('.');
 
 function UploadBatch(files) {
 	this.items = files.map(function(file) {
@@ -112,12 +115,7 @@ Shunt.prototype.validateFolder = function(adapter, path) {
 		});
 };
 
-Shunt.prototype.uploadFiles = function(files, accessToken, options) {
-	options = options || {};
-	var pathPrefix = options.path || '';
-	var overwrite = options.overwrite || false;
-	var autorename = options.autorename || false;
-
+Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 	var filteredFiles = files.filter(function(file) {
 		var filename = file.data.name;
 		return junk.not(filename);
@@ -198,22 +196,66 @@ Shunt.prototype.uploadFiles = function(files, accessToken, options) {
 
 	function uploadFile(file) {
 		var deferred = new $.Deferred();
-		var uploadPath = pathPrefix + file.path;
-		var xhr = new XMLHttpRequest();
-		var url = getUploadUrl(uploadPath, {
-			overwrite: overwrite,
-			autorename: autorename
-		});
-		var async = true;
-		xhr.open(DROPBOX_UPLOAD_API_METHOD, url, async);
-		xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-		xhr.upload.addEventListener('progress', onUploadProgress);
-		xhr.upload.addEventListener('load', onUploadProgress);
-		xhr.addEventListener('load', onDownloadCompleted);
-		xhr.addEventListener('error', onDownloadFailed);
-		xhr.send(file.data);
+		switch (adapterConfig.adapter) {
+			case 'dropbox':
+				uploadDropboxFile(file, adapterConfig);
+				break;
+			case 'local':
+				uploadLocalFile(file, adapterConfig);
+				break;
+			default:
+				deferred.reject(new Error('Invalid adapter: ' + adapterConfig.adapter));
+		}
 		return deferred.promise();
 
+
+		function uploadDropboxFile(file, options) {
+			var pathPrefix = options.path;
+			var accessToken = options.token;
+			var uploadPath = pathPrefix + file.path;
+			var xhr = new XMLHttpRequest();
+			var url = getUploadUrl(DROPBOX_UPLOAD_API_ENDPOINT, uploadPath, {
+				overwrite: false,
+				autorename: true
+			});
+			var async = true;
+			xhr.open(DROPBOX_UPLOAD_API_METHOD, url, async);
+			xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+			xhr.upload.addEventListener('progress', onUploadProgress);
+			xhr.upload.addEventListener('load', onUploadProgress);
+			xhr.addEventListener('load', onDownloadCompleted);
+			xhr.addEventListener('error', onDownloadFailed);
+			xhr.send(file.data);
+		}
+
+		function uploadLocalFile(file, options) {
+			var pathPrefix = options.path;
+			var uploadPath = pathPrefix + file.path;
+			var xhr = new XMLHttpRequest();
+			var url = getUploadUrl(LOCAL_UPLOAD_API_ENDPOINT, uploadPath, {
+				overwrite: false,
+				autorename: true
+			});
+			var async = true;
+			xhr.open(LOCAL_UPLOAD_API_METHOD, url, async);
+			xhr.upload.addEventListener('progress', onUploadProgress);
+			xhr.upload.addEventListener('load', onUploadProgress);
+			xhr.addEventListener('load', onDownloadCompleted);
+			xhr.addEventListener('error', onDownloadFailed);
+			xhr.send(file.data);
+		}
+
+		function getUploadUrl(endpoint, filePath, params) {
+			var queryString = formatQueryString(params);
+			var url = endpoint + filePath + (queryString ? '?' + queryString : '');
+			return url;
+		}
+
+		function formatQueryString(params) {
+			return Object.keys(params).map(function(key) {
+				return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+			}).join('&');
+		}
 
 		function onUploadProgress(event) {
 			if (!event.lengthComputable) { return; }
@@ -223,26 +265,13 @@ Shunt.prototype.uploadFiles = function(files, accessToken, options) {
 			});
 		}
 
-		function onDownloadCompleted(event) {
-			var response = JSON.parse(event.currentTarget.responseText);
-			deferred.resolve(response);
-		}
-
 		function onDownloadFailed(event) {
 			deferred.reject(new Error('File upload failed'));
 		}
 
-
-		function getUploadUrl(filePath, params) {
-			var queryString = formatQueryString(params);
-			var url = DROPBOX_UPLOAD_API_ENDPOINT + filePath + (queryString ? '?' + queryString : '');
-			return url;
-		}
-
-		function formatQueryString(params) {
-			return Object.keys(params).map(function(key) {
-				return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-			}).join('&');
+		function onDownloadCompleted(event) {
+			var response = JSON.parse(event.currentTarget.responseText);
+			deferred.resolve(response);
 		}
 	}
 };

@@ -252,7 +252,7 @@ DropboxAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 
 DropboxAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	return {
-		name: 'dropbox',
+		adapter: 'dropbox',
 		path: sitePath,
 		token: options.token
 	};
