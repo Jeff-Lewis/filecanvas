@@ -470,17 +470,18 @@ function initSelectAllInputs() {
 }
 
 function initAccordionAnchors() {
-	$('.collapse').on('show.bs.collapse', function() {
-		location.hash = '#' + this.id;
-	});
-	$('.collapse').on('hidden.bs.collapse', function() {
-		var isCurrentHash = location.hash === '#' + this.id;
-		if (isCurrentHash) {
-			var scrollPosition = { x: window.scrollX, y: window.scrollY };
-			location.hash = '';
-			window.scrollTo(scrollPosition.x, scrollPosition.y);
-		}
-	});
+	$('.collapse[data-collapse-anchor]')
+		.on('show.bs.collapse', function() {
+			location.hash = '#' + this.id;
+		})
+		.on('hidden.bs.collapse', function() {
+			var isCurrentHash = location.hash === '#' + this.id;
+			if (isCurrentHash) {
+				var scrollPosition = { x: window.scrollX, y: window.scrollY };
+				location.hash = '';
+				window.scrollTo(scrollPosition.x, scrollPosition.y);
+			}
+		});
 	$(window).on('hashchange', onHashChanged);
 	onHashChanged(null);
 
