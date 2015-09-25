@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+cd $(dirname $0)
+
+export $(cat .env | xargs)
+
+mongo \
+	--username $MONGODB_USER --password $MONGODB_PASS \
+	$MONGODB_HOST:$MONGODB_PORT/$MONGODB_DB
