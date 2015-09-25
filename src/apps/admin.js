@@ -1045,7 +1045,7 @@ module.exports = function(database, options) {
 				req.logout();
 				req.session.regenerate(function(error) {
 					if (error) { return next(error); }
-					if (adapterName === 'local') {
+					if (!adapterName || (adapterName === 'local')) {
 						return res.redirect('/');
 					}
 					var templateData = {
