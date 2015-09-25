@@ -493,6 +493,11 @@ a.panel-heading {
 	transform: rotate(180deg);
 }
 
+.widget-icon.fa-dropbox {
+    font-size: 300%;
+    color: #1081DE;
+}
+
 .widget[data-toggle="collapse"][aria-expanded="true"] {
 	display: none;
 }
