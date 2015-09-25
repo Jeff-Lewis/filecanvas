@@ -5,6 +5,7 @@ var fs = require('fs');
 var mapSeries = require('promise-map-series');
 var express = require('express');
 var LocalStrategy = require('passport-local').Strategy;
+var junk = require('junk');
 var mkdirp = require('mkdirp');
 var slug = require('slug');
 
@@ -191,6 +192,7 @@ LocalAdapter.prototype.loadFolderContents = function(folderPath, options) {
 				}
 				fs.readdir(filePath, function(error, filenames) {
 					if (error) { return reject(error); }
+					filenames = filenames.filter(junk.not);
 					mapSeries(filenames, function(filename) {
 						var childFilePath = path.join(filePath, filename);
 						return loadFileListing(childFilePath, rootPath);
