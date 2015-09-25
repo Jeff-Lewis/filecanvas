@@ -251,11 +251,17 @@ $(document).ready(function() {
 
 $(document).ready(function() {
 	if (window.shunt) {
+		disableContextMenu();
 		initUploadHotspots('[data-admin-upload]', function(files) {
 			window.shunt.uploadFiles(files);
 		});
 	}
 
+	function disableContextMenu() {
+		$(document).on('contextmenu', function(event) {
+			event.preventDefault();
+		});
+	}
 
 	function initUploadHotspots(selector, callback) {
 		$('[data-admin-upload]').on('dragenter dragover', function(event) {
