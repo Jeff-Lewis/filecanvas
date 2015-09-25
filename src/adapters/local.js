@@ -21,8 +21,8 @@ function LocalAdapter(database, options) {
 	options = options || {};
 	var authConfig = options.auth || null;
 	var sitesRoot = options.root || null;
-	var downloadUrl = options.download || null;
-	var thumbnailUrl = options.thumbnail || null;
+	var downloadUrl = options.download && options.download.url || null;
+	var thumbnailUrl = options.thumbnail && options.thumbnail.url || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!authConfig) { throw new Error('Missing local auth config'); }
@@ -224,14 +224,12 @@ LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 
 LocalAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
 	var downloadUrl = this.downloadUrl;
-	var relativePath = filePath.replace(/^\//, '');
-	return Promise.resolve(downloadUrl + relativePath);
+	return Promise.resolve(downloadUrl + filePath);
 };
 
 LocalAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
 	var thumbnailUrl = this.thumbnailUrl;
-	var relativePath = filePath.replace(/^\//, '');
-	return Promise.resolve(thumbnailUrl + relativePath);
+	return Promise.resolve(thumbnailUrl + filePath);
 };
 
 LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {

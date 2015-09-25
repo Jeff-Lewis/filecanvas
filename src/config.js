@@ -2,6 +2,7 @@
 
 var path = require('path');
 var fs = require('fs');
+var getSubdomainUrl = require('./utils/getSubdomainUrl');
 
 var config = {};
 
@@ -21,10 +22,25 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local = {};
 	config.adapters.local.sitesPath = '/';
 	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../sites');
-	config.adapters.local.thumbnails = {};
-	config.adapters.local.thumbnails.width = 256;
-	config.adapters.local.thumbnails.height = 256;
-	config.adapters.local.thumbnails.cache = path.resolve(__dirname, '../.thumbnailcache');
+	config.adapters.local.download = {};
+	config.adapters.local.download.subdomain = 'download';
+	config.adapters.local.download.url = getSubdomainUrl({
+		subdomain: config.adapters.local.download.subdomain,
+		host: config.host,
+		protocol: config.https.port ? 'https' : 'http',
+		port: config.https.port || config.http.port
+	});
+	config.adapters.local.thumbnail = {};
+	config.adapters.local.thumbnail.subdomain = 'thumbnail';
+	config.adapters.local.thumbnail.url = getSubdomainUrl({
+		subdomain: config.adapters.local.thumbnail.subdomain,
+		host: config.host,
+		protocol: config.https.port ? 'https' : 'http',
+		port: config.https.port || config.http.port
+	});
+	config.adapters.local.thumbnail.width = 256;
+	config.adapters.local.thumbnail.height = 256;
+	config.adapters.local.thumbnail.cache = path.resolve(__dirname, '../.thumbnailcache');
 	config.adapters.local.auth = {};
 	config.adapters.local.auth.strategy = 'bcrypt';
 	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };

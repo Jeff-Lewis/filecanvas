@@ -26,19 +26,6 @@ module.exports = function(database, config) {
 
 	var app = express();
 
-	if (config.adapters.local) {
-		config.adapters.local.download = getSubdomainUrl('download', {
-			host: host,
-			httpPort: config.http.port,
-			httpsPort: config.https.port
-		});
-		config.adapters.local.thumbnail = getSubdomainUrl('thumbnail', {
-			host: host,
-			httpPort: config.http.port,
-			httpsPort: config.https.port
-		});
-	}
-
 	var subdomains = {
 		'ping': pingApp(),
 		'www': wwwApp({
@@ -70,12 +57,12 @@ module.exports = function(database, config) {
 	};
 
 	if (config.adapters.local) {
-		subdomains['download'] = express.static(config.adapters.local.root);
 		subdomains['upload'] = uploader(config.adapters.local.root, { host: host });
-		subdomains['thumbnail'] = thumbnailer(config.adapters.local.root, {
-			width: config.adapters.local.thumbnails.width,
-			height: config.adapters.local.thumbnails.height,
-			cache: config.adapters.local.thumbnails.cache
+		subdomains[config.adapters.local.download.subdomain] = express.static(config.adapters.local.root);
+		subdomains[config.adapters.local.thumbnail.subdomain] = thumbnailer(config.adapters.local.root, {
+			width: config.adapters.local.thumbnail.width,
+			height: config.adapters.local.thumbnail.height,
+			cache: config.adapters.local.thumbnail.cache
 		});
 	}
 
@@ -175,17 +162,5 @@ module.exports = function(database, config) {
 		var template = options.template;
 
 		app.use(errorHandler({ template: template }));
-	}
-
-	function getSubdomainUrl(subdomain, options) {
-		options = options || {};
-		var host = options.host;
-		var httpPort = options.httpPort;
-		var httpsPort = options.httpsPort;
-		if (httpsPort) {
-			return 'https://' + subdomain + '.' + host + (httpsPort === 443 ? '' : ':' + httpsPort) + '/';
-		} else {
-			return 'http://' + subdomain + '.' + host + (httpPort === 80 ? '' : ':' + httpPort) + '/';
-		}
 	}
 };
