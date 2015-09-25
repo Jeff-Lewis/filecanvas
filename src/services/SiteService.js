@@ -343,7 +343,6 @@ function retrieveSite(database, username, siteName, options) {
 	var includeUsers = Boolean(options.users);
 
 	var query = { 'owner': username, 'name': siteName };
-	if (onlyPublishedSites) { query['published'] = true; }
 	var fields = [
 		'owner',
 		'name',
@@ -358,6 +357,7 @@ function retrieveSite(database, username, siteName, options) {
 	return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 		.then(function(siteModel) {
 			if (!siteModel) { throw new HttpError(404); }
+			if (onlyPublishedSites && !siteModel.published) { throw new HttpError(404); }
 			return siteModel;
 		});
 }
@@ -383,14 +383,15 @@ function deleteSite(database, username, siteName) {
 
 function retrieveSiteAuthenticationDetails(database, username, siteName, onlyPublishedSites) {
 	var query = { 'owner': username, 'name': siteName };
-	if (onlyPublishedSites) { query['published'] = true; }
 	var fields = [
 		'private',
 		'users'
 	];
+	if (onlyPublishedSites) { fields.push('published'); }
 	return database.collection(DB_COLLECTION_SITES).findOne(query, fields)
 		.then(function(siteModel) {
 			if (!siteModel) { throw new HttpError(404); }
+			if (onlyPublishedSites && !siteModel.published) { throw new HttpError(404); }
 			var authenticationDetails = {
 				'private': siteModel.private,
 				'users': siteModel.users

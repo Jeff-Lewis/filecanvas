@@ -21,8 +21,6 @@ shunt.users.createIndex({ 'adapters.dropbox.uid': 1 }, { 'unique': true, 'sparse
 
 print(' - Setting \'owner, name\' index on \'sites\' collection...');
 shunt.sites.createIndex({ 'owner': 1, 'name': 1 }, { 'unique': true });
-print(' - Setting \'owner, name, published\' index on \'sites\' collection...');
-shunt.sites.createIndex({ 'owner': 1, 'name': 1, 'published': 1 });
 print(' - Setting \'owner\' index on \'sites\' collection...');
 shunt.sites.createIndex({ 'owner': 1 });
 
