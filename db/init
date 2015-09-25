@@ -2,4 +2,4 @@
 cd $(dirname $0)
 pwd
 
-mongo init.js
+mongo localhost/shunt init.js
