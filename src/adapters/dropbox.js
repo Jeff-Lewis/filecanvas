@@ -21,26 +21,22 @@ function DropboxAdapter(database, options) {
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
-	var registerCallbackUrl = options.registerCallbackUrl;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app appSecret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
-	if (!registerCallbackUrl) { throw new Error('Missing Dropbox register callback URL'); }
 
 	this.database = database;
 	this.appKey = appKey;
 	this.appSecret = appSecret;
 	this.loginCallbackUrl = loginCallbackUrl;
-	this.registerCallbackUrl = registerCallbackUrl;
 }
 
 DropboxAdapter.prototype.database = null;
 DropboxAdapter.prototype.appKey = null;
 DropboxAdapter.prototype.appSecret = null;
 DropboxAdapter.prototype.loginCallbackUrl = null;
-DropboxAdapter.prototype.registerCallbackUrl = null;
 
 DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;
