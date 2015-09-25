@@ -2,6 +2,7 @@
 /*.env
 
 /db/data/
+/db/backup/
 /sites
 /.thumbnailcache
 
