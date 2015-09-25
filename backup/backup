@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+cd $(dirname $0)
+
+export $(cat .env | xargs)
+
+echo "Exporting users..."
+mongoexport \
+	--host $MONGODB_HOST:$MONGODB_PORT \
+	--db $MONGODB_DB \
+	--username $MONGODB_USER --password $MONGODB_PASS \
+	--collection users \
+	--out users.json
+
+echo "Exporting sites..."
+mongoexport \
+	--host $MONGODB_HOST:$MONGODB_PORT \
+	--db $MONGODB_DB \
+	--username $MONGODB_USER --password $MONGODB_PASS \
+	--collection sites \
+	--out sites.json
