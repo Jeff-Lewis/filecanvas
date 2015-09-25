@@ -432,6 +432,7 @@ module.exports = function(database, options) {
 
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
+			app.get('/sites/create-site', ensureAuth, initAdminSession, retrieveCreateSiteRoute);
 			app.get('/sites/:site', ensureAuth, initAdminSession, retrieveSiteRoute);
 			app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 			app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
@@ -606,6 +607,29 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveSitesRoute(req, res, next) {
+				var templateData = {
+					title: 'Site dashboard',
+					navigation: true,
+					footer: true,
+					breadcrumb: [
+						{
+							link: '/sites',
+							icon: 'dashboard',
+							label: 'Site dashboard'
+						}
+					],
+					content: {
+						sites: res.locals.sites,
+						themes: themes
+					}
+				};
+				renderAdminPage(req, res, 'sites', templateData)
+					.catch(function(error) {
+						next(error);
+					});
+			}
+
+			function retrieveCreateSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
 				var defaultAdapterName = userAdapters.default;
 				var sitesRoot = adaptersConfig[defaultAdapterName].sitesPath;
@@ -633,16 +657,20 @@ module.exports = function(database, options) {
 							link: '/sites',
 							icon: 'dashboard',
 							label: 'Site dashboard'
+						},
+						{
+							link: '/sites/create-site',
+							icon: 'globe',
+							label: 'Create a site'
 						}
 					],
 					content: {
-						sites: res.locals.sites,
 						site: siteModel,
 						sitesRoot: sitesRoot,
 						themes: themes
 					}
 				};
-				renderAdminPage(req, res, 'sites', templateData)
+				renderAdminPage(req, res, 'sites/create-site', templateData)
 					.catch(function(error) {
 						next(error);
 					});
