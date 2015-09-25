@@ -23,8 +23,7 @@ $('#fluid-nav').onePageNav({
 // Smooth scroll
 
 $(document).ready(function() {
-	$(document).on('click', '.scroll-link', function(event) {
-		console.log('Scroll-link, preventing');
+	$(document).on('click', '.scroll-link:not(.external)', function(event) {
 		event.preventDefault();
 		var $element = $(this);
 		var targetSelector = $element.attr('href');
@@ -43,11 +42,6 @@ $(document).ready(function() {
 // Selectnav
 
 selectnav('fluid-nav', {
-	nested: false,
-	label: false
-});
-
-selectnav('fixed-nav', {
 	nested: false,
 	label: false
 });

@@ -100,11 +100,6 @@
 					<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
 					{{/if}}
 				</div>
-				<nav>
-					{{#if site.private}}
-					<a class="logout" href="{{ logoutUrl }}">Log out</a></li>
-					{{/if}}
-				</nav>
 			</div>
 			<div class="row">
 				<div class="span12">
@@ -129,7 +124,7 @@
 						{{/if}}
 					</div>
 					<div class="span8">
-						{{#if (folders contents)}}
+						{{#if (or (folders contents) site.private)}}
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
 							{{#if (or theme.content.pageHeader theme.content.pageSubtitle)}}
 							<li><a class="scroll-link" href="#home">Home</a></li>
@@ -139,6 +134,9 @@
 							<li><a class="scroll-link" href="#{{ slug (basename folder) }}">{{ label folder }}</a></li>
 							{{/if}}
 							{{/each}}
+							{{#if site.private}}
+							<li><a class="scroll-link external" href="{{ logoutUrl }}">Log out</a></li>
+							{{/if}}
 						</ul>
 						{{/if}}
 					</div>
