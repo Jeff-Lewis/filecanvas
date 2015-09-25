@@ -1,13 +1,13 @@
 <form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 	<input type="hidden" name="_method" value="PUT"/>
 	<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
-	<div class="editor-header">
-		<div class="editor-header-controls">
+	<div class="full-page-header">
+		<div class="full-page-header-controls">
 			<button type="reset" class="btn btn-default mr5">Reset changes</button>
 			<button type="submit" class="btn btn-success mr5">Save and Exit</button>
 			<a href="{{ session.urls.sites }}/{{ content.site.name }}" class="p10" title="Back to site settings"><i class="fa fa-times"></i></a>
 		</div>
-		<div class="editor-header-title pull-left">
+		<div class="full-page-header-title pull-left">
 			<div class="brand">
 				<h3 class="brand-logo"><a href="/">Shunt</a></h3>
 			</div>

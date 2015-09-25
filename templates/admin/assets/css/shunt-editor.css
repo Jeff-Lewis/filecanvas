@@ -35,23 +35,6 @@
 .editor-sidepanel-toggle i {
 	font-size: 16px;
 }
-.editor-header {
-	height: 55px;
-	padding: 10px;
-	background-color: #495469;
-	color: white;
-}
-.editor-header-title .brand {
-	height: 35px;
-}
-.editor-header-title .brand-logo {
-	margin: 0 10px;
-    line-height: 35px;
-    padding: 0;
-}
-.editor-header-controls {
-	float: right;
-}
 .editor-main {
 	position: absolute;
 	top: 55px;
