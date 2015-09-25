@@ -5,9 +5,16 @@ cd $(dirname $0)
 
 export $(cat .env | xargs)
 
+echo "Clearing site cache..."
+mongo \
+	--username $MONGODB_USER --password $MONGODB_PASS \
+	--eval 'db.sites.update({},{$set:{"cache":null}},{multi:true});' \
+	$MONGODB_HOST:$MONGODB_PORT/$MONGODB_DB
+
 echo "Exporting users..."
 mongoexport \
-	--host $MONGODB_HOST:$MONGODB_PORT \
+	--host $MONGODB_HOST \
+	--port $MONGODB_PORT \
 	--db $MONGODB_DB \
 	--username $MONGODB_USER --password $MONGODB_PASS \
 	--collection users \
@@ -15,7 +22,8 @@ mongoexport \
 
 echo "Exporting sites..."
 mongoexport \
-	--host $MONGODB_HOST:$MONGODB_PORT \
+	--host $MONGODB_HOST \
+	--port $MONGODB_PORT \
 	--db $MONGODB_DB \
 	--username $MONGODB_USER --password $MONGODB_PASS \
 	--collection sites \
