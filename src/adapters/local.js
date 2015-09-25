@@ -22,6 +22,7 @@ function LocalAdapter(database, options) {
 	var authConfig = options.auth || null;
 	var sitesRoot = options.root || null;
 	var downloadUrl = options.download || null;
+	var thumbnailUrl = options.thumbnail || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!authConfig) { throw new Error('Missing local auth config'); }
@@ -29,17 +30,20 @@ function LocalAdapter(database, options) {
 	if (!authConfig.options) { throw new Error('Missing local auth options'); }
 	if (!sitesRoot) { throw new Error('Missing local sites root'); }
 	if (!downloadUrl) { throw new Error('Missing local download URL'); }
+	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
 
 	this.database = database;
 	this.authConfig = authConfig;
 	this.sitesRoot = sitesRoot;
 	this.downloadUrl = downloadUrl;
+	this.thumbnailUrl = thumbnailUrl;
 }
 
 LocalAdapter.prototype.database = null;
 LocalAdapter.prototype.authConfig = null;
 LocalAdapter.prototype.sitesRoot = null;
 LocalAdapter.prototype.downloadUrl = null;
+LocalAdapter.prototype.thumbnailUrl = null;
 
 LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;
@@ -225,7 +229,9 @@ LocalAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
 };
 
 LocalAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
-	return Promise.reject(new HttpError(501));
+	var thumbnailUrl = this.thumbnailUrl;
+	var relativePath = filePath.replace(/^\//, '');
+	return Promise.resolve(thumbnailUrl + relativePath);
 };
 
 LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {
