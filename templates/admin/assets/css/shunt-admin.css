@@ -470,6 +470,7 @@ footer.content-footer {
 
 a.panel-heading {
 	display: block;
+	text-decoration: none;
 }
 
 .panel-arrow {
@@ -491,6 +492,20 @@ a.panel-heading {
 	-o-transform: rotate(180deg);
 	-ms-transform: rotate(180deg);
 	transform: rotate(180deg);
+}
+.panel-group .panel-arrow {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+.panel-group .panel-heading.collapsed .panel-arrow {
+	-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	-o-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	transform: rotate(90deg);
 }
 
 .widget-icon.fa-dropbox {

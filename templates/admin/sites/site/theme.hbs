@@ -21,61 +21,75 @@
 						<i class="fa fa-bars"></i>
 					</a>
 				</div>
-				<h4 class="editor-sidepanel-collapsed-title bg-white text-uppercase"> Theme options</h4>
-				<h4 class="editor-sidepanel-title no-margin text-uppercase"><i class="fa fa-paint-brush mr10"></i>  Theme options</h4>
+				<h4 class="editor-sidepanel-collapsed-title bg-white text-uppercase">Theme options</h4>
+				<h4 class="editor-sidepanel-title no-margin text-uppercase">Theme options</h4>
 			</div>
-			<div class="panel-body bordered-group">
-				{{#each (lookup (lookup content.themes content.site.theme.id) 'config') as |configGroup|}}
-				<fieldset class="form-group">
-					<h4 class="text-uppercase mt0 mb0">{{ configGroup.label }}</h4>
-					{{#each configGroup.fields as |field|}}
-					<label class="control-label mt15">{{ field.label }}</label>
-					{{#if (eq field.editor.name 'input')}}
-					<input type="{{ field.editor.options.type }}" class="form-control"
-						name="theme.config.{{ configGroup.name }}.{{ field.name }}"
-						placeholder="{{ field.editor.options.placeholder }}"
-						maxlength="{{ field.editor.options.maxLength }}"
-						value="{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}"
-					/>
-					{{/if}}
-					{{#if (eq field.editor.name 'textarea')}}
-					<textarea class="form-control"
-						name="theme.config.{{ configGroup.name }}.{{ field.name }}"
-						placeholder="{{ field.editor.options.placeholder }}"
-						maxlength="{{ field.editor.options.maxLength }}"
-						rows="{{ field.editor.options.rows }}"
-					>{{ escapeNewlines (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) }}</textarea>
-					{{/if}}
-					{{#if (eq field.editor.name 'code')}}
-					<textarea class="form-control code-editor"
-						name="theme.config.{{ configGroup.name }}.{{ field.name }}"
-						placeholder="{{ field.editor.options.placeholder }}"
-						maxlength="{{ field.editor.options.maxLength }}"
-						rows="{{ field.editor.options.rows }}"
-						data-language="{{ field.editor.options.language }}"
-					>{{ escapeNewlines (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) }}</textarea>
-					{{/if}}
-					{{#if (eq field.editor.name 'colorpicker')}}
-					<div class="input-group" data-colorpicker
-						{{#if field.editor.options.format }}
-						data-format="{{ field.editor.options.format }}"
-						{{/if}}
-						{{#if field.editor.options.presets }}
-						data-color-selectors="{{ json field.editor.options.presets }}"
-						{{/if}}
-					>
-						<input class="form-control"
-							name="theme.config.{{ configGroup.name }}.{{ field.name }}"
-							placeholder="{{ field.editor.options.placeholder }}"
-							value="{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}"
-						/><span class="input-group-addon no-bg">
-							<i></i>
-						</span>
+			<div class="panel-body no-padding">
+				<div id="theme-options" class="panel-group theme-options-accordion" role="tablist" aria-multiselectable="false" data-fixed-accordion>
+					{{#each (lookup (lookup content.themes content.site.theme.id) 'config') as |configGroup|}}
+					<div class="panel panel-default">
+						<a class="panel-heading{{#unless (eq @index 0)}} collapsed{{/unless}}" role="tab" data-toggle="collapse" data-parent="#theme-options" href="#theme-options-{{ configGroup.name }}" aria-controls="theme-options-{{ configGroup.name }}" aria-expanded="{{eq @index 0 }}">
+							<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+							<h5 class="text-uppercase mt2 mb0">
+								{{#if configGroup.icon}}<i class="fa fa-{{ configGroup.icon }} mr10"></i>{{/if}}
+								{{ configGroup.label }}
+							</h5>
+						</a>
+						<div id="theme-options-{{ configGroup.name }}" class="panel-collapse collapse{{#if (eq @index 0)}} in{{/if}}" role="tabpanel">
+							<fieldset class="panel-body">
+								{{#each configGroup.fields as |field|}}
+								<label class="control-label">{{ field.label }}</label>
+								<div class="mb15">
+									{{#if (eq field.editor.name 'input')}}
+									<input type="{{ field.editor.options.type }}" class="form-control"
+										name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+										placeholder="{{ field.editor.options.placeholder }}"
+										maxlength="{{ field.editor.options.maxLength }}"
+										value="{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}"
+									/>
+									{{/if}}
+									{{#if (eq field.editor.name 'textarea')}}
+									<textarea class="form-control"
+										name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+										placeholder="{{ field.editor.options.placeholder }}"
+										maxlength="{{ field.editor.options.maxLength }}"
+										rows="{{ field.editor.options.rows }}"
+									>{{ escapeNewlines (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) }}</textarea>
+									{{/if}}
+									{{#if (eq field.editor.name 'code')}}
+									<textarea class="form-control code-editor"
+										name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+										placeholder="{{ field.editor.options.placeholder }}"
+										maxlength="{{ field.editor.options.maxLength }}"
+										rows="{{ field.editor.options.rows }}"
+										data-language="{{ field.editor.options.language }}"
+									>{{ escapeNewlines (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) }}</textarea>
+									{{/if}}
+									{{#if (eq field.editor.name 'colorpicker')}}
+									<div class="input-group" data-colorpicker
+										{{#if field.editor.options.format }}
+										data-format="{{ field.editor.options.format }}"
+										{{/if}}
+										{{#if field.editor.options.presets }}
+										data-color-selectors="{{ json field.editor.options.presets }}"
+										{{/if}}
+									>
+										<input class="form-control"
+											name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+											placeholder="{{ field.editor.options.placeholder }}"
+											value="{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}"
+										/><span class="input-group-addon no-bg">
+											<i></i>
+										</span>
+									</div>
+									{{/if}}
+								</div>
+								{{/each}}
+							</fieldset>
+						</div>
 					</div>
-					{{/if}}
 					{{/each}}
-				</fieldset>
-				{{/each}}
+				</div>
 			</div>
 		</div>
 	</div>

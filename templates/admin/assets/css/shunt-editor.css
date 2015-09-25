@@ -133,11 +133,38 @@
 }
 .editor-sidepanel > .panel > .panel-body {
 	position: absolute;
-	top: 55px;
+	top: 51px;
 	left: 0;
 	width: 100%;
 	bottom: 0;
-	overflow: scroll;
+}
+
+.theme-options-accordion {
+	height: 100%;
+	background-color: #f4f4f4;
+}
+.theme-options-accordion.panel-group .panel + .panel {
+	margin-top: 0;
+}
+.theme-options-accordion > .panel-default > .panel-heading.collapsed:hover {
+	background-color: #c9c9c9;
+}
+.theme-options-accordion > .panel-default > .panel-heading + .panel-collapse .panel-body {
+    border-top-color: #ececec;
+}
+.theme-options-accordion > .panel-default > .panel-heading,
+.theme-options-accordion > .panel-default > .panel-collapse > .panel-body > .control-label {
+	white-space: nowrap;
+}
+.theme-options-accordion > .panel > .panel-heading,
+.theme-options-accordion > .panel > .panel-collapse {
+	border-bottom: 1px solid #ccc;
+}
+.theme-options-accordion > .panel > .panel-collapse {
+	background-color: white;
+}
+.theme-options-accordion > .panel > .panel-collapse > .panel-body {
+	overflow: auto;
 }
 
 .colorpicker-element .input-group-addon i,

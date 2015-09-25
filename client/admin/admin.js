@@ -42,6 +42,7 @@ $(function() {
 	updateBindings(bindingSources);
 	initInputValidators(validators);
 	initSelectAllInputs();
+	initFixedAccordions();
 	initAccordionAnchors();
 	initActionPanels();
 	initOffscreenSidebar();
@@ -466,6 +467,35 @@ function initShunt(bindingSources, bindingFilters) {
 function initSelectAllInputs() {
 	$('[data-select-all-input]').on('click', function(event) {
 		this.select();
+	});
+}
+
+function initFixedAccordions() {
+	$('[data-fixed-accordion]').each(function() {
+		var $element = $(this);
+		var currentHeight = NaN;
+		$(window).on('resize', onResized);
+		onResized();
+
+
+		function onResized() {
+			var updatedHeight = $element.height();
+			if (updatedHeight === currentHeight) { return; }
+			currentHeight = updatedHeight;
+			updateAccordionHeight(currentHeight);
+		}
+
+		function updateAccordionHeight(height) {
+			var $panelElements = $element.children();
+			var $headerElements = $panelElements.children('[role="tab"]');
+			var $bodyElements = $panelElements.children('[role="tabpanel"]').children();
+			var headersHeight = $headerElements.map(
+				function() { return $(this).outerHeight(); }
+			).get().reduce(function(totalHeight, headerHeight) {
+				return totalHeight + headerHeight;
+			}, 0);
+			$bodyElements.css('max-height', height - headersHeight);
+		}
 	});
 }
 
