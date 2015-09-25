@@ -65,7 +65,7 @@
 				{
 					"name": "introText",
 					"type": "string",
-					"default": "Looks like you've created a brand new Shunt site! If you're the owner of this site, you can use the Site Editor to change how your site looks (including this message), and to upload files.\n\nThis page will automatically sync its contents to whatever's in the linked Dropbox folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
+					"default": "Looks like you've created a brand new Shunt site! This page will automatically sync its contents to whatever's in the linked site folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
