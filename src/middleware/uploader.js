@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var mkdirp = require('mkdirp');
 var express = require('express');
 var cors = require('cors');
 
@@ -112,10 +113,14 @@ module.exports = function(destDir, options) {
 
 	function writeFile(sourceStream, destPath) {
 		return new Promise(function(resolve, reject) {
-			var destStream = fs.createWriteStream(destPath);
-			destStream.on('finish', resolve);
-			destStream.on('error', reject);
-			sourceStream.pipe(destStream);
+			var dirPath = path.dirname(destPath);
+			mkdirp(dirPath, function(error) {
+				if (error) { return reject(error); }
+				var destStream = fs.createWriteStream(destPath);
+				destStream.on('finish', resolve);
+				destStream.on('error', reject);
+				sourceStream.pipe(destStream);
+			});
 		});
 	}
 
