@@ -1,102 +1,128 @@
 <div class="row">
 	<div class="col-md-12 col-lg-10">
-		<div class="panel panel-primary mb25">
-			<div class="panel-heading">
-				<h4 class="no-margin text-uppercase"><i class="fa fa-globe mr10"></i>Create a site</h4>
-			</div>
-			<div class="panel-body">
-				<div class="row no-margin">
-					<div class="col-lg-12">
-						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
-							<input type="hidden" name="_method" value="POST"/>
-							<input type="hidden"
-								name="private"
-								value="{{#if content.site.private}}true{{else}}false{{/if}}"
-							/>
-							<input type="hidden"
-								name="published"
-								value="{{#if content.site.published}}true{{else}}false{{/if}}"
-							/>
-							<input type="hidden"
-								name="home"
-								value="{{#if content.site.home}}true{{else}}false{{/if}}"
-							/>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Name</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" autofocus="autofocus"
-										name="label"
-										placeholder="Site name"
-										value="{{ content.site.label }}"
-										data-bind-id="site-label"
-										data-validate="notEmpty"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
+		<div class="mb15">
+			<h4 class="no-margin text-uppercase">
+				<a class="pull-right" href="{{ session.urls.sites }}">
+					<i class="fa fa-times"></i>
+				</a>
+				Create a site
+			</h4>
+		</div>
+		<form role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
+			<div id="create-form" class="panel-group">
+				<div class="panel mb25">
+					<input type="hidden" name="_method" value="POST"/>
+					<input type="hidden"
+						name="private"
+						value="{{#if content.site.private}}true{{else}}false{{/if}}"
+					/>
+					<input type="hidden"
+						name="published"
+						value="{{#if content.site.published}}true{{else}}false{{/if}}"
+					/>
+					<input type="hidden"
+						name="home"
+						value="{{#if content.site.home}}true{{else}}false{{/if}}"
+					/>
+					<div class="panel-heading">
+						<h4 class="no-margin text-uppercase">
+							<i class="fa fa-arrow-right mr10"></i>Step 1: Choose a theme
+						</h4>
+					</div>
+					<div id="create-form-theme" class="panel-collapse collapse in">
+						<div class="panel-body form-horizontal bordered-group">
+							<div class="row no-margin">
+								<div class="col-lg-12">
+									<div class="row">
+										{{#each content.themes as |theme|}}
+										<label class="theme-preview-control no-margin" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
+											<input type="radio" name="theme.id"
+												value="{{ ../content.site.theme.id }}"
+												{{#if (eq theme.id ../content.site.theme.id)}}checked="checked"{{/if}}
+											/>
+											<div class="thumbnail no-padding no-margin">
+												<img class="thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/thumbnail">
+												<h5 class="thumbnail-caption text-center bold bg-info no-margin p5">{{ theme.name }}</h5>
+											</div>
+										</label>
+										{{/each}}
+									</div>
 								</div>
 							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Site address</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control"
-										name="name"
-										placeholder="Site path"
-										value="{{ content.site.name }}"
-										data-bind-value="site-label|slug"
-										data-bind-id="site-name"
-										data-parser="slug"
-										data-validate="slug"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-									<p class="help-block">The site's web address will be {{ session.urls.webroot }}<strong data-bind-value="site-name">{{ site.name }}</strong></p>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Site folder</label>
-								<div class="col-sm-10">
-									<input type="hidden" name="root.adapter"
-										value="{{ content.site.root.adapter }}"
-									/>
-									<input type="text" class="form-control"
-									 	name="root.path"
-										placeholder="Site folder"
-										value="{{ content.site.root.path }}"
-										data-bind-value="site-name|format:'{{ content.sitesRoot }}$0'"
-										data-validate="notEmpty"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-									<p class="help-block">This tells Shunt where to find the site's files within your Dropbox.<br/>If this folder doesn't already exist, it will be created.</p>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Site theme</label>
-								<div class="col-sm-10">
-									{{#each content.themes as |theme|}}
-									<label class="theme-preview-control">
-										<input type="radio" name="theme.id"
-											value="{{ ../content.site.theme.id }}"
-											{{#if (eq theme.id ../content.site.theme.id)}}checked="checked"{{/if}}
-										/>
-										<div class="thumbnail no-padding">
-											<img class="thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/thumbnail">
-											<h5 class="thumbnail-caption text-center bold bg-default no-margin p5">{{ theme.name }}</h5>
+						</div>
+					</div>
+				</div>
+				<div class="panel">
+					<div class="panel-heading">
+						<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Site settings</h4>
+					</div>
+					<div id="create-form-fields" class="panel-collapse collapse">
+						<div class="panel-body form-horizontal bordered-group">
+							<div class="row no-margin">
+								<div class="col-lg-12">
+									<div id="row">
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Site name</label>
+											<div class="col-sm-10">
+												<input type="text" class="form-control" autofocus="autofocus"
+													name="label"
+													value="{{ content.site.label }}"
+													data-bind-id="site-label"
+													data-validate="notEmpty"
+													data-trigger="focus"
+												/>
+												<span class="form-control-feedback fa" aria-hidden="true"></span>
+												<p class="help-block">The site name is used to identify the site in the Shunt admin area</p>
+											</div>
 										</div>
-									</label>
-									{{/each}}
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Site address</label>
+											<div class="col-sm-10">
+												<div class="web-address-control">
+													<span>{{ session.urls.webroot }}</span>
+													<input type="text" class="form-control"
+														name="name"
+														value="{{ content.site.name }}"
+														data-bind-value="site-label|slug"
+														data-bind-id="site-name"
+														data-parser="slug"
+														data-validate="slug"
+														data-trigger="focus"
+													/>
+												</div>
+												<p class="help-block">Once the site has been published, it will be publicly accessible at this web address.<br/>You'll have the chance to preview your site before you publish it.</p>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Site folder</label>
+											<div class="col-sm-10">
+												<input type="hidden" name="root.adapter"
+													value="{{ content.site.root.adapter }}"
+												/>
+												<input type="text" class="form-control"
+												 	name="root.path"
+													value="{{ content.site.root.path }}"
+													data-bind-value="site-name|format:'{{ content.sitesRoot }}$0'"
+													data-validate="notEmpty"
+													data-trigger="focus"
+												/>
+												<span class="form-control-feedback fa" aria-hidden="true"></span>
+												<p class="help-block">This tells Shunt where to store the site's files within your Dropbox.<br/>If this folder doesn't already exist, it will be created.</p>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-offset-2 col-sm-10">
+												<button type="submit" class="btn btn-success">Create site</button>
+												<button type="reset" class="btn btn-default pull-right" data-toggle="collapse" data-target="#create-form-theme" data-parent="#create-form">Cancel</button>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
-									<button type="submit" class="btn btn-success">Create site</button>
-									<a href="{{ session.urls.sites }}" class="btn btn-default pull-right">Cancel</a>
-								</div>
-							</div>
-						</form>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</form>
 	</div>
 </div>

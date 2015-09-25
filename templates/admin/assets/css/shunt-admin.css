@@ -500,6 +500,13 @@ footer.content-footer {
 	color: white;
 }
 
+.web-address-control input {
+	display: inline;
+	width: auto;
+	margin-left: -2px;
+	padding-left: 2px;
+}
+
 .has-error .form-control-feedback.fa:before {
 	content: "\f00d"
 }
