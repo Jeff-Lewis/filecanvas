@@ -18,6 +18,7 @@ var handlebarsEngine = require('../engines/handlebars');
 
 var loadAdapters = require('../utils/loadAdapters');
 var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
+var HttpError = require('../errors/HttpError');
 
 var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
@@ -27,6 +28,7 @@ var RegistrationService = require('../services/RegistrationService');
 var faqData = require('../../templates/admin/faq.json');
 
 var THEME_MANIFEST_FILENAME = 'theme.json';
+var THEME_THUMBNAIL_FILENAME = 'thumbnail.png';
 
 module.exports = function(database, options) {
 	options = options || {};
@@ -73,6 +75,7 @@ module.exports = function(database, options) {
 	initRoutes(app, passport, database, {
 		themes: themes,
 		defaultTheme: defaultTheme,
+		themesPath: themesPath,
 		themesUrl: themesUrl,
 		faqData: faqData,
 		adapters: adapters,
@@ -98,6 +101,7 @@ module.exports = function(database, options) {
 			var themeManifestPath = path.join(themesPath, filename, THEME_MANIFEST_FILENAME);
 			var theme = require(themeManifestPath);
 			theme.id = filename;
+			theme.thumbnail = theme.thumbnail || THEME_THUMBNAIL_FILENAME;
 			theme.defaults = parseThemeConfigDefaults(theme);
 			themes[filename] = theme;
 			return themes;
@@ -213,6 +217,7 @@ module.exports = function(database, options) {
 		options = options || {};
 		var themes = options.themes;
 		var defaultTheme = options.defaultTheme;
+		var themesPath = options.themesPath;
 		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
 		var siteAuthOptions = options.siteAuth;
@@ -220,7 +225,7 @@ module.exports = function(database, options) {
 		var adaptersConfig = options.adaptersConfig;
 
 		initPublicRoutes(app, passport, adapters);
-		initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig);
+		initPrivateRoutes(app, passport, themes, defaultTheme, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -278,7 +283,8 @@ module.exports = function(database, options) {
 						sites: '/sites',
 						preview: '/preview',
 						terms: '/terms',
-						privacy: '/privacy'
+						privacy: '/privacy',
+						themes: '/themes'
 					};
 				}
 			}
@@ -414,7 +420,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, defaultTheme, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig) {
+		function initPrivateRoutes(app, passport, themes, defaultTheme, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -436,6 +442,8 @@ module.exports = function(database, options) {
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
 			app.get('/sites/:site/theme', ensureAuth, initAdminSession, retrieveSiteThemeRoute);
+
+			app.get('/themes/:theme/thumbnail', ensureAuth, initAdminSession, createThemeThumbnailServer(themes, themesPath));
 
 			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
@@ -612,7 +620,7 @@ module.exports = function(database, options) {
 					published: false,
 					home: false,
 					theme: {
-						name: defaultTheme.id,
+						id: defaultTheme.id,
 						config: defaultTheme.defaults
 					}
 				};
@@ -970,6 +978,20 @@ module.exports = function(database, options) {
 							});
 						});
 					}
+			}
+
+			function createThemeThumbnailServer(themes, themesPath) {
+				var staticServer = express.static(path.resolve(themesPath));
+				return function(req, res, next) {
+					var themeId = req.params.theme;
+					if (!(themeId in themes)) {
+						return next(new HttpError(404));
+					}
+					var theme = themes[themeId];
+					var thumbnailPath = theme.thumbnail;
+					req.url = '/' + themeId + '/' + thumbnailPath;
+					return staticServer(req, res, next);
+				};
 			}
 
 			function retrieveFileMetadataRoute(req, res, next) {
