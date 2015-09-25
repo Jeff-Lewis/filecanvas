@@ -1,45 +1,41 @@
+'use strict';
+
 // Sticky nav
 
 $(window).load(function(){
-  $("#mainnav").sticky({ topSpacing: 0 });
+  $('#mainnav').sticky({ topSpacing: 0 });
 });
 
 
 // One Page Navigation
 
 $('#fluid-nav').onePageNav({
-    currentClass: 'current',
-    changeHash: false,
-    scrollSpeed: 750,
-    scrollOffset: 30,
-    scrollThreshold: 0.5,
-    filter: ':not(.external)',
-    easing: 'swing',
-    begin: function() {
-        //I get fired when the animation is starting
-    },
-    end: function() {
-        //I get fired when the animation is ending
-    },
-    scrollChange: function($currentListItem) {
-        //I get fired when you enter a section and I pass the list item of the section
-    }
+	currentClass: 'current',
+	changeHash: false,
+	scrollSpeed: 750,
+	scrollOffset: 30,
+	scrollThreshold: 0.5,
+	filter: ':not(.external)',
+	easing: 'swing'
 });
 
 
 // Smooth scroll
 
 $(document).ready(function() {
-
-    $(".scroll-link").click(function() {
-        $("html, body").animate({
-            scrollTop: $($(this).attr("href")).offset().top + "px"
-        }, {
-            duration: 500,
-            easing: "swing"
-        });
-        return false;
-    });
+	$(document).on('click', '.scroll-link', function(event) {
+		console.log('Scroll-link, preventing');
+		event.preventDefault();
+		var $element = $(this);
+		var targetSelector = $element.attr('href');
+		var $targetElement = $(targetSelector);
+		$('html, body').animate({
+			scrollTop: $targetElement.offset().top + 'px'
+		}, {
+			duration: 500,
+			easing: 'swing'
+		});
+	});
 
 });
 
@@ -47,185 +43,40 @@ $(document).ready(function() {
 // Selectnav
 
 selectnav('fluid-nav', {
-    nested: false,
-    label: false
+	nested: false,
+	label: false
 });
 
 selectnav('fixed-nav', {
-    nested: false,
-    label: false
+	nested: false,
+	label: false
 });
 
 
-// Parallax
-
-$(document).ready(function(){
-	//.parallax(xPosition, speedFactor, outerHeight) options:
-	//xPosition - Horizontal position of the element
-	//inertia - speed to move relative to vertical scroll. Example: 0.1 is one tenth the speed of scrolling, 2 is twice the speed of scrolling
-	//outerHeight (true/false) - Whether or not jQuery should use it's outerHeight option to determine when a section is in the viewport
-	var isMobile = {
-        Android: function() {
-            return navigator.userAgent.match(/Android/i);
-        },
-        BlackBerry: function() {
-            return navigator.userAgent.match(/BlackBerry/i);
-        },
-        iOS: function() {
-            return navigator.userAgent.match(/iPhone|iPad|iPod/i);
-        },
-        Opera: function() {
-            return navigator.userAgent.match(/Opera Mini/i);
-        },
-        Windows: function() {
-            return navigator.userAgent.match(/IEMobile/i);
-        },
-        any: function() {
-            return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
-        }
-    };
-
-	var testMobile = isMobile.any();
-
-	if (testMobile == null)
-	{
-		$('.bg1').parallax("50%", 0.3);
-		$('.bg2').parallax("50%", 0.3);
-		$('.bg3').parallax("50%", 0.3);
-		$('.bg4').parallax("50%", 0.3);
-	}
-})
-
-
-// Flexslider 2
+// Filtering
 
 $(function(){
-	//SyntaxHighlighter.all();
-	});
-		$(window).load(function(){
-		$('.flexslider').flexslider({
-		animation: "slide",
-		slideshow: false,
-		start: function(slider){
-		  $('body').removeClass('loading');
-		}
-	});
-});
+	$(document).on('click', '.page .option-set a', function(event) {
+		event.preventDefault();
 
+		var $element = $(this);
+		var $optionSet = $element.closest('.option-set');
+		var $group = $element.closest('.page');
 
-// Isotope
+		var isAlreadySelected = $element.hasClass('selected');
+		if (isAlreadySelected) { return false; }
 
-$(function(){
-	var $containers = $('.posts');
-	for(var i = 0; i < $containers.length; i++){
-		var $container = $containers.eq(i);
-		isoInstance($container);
-	}
-});
-
-// Allow for multiple instances of Isotope on the page
-function isoInstance($group){
-
-	/*
-	$group.isotope({
-		itemSelector : '.post'
-	});
-	*/
-
-	// Find filters
-	var $optionSets = $group.parent().find('.option-set');
-	var	$optionLinks = $optionSets.find('a');
-
-	$optionLinks.click(function(){
-		$this = $(this);
-		// don't proceed if already selected
-		if ( $this.hasClass('selected') ) {
-			return false;
-		}
-
-		var $optionSet = $this.parents('.option-set');
 		$optionSet.find('.selected').removeClass('selected');
-		$this.addClass('selected');
+		$element.addClass('selected');
 
-		/*
-		// make option object dynamically, i.e. { filter: '.my-filter-class' }
-		var options = {},
-			key = $optionSet.attr('data-option-key'),
-			value = $this.attr('data-option-value');
-
-		// parse 'false' as false boolean
-		value = value === 'false' ? false : value;
-		options[ key ] = value;
-			if ( key === 'layoutMode' && typeof changeLayoutMode === 'function' ) {
-			// changes in layout modes need extra logic
-			changeLayoutMode( $this, options )
-		} else {
-			// otherwise, apply new options
-			$group.isotope( options );
-		}
-		*/
-
-		var filterSelector = $this.attr('data-option-value');
+		var filterSelector = $element.attr('data-option-value');
 		$group.find('.post').each(function(index, element) {
 			var $element = $(element);
 			$element.toggleClass('hidden', !$element.is(filterSelector));
 		});
 
 		return false;
-	})
-}
-
-
-
-
-// Fancybox lightbox
-
-$(document).ready(function() {
-	$(".fancybox").fancybox({
-		padding : 0,
-		beforeShow: function () {
-
-					this.title = $(this.element).attr('title');
-					this.title = '<h4>' + this.title + '</h4><hr class="gray">' + $(this.element).find('img').attr('alt');
-
-
-		            if (this.title) {
-		                // New line
-		                this.title += '<br />';
-
-		            }
-		        },
-        afterShow: function() {
-            // Render tweet button
-            twttr.widgets.load();
-        },
-		helpers : {
-			title : { type: 'inside' },
-		}
 	});
-	$('.fancybox-media').fancybox({
-		openEffect  : 'none',
-		closeEffect : 'none',
-		helpers : {
-			media : {},
-		}
-	});
-});
-
-
-
-// Flickr Feed
-
-$(document).ready(function(){
-
-	$('#basicuse').jflickrfeed({
-		limit: 12,
-		qstrings: {
-			id: '32815517@N00'
-		},
-		itemTemplate: '<li><a rel="photostream" class="fancybox" title="{{title}}" href="{{image_b}}"><i class="icon-search"></i><div class="hover"></div></a><img src="{{image_s}}" alt="{{title}}" /></li>'
-	});
-
 });
 
 
@@ -264,52 +115,55 @@ $(document).ready(function() {
 	}
 
 	function initUploadHotspots(selector, callback) {
-		$('[data-admin-upload]').on('dragenter dragover', function(event) {
-			var $element = $(this);
-			var dataTransfer = event.originalEvent.dataTransfer;
-			var mimeTypes = Array.prototype.slice.call(dataTransfer.types);
-			var isFileDrag = (mimeTypes.indexOf('Files') !== -1);
-			if (!isFileDrag) { return; }
-			if (event.type === 'dragenter') {
-				showDragFeedback($element);
-			}
-			acceptDropOperation(event.originalEvent, 'copy');
-		}).on('dragleave', function(event) {
-			var $element = $(this);
-			var targetElement = event.target;
-			var containsTargetElement = targetElement && $.contains(this, targetElement);
-			if (containsTargetElement) { return; }
-			hideDragFeedback($element);
-		}).on('drop', function(event) {
-			var $element = $(this);
-			event.preventDefault();
-			hideDragFeedback($element);
-			var dataTransfer = event.originalEvent.dataTransfer;
-			if (!dataTransfer) { return; }
-			var pathPrefix = $element.data('admin-upload') || '';
-			if (dataTransfer.items) {
-				loadDataTransferItems(dataTransfer.items, onFilesLoaded);
-			} else if (dataTransfer.files) {
-				loadDataTransferFiles(dataTransfer.files, onFilesLoaded);
-			}
-
-
-			function onFilesLoaded(files) {
-				var prefixedFiles = getPathPrefixedFiles(files, pathPrefix);
-				callback(prefixedFiles);
-
-
-				function getPathPrefixedFiles(files, pathPrefix) {
-					if (!pathPrefix) { return files; }
-					return files.map(function(file) {
-						return {
-							path: pathPrefix + file.path,
-							data: file.data
-						};
-					});
+		$(document)
+			.on('dragenter dragover', '[data-admin-upload]', function(event) {
+				var $element = $(this);
+				var dataTransfer = event.originalEvent.dataTransfer;
+				var mimeTypes = Array.prototype.slice.call(dataTransfer.types);
+				var isFileDrag = (mimeTypes.indexOf('Files') !== -1);
+				if (!isFileDrag) { return; }
+				if (event.type === 'dragenter') {
+					showDragFeedback($element);
 				}
-			}
-		});
+				acceptDropOperation(event.originalEvent, 'copy');
+			})
+			.on('dragleave', '[data-admin-upload]', function(event) {
+				var $element = $(this);
+				var targetElement = event.target;
+				var containsTargetElement = targetElement && $.contains(this, targetElement);
+				if (containsTargetElement) { return; }
+				hideDragFeedback($element);
+			})
+			.on('drop', '[data-admin-upload]', function(event) {
+				var $element = $(this);
+				event.preventDefault();
+				hideDragFeedback($element);
+				var dataTransfer = event.originalEvent.dataTransfer;
+				if (!dataTransfer) { return; }
+				var pathPrefix = $element.data('admin-upload') || '';
+				if (dataTransfer.items) {
+					loadDataTransferItems(dataTransfer.items, onFilesLoaded);
+				} else if (dataTransfer.files) {
+					loadDataTransferFiles(dataTransfer.files, onFilesLoaded);
+				}
+
+
+				function onFilesLoaded(files) {
+					var prefixedFiles = getPathPrefixedFiles(files, pathPrefix);
+					callback(prefixedFiles);
+
+
+					function getPathPrefixedFiles(files, pathPrefix) {
+						if (!pathPrefix) { return files; }
+						return files.map(function(file) {
+							return {
+								path: pathPrefix + file.path,
+								data: file.data
+							};
+						});
+					}
+				}
+			});
 	}
 
 	function acceptDropOperation(event, dropEffect) {
