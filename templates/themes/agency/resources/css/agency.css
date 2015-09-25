@@ -100,16 +100,6 @@ header nav {
 	margin-right: 10px;
 }
 
-.logout {
-	font-weight: 700;
-	text-transform: uppercase;
-	font-size: 12px;
-	border: none;
-}
-.logout:hover {
-    text-decoration: none;
-}
-
 footer a:hover {
 	border-bottom: 1px solid white;
 }
