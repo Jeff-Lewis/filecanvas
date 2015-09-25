@@ -3,6 +3,7 @@
 
 /db/data/
 /sites
+/.thumbnailcache
 
 /keys/cert.pem
 /keys/key.pem

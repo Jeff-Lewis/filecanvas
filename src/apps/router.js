@@ -17,6 +17,7 @@ var forceSsl = require('../middleware/forceSsl');
 var useSubdomainAsPathPrefix = require('../middleware/useSubdomainAsPathPrefix');
 var errorHandler = require('../middleware/errorHandler');
 var uploader = require('../middleware/uploader');
+var thumbnailer = require('../middleware/thumbnailer');
 
 module.exports = function(database, config) {
 	var host = config.host;
@@ -27,6 +28,11 @@ module.exports = function(database, config) {
 
 	if (config.adapters.local) {
 		config.adapters.local.download = getSubdomainUrl('download', {
+			host: host,
+			httpPort: config.http.port,
+			httpsPort: config.https.port
+		});
+		config.adapters.local.thumbnail = getSubdomainUrl('thumbnail', {
 			host: host,
 			httpPort: config.http.port,
 			httpsPort: config.https.port
@@ -66,6 +72,11 @@ module.exports = function(database, config) {
 	if (config.adapters.local) {
 		subdomains['download'] = express.static(config.adapters.local.root);
 		subdomains['upload'] = uploader(config.adapters.local.root, { host: host });
+		subdomains['thumbnail'] = thumbnailer(config.adapters.local.root, {
+			width: config.adapters.local.thumbnails.width,
+			height: config.adapters.local.thumbnails.height,
+			cache: config.adapters.local.thumbnails.cache
+		});
 	}
 
 	initMiddleware(app, {

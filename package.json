@@ -53,6 +53,7 @@
     "passport-dropbox-oauth2": "^0.1.6",
     "passport-local": "^1.0.0",
     "promise-map-series": "^0.2.1",
+    "quickthumb": "0.0.11",
     "showdown": "^1.2.3",
     "slug": "^0.9.1",
     "stat-mode": "^0.2.1",

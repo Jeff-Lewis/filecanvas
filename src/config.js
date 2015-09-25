@@ -21,6 +21,10 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local = {};
 	config.adapters.local.sitesPath = '/';
 	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../sites');
+	config.adapters.local.thumbnails = {};
+	config.adapters.local.thumbnails.width = 256;
+	config.adapters.local.thumbnails.height = 256;
+	config.adapters.local.thumbnails.cache = path.resolve(__dirname, '../.thumbnailcache');
 	config.adapters.local.auth = {};
 	config.adapters.local.auth.strategy = 'bcrypt';
 	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };
