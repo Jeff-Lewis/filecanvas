@@ -643,10 +643,7 @@ module.exports = function(database, options) {
 					private: false,
 					published: false,
 					home: false,
-					theme: {
-						id: defaultTheme.id,
-						config: defaultTheme.defaults
-					}
+					theme: null
 				};
 				var templateData = {
 					title: 'Site dashboard',
