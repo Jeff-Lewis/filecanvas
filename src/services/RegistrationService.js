@@ -18,7 +18,6 @@ RegistrationService.prototype.setPendingUser = function(userDetails, adapter, ad
 		adapter: adapter,
 		adapterConfig: adapterConfig
 	};
-	console.log('Setting pending user:', this.req.session.registration);
 };
 
 RegistrationService.prototype.clearPendingUser = function() {
