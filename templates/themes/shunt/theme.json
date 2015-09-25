@@ -3,22 +3,9 @@
 	"config": [
 		{
 			"name": "content",
-			"label": "Site content",
+			"label": "Text",
+			"icon": "align-left",
 			"fields": [
-				{
-					"name": "title",
-					"type": "string",
-					"default": "<%= site.label %>",
-					"label": "Page title",
-					"editor": {
-						"name": "input",
-						"options": {
-							"type": "text",
-							"placeholder": "Browser tab title",
-							"maxLength": 128
-						}
-					}
-				},
 				{
 					"name": "pageHeader",
 					"type": "string",
@@ -177,8 +164,9 @@
 			]
 		},
 		{
-			"name": "styles",
-			"label": "Styles",
+			"name": "colors",
+			"label": "Colours",
+			"icon": "paint-brush",
 			"fields": [
 				{
 					"name": "brandColor",
@@ -235,7 +223,14 @@
 							"presets": null
 						}
 					}
-				},
+				}
+			]
+		},
+		{
+			"name": "images",
+			"label": "Images",
+			"icon": "picture-o",
+			"fields": [
 				{
 					"name": "navLogo",
 					"type": "string",
@@ -267,8 +262,30 @@
 			]
 		},
 		{
+			"name": "browser",
+			"label": "Browser",
+			"icon": "desktop",
+			"fields": [
+				{
+					"name": "title",
+					"type": "string",
+					"default": "<%= site.label %>",
+					"label": "Tab title",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Tab title",
+							"maxLength": 128
+						}
+					}
+				}
+			]
+		},
+		{
 			"name": "scripts",
 			"label": "Custom scripts",
+			"icon": "code",
 			"fields": [
 				{
 					"name": "css",

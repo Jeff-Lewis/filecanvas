@@ -20,12 +20,12 @@
 	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
 	<style type="text/css">
 		::selection {
-			background-color: {{ theme.styles.brandColor }};
-			color: {{ theme.styles.navItemColor }};
+			background-color: {{ theme.colors.brandColor }};
+			color: {{ theme.colors.navItemColor }};
 		}
 		::-moz-selection {
-			background-color: {{ theme.styles.brandColor }};
-			color: {{ theme.styles.navItemColor }};
+			background-color: {{ theme.colors.brandColor }};
+			color: {{ theme.colors.navItemColor }};
 		}
 		a,
 		.logout:hover,
@@ -34,51 +34,51 @@
 		#slidecaption strong,
 		.option-set li a:hover,
 		.option-set li a.selected {
-			color: {{ theme.styles.brandColor }};
+			color: {{ theme.colors.brandColor }};
 		}
 		nav#mainnav,
 		.project-wrp:hover,
 		.copyright {
-			background-color: {{ theme.styles.brandColor }};
+			background-color: {{ theme.colors.brandColor }};
 		}
 		.btn-primary,
 		.btn-primary:link,
 		.btn-primary:hover,
 		.btn-primary:active,
 		.btn-primary:focus {
-			background-color: {{ theme.styles.brandColor }} !important;
+			background-color: {{ theme.colors.brandColor }} !important;
 		}
 		a,
 		hr,
 		hr.mini {
-			border-bottom: 1px solid {{ theme.styles.brandColor }};
+			border-bottom: 1px solid {{ theme.colors.brandColor }};
 		}
 		.logout,
 		nav #fluid-nav li a,
 		.project-wrp:hover .project-name,
 		.project-wrp:hover .project-client,
 		.project-wrp:hover .project-date {
-			color: {{ theme.styles.navItemColor }};
+			color: {{ theme.colors.navItemColor }};
 		}
 		.project-wrp:hover hr {
-			border-color: {{ theme.styles.navItemColor }};
+			border-color: {{ theme.colors.navItemColor }};
 		}
 		nav #fluid-nav li a:hover {
-			color: {{ theme.styles.navItemRolloverColor }};
+			color: {{ theme.colors.navItemRolloverColor }};
 		}
 		nav #fluid-nav li.current a {
-			color: {{ theme.styles.navItemSelectedColor }};
+			color: {{ theme.colors.navItemSelectedColor }};
 		}
 
-		{{#if theme.styles.headerLogo}}
+		{{#if theme.images.headerLogo}}
 		header .logo {
-			background-image: url('{{{ theme.styles.headerLogo }}}');
+			background-image: url('{{{ theme.images.headerLogo }}}');
 		}
 		{{/if}}
 
-		{{#if theme.styles.navLogo}}
+		{{#if theme.images.navLogo}}
 		nav#mainnav .logo {
-			background-image: url('{{{ theme.styles.navLogo }}}');
+			background-image: url('{{{ theme.images.navLogo }}}');
 		}
 		{{/if}}
 	</style>
@@ -96,7 +96,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					{{#if theme.styles.headerLogo}}
+					{{#if theme.images.headerLogo}}
 					<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
 					{{/if}}
 				</div>
@@ -124,7 +124,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
-						{{#if theme.styles.navLogo}}
+						{{#if theme.images.navLogo}}
 						<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
 						{{/if}}
 					</div>
