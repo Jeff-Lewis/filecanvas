@@ -16,6 +16,7 @@ var stripTrailingSlash = require('../middleware/stripTrailingSlash');
 var forceSsl = require('../middleware/forceSsl');
 var useSubdomainAsPathPrefix = require('../middleware/useSubdomainAsPathPrefix');
 var errorHandler = require('../middleware/errorHandler');
+var uploader = require('../middleware/uploader');
 
 module.exports = function(database, config) {
 	var host = config.host;
@@ -64,6 +65,7 @@ module.exports = function(database, config) {
 
 	if (config.adapters.local) {
 		subdomains['download'] = express.static(config.adapters.local.root);
+		subdomains['upload'] = uploader(config.adapters.local.root, { host: host });
 	}
 
 	initMiddleware(app, {
