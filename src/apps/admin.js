@@ -35,7 +35,6 @@ module.exports = function(database, options) {
 	var host = options.host;
 	var themesPath = options.themesPath;
 	var themesUrl = options.themesUrl;
-	var defaultSiteTheme = options.defaultSiteTheme;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
 
@@ -43,7 +42,6 @@ module.exports = function(database, options) {
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!themesPath) { throw new Error('Missing site themes path'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
-	if (!defaultSiteTheme) { throw new Error('Missing default site theme'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
@@ -62,7 +60,6 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	var themes = loadThemes(themesPath);
-	var defaultTheme = themes[defaultSiteTheme];
 
 	initAuth(app, passport, database, adapters);
 	initAssetsRoot(app, '/assets', {
@@ -74,7 +71,6 @@ module.exports = function(database, options) {
 	});
 	initRoutes(app, passport, database, {
 		themes: themes,
-		defaultTheme: defaultTheme,
 		themesPath: themesPath,
 		themesUrl: themesUrl,
 		faqData: faqData,
@@ -216,7 +212,6 @@ module.exports = function(database, options) {
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
 		var themes = options.themes;
-		var defaultTheme = options.defaultTheme;
 		var themesPath = options.themesPath;
 		var themesUrl = options.themesUrl;
 		var faqData = options.faqData;
@@ -225,7 +220,7 @@ module.exports = function(database, options) {
 		var adaptersConfig = options.adaptersConfig;
 
 		initPublicRoutes(app, passport, adapters);
-		initPrivateRoutes(app, passport, themes, defaultTheme, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig);
+		initPrivateRoutes(app, passport, themes, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -420,7 +415,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, defaultTheme, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig) {
+		function initPrivateRoutes(app, passport, themes, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -681,7 +676,7 @@ module.exports = function(database, options) {
 				var isPrivate = (req.body.private === 'true');
 				var isPublished = (req.body.published === 'true');
 
-				var themeId = req.body.theme && req.body.theme.id || defaultSiteTheme;
+				var themeId = req.body.theme && req.body.theme.id || null;
 				var themeConfig = req.body.theme && req.body.theme.config || null;
 
 				var siteModel = {

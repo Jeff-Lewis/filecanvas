@@ -62,7 +62,6 @@ config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.themes = {};
 config.themes.root = process.env.THEMES_ROOT || null;
-config.themes.default = process.env.THEMES_DEFAULT || null;
 
 config.auth = {};
 config.auth.site = {};
