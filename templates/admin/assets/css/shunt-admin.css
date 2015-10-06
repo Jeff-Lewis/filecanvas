@@ -512,6 +512,9 @@ footer.content-footer {
 .input-group.web-address-control .form-control {
 	padding-left: 2px;
 }
+.input-group.web-address-control .form-control-feedback.fa {
+	right: 5px;
+}
 
 .has-error .form-control-feedback.fa:before {
 	content: "\f00d"
