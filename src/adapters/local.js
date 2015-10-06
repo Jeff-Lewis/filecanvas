@@ -213,10 +213,13 @@ LocalAdapter.prototype.loadFolderContents = function(folderPath, options) {
 };
 
 LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
+	var sitesRoot = this.sitesRoot;
+	var fullPath = path.resolve(sitesRoot, filePath);
 	return new Promise(function(resolve, reject) {
-		fs.stat(filePath, function(error, stat) {
+		fs.stat(fullPath, function(error, stat) {
+			if (error && error.code === 'ENOENT') { return resolve(null); }
 			if (error) { return reject(error); }
-			var fileModel = parseStatModel(stat, filePath);
+			var fileModel = parseStatModel(stat, fullPath);
 			resolve(fileModel);
 		});
 	});
