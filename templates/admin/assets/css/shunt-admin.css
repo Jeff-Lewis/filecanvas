@@ -501,11 +501,13 @@ footer.content-footer {
 }
 
 .input-group.web-address-control .input-group-addon {
-	background-color: #f4f4f4;
+	border: none;
+	background-color: transparent;
+	padding-left: 6px;
 	padding-right: 2px;
 }
 .input-group.web-address-control.has-error .input-group-addon {
-	background-color: #d96557;
+	color: #616161;
 }
 .input-group.web-address-control .form-control {
 	padding-left: 2px;
