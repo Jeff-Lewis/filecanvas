@@ -200,26 +200,10 @@ function initLivePreview() {
 		var previewWindow = $previewElement.prop('contentWindow');
 		var shuntApi = window.shunt;
 		var adapterConfig = loadAdapterConfig();
-		previewWindow.shunt = {
-			uploadFiles: function(files) {
-				showUploadProgressIndicator();
-				shuntApi.uploadFiles(files, adapterConfig)
-					.progress(function(uploadBatch) {
-						setUploadProgress(uploadBatch);
-					})
-					.then(function(uploadBatch) {
-						setUploadProgress(uploadBatch);
-						hideUploadProgressIndicator();
-						updatePreview({
-							cached: false,
-							config: currentThemeConfig
-						});
-					})
-					.fail(function(error) {
-						showUploadError(error);
-					});
-			}
-		};
+		initHotspots(previewWindow, function(files) {
+			uploadFiles(files, shuntApi, adapterConfig);
+		});
+
 
 		function loadAdapterConfig() {
 			var cookies = parseCookies(document.cookie);
@@ -248,54 +232,213 @@ function initLivePreview() {
 			}
 		}
 
+		function uploadFiles(files, shuntApi, adapterConfig) {
+			showUploadProgressIndicator();
+			shuntApi.uploadFiles(files, adapterConfig)
+				.progress(function(uploadBatch) {
+					setUploadProgress(uploadBatch);
+				})
+				.then(function(uploadBatch) {
+					setUploadProgress(uploadBatch);
+					hideUploadProgressIndicator();
+					updatePreview({
+						cached: false,
+						config: currentThemeConfig
+					});
+				})
+				.fail(function(error) {
+					showUploadError(error);
+				});
 
-		function parseCookies(cookiesString) {
-			var cookies = cookiesString.split(/;\s*/).map(function(cookieString) {
-				var match = /^(.*?)=(.*)$/.exec(cookieString);
-				return {
-					key: match[1],
-					value: match[2]
-				};
-			}).reduce(function(cookies, cookie) {
-				cookies[cookie.key] = decodeURIComponent(cookie.value);
-				return cookies;
-			}, {});
-			return cookies;
+
+				function showUploadProgressIndicator() {
+					setProgressBarValue($progressBarElement, {
+						loaded: 0,
+						total: 0
+					});
+					$progressBarElement.attr('aria-valuenow', 0);
+					$progressElement.addClass('active');
+				}
+
+				function hideUploadProgressIndicator() {
+					$progressElement.removeClass('active');
+				}
+
+				function setProgressBarValue($element, options) {
+					options = options || {};
+					var loaded = options.loaded || 0;
+					var total = options.total || 0;
+					var percentLoaded = 100 * (total === 0 ? 0 : loaded / total);
+					$element.attr('aria-valuemin', 0);
+					$element.attr('aria-valuemax', total);
+					$element.attr('aria-valuenow', loaded);
+					$element.attr('data-percent', percentLoaded);
+					$element.css('width', percentLoaded + '%');
+				}
+
+				function showUploadError(error) {
+					alert('Upload failed'); // eslint-disable-line no-alert
+				}
+
+				function setUploadProgress(uploadBatch) {
+					setProgressBarValue($progressBarElement, {
+						loaded: uploadBatch.bytesLoaded,
+						total: uploadBatch.bytesTotal
+					});
+				}
 		}
 
-		function showUploadProgressIndicator() {
-			setProgressBarValue($progressBarElement, {
-				loaded: 0,
-				total: 0
-			});
-			$progressBarElement.attr('aria-valuenow', 0);
-			$progressElement.addClass('active');
-		}
+		function initHotspots(previewWindow, uploadCallback) {
+			var $previewDocument = $(previewWindow.document);
 
-		function hideUploadProgressIndicator() {
-			$progressElement.removeClass('active');
-		}
+			$previewDocument.ready(function() {
+				disableContextMenu();
+				initUploadHotspots('[data-admin-upload]', function(files) {
+					uploadCallback(files);
+				});
 
-		function setProgressBarValue($element, options) {
-			options = options || {};
-			var loaded = options.loaded || 0;
-			var total = options.total || 0;
-			var percentLoaded = 100 * (total === 0 ? 0 : loaded / total);
-			$element.attr('aria-valuemin', 0);
-			$element.attr('aria-valuemax', total);
-			$element.attr('aria-valuenow', loaded);
-			$element.attr('data-percent', percentLoaded);
-			$element.css('width', percentLoaded + '%');
-		}
 
-		function showUploadError(error) {
-			alert('Upload failed'); // eslint-disable-line no-alert
-		}
+				function disableContextMenu() {
+					$previewDocument.on('contextmenu', function(event) {
+						event.preventDefault();
+					});
+				}
 
-		function setUploadProgress(uploadBatch) {
-			setProgressBarValue($progressBarElement, {
-				loaded: uploadBatch.bytesLoaded,
-				total: uploadBatch.bytesTotal
+				function initUploadHotspots(selector, callback) {
+					$previewDocument
+						.on('dragenter dragover', '[data-admin-upload]', function(event) {
+							var $element = $(this);
+							var dataTransfer = event.originalEvent.dataTransfer;
+							var mimeTypes = Array.prototype.slice.call(dataTransfer.types);
+							var isFileDrag = (mimeTypes.indexOf('Files') !== -1);
+							if (!isFileDrag) { return; }
+							if (event.type === 'dragenter') {
+								showDragFeedback($element);
+							}
+							acceptDropOperation(event.originalEvent, 'copy');
+						})
+						.on('dragleave', '[data-admin-upload]', function(event) {
+							var $element = $(this);
+							var targetElement = event.target;
+							var containsTargetElement = targetElement && $.contains(this, targetElement);
+							if (containsTargetElement) { return; }
+							hideDragFeedback($element);
+						})
+						.on('drop', '[data-admin-upload]', function(event) {
+							var $element = $(this);
+							event.preventDefault();
+							hideDragFeedback($element);
+							var dataTransfer = event.originalEvent.dataTransfer;
+							if (!dataTransfer) { return; }
+							var pathPrefix = $element.data('admin-upload') || '';
+							if (dataTransfer.items) {
+								loadDataTransferItems(dataTransfer.items, onFilesLoaded);
+							} else if (dataTransfer.files) {
+								loadDataTransferFiles(dataTransfer.files, onFilesLoaded);
+							}
+
+
+							function onFilesLoaded(files) {
+								var prefixedFiles = getPathPrefixedFiles(files, pathPrefix);
+								callback(prefixedFiles);
+
+
+								function getPathPrefixedFiles(files, pathPrefix) {
+									if (!pathPrefix) { return files; }
+									return files.map(function(file) {
+										return {
+											path: pathPrefix + file.path,
+											data: file.data
+										};
+									});
+								}
+							}
+						});
+				}
+
+				function acceptDropOperation(event, dropEffect) {
+					event.dataTransfer.dropEffect = dropEffect;
+					event.preventDefault();
+				}
+
+				function showDragFeedback($element) {
+					$element.addClass('dragging');
+				}
+
+				function hideDragFeedback($element) {
+					$element.removeClass('dragging');
+				}
+
+				function loadDataTransferItems(itemsList, callback) {
+					var items = Array.prototype.slice.call(itemsList);
+					var entries = items.map(function(item) {
+						if (item.getAsEntry) { return item.getAsEntry(); }
+						if (item.webkitGetAsEntry) { return item.webkitGetAsEntry(); }
+						return item;
+					});
+					loadEntries(entries, callback);
+
+
+					function loadEntries(entries, callback) {
+						if (entries.length === 0) { return callback([]); }
+						var numRemaining = entries.length;
+						var files = entries.map(function(entry, index) {
+							loadEntry(entry, function(result) {
+								files[index] = result;
+								if (--numRemaining === 0) {
+									var flattenedFiles = getFlattenedFiles(files);
+									callback(flattenedFiles);
+								}
+							});
+							return undefined;
+
+
+							function getFlattenedFiles(files) {
+								return files.reduce(function(flattenedFiles, file) {
+									return flattenedFiles.concat(file);
+								}, []);
+							}
+						});
+
+
+						function loadEntry(entry, callback) {
+							if (entry.isFile) {
+								loadFile(entry, callback);
+							} else if (entry.isDirectory) {
+								loadDirectory(entry, callback);
+							}
+
+
+							function loadFile(entry, callback) {
+								entry.file(function(file) {
+									callback({
+										path: entry.fullPath,
+										data: file
+									});
+								});
+							}
+
+							function loadDirectory(entry, callback) {
+								var reader = entry.createReader();
+								reader.readEntries(function(entries) {
+									loadEntries(entries, callback);
+								});
+							}
+						}
+					}
+				}
+
+				function loadDataTransferFiles(fileList, callback) {
+					var files = Array.prototype.slice.call(fileList);
+					setTimeout(function() {
+						callback(files.map(function(file) {
+							return {
+								path: '/' + file.name,
+								data: file
+							};
+						}));
+					});
+				}
 			});
 		}
 	}
