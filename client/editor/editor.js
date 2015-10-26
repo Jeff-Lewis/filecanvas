@@ -131,17 +131,7 @@ function initLivePreview() {
 			}
 
 			function parseHtmlIntoVDom(html) {
-				var iframeElement = document.createElement('iframe');
-				iframeElement.style.display = 'none';
-				document.body.appendChild(iframeElement);
-				var documentElement = iframeElement.contentDocument || iframeElement.contentWindow.document;
-				documentElement.open();
-				documentElement.write(html);
-				documentElement.close();
-				var htmlElement = documentElement.documentElement;
-				var tree = virtualize(htmlElement);
-				document.body.removeChild(iframeElement);
-				return tree;
+				return virtualize.fromHTML(html);
 			}
 		}
 
