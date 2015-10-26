@@ -207,7 +207,6 @@ function initLivePreview() {
 
 		function loadAdapterConfig() {
 			var cookies = parseCookies(document.cookie);
-			clearCookie('adapter', document.location.pathname);
 			var adapterConfig = JSON.parse(cookies.adapter);
 			return adapterConfig;
 
@@ -223,12 +222,6 @@ function initLivePreview() {
 					return cookies;
 				}, {});
 				return cookies;
-			}
-
-			function clearCookie(key, path) {
-				document.cookie = key + '=;' +
-					'expires=' + new Date(0).toUTCString() + ';' +
-					(path ? 'path=' + path : '');
 			}
 		}
 
