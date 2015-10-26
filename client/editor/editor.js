@@ -199,8 +199,7 @@ function initLivePreview() {
 		var $progressBarElement = $('[data-editor-progress-bar]');
 		var previewWindow = $previewElement.prop('contentWindow');
 		var shuntApi = window.shunt;
-		var cookies = parseCookies(document.cookie);
-		var adapterConfig = JSON.parse(cookies.adapter);
+		var adapterConfig = loadAdapterConfig();
 		previewWindow.shunt = {
 			uploadFiles: function(files) {
 				showUploadProgressIndicator();
@@ -221,6 +220,33 @@ function initLivePreview() {
 					});
 			}
 		};
+
+		function loadAdapterConfig() {
+			var cookies = parseCookies(document.cookie);
+			clearCookie('adapter', document.location.pathname);
+			var adapterConfig = JSON.parse(cookies.adapter);
+			return adapterConfig;
+
+			function parseCookies(cookiesString) {
+				var cookies = cookiesString.split(/;\s*/).map(function(cookieString) {
+					var match = /^(.*?)=(.*)$/.exec(cookieString);
+					return {
+						key: match[1],
+						value: match[2]
+					};
+				}).reduce(function(cookies, cookie) {
+					cookies[cookie.key] = decodeURIComponent(cookie.value);
+					return cookies;
+				}, {});
+				return cookies;
+			}
+
+			function clearCookie(key, path) {
+				document.cookie = key + '=;' +
+					'expires=' + new Date(0).toUTCString() + ';' +
+					(path ? 'path=' + path : '');
+			}
+		}
 
 
 		function parseCookies(cookiesString) {
