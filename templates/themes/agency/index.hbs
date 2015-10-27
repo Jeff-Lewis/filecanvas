@@ -198,7 +198,7 @@
 			<div id="{{ slug (basename folder) }}" class="page">
 				<div class="container">
 					<div class="row">
-						<div class="span12">
+						<div class="span12"{{#if ../admin }} data-admin-upload="{{ folder.path }}"{{/if}}>
 							<div class="title">{{ label folder }}</div>
 							<hr/>
 							<div class="lead-small" data-section-header="{{ label folder }}"></div>
@@ -208,7 +208,7 @@
 								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
 								{{#each (folders folder) as |subfolder|}}
 								{{#if subfolder.directory}}
-								<li><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ label subfolder }}</a></li>
+								<li{{#if ../../admin }} data-admin-upload={{ subfolder.path }}{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ label subfolder }}</a></li>
 								{{/if}}
 								{{/each}}
 							</ul>

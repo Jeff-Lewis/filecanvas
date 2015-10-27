@@ -224,17 +224,25 @@ footer a:hover {
 	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
 }
 
+[data-admin-upload] {
+	position: relative;
+}
 [data-admin-upload].dragging::after {
 	content: '';
 	display: block;
 	position: absolute;
+	top: -10px;
+	left: -10px;
+	bottom: -10px;
+	right: -10px;
+	border: 10px solid rgba(255, 0, 0, 0.25);
+	z-index: 999;
+	pointer-events: none;
+}
+body[data-admin-upload].dragging::after {
+	position: fixed;
 	top: 0;
 	left: 0;
 	bottom: 0;
 	right: 0;
-	border: 10px solid rgba(255, 0, 0, 0.25);
-	z-index: 999;
-}
-body[data-admin-upload].dragging::after {
-	position: fixed;
 }
