@@ -121,6 +121,9 @@
 					</div>
 					<div class="modal-body">
 						<script type="text/template">
+							<% if (error) { %>
+								<p>Upload failed.</p>
+							<% } %>
 							<% if (upload.numFailed === 0) { %>
 								<p>All files uploaded successfully.</p>
 							<% } else { %>
