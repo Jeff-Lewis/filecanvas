@@ -161,7 +161,7 @@
 							<div class="lead-small">{{ markdown theme.content.introText }}</div>
 							{{/if}}
 							{{#if (files contents)}}
-							<div class="posts row isotope ">
+							<div class="posts row isotope">
 								{{#each (files contents) as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
 									<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
@@ -181,7 +181,7 @@
 										</div>
 										<div class="project-client">&nbsp;</div>
 										<div class="project-name">{{ label file }}</div>
-										<hr class="mini">
+										<hr class="mini"/>
 										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
 									</a>
 								</div>
@@ -214,7 +214,7 @@
 							</ul>
 							{{/if}}
 
-							<div class="posts row isotope ">
+							<div class="posts row isotope">
 								{{#each (files folder) as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
 									<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
@@ -234,7 +234,7 @@
 										</div>
 										<div class="project-client">&nbsp;</div>
 										<div class="project-name">{{ label file }}</div>
-										<hr class="mini">
+										<hr class="mini"/>
 										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
 									</a>
 								</div>
@@ -259,7 +259,7 @@
 										</div>
 										<div class="project-client">&nbsp;</div>
 										<div class="project-name">{{ label file }}</div>
-										<hr class="mini">
+										<hr class="mini"/>
 										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
 									</a>
 								</div>
