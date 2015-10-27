@@ -1,5 +1,6 @@
 'use strict';
 
+var junk = require('junk');
 var vdom = require('virtual-dom');
 var virtualize = require('vdom-virtualize');
 
@@ -228,13 +229,22 @@ function initLivePreview() {
 		}
 
 		function onFilesSelected(files) {
+			var filteredFiles = getFilteredFiles(files);
 			var isUploadInProgress = Boolean(activeUpload);
 			if (isUploadInProgress) {
-				activeUpload.append(files);
+				activeUpload.append(filteredFiles);
 			} else {
-				activeUpload = uploadFiles(files, shuntApi, adapterConfig);
+				activeUpload = uploadFiles(filteredFiles, shuntApi, adapterConfig);
 				activeUpload.always(function() {
 					activeUpload = null;
+				});
+			}
+
+
+			function getFilteredFiles(files) {
+				return files.filter(function(file) {
+					var filename = file.data.name;
+					return junk.not(filename);
 				});
 			}
 		}

@@ -1,7 +1,5 @@
 'use strict';
 
-var junk = require('junk');
-
 var DROPBOX_UPLOAD_API_METHOD = 'PUT';
 var DROPBOX_UPLOAD_API_ENDPOINT = 'https://content.dropboxapi.com/1/files_put/auto';
 
@@ -133,17 +131,12 @@ Shunt.prototype.validateFolder = function(adapter, path) {
 };
 
 Shunt.prototype.uploadFiles = function(files, adapterConfig) {
-	var filteredFiles = files.filter(function(file) {
-		var filename = file.data.name;
-		return junk.not(filename);
-	});
-
-	if (filteredFiles.length === 0) {
+	if (files.length === 0) {
 		return new $.Deferred().resolve().promise();
 	}
 	// TODO: Handle Firefox directory upload gracefully
 	var deferred = new $.Deferred();
-	var queue = new UploadBatch(filteredFiles);
+	var queue = new UploadBatch(files);
 	var currentIndex = -1;
 	var activeTransfer = loadNextFile();
 	var promise = deferred.promise();
