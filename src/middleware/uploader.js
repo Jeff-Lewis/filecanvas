@@ -18,10 +18,7 @@ module.exports = function(destDir, options) {
 
 	if (host) {
 		app.use(cors({
-			origin: function(origin, callback) {
-				var isValidOrigin = new RegExp('^https?://(?:\\w+\\.)*' + host + '(?::\\d+)?$').test(origin);
-				callback(null, isValidOrigin);
-			}
+			origin: new RegExp('^https?://(?:\\w+\\.)*' + host + '(?::\\d+)?$')
 		}));
 	}
 
