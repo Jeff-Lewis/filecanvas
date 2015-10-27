@@ -228,10 +228,15 @@ function initLivePreview() {
 		}
 
 		function onFilesSelected(files) {
-			activeUpload = uploadFiles(files, shuntApi, adapterConfig);
-			activeUpload.always(function() {
-				activeUpload = null;
-			});
+			var isUploadInProgress = Boolean(activeUpload);
+			if (isUploadInProgress) {
+				activeUpload.append(files);
+			} else {
+				activeUpload = uploadFiles(files, shuntApi, adapterConfig);
+				activeUpload.always(function() {
+					activeUpload = null;
+				});
+			}
 		}
 
 		function onUploadCancelRequested(event) {

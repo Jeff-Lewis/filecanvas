@@ -14,6 +14,13 @@ function UploadBatch(files) {
 	});
 }
 
+UploadBatch.prototype.append = function(files) {
+	var items = files.map(function(file) {
+		return createBatchItem(file);
+	});
+	this.items = this.items.concat(items);
+};
+
 UploadBatch.prototype.cancel = function() {
 	this.items.forEach(function(item) {
 		if (item.completed || item.error || item.started) { return; }
@@ -143,6 +150,9 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 	promise.abort = function() {
 		queue.cancel();
 		if (activeTransfer) { activeTransfer.abort(); }
+	};
+	promise.append = function(files) {
+		queue.append(files);
 	};
 	return promise;
 
