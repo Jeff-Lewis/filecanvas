@@ -115,6 +115,7 @@ module.exports = function(destDir, options) {
 				if (error) { return reject(error); }
 				var destStream = fs.createWriteStream(destPath);
 				destStream.on('finish', resolve);
+				sourceStream.on('error', reject);
 				destStream.on('error', reject);
 				sourceStream.pipe(destStream);
 			});
