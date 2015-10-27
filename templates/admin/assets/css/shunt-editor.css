@@ -71,6 +71,9 @@
 .editor-progress.active {
 	transform: translateY(0);
 }
+.editor-progress-cancel-button {
+	margin-right: -5px;
+}
 .editor-preview {
 	width: 100%;
 	height: 100%;

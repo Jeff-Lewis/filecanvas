@@ -198,12 +198,13 @@ function initLivePreview() {
 		var $progressElement = $('[data-editor-progress]');
 		var $progressLabelElement = $('[data-editor-progress-label]');
 		var $progressBarElement = $('[data-editor-progress-bar]');
+		var $progressCancelButtonElement = $('[data-editor-progress-cancel]');
 		var previewWindow = $previewElement.prop('contentWindow');
 		var shuntApi = window.shunt;
 		var adapterConfig = loadAdapterConfig();
-		initHotspots(previewWindow, function(files) {
-			uploadFiles(files, shuntApi, adapterConfig);
-		});
+		var activeUpload = null;
+		initHotspots(previewWindow, onFilesSelected);
+		$progressCancelButtonElement.on('click', onUploadCancelRequested);
 
 
 		function loadAdapterConfig() {
@@ -226,23 +227,38 @@ function initLivePreview() {
 			}
 		}
 
+		function onFilesSelected(files) {
+			activeUpload = uploadFiles(files, shuntApi, adapterConfig);
+			activeUpload.always(function() {
+				activeUpload = null;
+			});
+		}
+
+		function onUploadCancelRequested(event) {
+			if (activeUpload) { activeUpload.abort(); }
+		}
+
 		function uploadFiles(files, shuntApi, adapterConfig) {
 			showUploadProgressIndicator();
-			shuntApi.uploadFiles(files, adapterConfig)
+			var upload = shuntApi.uploadFiles(files, adapterConfig);
+			upload
 				.progress(function(uploadBatch) {
 					setUploadProgress(uploadBatch);
 				})
 				.then(function(uploadBatch) {
 					setUploadProgress(uploadBatch);
+				})
+				.fail(function(error) {
+					showUploadError(error);
+				})
+				.always(function() {
 					hideUploadProgressIndicator();
 					updatePreview({
 						cached: false,
 						config: currentThemeConfig
 					});
-				})
-				.fail(function(error) {
-					showUploadError(error);
 				});
+			return upload;
 
 
 				function showUploadProgressIndicator() {

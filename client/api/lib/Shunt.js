@@ -10,17 +10,16 @@ var LOCAL_UPLOAD_API_ENDPOINT = document.location.protocol + '//upload.' + docum
 
 function UploadBatch(files) {
 	this.items = files.map(function(file) {
-		return {
-			file: file,
-			filename: file.data.name,
-			bytesLoaded: 0,
-			bytesTotal: file.data.size,
-			started: false,
-			completed: false,
-			error: false
-		};
+		return createBatchItem(file);
 	});
 }
+
+UploadBatch.prototype.cancel = function() {
+	this.items.forEach(function(item) {
+		if (item.completed || item.error || item.started) { return; }
+		item.error = new Error('Transfer canceled');
+	});
+};
 
 Object.defineProperty(UploadBatch.prototype, 'length', {
 	get: function() {
@@ -72,6 +71,17 @@ UploadBatch.prototype.getItemAt = function(index) {
 	return this.items[index];
 };
 
+function createBatchItem(file) {
+	return {
+		file: file,
+		filename: file.data.name,
+		bytesLoaded: 0,
+		bytesTotal: file.data.size,
+		started: false,
+		completed: false,
+		error: false
+	};
+}
 
 function Shunt() {
 }
@@ -128,20 +138,27 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 	var deferred = new $.Deferred();
 	var queue = new UploadBatch(filteredFiles);
 	var currentIndex = -1;
-	loadNextFile();
-	return deferred.promise();
+	var activeTransfer = loadNextFile();
+	var promise = deferred.promise();
+	promise.abort = function() {
+		queue.cancel();
+		if (activeTransfer) { activeTransfer.abort(); }
+	};
+	return promise;
 
 
 	function loadNextFile() {
 		if (currentIndex === queue.length - 1) {
 			deferred.resolve(queue);
-			return;
+			return null;
 		}
 		var queueItem = queue.getItemAt(++currentIndex);
-		loadQueueItem(queueItem)
+		var transfer = loadQueueItem(queueItem);
+		transfer
 			.progress(onFileProgress)
 			.then(onFileLoaded)
 			.fail(onFileError);
+		return transfer;
 	}
 
 	function onFileProgress(queueItem) {
@@ -150,28 +167,36 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 
 	function onFileLoaded(queueItem) {
 		deferred.notify(queue);
-		loadNextFile();
+		activeTransfer = loadNextFile();
 	}
 
 	function onFileError(error) {
 		deferred.notify(queue);
-		loadNextFile();
+		activeTransfer = loadNextFile();
 	}
 
 	function loadQueueItem(queueItem) {
-		var deferred = new $.Deferred();
+		if (queueItem.error) {
+			return new $.Deferred().reject(queueItem.error).promise();
+		}
 
+		var deferred = new $.Deferred();
 		var file = queueItem.file;
 
 		queueItem.started = true;
 		deferred.notify(queueItem);
 
-		uploadFile(file)
+		var fileUpload = uploadFile(file);
+		fileUpload
 			.progress(onFileProgress)
 			.then(onFileLoaded)
 			.fail(onFileError);
 
-		return deferred.promise();
+		var promise = deferred.promise();
+		promise.abort = function() {
+			fileUpload.abort();
+		};
+		return promise;
 
 
 		function onFileProgress(progress) {
@@ -195,83 +220,98 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 	}
 
 	function uploadFile(file) {
-		var deferred = new $.Deferred();
 		switch (adapterConfig.adapter) {
 			case 'dropbox':
-				uploadDropboxFile(file, adapterConfig);
-				break;
+				return uploadDropboxFile(file, adapterConfig);
 			case 'local':
-				uploadLocalFile(file, adapterConfig);
-				break;
+				return uploadLocalFile(file, adapterConfig);
 			default:
-				deferred.reject(new Error('Invalid adapter: ' + adapterConfig.adapter));
+				return new $.Deferred().reject(new Error('Invalid adapter: ' + adapterConfig.adapter)).promise();
 		}
-		return deferred.promise();
 
 
 		function uploadDropboxFile(file, options) {
 			var pathPrefix = options.path;
 			var accessToken = options.token;
 			var uploadPath = pathPrefix + file.path;
-			var xhr = new XMLHttpRequest();
+			var method = DROPBOX_UPLOAD_API_METHOD;
 			var url = getUploadUrl(DROPBOX_UPLOAD_API_ENDPOINT, uploadPath, {
 				overwrite: false,
 				autorename: true
 			});
-			var async = true;
-			xhr.open(DROPBOX_UPLOAD_API_METHOD, url, async);
-			xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-			xhr.upload.addEventListener('progress', onUploadProgress);
-			xhr.upload.addEventListener('load', onUploadProgress);
-			xhr.addEventListener('load', onDownloadCompleted);
-			xhr.addEventListener('error', onDownloadFailed);
-			xhr.send(file.data);
+			var headers = {
+				'Authorization': 'Bearer ' + accessToken
+			};
+			return uploadXhrData(file.data, method, url, headers);
 		}
 
 		function uploadLocalFile(file, options) {
 			var pathPrefix = options.path;
 			var uploadPath = pathPrefix + file.path;
-			var xhr = new XMLHttpRequest();
+			var method = LOCAL_UPLOAD_API_METHOD;
 			var url = getUploadUrl(LOCAL_UPLOAD_API_ENDPOINT, uploadPath, {
 				overwrite: false,
 				autorename: true
 			});
+			var headers = null;
+			return uploadXhrData(file.data, method, url, headers);
+		}
+
+		function uploadXhrData(data, method, url, headers) {
+			headers = headers || {};
+			var deferred = new $.Deferred();
+			var xhr = new XMLHttpRequest();
 			var async = true;
-			xhr.open(LOCAL_UPLOAD_API_METHOD, url, async);
+			xhr.open(method, url, async);
+			for (var key in headers) {
+				xhr.setRequestHeader(key, headers[key]);
+			}
 			xhr.upload.addEventListener('progress', onUploadProgress);
 			xhr.upload.addEventListener('load', onUploadProgress);
-			xhr.addEventListener('load', onDownloadCompleted);
-			xhr.addEventListener('error', onDownloadFailed);
-			xhr.send(file.data);
+			xhr.addEventListener('load', onTransferCompleted);
+			xhr.addEventListener('error', onTransferFailed);
+			xhr.addEventListener('abort', onTransferAborted);
+			xhr.send(data);
+			var promise = deferred.promise();
+			promise.abort = function() {
+				xhr.abort();
+			};
+			return promise;
+
+
+			function onUploadProgress(event) {
+				if (!event.lengthComputable) { return; }
+				deferred.notify({
+					bytesLoaded: event.loaded,
+					bytesTotal: event.total
+				});
+			}
+
+			function onTransferFailed(event) {
+				deferred.reject(new Error('Transfer failed'));
+			}
+
+			function onTransferAborted(event) {
+				deferred.reject(new Error('Transfer canceled'));
+			}
+
+			function onTransferCompleted(event) {
+				var response = JSON.parse(event.currentTarget.responseText);
+				deferred.resolve(response);
+			}
 		}
 
 		function getUploadUrl(endpoint, filePath, params) {
 			var queryString = formatQueryString(params);
 			var url = endpoint + filePath + (queryString ? '?' + queryString : '');
 			return url;
-		}
 
-		function formatQueryString(params) {
-			return Object.keys(params).map(function(key) {
-				return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-			}).join('&');
-		}
 
-		function onUploadProgress(event) {
-			if (!event.lengthComputable) { return; }
-			deferred.notify({
-				bytesLoaded: event.loaded,
-				bytesTotal: event.total
-			});
-		}
-
-		function onDownloadFailed(event) {
-			deferred.reject(new Error('File upload failed'));
-		}
-
-		function onDownloadCompleted(event) {
-			var response = JSON.parse(event.currentTarget.responseText);
-			deferred.resolve(response);
+			function formatQueryString(params) {
+				return Object.keys(params).map(function(key) {
+					return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+				}).join('&');
+			}
 		}
 	}
 };
