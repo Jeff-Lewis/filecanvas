@@ -298,30 +298,39 @@ function initLivePreview() {
 				}
 
 				function initUploadHotspots(selector, callback) {
+					var $activeDropTarget = null;
 					$previewDocument
 						.on('dragenter dragover', '[data-admin-upload]', function(event) {
 							var $element = $(this);
 							var dataTransfer = event.originalEvent.dataTransfer;
-							var mimeTypes = Array.prototype.slice.call(dataTransfer.types);
-							var isFileDrag = (mimeTypes.indexOf('Files') !== -1);
-							if (!isFileDrag) { return; }
-							if (event.type === 'dragenter') {
-								showDragFeedback($element);
-							}
+							var shouldAcceptDrag = getIsFileDrag(dataTransfer);
+							if (!shouldAcceptDrag) { return; }
+							event.stopPropagation();
 							acceptDropOperation(event.originalEvent, 'copy');
+							setActiveDropTarget($element);
+
+
+							function getIsFileDrag(dataTransfer) {
+								var mimeTypes = Array.prototype.slice.call(dataTransfer.types);
+								var isFileDrag = (mimeTypes.indexOf('Files') !== -1);
+								return isFileDrag;
+							}
+
+							function acceptDropOperation(event, dropEffect) {
+								event.dataTransfer.dropEffect = dropEffect;
+								event.preventDefault();
+							}
 						})
 						.on('dragleave', '[data-admin-upload]', function(event) {
-							var $element = $(this);
-							var targetElement = event.target;
-							var containsTargetElement = targetElement && $.contains(this, targetElement);
-							if (containsTargetElement) { return; }
-							hideDragFeedback($element);
+							event.stopPropagation();
+							setActiveDropTarget(null);
 						})
 						.on('drop', '[data-admin-upload]', function(event) {
 							var $element = $(this);
-							event.preventDefault();
-							hideDragFeedback($element);
 							var dataTransfer = event.originalEvent.dataTransfer;
+							event.preventDefault();
+							event.stopPropagation();
+							setActiveDropTarget(null);
 							if (!dataTransfer) { return; }
 							var pathPrefix = $element.data('admin-upload') || '';
 							if (dataTransfer.items) {
@@ -346,91 +355,89 @@ function initLivePreview() {
 									});
 								}
 							}
+						})
+						.on('dragend', function(event) {
+							setActiveDropTarget(null);
 						});
-				}
-
-				function acceptDropOperation(event, dropEffect) {
-					event.dataTransfer.dropEffect = dropEffect;
-					event.preventDefault();
-				}
-
-				function showDragFeedback($element) {
-					$element.addClass('dragging');
-				}
-
-				function hideDragFeedback($element) {
-					$element.removeClass('dragging');
-				}
-
-				function loadDataTransferItems(itemsList, callback) {
-					var items = Array.prototype.slice.call(itemsList);
-					var entries = items.map(function(item) {
-						if (item.getAsEntry) { return item.getAsEntry(); }
-						if (item.webkitGetAsEntry) { return item.webkitGetAsEntry(); }
-						return item;
-					});
-					loadEntries(entries, callback);
 
 
-					function loadEntries(entries, callback) {
-						if (entries.length === 0) { return callback([]); }
-						var numRemaining = entries.length;
-						var files = entries.map(function(entry, index) {
-							loadEntry(entry, function(result) {
-								files[index] = result;
-								if (--numRemaining === 0) {
-									var flattenedFiles = getFlattenedFiles(files);
-									callback(flattenedFiles);
+					function setActiveDropTarget($element) {
+						if ($activeDropTarget === $element) { return; }
+						if ($activeDropTarget) { $activeDropTarget.removeClass('dragging'); }
+						$activeDropTarget = $element;
+						if ($activeDropTarget) { $activeDropTarget.addClass('dragging'); }
+					}
+
+					function loadDataTransferItems(itemsList, callback) {
+						var items = Array.prototype.slice.call(itemsList);
+						var entries = items.map(function(item) {
+							if (item.getAsEntry) { return item.getAsEntry(); }
+							if (item.webkitGetAsEntry) { return item.webkitGetAsEntry(); }
+							return item;
+						});
+						loadEntries(entries, callback);
+
+
+						function loadEntries(entries, callback) {
+							if (entries.length === 0) { return callback([]); }
+							var numRemaining = entries.length;
+							var files = entries.map(function(entry, index) {
+								loadEntry(entry, function(result) {
+									files[index] = result;
+									if (--numRemaining === 0) {
+										var flattenedFiles = getFlattenedFiles(files);
+										callback(flattenedFiles);
+									}
+								});
+								return undefined;
+
+
+								function getFlattenedFiles(files) {
+									return files.reduce(function(flattenedFiles, file) {
+										return flattenedFiles.concat(file);
+									}, []);
 								}
 							});
-							return undefined;
 
 
-							function getFlattenedFiles(files) {
-								return files.reduce(function(flattenedFiles, file) {
-									return flattenedFiles.concat(file);
-								}, []);
-							}
-						});
+							function loadEntry(entry, callback) {
+								if (entry.isFile) {
+									loadFile(entry, callback);
+								} else if (entry.isDirectory) {
+									loadDirectory(entry, callback);
+								}
 
 
-						function loadEntry(entry, callback) {
-							if (entry.isFile) {
-								loadFile(entry, callback);
-							} else if (entry.isDirectory) {
-								loadDirectory(entry, callback);
-							}
-
-
-							function loadFile(entry, callback) {
-								entry.file(function(file) {
-									callback({
-										path: entry.fullPath,
-										data: file
+								function loadFile(entry, callback) {
+									entry.file(function(file) {
+										callback({
+											path: entry.fullPath,
+											data: file
+										});
 									});
-								});
-							}
+								}
 
-							function loadDirectory(entry, callback) {
-								var reader = entry.createReader();
-								reader.readEntries(function(entries) {
-									loadEntries(entries, callback);
-								});
+								function loadDirectory(entry, callback) {
+									var reader = entry.createReader();
+									reader.readEntries(function(entries) {
+										loadEntries(entries, callback);
+									});
+								}
 							}
 						}
 					}
-				}
 
-				function loadDataTransferFiles(fileList, callback) {
-					var files = Array.prototype.slice.call(fileList);
-					setTimeout(function() {
-						callback(files.map(function(file) {
-							return {
-								path: '/' + file.name,
-								data: file
-							};
-						}));
-					});
+					function loadDataTransferFiles(fileList, callback) {
+						var files = Array.prototype.slice.call(fileList);
+						setTimeout(function() {
+							callback(files.map(function(file) {
+								return {
+									path: '/' + file.name,
+									data: file
+								};
+							}));
+						});
+					}
 				}
 			});
 		}
