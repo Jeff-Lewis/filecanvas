@@ -72,6 +72,30 @@ Object.defineProperty(UploadBatch.prototype, 'currentItem', {
 	}
 });
 
+Object.defineProperty(UploadBatch.prototype, 'pendingItems', {
+	get: function() {
+		return this.items.filter(function(item) {
+			return !item.started && !item.error;
+		});
+	}
+});
+
+Object.defineProperty(UploadBatch.prototype, 'completedItems', {
+	get: function() {
+		return this.items.filter(function(item) {
+			return item.completed;
+		});
+	}
+});
+
+Object.defineProperty(UploadBatch.prototype, 'failedItems', {
+	get: function() {
+		return this.items.filter(function(item) {
+			return item.error;
+		});
+	}
+});
+
 UploadBatch.prototype.getItemAt = function(index) {
 	return this.items[index];
 };
@@ -134,7 +158,6 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 	if (files.length === 0) {
 		return new $.Deferred().resolve().promise();
 	}
-	// TODO: Handle Firefox directory upload gracefully
 	var deferred = new $.Deferred();
 	var queue = new UploadBatch(files);
 	var currentIndex = -1;

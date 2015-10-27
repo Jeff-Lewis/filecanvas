@@ -112,5 +112,33 @@
 				<p>Building site preview…</p>
 			</h4>
 		</div>
+		<div class="modal fade" tabindex="-1" role="dialog" data-editor-upload-status-modal>
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Upload status</h4>
+					</div>
+					<div class="modal-body">
+						<script type="text/template">
+							<% if (upload.numFailed === 0) { %>
+								<p>All files uploaded successfully.</p>
+							<% } else { %>
+								<p>Failed to upload the following files/folders:</p>
+								<ul>
+									<% upload.failedItems.forEach(function(item) { %>
+									<li><%= item.filename %></li>
+									<% }); %>
+								</ul>
+								<p>Please note that uploading entire folders is currently only supported in <a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a>.</p>
+							<% } %>
+						</script>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </form>
