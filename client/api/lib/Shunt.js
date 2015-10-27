@@ -322,7 +322,12 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 			}
 
 			function onTransferCompleted(event) {
-				var response = JSON.parse(event.currentTarget.responseText);
+				var xhr = event.currentTarget;
+				var hasError = (xhr.status >= 400);
+				if (hasError) {
+					return onTransferFailed(event);
+				}
+				var response = JSON.parse(xhr.responseText);
 				deferred.resolve(response);
 			}
 		}
