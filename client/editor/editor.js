@@ -245,16 +245,32 @@ function initLivePreview() {
 		}
 
 		function initUploadHotspots($previewIframeElement, uploadCallback) {
-			$previewIframeElement.on('load', function(event) {
-				var previewDocument = getIframeDomElement($previewIframeElement[0]);
+			var previewIframeElement = $previewIframeElement[0];
+			onIframeDomReady(previewIframeElement, function(previewDocument) {
 				var $previewDocument = $(previewDocument);
 				disableContextMenu($previewDocument);
 				addHotspotListeners($previewDocument, '[data-admin-upload]', uploadCallback);
 			});
 
 
-			function getIframeDomElement(iframeElement) {
-				return (iframeElement.contentDocument || iframeElement.contentWindow.document);
+			function onIframeDomReady(iframeElement, callback) {
+				var iframeDocumentElement = getIframeDomElement(iframeElement);
+				if (iframeDocumentElement.location.href === 'about:blank') {
+					// HACK: See Webkit bug #33604 (https://bugs.webkit.org/show_bug.cgi?id=33604)
+					// Sometimes the iframe does not yet contain the correct document,
+					// so we need to poll until the current document is the correct one
+					var pollInterval = 50;
+					setTimeout(function() { onIframeDomReady(iframeElement, callback); }, pollInterval);
+				} else {
+					iframeDocumentElement.addEventListener('DOMContentLoaded', function(event) {
+						callback(iframeDocumentElement);
+					});
+				}
+
+
+				function getIframeDomElement(iframeElement) {
+					return (iframeElement.contentDocument || iframeElement.contentWindow.document);
+				}
 			}
 
 			function disableContextMenu($document) {
