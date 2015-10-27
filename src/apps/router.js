@@ -47,9 +47,6 @@ module.exports = function(database, config) {
 			themesUrl: config.themes.root,
 			adapters: config.adapters
 		}),
-		'test': redirectToSubdomain({
-			subdomain: 'www'
-		}),
 		'*': 'sites',
 		'': redirectToSubdomain({
 			subdomain: 'www'
