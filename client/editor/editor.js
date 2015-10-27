@@ -196,6 +196,7 @@ function initLivePreview() {
 	function initInlineUploads() {
 		var $previewElement = $('[data-editor-preview]');
 		var $progressElement = $('[data-editor-progress]');
+		var $progressLabelElement = $('[data-editor-progress-label]');
 		var $progressBarElement = $('[data-editor-progress-bar]');
 		var previewWindow = $previewElement.prop('contentWindow');
 		var shuntApi = window.shunt;
@@ -245,7 +246,8 @@ function initLivePreview() {
 
 
 				function showUploadProgressIndicator() {
-					setProgressBarValue($progressBarElement, {
+					setProgressBarLabel(null);
+					setProgressBarValue({
 						loaded: 0,
 						total: 0
 					});
@@ -255,26 +257,37 @@ function initLivePreview() {
 
 				function hideUploadProgressIndicator() {
 					$progressElement.removeClass('active');
+					setProgressBarValue({
+						loaded: 0,
+						total: 0
+					});
 				}
 
-				function setProgressBarValue($element, options) {
+				function setProgressBarLabel(message) {
+					$progressLabelElement.text(message);
+				}
+
+				function setProgressBarValue(options) {
 					options = options || {};
 					var loaded = options.loaded || 0;
 					var total = options.total || 0;
 					var percentLoaded = 100 * (total === 0 ? 0 : loaded / total);
-					$element.attr('aria-valuemin', 0);
-					$element.attr('aria-valuemax', total);
-					$element.attr('aria-valuenow', loaded);
-					$element.attr('data-percent', percentLoaded);
-					$element.css('width', percentLoaded + '%');
+					$progressBarElement.attr('aria-valuemin', 0);
+					$progressBarElement.attr('aria-valuemax', total);
+					$progressBarElement.attr('aria-valuenow', loaded);
+					$progressBarElement.attr('data-percent', percentLoaded);
+					$progressBarElement.css('width', percentLoaded + '%');
 				}
 
 				function showUploadError(error) {
+					// TODO: Show file upload error dialog
 					alert('Upload failed'); // eslint-disable-line no-alert
 				}
 
 				function setUploadProgress(uploadBatch) {
-					setProgressBarValue($progressBarElement, {
+					var currentFilename = uploadBatch.currentItem && uploadBatch.currentItem.filename || null;
+					setProgressBarLabel(currentFilename);
+					setProgressBarValue({
 						loaded: uploadBatch.bytesLoaded,
 						total: uploadBatch.bytesTotal
 					});

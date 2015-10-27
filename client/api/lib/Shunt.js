@@ -64,7 +64,7 @@ Object.defineProperty(UploadBatch.prototype, 'currentItem', {
 	get: function() {
 		return this.items.filter(function(item) {
 			return item.started && !item.completed;
-		});
+		})[0] || null;
 	}
 });
 
