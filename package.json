@@ -58,7 +58,7 @@
     "slug": "^0.9.1",
     "stat-mode": "^0.2.1",
     "trace": "^1.2.0",
-    "vdom-virtualize": "timkendrick/vdom-virtualize#vdom-dependency",
+    "vdom-virtualize": "^1.0.1",
     "virtual-dom": "^2.1.1",
     "webpack": "^1.12.1"
   }
