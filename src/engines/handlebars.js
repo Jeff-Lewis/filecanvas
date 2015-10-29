@@ -83,7 +83,8 @@ function createHandlebarsCompiler(config) {
 				return item1 === item2;
 			});
 			compiler.registerHelper('not-eq', function(item1, item2, options) {
-				return item1 !== item2;
+				var items = Array.prototype.slice.call(arguments, 1, -1);
+				return items.every(function(item) { return item1 !== item; });
 			});
 			compiler.registerHelper('not', function(item, options) {
 				return !item;
