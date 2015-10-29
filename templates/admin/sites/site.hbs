@@ -124,20 +124,22 @@
 										<input type="hidden" name="root.adapter"
 											value="{{ content.site.root.adapter }}"
 										/>
-										<input type="text" class="form-control"
-										 	name="root.path"
-											value="{{ content.site.root.path }}"
-											data-bind-id="site-root-path"
-										/>
-										<p class="form-control-feedback fa" aria-hidden="true"
-											data-bind-check-folder-exists="site-root-path"
-											data-bind-check-folder-exists-adapter="{{ content.site.root.adapter }}"
-										>
-											<span class="shunt-check-folder-exists-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
-											<span class="shunt-check-folder-exists-valid text-success"><i class="fa fa-check"></i></span>
-											<span class="shunt-check-folder-exists-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
-										</p>
-										<p class="help-block">This tells Shunt where to find the site's files within your Dropbox</p>
+										<div class="path-control" data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}">
+											<input type="text" class="form-control"
+												name="root.path"
+												value="{{ content.site.root.path }}"
+												data-bind-id="site-root-path"
+											/>
+											<ul class="path-control-segments"></ul>
+											<p class="form-control-feedback fa" aria-hidden="true"
+												data-bind-check-folder-exists="site-root-path"
+												data-bind-check-folder-exists-adapter="{{ content.site.root.adapter }}"
+											>
+												<span class="shunt-check-folder-exists-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
+												<span class="shunt-check-folder-exists-valid text-success"><i class="fa fa-check"></i></span>
+												<span class="shunt-check-folder-exists-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
+											</p>
+										</div>
 									</div>
 								</div>
 								<div class="form-group">

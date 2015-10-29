@@ -100,15 +100,19 @@
 												<input type="hidden" name="root.adapter"
 													value="{{ content.site.root.adapter }}"
 												/>
-												<input type="text" class="form-control"
-												 	name="root.path"
-													value="{{ content.site.root.path }}"
-													data-bind-value="site-name|format:'{{ content.sitesRoot }}$0'"
-													data-validate="notEmpty"
-													data-trigger="focus"
-												/>
+												<div class="path-control" data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}">
+													<input type="text" class="form-control"
+														name="root.path"
+														value="{{ content.site.root.path }}"
+														disabled="disabled"
+														data-bind-value="site-name|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
+														data-validate="path,notEmpty,startsWith:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}',notEqualTo:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}'"
+													/>
+													<ul class="path-control-segments"></ul>
+													<span class="form-control-feedback fa" aria-hidden="true"></span>
+												</div>
 												<span class="form-control-feedback fa" aria-hidden="true"></span>
-												<p class="help-block">This tells Shunt where to store the site's files within your Dropbox.<br/>If this folder doesn't already exist, it will be created.</p>
+												<p class="help-block">This is where Shunt will store the site's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}.<br/>If this folder doesn't already exist, it will be created.</p>
 											</div>
 										</div>
 										<div class="form-group">
