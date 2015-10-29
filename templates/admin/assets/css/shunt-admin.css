@@ -537,7 +537,7 @@ footer.content-footer {
 }
 
 .has-error .form-control-feedback.fa:before {
-	content: "\f00d"
+	content: "\f00d";
 }
 
 .panel-heading {
