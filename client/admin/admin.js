@@ -235,11 +235,8 @@ function parseBindingExpression(bindingExpression, bindingSources, bindingFilter
 	var bindingSource = bindingSources[bindingSourceId];
 	if (!bindingSource) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
 
-	var filterExpressions = bindingExpressionSegments[3] ? bindingExpressionSegments[3].split('|') : null;
-	var hasFilters = Boolean(filterExpressions) && (filterExpressions.length > 0);
-
-	var filter = function(value) { return value; };
-	if (hasFilters) { filter = getFilteredBindingFunction(filter, bindingFilters); }
+	var combinedFilterExpression = bindingExpressionSegments[3];
+	var filter = getCompositeFilterFunction(combinedFilterExpression, bindingFilters);
 	if (isBindingSourceInverted) { filter = invertBindingFilter(filter); }
 
 	return {
@@ -248,32 +245,42 @@ function parseBindingExpression(bindingExpression, bindingSources, bindingFilter
 	};
 
 
-	function getFilteredBindingFunction(bindingFunction, bindingFilters) {
-		var filterFunctions = filterExpressions.map(function(filterName) {
-			var filterId = parseFilterName(filterName);
-			var filterArguments = parseFilterArguments(filterName);
+	function getCompositeFilterFunction(combinedFilterExpression, bindingFilters) {
+		var filterExpressions = combinedFilterExpression ? combinedFilterExpression.split('|') : null;
+		var hasFilters = Boolean(filterExpressions) && filterExpressions.length > 0;
+		if (!hasFilters) {
+			return identity;
+		}
 
-			var filterExists = (filterId in bindingFilters);
+		var filterFunctions = filterExpressions.map(function(filterExpression) {
+			var filterId = parseFilterName(filterExpression);
+			var filterArguments = parseFilterArguments(filterExpression);
+
+			var filterExists = hasFilter(filterId, bindingFilters);
 			if (!filterExists) { throw new Error('Invalid binding expression: "' + bindingExpression + '"'); }
 
-			return getFilter(filterId, filterArguments, bindingFilters);
+			return getFilterFunction(filterId, filterArguments, bindingFilters);
 		});
 
 		var combinedFilter = filterFunctions.reduce(function(combinedFilter, filter) {
 			return function(value) {
 				return filter(combinedFilter(value));
 			};
-		}, bindingFunction);
+		});
 
 		return combinedFilter;
 
 
-		function parseFilterName(filterName) {
-			return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[1];
+		function identity(value) {
+			return value;
 		}
 
-		function parseFilterArguments(filterName) {
-			var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterName)[2];
+		function parseFilterName(filterExpression) {
+			return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[1];
+		}
+
+		function parseFilterArguments(filterExpression) {
+			var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(filterExpression)[2];
 			if (!argumentsString) { return null; }
 			var filterArguments = argumentsString.split(/\s*:\s*/);
 			return filterArguments.map(function(filterArgument) {
@@ -293,7 +300,11 @@ function parseBindingExpression(bindingExpression, bindingSources, bindingFilter
 			});
 		}
 
-		function getFilter(filterId, filterArguments, filters) {
+		function hasFilter(filterId, filters) {
+			return (filterId in filters);
+		}
+
+		function getFilterFunction(filterId, filterArguments, filters) {
 			var filter = filters[filterId];
 			if (!filterArguments || (filterArguments.length === 0)) { return filter; }
 			var partiallyAppliedFunction = function(value) {
