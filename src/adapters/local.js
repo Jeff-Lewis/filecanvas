@@ -19,12 +19,17 @@ var HttpError = require('../errors/HttpError');
 
 function LocalAdapter(database, options) {
 	options = options || {};
+	var metadata = options.metadata || null;
 	var authConfig = options.auth || null;
 	var sitesRoot = options.root || null;
 	var downloadUrl = options.download && options.download.url || null;
 	var thumbnailUrl = options.thumbnail && options.thumbnail.url || null;
 
 	if (!database) { throw new Error('Missing database'); }
+	if (!metadata) { throw new Error('Missing metadata'); }
+	if (!metadata.name) { throw new Error('Missing adapter name'); }
+	if (!metadata.label) { throw new Error('Missing adapter label'); }
+	if (!metadata.path) { throw new Error('Missing default site path'); }
 	if (!authConfig) { throw new Error('Missing local auth config'); }
 	if (!authConfig.strategy) { throw new Error('Missing local auth strategy'); }
 	if (!authConfig.options) { throw new Error('Missing local auth options'); }
@@ -33,6 +38,7 @@ function LocalAdapter(database, options) {
 	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
 
 	this.database = database;
+	this.metadata = metadata;
 	this.authConfig = authConfig;
 	this.sitesRoot = sitesRoot;
 	this.downloadUrl = downloadUrl;
@@ -40,10 +46,19 @@ function LocalAdapter(database, options) {
 }
 
 LocalAdapter.prototype.database = null;
+LocalAdapter.prototype.metadata = null;
 LocalAdapter.prototype.authConfig = null;
 LocalAdapter.prototype.sitesRoot = null;
 LocalAdapter.prototype.downloadUrl = null;
 LocalAdapter.prototype.thumbnailUrl = null;
+
+LocalAdapter.prototype.getMetadata = function(adapterConfig) {
+	return {
+		name: this.metadata.name,
+		label: this.metadata.label,
+		path: this.metadata.defaultSitesFolder
+	};
+};
 
 LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;

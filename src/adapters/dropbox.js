@@ -18,16 +18,20 @@ var HttpError = require('../errors/HttpError');
 
 function DropboxAdapter(database, options) {
 	options = options || {};
+	var metadata = options.metadata || null;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
 
 	if (!database) { throw new Error('Missing database'); }
+	if (!metadata) { throw new Error('Missing metadata'); }
+	if (!metadata.path) { throw new Error('Missing default site path'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app appSecret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing Dropbox login callback URL'); }
 
 	this.database = database;
+	this.metadata = metadata;
 	this.appKey = appKey;
 	this.appSecret = appSecret;
 	this.loginCallbackUrl = loginCallbackUrl;
@@ -37,6 +41,15 @@ DropboxAdapter.prototype.database = null;
 DropboxAdapter.prototype.appKey = null;
 DropboxAdapter.prototype.appSecret = null;
 DropboxAdapter.prototype.loginCallbackUrl = null;
+
+DropboxAdapter.prototype.getMetadata = function(adapterConfig) {
+	var fullName = [adapterConfig.firstName, adapterConfig.lastName].join(' ');
+	return {
+		name: 'Dropbox',
+		label: fullName + '’s Dropbox',
+		path: this.metadata.path
+	};
+};
 
 DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
 	var database = this.database;

@@ -20,7 +20,10 @@ config.adapters = {};
 
 if (process.env.LOCAL === 'true') {
 	config.adapters.local = {};
-	config.adapters.local.sitesPath = '/';
+	config.adapters.local.metadata = {};
+	config.adapters.local.metadata.name = process.env.LOCAL_NAME || 'Shunt server';
+	config.adapters.local.metadata.label = process.env.LOCAL_LABEL || 'Shunt sites';
+	config.adapters.local.metadata.path = '/';
 	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../sites');
 	config.adapters.local.download = {};
 	config.adapters.local.download.subdomain = 'download';
@@ -48,7 +51,8 @@ if (process.env.LOCAL === 'true') {
 
 if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox = {};
-	config.adapters.dropbox.sitesPath = '/shunt/';
+	config.adapters.dropbox.metadata = {};
+	config.adapters.dropbox.metadata.path = '/shunt/';
 	config.adapters.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
 	config.adapters.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
 	config.adapters.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
