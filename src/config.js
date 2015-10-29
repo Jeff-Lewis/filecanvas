@@ -25,6 +25,9 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local.metadata.label = process.env.LOCAL_LABEL || 'Shunt sites';
 	config.adapters.local.metadata.path = '/';
 	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../sites');
+	config.adapters.local.auth = {};
+	config.adapters.local.auth.strategy = 'bcrypt';
+	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };
 	config.adapters.local.download = {};
 	config.adapters.local.download.subdomain = 'download';
 	config.adapters.local.download.url = getSubdomainUrl({
@@ -44,9 +47,6 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local.thumbnail.width = 256;
 	config.adapters.local.thumbnail.height = 256;
 	config.adapters.local.thumbnail.cache = path.resolve(__dirname, '../.thumbnailcache');
-	config.adapters.local.auth = {};
-	config.adapters.local.auth.strategy = 'bcrypt';
-	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };
 }
 
 if (process.env.DROPBOX_APP_KEY) {
