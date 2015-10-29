@@ -283,7 +283,7 @@ button.bg-bluegrey:hover :not(:disabled) {
 
 @media screen and (min-width:768px) {
 	.register-panel {
-		margin-top: 130px;
+		margin-top: 100px;
 	}
 	.form-centered {
 		margin-top: 130px;
