@@ -543,11 +543,17 @@ footer.content-footer {
 .path-control .form-control {
 	display: none;
 }
+.path-control.editing .form-control {
+	display: block;
+}
+.path-control.editing .path-control-segments {
+	display: none;
+}
 .path-control-segments {
 	list-style: none;
-	padding: 6px 0 0;
-	margin-bottom: 10px;
 	line-height: 25px;
+	padding: 5px 0 2px;
+	margin-bottom: 0;
 }
 .path-control-segments > li {
 	position: relative;
@@ -555,11 +561,17 @@ footer.content-footer {
 	padding: 0 10px;
 	background-color: #e2e2e2;
 	border-radius: 2px;
-	margin-left: 0;
+	margin-right: 17px;
 	border: 1px solid #ccc;
 }
-.path-control-segments > li + li {
-	margin-left: 17px;
+.path-control-segments > li:last-child {
+	margin-right: 0;
+}
+.path-control > input:not(:disabled) + .path-control-segments > li {
+	cursor: pointer;
+}
+.path-control > input:not(:disabled) + .path-control-segments > li:hover {
+	background-color: #f4f4f4;
 }
 .path-control-segments > li::before,
 .path-control-segments > li::after {
