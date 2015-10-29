@@ -627,14 +627,22 @@ module.exports = function(database, options) {
 
 			function retrieveCreateSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
+				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
+					return adapterName !== 'default';
+				}).reduce(function(adaptersMetadata, adapterName) {
+					var adapter = adapters[adapterName];
+					var adapterConfig = userAdapters[adapterName];
+					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+					return adaptersMetadata;
+				}, {});
 				var defaultAdapterName = userAdapters.default;
-				var sitesRoot = adaptersConfig[defaultAdapterName].sitesPath;
+				var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
 				var siteModel = {
 					name: '',
 					label: '',
 					root: {
 						adapter: defaultAdapterName,
-						path: sitesRoot
+						path: defaultAdapterPath
 					},
 					private: false,
 					published: false,
@@ -659,8 +667,8 @@ module.exports = function(database, options) {
 					],
 					content: {
 						site: siteModel,
-						sitesRoot: sitesRoot,
-						themes: themes
+						themes: themes,
+						adapters: adaptersMetadata
 					}
 				};
 				renderAdminPage(req, res, 'sites/create-site', templateData)
@@ -724,6 +732,15 @@ module.exports = function(database, options) {
 				var username = userModel.username;
 				var defaultSiteName = userModel.defaultSite;
 				var siteName = req.params.site;
+				var userAdapters = req.user.adapters;
+				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
+					return adapterName !== 'default';
+				}).reduce(function(adaptersMetadata, adapterName) {
+					var adapter = adapters[adapterName];
+					var adapterConfig = userAdapters[adapterName];
+					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+					return adaptersMetadata;
+				}, {});
 				var includeTheme = false;
 				var includeContents = false;
 				var includeUsers = true;
@@ -755,7 +772,8 @@ module.exports = function(database, options) {
 								}
 							],
 							content: {
-								site: siteModel
+								site: siteModel,
+								adapters: adaptersMetadata
 							}
 						};
 						return renderAdminPage(req, res, 'sites/site', templateData);
