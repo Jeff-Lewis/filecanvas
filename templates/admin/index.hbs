@@ -87,6 +87,18 @@
 				</header>
 				{{/if}}
 				<section class="main-content">
+					{{#if header}}
+					<div class="title-bar">
+						<div class="title-bar-title">
+							<div class="brand">
+								<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+							</div>
+						</div>
+						{{#if header.title}}
+						<h3 class="title-bar-subtitle">{{ header.title }}</h3>
+						{{/if}}
+					</div>
+					{{/if}}
 					{{> page }}
 				</section>
 			</div>

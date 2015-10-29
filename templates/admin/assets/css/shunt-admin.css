@@ -13,6 +13,7 @@ body.navigation-hidden button.bg-white {
 body.navigation-hidden button.bg-white:hover:not(:disabled) {
 	background-color: white;
 }
+body.navigation-hidden .title-bar,
 body.navigation-hidden .content-footer {
 	background-color: rgba(0, 0, 0, 0.2);
 }
