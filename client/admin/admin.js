@@ -1,5 +1,7 @@
 'use strict';
 
+var path = require('path');
+
 $(function() {
 
 	var bindingFilters = {
@@ -45,6 +47,7 @@ $(function() {
 	initFixedAccordions();
 	initAccordionAnchors();
 	initActionPanels();
+	initPathControls();
 	initOffscreenSidebar();
 	initLogout();
 });
@@ -527,6 +530,42 @@ function initAccordionAnchors() {
 	}
 }
 
+function initPathControls() {
+	(function($) {
+
+		$.fn.pathControl = function() {
+			return this.each(function() {
+				var $element = $(this);
+				var $inputElement = $element.find('input');
+				var $segmentsElement = $element.find('.path-control-segments');
+				var rootLabel = $element.data('path-control-root') || null;
+
+				var currentValue = null;
+				updateAppearance($inputElement.val());
+
+				$inputElement.on('input change', function(event) {
+					var inputValue = $(this).val();
+					updateAppearance(inputValue);
+				});
+
+				function updateAppearance(value) {
+					if (value === currentValue) { return; }
+					var pathSegments = value.split('/').filter(function(segment) {
+						return Boolean(segment);
+					});
+					if (rootLabel) { pathSegments = [rootLabel].concat(pathSegments); }
+					var html = pathSegments.map(function(segment) {
+						return '<li>' + segment + '</li>';
+					}).join('');
+					$segmentsElement.html(html);
+				}
+			});
+		};
+
+	})($);
+
+	$('.path-control').pathControl();
+}
 function initActionPanels() {
 	(function($) {
 

@@ -540,6 +540,61 @@ footer.content-footer {
 	content: "\f00d";
 }
 
+.path-control .form-control {
+	display: none;
+}
+.path-control-segments {
+	list-style: none;
+	padding: 6px 0 0;
+	margin-bottom: 10px;
+	line-height: 25px;
+}
+.path-control-segments > li {
+	position: relative;
+	display: inline-block;
+	padding: 0 10px;
+	background-color: #e2e2e2;
+	border-radius: 2px;
+	margin-left: 0;
+	border: 1px solid #ccc;
+}
+.path-control-segments > li + li {
+	margin-left: 17px;
+}
+.path-control-segments > li::before,
+.path-control-segments > li::after {
+	display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translate(0,0);
+}
+.path-control-segments > li::before {
+	content: "\f114";
+	margin-right: 8px;
+}
+.path-control-segments > li:first-child::before {
+	content: "\f0a0";
+}
+.path-control-segments > li::after {
+    content: "\f0da";
+	position: absolute;
+	left: 100%;
+	font-size: 16px;
+    vertical-align: top;
+    padding: 0 8px;
+	line-height: 25px;
+    color: #999;
+}
+.path-control-segments > li:last-child::after {
+	content: none;
+}
+.path-control.has-error .path-control-segments > li {
+	border-color: #d96557;
+}
+
 .panel-heading {
 	font-weight: bold;
 }
