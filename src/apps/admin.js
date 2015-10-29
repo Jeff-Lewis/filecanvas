@@ -289,7 +289,10 @@ module.exports = function(database, options) {
 		function renderAdminPage(req, res, templateName, context) {
 			return new Promise(function(resolve, reject) {
 				var templateData = getTemplateData(req, res, context);
-				res.render(templateName, templateData, function(error, pageContent) {
+				renderTemplate(req, res, {
+					template: templateName,
+					context: templateData
+				}, function(error, pageContent) {
 					if (error) { return reject(error); }
 					var templateOptions = {
 						partials: {
@@ -298,7 +301,10 @@ module.exports = function(database, options) {
 					};
 					var templateData = getTemplateData(req, res, context, templateOptions);
 					delete req.session.state;
-					res.render('index', templateData, function(error, data) {
+					renderTemplate(req, res, {
+						template: 'index',
+						context: templateData
+					}, function(error, data) {
 						if (error) { return reject(error); }
 						res.send(data);
 						resolve(data);
@@ -306,6 +312,14 @@ module.exports = function(database, options) {
 				});
 			});
 
+
+			function renderTemplate(req, res, options, callback) {
+				options = options || {};
+				var template = options.template;
+				var context = options.context;
+				var extension = path.extname(req.url) || '.hbs';
+				res.render(template + extension, context, callback);
+			}
 
 			function getTemplateData(req, res, context, templateOptions) {
 				templateOptions = templateOptions || null;

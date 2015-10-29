@@ -388,7 +388,10 @@ module.exports = function(database, options) {
 									}
 								};
 								var templateName = siteModel.theme.id + '/login';
-								res.render(templateName, context);
+								renderTemplate(req, res, {
+									template: templateName,
+									context: context
+								});
 							});
 					})
 					.catch(function(error) {
@@ -430,7 +433,10 @@ module.exports = function(database, options) {
 									contents: siteContents
 								};
 								var templateName = siteModel.theme.id + '/index';
-								res.render(templateName, context);
+								renderTemplate(req, res, {
+									template: templateName,
+									context: context
+								});
 							});
 					})
 					.catch(function(error) {
@@ -464,6 +470,14 @@ module.exports = function(database, options) {
 					.catch(function(error) {
 						next(error);
 					});
+			}
+
+			function renderTemplate(req, res, options, callback) {
+				options = options || {};
+				var template = options.template;
+				var context = options.context;
+				var extension = path.extname(req.url) || '.hbs';
+				res.render(template + extension, context, callback);
 			}
 		}
 
