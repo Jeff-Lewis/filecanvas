@@ -128,12 +128,79 @@ function initInputValidators(validators) {
 
 
 	function createValidator($inputElement, attributeName, validators) {
-		var validatorId = $inputElement.attr(attributeName);
-		if (!(validatorId in validators)) { throw new Error('Invalid validator specified: "' + validatorId + '"'); }
+		var combinedValidatorExpression = $inputElement.attr(attributeName);
+		var validate = getCompositeValidatorFunction(combinedValidatorExpression, validators);
+		addParserListeners($inputElement, validate);
 
-		var validator = validators[validatorId];
-		addParserListeners($inputElement, validator);
 
+		function getCompositeValidatorFunction(combinedValidatorExpression, validators) {
+			var validatorExpressions = combinedValidatorExpression ? combinedValidatorExpression.split(',') : null;
+			var hasValidators = Boolean(validatorExpressions) && validatorExpressions.length > 0;
+			if (!hasValidators) {
+				return always;
+			}
+
+			var validatorFunctions = validatorExpressions.map(function(validatorExpression) {
+				var validatorId = parseValidatorName(validatorExpression);
+				var validatorArguments = parseValidatorArguments(validatorExpression);
+
+				var validatorExists = hasValidator(validatorId, validators);
+				if (!validatorExists) { throw new Error('Invalid validator expression: "' + combinedValidatorExpression + '"'); }
+
+				return getValidator(validatorId, validatorArguments, validators);
+			});
+
+			var combinedValidator = function(value) {
+				return validatorFunctions.every(function(validator) {
+					return validator(value);
+				});
+			};
+
+			return combinedValidator;
+
+
+			function always(value) {
+				return true;
+			}
+
+			function parseValidatorName(validatorExpression) {
+				return /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(validatorExpression)[1];
+			}
+
+			function parseValidatorArguments(validatorExpression) {
+				var argumentsString = /^\s*(.*?)(?:\s*\:\s*(.*?))?\s*$/.exec(validatorExpression)[2];
+				if (!argumentsString) { return null; }
+				var validatorArguments = argumentsString.split(/\s*:\s*/);
+				return validatorArguments.map(function(validatorArgument) {
+					if (validatorArgument === 'null') {
+						return null;
+					} else if (validatorArgument === 'true') {
+						return true;
+					} else if (validatorArgument === 'false') {
+						return false;
+					} else if (/^-?[0-9]+(?:\.[0-9]+)?$/.test(validatorArgument)) {
+						return Number(validatorArgument);
+					} else if (/^'.*'$/.test(validatorArgument)) {
+						return validatorArgument.substr(1, validatorArgument.length - 1 - 1);
+					} else {
+						throw new Error('Invalid validator argument:' + validatorArgument);
+					}
+				});
+			}
+
+			function hasValidator(validatorId, validators) {
+				return (validatorId in validators);
+			}
+
+			function getValidator(validatorId, validatorArguments, validators) {
+				var validator = validators[validatorId];
+				if (!validatorArguments || (validatorArguments.length === 0)) { return validator; }
+				var partiallyAppliedFunction = function(value) {
+					return validator.apply(null, [value].concat(validatorArguments));
+				};
+				return partiallyAppliedFunction;
+			}
+		}
 
 		function addParserListeners($inputElement, validator) {
 			$inputElement.on('input change blur', onInputUpdated);
