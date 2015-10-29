@@ -636,9 +636,23 @@ function initPathControls() {
 				var currentValue = null;
 				updateAppearance($inputElement.val());
 
+				$segmentsElement.on('click', function(event) {
+					if ($inputElement.prop('disabled')) { return; }
+					$element.addClass('editing');
+					$inputElement.focus().val($inputElement.val());
+				});
 				$inputElement.on('input change', function(event) {
 					var inputValue = $(this).val();
 					updateAppearance(inputValue);
+				});
+				$inputElement.on('blur', function(event) {
+					$element.removeClass('editing');
+				});
+				$inputElement.on('keydown', function(event) {
+					var KEYCODE_ESCAPE = 27;
+					if (event.keyCode === KEYCODE_ESCAPE) {
+						$inputElement.blur();
+					}
 				});
 
 				function updateAppearance(value) {
