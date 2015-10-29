@@ -17,7 +17,6 @@
 										placeholder="First name"
 										value="{{ content.user.firstName }}"
 										data-validate="notEmpty"
-										data-trigger="focus"
 									/>
 									<span class="form-control-feedback fa" aria-hidden="true"></span>
 								</div>
@@ -38,7 +37,6 @@
 										placeholder="Email address"
 										value="{{ content.user.email }}"
 										data-validate="email"
-										data-trigger="focus"
 									/>
 									<span class="form-control-feedback fa" aria-hidden="true"></span>
 								</div>
@@ -105,7 +103,6 @@
 											data-bind-id="username"
 											data-parser="slug"
 											data-validate="slug"
-											data-trigger="focus"
 										/>
 										<span class="form-control-feedback fa" aria-hidden="true"></span>
 										<p class="help-block">Sites will be moved to {{#replace '$0' content.user.username}}{{#replace '$0' '<strong data-bind-value="username">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
