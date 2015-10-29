@@ -438,21 +438,34 @@ button.bg-bluegrey:hover :not(:disabled) {
 	text-indent: 3px;
 }
 
-.full-page-header {
+.title-bar {
 	height: 55px;
 	padding: 10px;
 	background-color: #495469;
-	color: white;
+	color: #b2b6be;
+	margin: -20px -20px 0;
 }
-.full-page-header-title .brand {
+body.full-page .title-bar {
+	margin: 0;
+}
+.title-bar a {
+    color: #b2b6be;
+}
+.title-bar a:hover {
+    color: #c0c3ca;
+}
+.title-bar-title {
+	float: left;
+}
+.title-bar-title .brand {
 	height: 35px;
 }
-.full-page-header-title .brand-logo {
+.title-bar-title .brand-logo {
 	margin: 0 10px;
 	line-height: 35px;
 	padding: 0;
 }
-.full-page-header-controls {
+.title-bar-controls {
 	float: right;
 }
 
