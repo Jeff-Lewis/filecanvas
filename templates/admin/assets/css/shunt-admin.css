@@ -24,12 +24,12 @@ body.navigation-hidden footer.content-footer nav ul li a:link:hover {
 	opacity: 0.75;
 }
 
-body.full-height .app,
-body.full-height .main-panel,
-body.full-height .main-content {
+body.full-page .app,
+body.full-page .main-panel,
+body.full-page .main-content {
 	height: 100%;
 }
-body.full-height .main-content {
+body.full-page .main-content {
 	margin: 0;
 	padding: 0;
 }

@@ -379,6 +379,9 @@ module.exports = function(database, options) {
 						var templateData = {
 							title: 'Your profile',
 							navigation: false,
+							header: {
+								title: 'Create account'
+							},
 							footer: true,
 							content: {
 								user: pendingUser.user
@@ -965,7 +968,7 @@ module.exports = function(database, options) {
 								'/assets/js/bootstrap-colorpicker.min.js',
 								'/assets/js/shunt-editor.js'
 							],
-							fullHeight: true,
+							fullPage: true,
 							navigation: false,
 							footer: false,
 							breadcrumb: [
