@@ -276,6 +276,7 @@ module.exports = function(database, options) {
 						register: '/register',
 						logout: '/logout',
 						sites: '/sites',
+						sitesCreate: '/sites/create-site',
 						preview: '/preview',
 						terms: '/terms',
 						privacy: '/privacy',
