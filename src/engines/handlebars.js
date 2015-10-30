@@ -58,7 +58,10 @@ function createHandlebarsTemplateService(helpers) {
 				var helper = helpers[helperName];
 				compiler.registerHelper(helperName, function() {
 					// HACK: allow the helpers to access the root context
-					this['@root'] = rootContext;
+					Object.defineProperty(this, '@root', {
+						value: rootContext,
+						enumerable: false
+					});
 					return helper.apply(this, arguments);
 				});
 			});
