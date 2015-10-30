@@ -46,7 +46,7 @@ module.exports = function(database, options) {
 		initAuth(app, passport, database);
 	}
 	initViewEngine(app, {
-		templatesPath: path.resolve(__dirname, '../../templates/themes')
+		templatesPath: path.resolve(__dirname, '../../templates')
 	});
 	initRoutes(app, passport, database, {
 		themesUrl: themesUrl,
@@ -159,6 +159,7 @@ module.exports = function(database, options) {
 		var templatesPath = options.templatesPath;
 
 		app.engine('hbs', handlebarsEngine);
+
 		app.set('views', templatesPath);
 		app.set('view engine', 'hbs');
 	}
@@ -387,11 +388,8 @@ module.exports = function(database, options) {
 										private: siteModel.private
 									}
 								};
-								var templateName = siteModel.theme.id + '/login';
-								renderTemplate(req, res, {
-									template: templateName,
-									context: context
-								});
+								var template = siteModel.theme.id + '/login';
+								renderTemplate(res, template, context);
 							});
 					})
 					.catch(function(error) {
@@ -432,11 +430,8 @@ module.exports = function(database, options) {
 									},
 									contents: siteContents
 								};
-								var templateName = siteModel.theme.id + '/index';
-								renderTemplate(req, res, {
-									template: templateName,
-									context: context
-								});
+								var template = siteModel.theme.id + '/index';
+								renderTemplate(res, template, context);
 							});
 					})
 					.catch(function(error) {
@@ -472,12 +467,18 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function renderTemplate(req, res, options, callback) {
-				options = options || {};
-				var template = options.template;
-				var context = options.context;
-				var extension = path.extname(req.url) || '.hbs';
-				res.render(template + extension, context, callback);
+			function renderTemplate(res, template, context) {
+				res.format({
+					'text/html': function() {
+						res.render('themes/' + template, context);
+					},
+					'application/json': function() {
+						res.render('api/response', {
+							error: null,
+							resource: context
+						});
+					}
+				});
 			}
 		}
 
