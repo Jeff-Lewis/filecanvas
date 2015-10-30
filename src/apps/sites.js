@@ -395,6 +395,7 @@ module.exports = function(database, options) {
 								};
 								if (isPreview) {
 									templateData.metadata.admin = true;
+									templateData.metadata.preview = true;
 								}
 								var template = 'themes/' + siteModel.theme.id + '/login';
 								renderTemplate(res, template, templateData);
@@ -441,6 +442,7 @@ module.exports = function(database, options) {
 								};
 								if (isPreview) {
 									templateData.metadata.admin = true;
+									templateData.metadata.preview = true;
 								}
 								var template = 'themes/' + siteModel.theme.id + '/index';
 								renderTemplate(res, template, templateData);

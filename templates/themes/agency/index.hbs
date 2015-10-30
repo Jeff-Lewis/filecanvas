@@ -135,7 +135,7 @@
 							{{/if}}
 							{{/each}}
 							{{#if resource.private}}
-							<li><a class="scroll-link external" href="{{ logoutUrl }}">Log out</a></li>
+							<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{{ logoutUrl }}}{{/if}}">Log out</a></li>
 							{{/if}}
 						</ul>
 						{{/if}}
