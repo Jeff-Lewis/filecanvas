@@ -8,7 +8,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<link rel="shortcut icon" href="{{ resourceUrl 'favicon.ico' }}"/>
-	<title>{{ theme.browser.title }}</title>
+	<title>{{ metadata.theme.config.browser.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<!--[if lt IE 10]>
@@ -20,12 +20,12 @@
 	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
 	<style type="text/css">
 		::selection {
-			background-color: {{ theme.colors.brandColor }};
-			color: {{ theme.colors.navItemColor }};
+			background-color: {{ metadata.theme.config.colors.brandColor }};
+			color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		::-moz-selection {
-			background-color: {{ theme.colors.brandColor }};
-			color: {{ theme.colors.navItemColor }};
+			background-color: {{ metadata.theme.config.colors.brandColor }};
+			color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		a,
 		.logout:hover,
@@ -34,78 +34,78 @@
 		#slidecaption strong,
 		.option-set li a:hover,
 		.option-set li a.selected {
-			color: {{ theme.colors.brandColor }};
+			color: {{ metadata.theme.config.colors.brandColor }};
 		}
 		nav#mainnav,
 		.project-wrp:hover,
 		.copyright {
-			background-color: {{ theme.colors.brandColor }};
+			background-color: {{ metadata.theme.config.colors.brandColor }};
 		}
 		.btn-primary,
 		.btn-primary:link,
 		.btn-primary:hover,
 		.btn-primary:active,
 		.btn-primary:focus {
-			background-color: {{ theme.colors.brandColor }} !important;
+			background-color: {{ metadata.theme.config.colors.brandColor }} !important;
 		}
 		a,
 		hr,
 		hr.mini {
-			border-bottom: 1px solid {{ theme.colors.brandColor }};
+			border-bottom: 1px solid {{ metadata.theme.config.colors.brandColor }};
 		}
 		.logout,
 		nav #fluid-nav li a,
 		.project-wrp:hover .project-name,
 		.project-wrp:hover .project-client,
 		.project-wrp:hover .project-date {
-			color: {{ theme.colors.navItemColor }};
+			color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		.project-wrp:hover hr {
-			border-color: {{ theme.colors.navItemColor }};
+			border-color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		nav #fluid-nav li a:hover {
-			color: {{ theme.colors.navItemRolloverColor }};
+			color: {{ metadata.theme.config.colors.navItemRolloverColor }};
 		}
 		nav #fluid-nav li.current a {
-			color: {{ theme.colors.navItemSelectedColor }};
+			color: {{ metadata.theme.config.colors.navItemSelectedColor }};
 		}
 
-		{{#if theme.images.headerLogo}}
+		{{#if metadata.theme.config.images.headerLogo}}
 		header .logo {
-			background-image: url('{{{ theme.images.headerLogo }}}');
+			background-image: url('{{{ metadata.theme.config.images.headerLogo }}}');
 		}
 		{{/if}}
 
-		{{#if theme.images.navLogo}}
+		{{#if metadata.theme.config.images.navLogo}}
 		nav#mainnav .logo {
-			background-image: url('{{{ theme.images.navLogo }}}');
+			background-image: url('{{{ metadata.theme.config.images.navLogo }}}');
 		}
 		{{/if}}
 	</style>
 	<style type="text/css">
-{{{ theme.scripts.css }}}
+{{{ metadata.theme.config.scripts.css }}}
 	</style>
 </head>
 
-<body{{#if admin }} data-admin data-admin-upload{{/if}}>
+<body{{#if metadata.admin }} data-admin data-admin-upload{{/if}}>
 
-	{{#if (or theme.content.pageHeader theme.content.pageSubtitle)}}
+	{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
 	<header id="home">
 		<div class="header-bg"></div>
 		<div class="pattern"></div>
 		<div class="container">
 			<div class="row">
 				<div class="span4">
-					{{#if theme.images.headerLogo}}
-					<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
+					{{#if metadata.theme.config.images.headerLogo}}
+					<a class="logo"{{#if metadata.theme.config.content.contactWebsite}} href="{{ metadata.theme.config.content.contactWebsite }}" target="_blank"{{/if}}></a>
 					{{/if}}
 				</div>
 			</div>
 			<div class="row">
 				<div class="span12">
 					<div id="slidecaption">
-						<h1>{{ markdown theme.content.pageHeader }}</h1>
-						<h2>{{ markdown theme.content.pageSubtitle }}</h2>
+						<h1>{{ markdown metadata.theme.config.content.pageHeader }}</h1>
+						<h2>{{ markdown metadata.theme.config.content.pageSubtitle }}</h2>
 					</div>
 				</div>
 			</div>
@@ -119,22 +119,22 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
-						{{#if theme.images.navLogo}}
-						<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}" target="_blank"{{/if}}></a>
+						{{#if metadata.theme.config.images.navLogo}}
+						<a class="logo"{{#if metadata.theme.config.content.contactWebsite}} href="{{ metadata.theme.config.content.contactWebsite }}" target="_blank"{{/if}}></a>
 						{{/if}}
 					</div>
 					<div class="span8">
-						{{#if (or (folders contents) site.private)}}
+						{{#if (or (folders resource.root) resource.private)}}
 						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
-							{{#if (or theme.content.pageHeader theme.content.pageSubtitle)}}
+							{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
 							<li><a class="scroll-link" href="#home">Home</a></li>
 							{{/if}}
-							{{#each (folders contents) as |folder|}}
+							{{#each (folders resource.root) as |folder|}}
 							{{#if folder.contents}}
 							<li><a class="scroll-link" href="#{{ slug (basename folder) }}">{{ label folder }}</a></li>
 							{{/if}}
 							{{/each}}
-							{{#if site.private}}
+							{{#if resource.private}}
 							<li><a class="scroll-link external" href="{{ logoutUrl }}">Log out</a></li>
 							{{/if}}
 						</ul>
@@ -146,23 +146,23 @@
 
 		<section class="pages">
 
-			{{#if (or theme.content.introTitle theme.content.introText (files contents))}}
+			{{#if (or metadata.theme.config.content.introTitle metadata.theme.config.content.introText (files resource.root))}}
 			<div class="page">
 				<div class="container">
 					<div class="row">
 						<div class="span12">
-							{{#if theme.content.introTitle}}
-							<div class="title">{{ theme.content.introTitle }}</div>
-							{{#if theme.content.introText}}
+							{{#if metadata.theme.config.content.introTitle}}
+							<div class="title">{{ metadata.theme.config.content.introTitle }}</div>
+							{{#if metadata.theme.config.content.introText}}
 							<hr/>
 							{{/if}}
 							{{/if}}
-							{{#if theme.content.introText}}
-							<div class="lead-small">{{ markdown theme.content.introText }}</div>
+							{{#if metadata.theme.config.content.introText}}
+							<div class="lead-small">{{ markdown metadata.theme.config.content.introText }}</div>
 							{{/if}}
-							{{#if (files contents)}}
+							{{#if (files resource.root)}}
 							<div class="posts row isotope">
-								{{#each (files contents) as |file|}}
+								{{#each (files resource.root) as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
 									<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
 										<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
@@ -194,11 +194,11 @@
 			</div>
 			{{/if}}
 
-			{{#each (folders contents) as |folder|}}
+			{{#each (folders resource.root) as |folder|}}
 			<div id="{{ slug (basename folder) }}" class="page">
 				<div class="container">
 					<div class="row">
-						<div class="span12"{{#if ../admin }} data-admin-upload="{{ folder.path }}"{{/if}}>
+						<div class="span12"{{#if ../metadata.admin }} data-admin-upload="{{ folder.path }}"{{/if}}>
 							<div class="title">{{ label folder }}</div>
 							<hr/>
 							<div class="lead-small" data-section-header="{{ label folder }}"></div>
@@ -208,7 +208,7 @@
 								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
 								{{#each (folders folder) as |subfolder|}}
 								{{#if subfolder.directory}}
-								<li{{#if ../../admin }} data-admin-upload={{ subfolder.path }}{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ label subfolder }}</a></li>
+								<li{{#if ../../metadata.admin }} data-admin-upload={{ subfolder.path }}{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ label subfolder }}</a></li>
 								{{/if}}
 								{{/each}}
 							</ul>
@@ -276,36 +276,36 @@
 
 		<footer>
 			{{#if (or
-				theme.content.contactTitle
-				theme.content.contactEmail
-				theme.content.contactWebsite
-				theme.content.contactPhone
-				theme.content.contactAddress
-				theme.content.footerTitle
-				theme.content.footerText
+				metadata.theme.config.content.contactTitle
+				metadata.theme.config.content.contactEmail
+				metadata.theme.config.content.contactWebsite
+				metadata.theme.config.content.contactPhone
+				metadata.theme.config.content.contactAddress
+				metadata.theme.config.content.footerTitle
+				metadata.theme.config.content.footerText
 			)}}
 			<div class="footer">
 				<div class="container">
 					<div class="row">
 						<div class="contact span6">
-							<h5>{{ theme.content.contactTitle }}</h5>
-							{{#if theme.content.contactEmail}}
-							<p><strong>E-mail:</strong> <a class="white-text" href="mailto:{{ theme.content.contactEmail }}">{{ theme.content.contactEmail }}</a></p>
+							<h5>{{ metadata.theme.config.content.contactTitle }}</h5>
+							{{#if metadata.theme.config.content.contactEmail}}
+							<p><strong>E-mail:</strong> <a class="white-text" href="mailto:{{ metadata.theme.config.content.contactEmail }}">{{ metadata.theme.config.content.contactEmail }}</a></p>
 							{{/if}}
-							{{#if theme.content.contactWebsite}}
-							<p><strong>Web:</strong> <a class="white-text" href="{{ theme.content.contactWebsite }}" target="_blank">{{ theme.content.contactWebsite }}</a></p>
+							{{#if metadata.theme.config.content.contactWebsite}}
+							<p><strong>Web:</strong> <a class="white-text" href="{{ metadata.theme.config.content.contactWebsite }}" target="_blank">{{ metadata.theme.config.content.contactWebsite }}</a></p>
 							{{/if}}
-							{{#if theme.content.contactPhone}}
-							<p><strong>Phone:</strong> <span class="white-text">{{ theme.content.contactPhone }}</span></p>
+							{{#if metadata.theme.config.content.contactPhone}}
+							<p><strong>Phone:</strong> <span class="white-text">{{ metadata.theme.config.content.contactPhone }}</span></p>
 							{{/if}}
-							{{#if theme.content.contactAddress}}
-							<p><strong>Location:</strong> <span class="white-text">{{ theme.content.contactAddress }}</span></p>
+							{{#if metadata.theme.config.content.contactAddress}}
+							<p><strong>Location:</strong> <span class="white-text">{{ metadata.theme.config.content.contactAddress }}</span></p>
 							{{/if}}
 						</div>
 						<div class="span2"></div>
 						<div class="about span4">
-							<h5>{{ theme.content.footerTitle }}</h5>
-							{{ markdown theme.content.footerText }}
+							<h5>{{ metadata.theme.config.content.footerTitle }}</h5>
+							{{ markdown metadata.theme.config.content.footerText }}
 						</div>
 					</div>
 				</div>

@@ -8,7 +8,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<link rel="shortcut icon" href="{{ resourceUrl 'favicon.ico' }}"/>
-	<title>{{ theme.browser.title }}</title>
+	<title>{{ metadata.theme.config.browser.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<!--[if lt IE 10]>
@@ -20,12 +20,12 @@
 	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
 	<style type="text/css">
 		::selection {
-			background-color: {{ theme.colors.brandColor }};
-			color: {{ theme.colors.navItemColor }};
+			background-color: {{ metadata.theme.config.colors.brandColor }};
+			color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		::-moz-selection {
-			background-color: {{ theme.colors.brandColor }};
-			color: {{ theme.colors.navItemColor }};
+			background-color: {{ metadata.theme.config.colors.brandColor }};
+			color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		a,
 		.logout:hover,
@@ -34,56 +34,56 @@
 		#slidecaption strong,
 		.option-set li a:hover,
 		.option-set li a.selected {
-			color: {{ theme.colors.brandColor }};
+			color: {{ metadata.theme.config.colors.brandColor }};
 		}
 		nav#mainnav,
 		.project-wrp:hover,
 		.copyright {
-			background-color: {{ theme.colors.brandColor }};
+			background-color: {{ metadata.theme.config.colors.brandColor }};
 		}
 		.btn-primary,
 		.btn-primary:link,
 		.btn-primary:hover,
 		.btn-primary:active,
 		.btn-primary:focus {
-			background-color: {{ theme.colors.brandColor }} !important;
+			background-color: {{ metadata.theme.config.colors.brandColor }} !important;
 		}
 		a,
 		hr,
 		hr.mini {
-			border-bottom: 1px solid {{ theme.colors.brandColor }};
+			border-bottom: 1px solid {{ metadata.theme.config.colors.brandColor }};
 		}
 		.logout,
 		nav #fluid-nav li a,
 		.project-wrp:hover .project-name,
 		.project-wrp:hover .project-client,
 		.project-wrp:hover .project-date {
-			color: {{ theme.colors.navItemColor }};
+			color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		.project-wrp:hover hr {
-			border-color: {{ theme.colors.navItemColor }};
+			border-color: {{ metadata.theme.config.colors.navItemColor }};
 		}
 		nav #fluid-nav li a:hover {
-			color: {{ theme.colors.navItemRolloverColor }};
+			color: {{ metadata.theme.config.colors.navItemRolloverColor }};
 		}
 		nav #fluid-nav li.current a {
-			color: {{ theme.colors.navItemSelectedColor }};
+			color: {{ metadata.theme.config.colors.navItemSelectedColor }};
 		}
 
-		{{#if theme.images.headerLogo}}
+		{{#if metadata.theme.config.images.headerLogo}}
 		header .logo {
-			background-image: url('{{{ theme.images.headerLogo }}}');
+			background-image: url('{{{ metadata.theme.config.images.headerLogo }}}');
 		}
 		{{/if}}
 
-		{{#if theme.images.navLogo}}
+		{{#if metadata.theme.config.images.navLogo}}
 		nav#mainnav .logo {
-			background-image: url('{{{ theme.images.navLogo }}}');
+			background-image: url('{{{ metadata.theme.config.images.navLogo }}}');
 		}
 		{{/if}}
 	</style>
 	<style type="text/css">
-{{{ theme.scripts.css }}}
+{{{ metadata.theme.config.scripts.css }}}
 	</style>
 </head>
 
@@ -95,8 +95,8 @@
 			<div class="container">
 				<div class="row">
 					<div class="span4">
-						{{#if theme.images.headerLogo}}
-						<a class="logo"{{#if theme.content.contactWebsite}} href="{{ theme.content.contactWebsite }}"{{/if}}></a>
+						{{#if metadata.theme.config.images.headerLogo}}
+						<a class="logo"{{#if metadata.theme.config.content.contactWebsite}} href="{{ metadata.theme.config.content.contactWebsite }}"{{/if}}></a>
 						{{/if}}
 					</div>
 					<div class="span8">
@@ -108,7 +108,7 @@
 		<section class="page">
 			<div class="container">
 				<div class="row">
-					<form class="form-signin" role="form" action="{{ loginUrl }}" method="POST" autocomplete="off" style="text-align: center;">
+					<form class="form-signin" role="form" action="{{ metadata.loginUrl }}" method="POST" autocomplete="off" style="text-align: center;">
 						<h2 class="form-signin-heading">Sign in</h2>
 						<div><input type="text" name="username" class="form-control" placeholder="Username" required autofocus></div>
 						<div><input type="password" name="password" class="form-control" placeholder="Password" required></div>

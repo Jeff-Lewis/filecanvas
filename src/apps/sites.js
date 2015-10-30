@@ -363,6 +363,7 @@ module.exports = function(database, options) {
 			function loginRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var themeConfigOverrides = (req.query.config ? JSON.parse(req.query.config) : null);
 				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var username = userModel.username;
@@ -371,7 +372,6 @@ module.exports = function(database, options) {
 						var includeContents = false;
 						var includeUsers = false;
 						var useCached = false;
-
 						return siteService.retrieveSite(username, siteName, {
 							published: published,
 							theme: includeTheme,
@@ -380,16 +380,24 @@ module.exports = function(database, options) {
 							cacheDuration: (useCached ? Infinity : null)
 						})
 							.then(function(siteModel) {
-								var context = {
-									siteRoot: getSiteRootUrl(req, '/login'),
-									themeRoot: themesUrl + siteModel.theme.id + '/',
-									theme: siteModel.theme.config,
-									site: {
+								var templateData = {
+									metadata: {
+										siteRoot: getSiteRootUrl(req, '/login'),
+										themeRoot: themesUrl + siteModel.theme.id + '/',
+										theme: {
+											id: siteModel.theme.id,
+											config: merge({}, siteModel.theme.config, themeConfigOverrides)
+										}
+									},
+									resource: {
 										private: siteModel.private
 									}
 								};
-								var template = siteModel.theme.id + '/login';
-								renderTemplate(res, template, context);
+								if (isPreview) {
+									templateData.metadata.admin = true;
+								}
+								var template = 'themes/' + siteModel.theme.id + '/login';
+								renderTemplate(res, template, templateData);
 							});
 					})
 					.catch(function(error) {
@@ -402,7 +410,6 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				var useCached = (req.query.cached === 'true');
 				var themeConfigOverrides = (req.query.config ? JSON.parse(req.query.config) : null);
-				var adminUser = (isPreview ? req.user : null);
 				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var username = userModel.username;
@@ -418,20 +425,25 @@ module.exports = function(database, options) {
 							cacheDuration: (useCached ? Infinity : null)
 						})
 							.then(function(siteModel) {
-								var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
-								var siteContents = siteModel.contents || { folders: null, files: null };
-								var context = {
-									siteRoot: getSiteRootUrl(req),
-									themeRoot: themesUrl + siteModel.theme.id + '/',
-									theme: themeConfig,
-									admin: adminUser,
-									site: {
-										private: siteModel.private
+								var templateData = {
+									metadata: {
+										siteRoot: getSiteRootUrl(req),
+										themeRoot: themesUrl + siteModel.theme.id + '/',
+										theme: {
+											id: siteModel.theme.id,
+											config: merge({}, siteModel.theme.config, themeConfigOverrides)
+										}
 									},
-									contents: siteContents
+									resource: {
+										private: siteModel.private,
+										root: siteModel.contents
+									}
 								};
-								var template = siteModel.theme.id + '/index';
-								renderTemplate(res, template, context);
+								if (isPreview) {
+									templateData.metadata.admin = true;
+								}
+								var template = 'themes/' + siteModel.theme.id + '/index';
+								renderTemplate(res, template, templateData);
 							});
 					})
 					.catch(function(error) {
@@ -467,13 +479,13 @@ module.exports = function(database, options) {
 					});
 			}
 
-			function renderTemplate(res, template, context) {
+			function renderTemplate(res, template, templateData) {
 				res.format({
 					'text/html': function() {
-						res.render('themes/' + template, context);
+						res.render(template, templateData);
 					},
 					'application/json': function() {
-						res.render('api/response', { payload: context });
+						res.render('api/response', { payload: templateData });
 					}
 				});
 			}
