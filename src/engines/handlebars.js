@@ -1,8 +1,8 @@
 'use strict';
 
 var util = require('util');
-var Handlebars = require('handlebars');
 
+var compile = require('./handlebars/utils/compile');
 var helpers = require('./handlebars/helpers');
 var TemplateService = require('../services/TemplateService');
 
@@ -31,7 +31,9 @@ function createHandlebarsTemplateService(helpers) {
 
 	HandlebarsTemplateService.prototype.compile = function(templateSource) {
 		// Compile the template into a standard 2-arg Handlebars template function
-		var templateFunction = compileHandlebarsTemplate(templateSource, this.helpers);
+		var templateFunction = compile(templateSource, {
+			helpers: this.helpers
+		});
 
 		// Convert the 2-arg template function into a 1-arg render function
 		var renderFunction = function(options) {
@@ -49,28 +51,6 @@ function createHandlebarsTemplateService(helpers) {
 			return output;
 		};
 		return renderFunction;
-
-
-		function compileHandlebarsTemplate(templateSource, helpers) {
-			var compiler = Handlebars.create();
-			var rootContext = null;
-			Object.keys(helpers).forEach(function(helperName) {
-				var helper = helpers[helperName];
-				compiler.registerHelper(helperName, function() {
-					// HACK: allow the helpers to access the root context
-					Object.defineProperty(this, '@root', {
-						value: rootContext,
-						enumerable: false
-					});
-					return helper.apply(this, arguments);
-				});
-			});
-			var templateFunction = compiler.compile(templateSource);
-			return function(context, templateOptions) {
-				rootContext = context;
-				return templateFunction(context, templateOptions);
-			};
-		}
 	};
 
 	return new HandlebarsTemplateService(helpers);
