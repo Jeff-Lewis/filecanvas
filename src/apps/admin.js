@@ -5,6 +5,7 @@ var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 var express = require('express');
+var composeMiddleware = require('compose-middleware').compose;
 var Passport = require('passport').Passport;
 
 var sitesApp = require('./sites');
@@ -463,11 +464,15 @@ module.exports = function(database, options) {
 
 			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
-			app.use('/preview', createPreviewApp(database, {
-				host: host,
-				themesUrl: themesUrl,
-				adaptersConfig: adaptersConfig
-			}));
+			app.use('/preview', composeMiddleware([
+				ensureAuth,
+				initAdminSession,
+				createPreviewApp(database, {
+					host: host,
+					themesUrl: themesUrl,
+					adaptersConfig: adaptersConfig
+				})
+			]));
 
 
 			function ensureAuth(req, res, next) {
@@ -1098,8 +1103,6 @@ module.exports = function(database, options) {
 				var adaptersConfig = options.adaptersConfig;
 
 				var app = express();
-				app.use(ensureAuth);
-				app.use(initAdminSession);
 				app.use(addUsernamePathPrefix);
 				app.use(sitesApp(database, {
 					preview: true,

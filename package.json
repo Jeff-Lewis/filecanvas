@@ -26,6 +26,7 @@
     "bcrypt": "^0.8.5",
     "bytes": "timkendrick/bytes.js#feature/custom-precision",
     "clarify": "^1.0.5",
+    "compose-middleware": "^2.0.1",
     "cors": "^2.7.1",
     "dot-object": "^1.3.0",
     "dropbox": "ehfeng/dropbox-js#stable",
