@@ -5,7 +5,6 @@ var objectAssign = require('object-assign');
 var helperModules = [
 	require('./array'),
 	require('./date'),
-	require('./file'),
 	require('./index'),
 	require('./logic'),
 	require('./markdown'),
