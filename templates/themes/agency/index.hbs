@@ -131,7 +131,7 @@
 							{{/if}}
 							{{#each (folders resource.root) as |folder|}}
 							{{#if folder.contents}}
-							<li><a class="scroll-link" href="#{{ slug (basename folder) }}">{{ label folder }}</a></li>
+							<li><a class="scroll-link" href="#{{ slug (basename folder) }}">{{ strip-number-prefix folder }}</a></li>
 							{{/if}}
 							{{/each}}
 							{{#if resource.private}}
@@ -180,7 +180,7 @@
 											{{/if}}
 										</div>
 										<div class="project-client">&nbsp;</div>
-										<div class="project-name">{{ label file }}</div>
+										<div class="project-name">{{ strip-number-prefix file }}</div>
 										<hr class="mini"/>
 										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
 									</a>
@@ -199,16 +199,16 @@
 				<div class="container">
 					<div class="row">
 						<div class="span12"{{#if ../metadata.admin }} data-admin-upload="{{ folder.path }}"{{/if}}>
-							<div class="title">{{ label folder }}</div>
+							<div class="title">{{ strip-number-prefix folder }}</div>
 							<hr/>
-							<div class="lead-small" data-section-header="{{ label folder }}"></div>
+							<div class="lead-small" data-section-header="{{ strip-number-prefix folder }}"></div>
 
 							{{#if (folders folder)}}
 							<ul class="option-set" data-option-key="filter">
 								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
 								{{#each (folders folder) as |subfolder|}}
 								{{#if subfolder.directory}}
-								<li{{#if ../../metadata.admin }} data-admin-upload={{ subfolder.path }}{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ label subfolder }}</a></li>
+								<li{{#if ../../metadata.admin }} data-admin-upload={{ subfolder.path }}{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
 								{{/if}}
 								{{/each}}
 							</ul>
@@ -233,7 +233,7 @@
 											{{/if}}
 										</div>
 										<div class="project-client">&nbsp;</div>
-										<div class="project-name">{{ label file }}</div>
+										<div class="project-name">{{ strip-number-prefix file }}</div>
 										<hr class="mini"/>
 										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
 									</a>
@@ -258,7 +258,7 @@
 											{{/if}}
 										</div>
 										<div class="project-client">&nbsp;</div>
-										<div class="project-name">{{ label file }}</div>
+										<div class="project-name">{{ strip-number-prefix file }}</div>
 										<hr class="mini"/>
 										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
 									</a>
