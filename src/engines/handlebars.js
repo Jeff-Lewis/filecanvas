@@ -1,254 +1,74 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
+var util = require('util');
 var Handlebars = require('handlebars');
-var showdown = require('showdown');
-var slug = require('slug');
-var bytes = require('bytes');
 
-var templateCache = {};
-var compilerConfig = {};
+var helpers = require('./handlebars/helpers');
+var TemplateService = require('../services/TemplateService');
 
-module.exports = function(filePath, options, callback) {
-	loadTemplate(filePath)
-		.then(function(templateFunction) {
-			var context = options;
-			var templateOptions = options._ || {};
-			compilerConfig.context = context;
-			var output = templateFunction(context, templateOptions);
+var templateService = createHandlebarsTemplateService(helpers);
+
+module.exports = function(templatePath, options, callback) {
+	templateService.render(templatePath, options)
+		.then(function(output) {
 			callback(null, output);
 		})
 		.catch(function(error) {
-			return callback(error);
+			callback(error);
 		});
 };
 
-function loadTemplate(templatePath) {
-	var hasCachedTemplate = getHasCachedTemplate(templatePath, templateCache);
-	if (hasCachedTemplate) {
-		var cachedTemplate = retrieveCachedTemplate(templatePath, templateCache);
-		return Promise.resolve(cachedTemplate);
-	} else {
-		return loadTemplate(templatePath)
-			.then(function(templateFunction) {
-				cacheTemplate(templateFunction, templatePath, templateCache);
-				return templateFunction;
-			});
+function createHandlebarsTemplateService(helpers) {
+
+	function HandlebarsTemplateService(helpers) {
+		TemplateService.call(this);
+		this.helpers = helpers || {};
 	}
 
+	util.inherits(HandlebarsTemplateService, TemplateService);
 
-	function loadTemplate(templatePath) {
-		return new Promise(function(resolve, reject) {
-			var compiler = createHandlebarsCompiler(compilerConfig);
-			fs.readFile(templatePath, { encoding: 'utf-8' }, function(error, templateSource) {
-				if (error) { return reject(error); }
-				var templateFunction = compiler.compile(templateSource);
-				resolve(templateFunction);
-			});
-		});
-	}
+	HandlebarsTemplateService.prototype.helpers = null;
 
-	function getHasCachedTemplate(templatePath, templateCache) {
-		return (templatePath in templateCache);
-	}
+	HandlebarsTemplateService.prototype.compile = function(templateSource) {
+		// Compile the template into a standard 2-arg Handlebars template function
+		var templateFunction = compileHandlebarsTemplate(templateSource, this.helpers);
 
-	function cacheTemplate(templateFunction, templatePath, templateCache) {
-		templateCache[templatePath] = templateFunction;
-	}
+		// Convert the 2-arg template function into a 1-arg render function
+		var renderFunction = function(options) {
 
-	function retrieveCachedTemplate(templatePath, templateCache) {
-		return templateCache[templatePath];
-	}
-}
+			// Everything in the options hash gets passed as context
+			var context = options;
 
-function createHandlebarsCompiler(config) {
-	var compiler = Handlebars.create();
-	registerHelpers(compiler, config);
-	return compiler;
+			// Extract the Handlebars render options from the
+			// special `_` property within the context hash
+			var templateOptions = options._ || {};
+
+			// Render the template
+			var output = templateFunction(context, templateOptions);
+
+			return output;
+		};
+		return renderFunction;
 
 
-	function registerHelpers(compiler, config) {
-		registerBooleanHelpers(compiler);
-		registerArrayHelpers(compiler);
-		registerStringHelpers(compiler);
-		registerDateHelpers(compiler);
-		registerSerializerHelpers(compiler);
-		registerSiteHelpers(compiler, config);
-		registerFileHelpers(compiler);
-
-
-		function registerBooleanHelpers(compiler) {
-			compiler.registerHelper('eq', function(item1, item2, options) {
-				return item1 === item2;
-			});
-			compiler.registerHelper('not-eq', function(item1, item2, options) {
-				var items = Array.prototype.slice.call(arguments, 1, -1);
-				return items.every(function(item) { return item1 !== item; });
-			});
-			compiler.registerHelper('not', function(item, options) {
-				return !item;
-			});
-			compiler.registerHelper('and', function(item1, item2, options) {
-				var items = Array.prototype.slice.call(arguments, 0, -1);
-				return items.every(function(item) { return Array.isArray(item) ? item.length > 0 : Boolean(item); });
-			});
-			compiler.registerHelper('or', function(item1, item2, options) {
-				var items = Array.prototype.slice.call(arguments, 0, -1);
-				return items.some(function(item) { return Array.isArray(item) ? item.length > 0 : Boolean(item); });
-			});
-			compiler.registerHelper('gt', function(item1, item2, options) {
-				return item1 > item2;
-			});
-			compiler.registerHelper('gte', function(item1, item2, options) {
-				return item1 >= item2;
-			});
-			compiler.registerHelper('lt', function(item1, item2, options) {
-				return item1 >= item2;
-			});
-			compiler.registerHelper('lte', function(item1, item2, options) {
-				return item1 >= item2;
-			});
-		}
-
-		function registerArrayHelpers(compiler) {
-			compiler.registerHelper('is-array', function(value, options) {
-				return Array.isArray(value);
-			});
-		}
-
-		function registerStringHelpers(compiler) {
-			compiler.registerHelper('replace', function(item1, item2, options) {
-				return options.fn(this).replace(item1, item2);
-			});
-			compiler.registerHelper('concat', function(item1, options) {
-				var items = Array.prototype.slice.call(arguments, 0, -1);
-				return items.join('');
-			});
-			compiler.registerHelper('startsWith', function(haystack, needle, options) {
-				return haystack.indexOf(needle) === 0;
-			});
-			compiler.registerHelper('escapeNewlines', function(value, options) {
-				var safeValue = Handlebars.Utils.escapeExpression(value);
-				var escapedValue = safeValue.replace(/\n/g, '&#10;').replace(/\r/g, '&#13;');
-				return new Handlebars.SafeString(escapedValue);
-			});
-			compiler.registerHelper('slug', function(value, options) {
-				return slug(value, { lower: true });
-			});
-		}
-
-		function registerDateHelpers(compiler) {
-			compiler.registerHelper('timestamp', function(value, options) {
-				return (value ? Math.floor(value.getTime() / 1000) : null);
-			});
-			compiler.registerHelper('date', function(value, options) {
-				var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-				var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dev'];
-				return DAYS[value.getDay()] + ' ' + value.getDate() + ' ' + MONTHS[value.getMonth()] + ' ' + value.getFullYear();
-			});
-		}
-
-		function registerSerializerHelpers(compiler) {
-			compiler.registerHelper('json', function(value, options) {
-				return JSON.stringify(value);
-			});
-			compiler.registerHelper('markdown', function(value, options) {
-				var safeValue = Handlebars.Utils.escapeExpression(value);
-				safeValue = restoreBlockQuotes(safeValue);
-				var converter = new showdown.Converter();
-				var html = converter.makeHtml(safeValue);
-				return new Handlebars.SafeString(html);
-
-
-				function restoreBlockQuotes(escapedValue) {
-					return escapedValue.replace(/^&gt;/gm, '>');
-				}
-			});
-		}
-
-		function registerSiteHelpers(compiler, config) {
-			compiler.registerHelper('loginUrl', function() {
-				return config.context.siteRoot + 'login';
-			});
-			compiler.registerHelper('logoutUrl', function() {
-				return config.context.siteRoot + 'logout';
-			});
-			compiler.registerHelper('resourceUrl', function(filePath) {
-				return config.context.themeRoot + filePath;
-			});
-			compiler.registerHelper('downloadUrl', function(file) {
-				return config.context.siteRoot + 'download' + file.path;
-			});
-			compiler.registerHelper('thumbnailUrl', function(file) {
-				return config.context.siteRoot + 'thumbnail' + file.path;
-			});
-		}
-
-		function registerFileHelpers(compiler) {
-			compiler.registerHelper('label', function(value, options) {
-				var label = path.basename(value.path, path.extname(value.path));
-				return stripLeadingNumber(label);
-
-
-				function stripLeadingNumber(string) {
-					return string.replace(/^[0-9]+[ \.\-\|]*/, '');
-				}
-			});
-			compiler.registerHelper('basename', function(value, options) {
-				return path.basename(value.path);
-			});
-			compiler.registerHelper('extension', function(value, options) {
-				return path.extname(value.path).replace(/^\./, '');
-			});
-			compiler.registerHelper('filesize', function(value, options) {
-				return bytes.format(value.size, { precision: 1 });
-			});
-			compiler.registerHelper('files', function(value, options) {
-				if (!value.contents) { return null; }
-				return value.contents.filter(function(file) {
-					return !file.directory;
-				}).sort(function(file1, file2) {
-					return sortByPrefixedFilename(file1, file2) || sortByLastModified(file1, file2);
+		function compileHandlebarsTemplate(templateSource, helpers) {
+			var compiler = Handlebars.create();
+			var rootContext = null;
+			Object.keys(helpers).forEach(function(helperName) {
+				var helper = helpers[helperName];
+				compiler.registerHelper(helperName, function() {
+					// HACK: allow the helpers to access the root context
+					this['@root'] = rootContext;
+					return helper.apply(this, arguments);
 				});
 			});
-			compiler.registerHelper('folders', function(value, options) {
-				if (!value.contents) { return null; }
-				return value.contents.filter(function(file) {
-					return file.directory;
-				}).sort(function(file1, file2) {
-					return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
-				});
-			});
-
-
-			function sortByPrefixedFilename(file1, file2) {
-				var file1Filename = path.basename(file1.path);
-				var file2Filename = path.basename(file2.path);
-				var file1Prefix = parseInt(file1Filename);
-				var file2Prefix = parseInt(file2Filename);
-				var file1HasPrefix = !isNaN(file1Prefix);
-				var file2HasPrefix = !isNaN(file2Prefix);
-				if (!file1HasPrefix && !file2HasPrefix) { return 0; }
-				if (file1HasPrefix && !file2HasPrefix) { return -1; }
-				if (file2HasPrefix && !file1HasPrefix) { return 1; }
-				if (file1Prefix === file2Prefix) {
-					return sortByFilename(file1, file2);
-				}
-				return file1Prefix - file2Prefix;
-			}
-
-			function sortByFilename(file1, file2) {
-				var file1Filename = path.basename(file1.path);
-				var file2Filename = path.basename(file2.path);
-				return (file1Filename.toLowerCase() < file2Filename.toLowerCase() ? -1 : 1);
-			}
-
-			function sortByLastModified(file1, file2) {
-				var file1Date = file1.modified;
-				var file2Date = file2.modified;
-				return file2Date.getTime() - file1Date.getTime();
-			}
+			var templateFunction = compiler.compile(templateSource);
+			return function(context, templateOptions) {
+				rootContext = context;
+				return templateFunction(context, templateOptions);
+			};
 		}
-	}
+	};
+
+	return new HandlebarsTemplateService(helpers);
 }
