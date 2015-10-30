@@ -473,10 +473,7 @@ module.exports = function(database, options) {
 						res.render('themes/' + template, context);
 					},
 					'application/json': function() {
-						res.render('api/response', {
-							error: null,
-							resource: context
-						});
+						res.render('api/response', { payload: context });
 					}
 				});
 			}
