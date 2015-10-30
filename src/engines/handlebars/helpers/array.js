@@ -1,5 +1,7 @@
 'use strict';
 
+var Handlebars = require('handlebars');
+
 module.exports['is-array'] = function(value, options) {
-	return Array.isArray(value);
+	return Handlebars.Utils.isArray(value);
 };
