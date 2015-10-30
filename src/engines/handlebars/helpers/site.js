@@ -2,20 +2,20 @@
 
 var path = require('path');
 
-module.exports['loginUrl'] = function() {
-	return this['@root'].metadata.siteRoot + 'login';
+module.exports['loginUrl'] = function(rootModel) {
+	return rootModel.metadata.siteRoot + 'login';
 };
-module.exports['logoutUrl'] = function() {
-	return this['@root'].metadata.siteRoot + 'logout';
+module.exports['logoutUrl'] = function(rootModel) {
+	return rootModel.metadata.siteRoot + 'logout';
 };
-module.exports['resourceUrl'] = function(filePath) {
-	return this['@root'].metadata.themeRoot + filePath;
+module.exports['resourceUrl'] = function(rootModel, filePath) {
+	return rootModel.metadata.themeRoot + filePath;
 };
-module.exports['downloadUrl'] = function(file) {
-	return this['@root'].metadata.siteRoot + 'download' + file.path;
+module.exports['downloadUrl'] = function(rootModel, file) {
+	return rootModel.metadata.siteRoot + 'download' + file.path;
 };
-module.exports['thumbnailUrl'] = function(file) {
-	return this['@root'].metadata.siteRoot + 'thumbnail' + file.path;
+module.exports['thumbnailUrl'] = function(rootModel, file) {
+	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;
 };
 module.exports['files'] = function(value, options) {
 	if (!value.contents) { return null; }

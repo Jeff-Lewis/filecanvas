@@ -7,7 +7,7 @@
 	<meta name="HandheldFriendly" content="true">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<link rel="shortcut icon" href="{{ resourceUrl 'favicon.ico' }}"/>
+	<link rel="shortcut icon" href="{{ resourceUrl @root 'favicon.ico' }}"/>
 	<title>{{ metadata.theme.config.browser.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -17,7 +17,7 @@
 	<!--[if lt IE 9]>
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
-	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
+	<link rel="stylesheet" href="{{ resourceUrl @root 'css/base.css' }}">
 	<style type="text/css">
 		::selection {
 			background-color: {{ metadata.theme.config.colors.brandColor }};
@@ -108,7 +108,7 @@
 		<section class="page">
 			<div class="container">
 				<div class="row">
-					<form class="form-signin" role="form" action="{{ metadata.loginUrl }}" method="POST" autocomplete="off" style="text-align: center;">
+					<form class="form-signin" role="form" action="{{ loginUrl @root }}" method="POST" autocomplete="off" style="text-align: center;">
 						<h2 class="form-signin-heading">Sign in</h2>
 						<div><input type="text" name="username" class="form-control" placeholder="Username" required autofocus></div>
 						<div><input type="password" name="password" class="form-control" placeholder="Password" required></div>

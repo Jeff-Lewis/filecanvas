@@ -7,7 +7,7 @@
 	<meta name="HandheldFriendly" content="true">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<link rel="shortcut icon" href="{{ resourceUrl 'favicon.ico' }}"/>
+	<link rel="shortcut icon" href="{{ resourceUrl @root 'favicon.ico' }}"/>
 	<title>{{ metadata.theme.config.browser.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -17,7 +17,7 @@
 	<!--[if lt IE 9]>
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
-	<link rel="stylesheet" href="{{ resourceUrl 'css/base.css' }}">
+	<link rel="stylesheet" href="{{ resourceUrl @root 'css/base.css' }}">
 	<style type="text/css">
 		::selection {
 			background-color: {{ metadata.theme.config.colors.brandColor }};
@@ -135,7 +135,7 @@
 							{{/if}}
 							{{/each}}
 							{{#if resource.private}}
-							<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{{ logoutUrl }}}{{/if}}">Log out</a></li>
+							<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{{ logoutUrl @root }}}{{/if}}">Log out</a></li>
 							{{/if}}
 						</ul>
 						{{/if}}
@@ -164,11 +164,11 @@
 							<div class="posts row isotope">
 								{{#each (files resource.root) as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
-									<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
+									<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
 										<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
 											{{#if file.thumbnail}}
 											<div class="profile-thumbnail">
-												<img src="{{ thumbnailUrl file }}"/>
+												<img src="{{ thumbnailUrl @root file }}"/>
 											</div>
 											{{else}}
 											<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">
@@ -217,11 +217,11 @@
 							<div class="posts row isotope">
 								{{#each (files folder) as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
-									<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
+									<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
 										<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
 											{{#if file.thumbnail}}
 											<div class="profile-thumbnail">
-												<img src="{{ thumbnailUrl file }}"/>
+												<img src="{{ thumbnailUrl @root file }}"/>
 											</div>
 											{{else}}
 											<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">
@@ -242,11 +242,11 @@
 								{{#each (folders folder) as |subfolder|}}
 								{{#each (files subfolder) as |file|}}
 								<div class="post item span4 isotope-item filter-{{ slug (basename subfolder) }}" data-file-modified="{{ timestamp file.modified }}">
-									<a href="{{ downloadUrl file }}" target="_blank" class="project-wrp">
+									<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
 										<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
 											{{#if file.thumbnail}}
 											<div class="profile-thumbnail">
-												<img src="{{ thumbnailUrl file }}"/>
+												<img src="{{ thumbnailUrl @root file }}"/>
 											</div>
 											{{else}}
 											<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">
@@ -320,20 +320,20 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 
-	<script src="{{ resourceUrl 'js/main.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.easing.min.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.sticky.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.scrollTo.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.nav.js' }}"></script>
-	<script src="{{ resourceUrl 'js/selectnav.min.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.flexslider.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.parallax-1.1.3.js' }}"></script>
-	<script src="{{ resourceUrl 'js/mql.js' }}"></script>
-	<script src="{{ resourceUrl 'js/shortcodes.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.fancybox.pack.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jquery.fancybox-media.js' }}"></script>
-	<script src="{{ resourceUrl 'js/jflickrfeed.js' }}"></script>
-	<script src="{{ resourceUrl 'js/settings.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/main.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.easing.min.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.sticky.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.scrollTo.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.nav.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/selectnav.min.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.flexslider.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.parallax-1.1.3.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/mql.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/shortcodes.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.fancybox.pack.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jquery.fancybox-media.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/jflickrfeed.js' }}"></script>
+	<script src="{{ resourceUrl @root 'js/settings.js' }}"></script>
 
 </body>
 
