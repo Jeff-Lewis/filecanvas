@@ -458,11 +458,15 @@ module.exports = function(database, options) {
 
 			app.get('/sites/:site/edit', ensureAuth, initAdminSession, retrieveSiteEditRoute);
 
-			app.get('/themes/:theme/thumbnail', ensureAuth, initAdminSession, createThemeThumbnailServer(themes, themesPath));
-
 			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
 			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
+
+			app.use('/themes', composeMiddleware([
+				ensureAuth,
+				initAdminSession,
+				createThemeFilesServer(themes, themesPath)
+			]));
 
 			app.use('/preview', composeMiddleware([
 				ensureAuth,
@@ -1041,18 +1045,27 @@ module.exports = function(database, options) {
 					}
 			}
 
-			function createThemeThumbnailServer(themes, themesPath) {
-				var staticServer = express.static(path.resolve(themesPath));
-				return function(req, res, next) {
+			function createThemeFilesServer(themes, themesPath) {
+				var app = express();
+				app.get('/:theme/:file?', filterIncomingRequests, express.static(path.resolve(themesPath)));
+				return app;
+
+
+				function filterIncomingRequests(req, res, next) {
 					var themeId = req.params.theme;
+					var file = req.params.file;
 					if (!(themeId in themes)) {
 						return next(new HttpError(404));
 					}
 					var theme = themes[themeId];
-					var thumbnailPath = theme.thumbnail;
-					req.url = '/' + themeId + '/' + thumbnailPath;
-					return staticServer(req, res, next);
-				};
+					if (!file) {
+						file = THEME_MANIFEST_FILENAME;
+					} else if (file === 'thumbnail') {
+						file = theme.thumbnail;
+					}
+					req.url = '/' + themeId + '/' + file;
+					next();
+				}
 			}
 
 			function retrieveFileMetadataRoute(req, res, next) {
