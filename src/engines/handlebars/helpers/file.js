@@ -1,26 +1,7 @@
 'use strict';
 
 var path = require('path');
-var bytes = require('bytes');
 
-module.exports['label'] = function(value, options) {
-	var label = path.basename(value.path, path.extname(value.path));
-	return stripLeadingNumber(label);
-
-
-	function stripLeadingNumber(string) {
-		return string.replace(/^[0-9]+[ \.\-\|]*/, '');
-	}
-};
-module.exports['basename'] = function(value, options) {
-	return path.basename(value.path);
-};
-module.exports['extension'] = function(value, options) {
-	return path.extname(value.path).replace(/^\./, '');
-};
-module.exports['filesize'] = function(value, options) {
-	return bytes.format(value.size, { precision: 1 });
-};
 module.exports['files'] = function(value, options) {
 	if (!value.contents) { return null; }
 	return value.contents.filter(function(file) {
@@ -37,7 +18,10 @@ module.exports['folders'] = function(value, options) {
 		return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
 	});
 };
-
+module.exports['strip-number-prefix'] = function(value, options) {
+	var label = path.basename(value.path, path.extname(value.path));
+	return stripLeadingNumber(label);
+};
 
 function sortByPrefixedFilename(file1, file2) {
 	var file1Filename = path.basename(file1.path);
@@ -65,4 +49,8 @@ function sortByLastModified(file1, file2) {
 	var file1Date = file1.modified;
 	var file2Date = file2.modified;
 	return file2Date.getTime() - file1Date.getTime();
+}
+
+function stripLeadingNumber(string) {
+	return string.replace(/^[0-9]+[ \.\-\|]*/, '');
 }

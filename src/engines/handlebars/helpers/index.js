@@ -9,6 +9,7 @@ var helperModules = [
 	require('./index'),
 	require('./logic'),
 	require('./markdown'),
+	require('./path'),
 	require('./serialization'),
 	require('./site'),
 	require('./string')
