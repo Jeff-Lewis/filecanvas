@@ -7,8 +7,8 @@ function FileModel(options) {
 	this.modified = options.modified;
 	this.readOnly = Boolean(options.readOnly);
 	this.thumbnail = Boolean(options.thumbnail);
+	this.directory = Boolean(options.directory);
 	if (options.directory) {
-		this.directory = Boolean(options.directory);
 		this.contents = options.contents ? options.contents.slice() : null;
 	}
 }
