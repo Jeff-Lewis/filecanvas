@@ -44,14 +44,7 @@ TemplateService.prototype.render = function(templatePath, context) {
 };
 
 TemplateService.prototype.serialize = function(templatePath, options) {
-	options = options || {};
-	if (!options.name) {
-		return Promise.reject(new Error('No template name specified'));
-	}
-	return this.precompiledTemplateCache.get(templatePath)
-		.then(function(precompiledFunction) {
-			return options.name + '=' + precompiledFunction + ';';
-		});
+	return this.precompiledTemplateCache.get(templatePath);
 };
 
 module.exports = TemplateService;
