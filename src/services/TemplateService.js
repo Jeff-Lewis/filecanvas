@@ -36,14 +36,18 @@ TemplateService.prototype.precompile = function(templateSource) {
 	return 'function(context){return"' + escapeString(templateSource) + '";}';
 };
 
-TemplateService.prototype.render = function(templatePath, options) {
+TemplateService.prototype.render = function(templatePath, context) {
 	return this.compiledTemplateCache.get(templatePath)
 		.then(function(compiledFunction) {
-			return compiledFunction(options);
+			return compiledFunction(context);
 		});
 };
 
 TemplateService.prototype.serialize = function(templatePath, options) {
+	options = options || {};
+	if (!options.name) {
+		return Promise.reject(new Error('No template name specified'));
+	}
 	return this.precompiledTemplateCache.get(templatePath)
 		.then(function(precompiledFunction) {
 			return options.name + '=' + precompiledFunction + ';';
