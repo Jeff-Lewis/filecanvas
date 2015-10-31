@@ -137,7 +137,9 @@
 									<li><%= item.filename %></li>
 									<% }); %>
 								</ul>
-								<p>Please note that uploading entire folders is currently only supported in <a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a>.</p>
+								<% if (upload.failedItems.some(function(item) { return !item.type; })) { %>
+									<p>Please note that uploading entire folders is currently only supported in <a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a>.</p>
+								<% } %>
 							<% } %>
 						</script>
 					</div>

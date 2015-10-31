@@ -98,6 +98,7 @@ function createBatchItem(file) {
 	return {
 		file: file,
 		filename: file.data.name,
+		type: file.data.type,
 		bytesLoaded: 0,
 		bytesTotal: file.data.size,
 		started: false,
