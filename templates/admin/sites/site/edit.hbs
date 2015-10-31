@@ -95,7 +95,10 @@
 		</div>
 	</div>
 	<div class="editor-main">
-		<iframe class="editor-preview" src="{{ session.urls.preview }}/{{ content.site.name }}" frameborder="0" data-editor-preview></iframe>
+		<iframe class="editor-preview" frameborder="0"
+			data-editor-preview
+			data-src="{{ session.urls.preview }}/{{ content.site.name }}"
+		></iframe>
 		<div class="editor-progress bg-white p15" data-editor-progress>
 			<p class="mt0 mb5">
 				<button type="button" class="editor-progress-cancel-button pull-right btn btn-link btn-xs" title="Cancel upload" data-editor-progress-cancel>

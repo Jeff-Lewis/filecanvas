@@ -4,8 +4,14 @@ var junk = require('junk');
 var vdom = require('virtual-dom');
 var virtualize = require('vdom-virtualize');
 var template = require('lodash.template');
+var merge = require('lodash.merge');
+var Handlebars = require('handlebars/runtime');
 
-var LIVE_UPDATE_DEBOUNCE_DURATION = 1000;
+var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
+
+var LIVE_UPDATE_DEBOUNCE_DURATION = 500;
+
+window.Handlebars = Handlebars;
 
 $(function() {
 	initColorpickers();
@@ -37,40 +43,114 @@ function initSidepanel() {
 function initLivePreview() {
 	var $formElement = $('[data-editor-form]');
 	var $previewElement = $('[data-editor-preview]');
+	var iframeSrc = $previewElement.data('src');
 
-	var iframeSrc = $previewElement.prop('src');
+	var precompiledTemplate = Handlebars.templates['index'];
+	var templateFunction = createTemplateFunction(precompiledTemplate, handlebarsHelpers);
+	var currentSiteModel = null;
+	var currentThemeConfigOverrides = null;
 	var patchIframeContent = null;
-	var currentThemeConfig = null;
-	var previewUrl = getPreviewUrl(iframeSrc, {
-		cached: true
+	var previewUrl = getPreviewUrl(iframeSrc);
+
+	showLoadingIndicator($previewElement);
+	loadPreview(function(domPatcher) {
+		patchIframeContent = domPatcher;
+		hideLoadingIndicator($previewElement);
 	});
-
-	initLiveUpdates();
 	initInlineUploads();
+	initLiveUpdates();
 
+
+	function showLoadingIndicator($previewElement) {
+		$previewElement.addClass('loading');
+	}
+
+	function hideLoadingIndicator($previewElement) {
+		$previewElement.removeClass('loading');
+	}
+
+	function createTemplateFunction(precompiledTemplate, helpers) {
+		var compiler = Handlebars.create();
+		Object.keys(helpers).forEach(function(helperName) {
+			var helper = helpers[helperName];
+			compiler.registerHelper(helperName, helper);
+		});
+		var templateFunction = compiler.template(precompiledTemplate);
+		return templateFunction;
+	}
+
+	function getPreviewUrl(previewUrl, params) {
+		if (!params) { return previewUrl; }
+		var baseUrl = previewUrl.split('#')[0].split('?')[0];
+		return baseUrl + '?' + serializeQueryParams(params);
+
+
+		function serializeQueryParams(params) {
+			return Object.keys(params).map(function(key) {
+				var value = params[key];
+				return key + '=' + encodeURIComponent(JSON.stringify(value));
+			}).join('&');
+		}
+	}
+
+	function loadPreview(callback) {
+		loadJson(previewUrl)
+			.then(function(siteModel) {
+				var html = templateFunction(siteModel);
+				currentSiteModel = siteModel;
+				var previewIframeElement = $previewElement[0];
+				previewIframeElement.srcdoc = html;
+				onIframeDomReady(previewIframeElement)
+					.then(function(iframeDocumentElement) {
+						var patcher = initVirtualDomPatcher(iframeDocumentElement);
+						updatePreview(currentSiteModel, currentThemeConfigOverrides);
+						callback(patcher);
+					});
+			});
+
+
+		function initVirtualDomPatcher(documentElement) {
+			var htmlElement = documentElement.documentElement;
+			var currentTree = virtualize(htmlElement);
+			return patch;
+
+
+			function patch(updatedHtml) {
+				var updatedTree = virtualize.fromHTML(updatedHtml);
+				var diff = vdom.diff(currentTree, updatedTree);
+				vdom.patch(htmlElement, diff);
+				currentTree = updatedTree;
+			}
+		}
+	}
+
+	function updatePreview(siteModel, themeConfig) {
+		var customizedSiteModel = getCustomizedSiteModel(siteModel, themeConfig);
+		var html = templateFunction(customizedSiteModel);
+		if (patchIframeContent) { patchIframeContent(html); }
+
+
+		function getCustomizedSiteModel(siteModel, themeConfig) {
+			if (!themeConfig) { return siteModel; }
+			return merge({}, siteModel, {
+				metadata: {
+					theme: {
+						config: themeConfig
+					}
+				}
+			});
+		}
+	}
 
 	function initLiveUpdates() {
 		$formElement.on('change input', debounce(onFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
-
-		$previewElement.addClass('loading').on('load', function() {
-			var $element = $(this);
-			loadHtml(previewUrl)
-				.then(function(html) {
-					var iframeDocumentElement = getIframeDomElement($element[0]);
-					patchIframeContent = createDocumentPatcher(iframeDocumentElement, html);
-					$element.removeClass('loading');
-				});
-		});
 
 
 		function onFieldChanged() {
 			var formFieldValues = parseFormFieldValues($formElement);
 			var nestedFormFieldValues = parseNestedPropertyValues(formFieldValues);
-			var themeConfigOverrides = nestedFormFieldValues.theme.config;
-			updatePreview({
-				cached: true,
-				config: themeConfigOverrides
-			});
+			currentThemeConfigOverrides = nestedFormFieldValues.theme.config;
+			updatePreview(currentSiteModel, currentThemeConfigOverrides);
 
 
 			function parseFormFieldValues($formElement) {
@@ -115,28 +195,6 @@ function initLivePreview() {
 			}
 		}
 
-		function createDocumentPatcher(documentElement, html) {
-			var htmlElement = documentElement.documentElement;
-			var tree = parseHtmlIntoVDom(html);
-			return patch;
-
-
-			function patch(html) {
-				tree = patchElementHtml(htmlElement, tree, html);
-			}
-
-			function patchElementHtml(element, tree, updatedHtml) {
-				var updatedTree = parseHtmlIntoVDom(updatedHtml);
-				var patch = vdom.diff(tree, updatedTree);
-				vdom.patch(element, patch);
-				return updatedTree;
-			}
-
-			function parseHtmlIntoVDom(html) {
-				return virtualize.fromHTML(html);
-			}
-		}
-
 		function debounce(func, wait, immediate) {
 			var timeout;
 			return function() {
@@ -151,48 +209,6 @@ function initLivePreview() {
 				if (callNow) { func.apply(context, args); }
 			};
 		}
-
-		function getIframeDomElement(iframeElement) {
-			return (iframeElement.contentDocument || iframeElement.contentWindow.document);
-		}
-	}
-
-
-	function getPreviewUrl(previewUrl, params) {
-		var baseUrl = previewUrl.split('#')[0].split('?')[0];
-		return baseUrl + '?' + serializeQueryParams(params);
-
-
-		function serializeQueryParams(params) {
-			return Object.keys(params).map(function(key) {
-				var value = params[key];
-				return key + '=' + encodeURIComponent(JSON.stringify(value));
-			}).join('&');
-		}
-	}
-
-	function updatePreview(params) {
-		currentThemeConfig = params.config || null;
-		var updatedPreviewUrl = getPreviewUrl(previewUrl, params);
-		var supportsLiveDomPatching = Boolean(patchIframeContent);
-		if (!supportsLiveDomPatching) {
-			$previewElement.prop('src', updatedPreviewUrl);
-			return;
-		}
-		loadHtml(updatedPreviewUrl)
-			.then(function(html) {
-				patchIframeContent(html);
-			});
-	}
-
-	function loadHtml(url) {
-		return $.ajax(url)
-			.then(function(data, textStatus, jqXHR) {
-				return new $.Deferred().resolve(data).promise();
-			})
-			.fail(function(jqXHR, textStatus, errorThrown) {
-				return new $.Deferred().reject(new Error(errorThrown)).promise();
-			});
 	}
 
 	function initInlineUploads() {
@@ -246,32 +262,13 @@ function initLivePreview() {
 
 		function initUploadHotspots($previewIframeElement, uploadCallback) {
 			var previewIframeElement = $previewIframeElement[0];
-			onIframeDomReady(previewIframeElement, function(previewDocument) {
-				var $previewDocument = $(previewDocument);
-				disableContextMenu($previewDocument);
-				addHotspotListeners($previewDocument, '[data-admin-upload]', uploadCallback);
-			});
+			onIframeDomReady(previewIframeElement)
+				.then(function(previewDocument) {
+					var $previewDocument = $(previewDocument);
+					disableContextMenu($previewDocument);
+					addHotspotListeners($previewDocument, '[data-admin-upload]', uploadCallback);
+				});
 
-
-			function onIframeDomReady(iframeElement, callback) {
-				var iframeDocumentElement = getIframeDomElement(iframeElement);
-				if (iframeDocumentElement.location.href === 'about:blank') {
-					// HACK: See Webkit bug #33604 (https://bugs.webkit.org/show_bug.cgi?id=33604)
-					// Sometimes the iframe does not yet contain the correct document,
-					// so we need to poll until the current document is the correct one
-					var pollInterval = 50;
-					setTimeout(function() { onIframeDomReady(iframeElement, callback); }, pollInterval);
-				} else {
-					iframeDocumentElement.addEventListener('DOMContentLoaded', function(event) {
-						callback(iframeDocumentElement);
-					});
-				}
-
-
-				function getIframeDomElement(iframeElement) {
-					return (iframeElement.contentDocument || iframeElement.contentWindow.document);
-				}
-			}
 
 			function disableContextMenu($document) {
 				$document.on('contextmenu', function(event) {
@@ -466,11 +463,14 @@ function initLivePreview() {
 						});
 					})
 					.always(function() {
-						hideUploadProgressIndicator();
-						updatePreview({
-							cached: false,
-							config: currentThemeConfig
-						});
+						loadJson(previewUrl)
+							.then(function(siteModel) {
+								currentSiteModel = siteModel;
+								updatePreview(currentSiteModel, currentThemeConfigOverrides);
+							})
+							.then(function() {
+								hideUploadProgressIndicator();
+							});
 					});
 				return upload;
 
@@ -494,7 +494,7 @@ function initLivePreview() {
 				}
 
 				function setProgressBarLabel(message) {
-					$progressLabelElement.text(message);
+					$progressLabelElement.text(message || '');
 				}
 
 				function setProgressBarValue(options) {
@@ -523,5 +523,58 @@ function initLivePreview() {
 		function onUploadCancelRequested(event) {
 			if (activeUpload) { activeUpload.abort(); }
 		}
+	}
+
+	function getIframeDomElement(iframeElement) {
+		return (iframeElement.contentDocument || iframeElement.contentWindow.document);
+	}
+
+	function onIframeDomReady(iframeElement) {
+		var deferred = new $.Deferred();
+		var iframeDocumentElement = getIframeDomElement(iframeElement);
+		var isEmptyDocument = getIsEmptyDocument(iframeDocumentElement);
+		if (isEmptyDocument) {
+			// HACK: See Webkit bug #33604 (https://bugs.webkit.org/show_bug.cgi?id=33604)
+			// Sometimes the iframe does not yet contain the correct document,
+			// so we need to poll until the current document is the correct one
+			var pollInterval = 50;
+			setTimeout(
+				function() {
+					onIframeDomReady(iframeElement)
+						.then(function(documentElement) {
+							deferred.resolve(documentElement);
+						});
+				},
+				pollInterval
+			);
+		} else {
+			iframeDocumentElement.addEventListener('DOMContentLoaded', function(event) {
+				deferred.resolve(iframeDocumentElement);
+			});
+		}
+		return deferred.promise();
+
+
+		function getIsEmptyDocument(documentElement) {
+			return (documentElement.location.href === 'about:blank') &&
+			!documentElement.head.hasChildNodes() &&
+			!documentElement.body.hasChildNodes();
+		}
+	}
+
+	function loadJson(url) {
+		return $.ajax({
+			url: url,
+			dataType: 'json',
+			headers: {
+				'Accept': 'application/json'
+			}
+		})
+			.then(function(data, textStatus, jqXHR) {
+				return new $.Deferred().resolve(data).promise();
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				return new $.Deferred().reject(new Error(errorThrown)).promise();
+			});
 	}
 }

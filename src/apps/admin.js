@@ -8,6 +8,8 @@ var express = require('express');
 var composeMiddleware = require('compose-middleware').compose;
 var Passport = require('passport').Passport;
 
+var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
+
 var sitesApp = require('./sites');
 
 var transport = require('../middleware/transport');
@@ -30,6 +32,10 @@ var faqData = require('../../templates/admin/faq.json');
 
 var THEME_MANIFEST_FILENAME = 'theme.json';
 var THEME_THUMBNAIL_FILENAME = 'thumbnail.png';
+var THEME_TEMPLATE_FILENAMES = {
+	'index': 'index.hbs',
+	'login': 'login.hbs'
+};
 
 module.exports = function(database, options) {
 	options = options || {};
@@ -99,15 +105,15 @@ module.exports = function(database, options) {
 			var theme = require(themeManifestPath);
 			theme.id = filename;
 			theme.thumbnail = theme.thumbnail || THEME_THUMBNAIL_FILENAME;
-			theme.defaults = parseThemeConfigDefaults(theme);
+			theme.templates = merge({}, THEME_TEMPLATE_FILENAMES, theme.templates);
+			theme.defaults = parseThemeConfigDefaults(theme.config);
 			themes[filename] = theme;
 			return themes;
 		}, {});
 		return themes;
 
 
-		function parseThemeConfigDefaults(theme) {
-			var configSchema = theme.config;
+		function parseThemeConfigDefaults(configSchema) {
 			return configSchema.reduce(function(defaults, configGroup) {
 				var configGroupDefaults = parseConfigGroupDefaults(configGroup);
 				defaults[configGroup.name] = configGroupDefaults;
@@ -989,7 +995,8 @@ module.exports = function(database, options) {
 							],
 							scripts: [
 								'/assets/js/bootstrap-colorpicker.min.js',
-								'/assets/js/shunt-editor.js'
+								'/assets/js/shunt-editor.js',
+								'/themes/' + siteModel.theme.id + '/template/index.js'
 							],
 							fullPage: true,
 							navigation: false,
@@ -1047,24 +1054,65 @@ module.exports = function(database, options) {
 
 			function createThemeFilesServer(themes, themesPath) {
 				var app = express();
-				app.get('/:theme/:file?', filterIncomingRequests, express.static(path.resolve(themesPath)));
+				var staticServer = express.static(path.resolve(themesPath));
+				app.get('/:theme', rewriteManifestRequest, staticServer);
+				app.get('/:theme/thumbnail', rewriteThumbnailRequest, staticServer);
+				app.get('/:theme/template/:template.js', retrievePrecompiledTemplate);
 				return app;
 
 
-				function filterIncomingRequests(req, res, next) {
+				function rewriteManifestRequest(req, res, next) {
 					var themeId = req.params.theme;
-					var file = req.params.file;
+					req.url = '/' + themeId + '/' + THEME_MANIFEST_FILENAME;
+					next();
+				}
+
+				function rewriteThumbnailRequest(req, res, next) {
+					var themeId = req.params.theme;
 					if (!(themeId in themes)) {
 						return next(new HttpError(404));
 					}
 					var theme = themes[themeId];
-					if (!file) {
-						file = THEME_MANIFEST_FILENAME;
-					} else if (file === 'thumbnail') {
-						file = theme.thumbnail;
-					}
-					req.url = '/' + themeId + '/' + file;
+					var thumbnailPath = theme.thumbnail;
+					req.url = '/' + themeId + '/' + thumbnailPath;
 					next();
+				}
+
+				function retrievePrecompiledTemplate(req, res, next) {
+					var themeId = req.params.theme;
+					var templateId = req.params.template;
+					if (!(themeId in themes)) {
+						return next(new HttpError(404));
+					}
+					var theme = themes[themeId];
+					if (!(templateId in theme.templates)) {
+						return next(new HttpError(404));
+					}
+					var templateFilename = theme.templates[templateId];
+					var templatePath = path.resolve(themesPath, themeId, templateFilename);
+					retrieveSerializedTemplate(templatePath, { name: templateId })
+						.then(function(serializedTemplate) {
+							res.set('Content-Type', 'text/javscript');
+							res.send(serializedTemplate);
+						})
+						.catch(function(error) {
+							return next(error);
+						});
+
+
+					function retrieveSerializedTemplate(templatePath, options) {
+						options = options || {};
+						var templateName = options.name;
+						return handlebarsTemplateService.serialize(templatePath)
+							.then(function(serializedTemplate) {
+								return wrapTemplate(serializedTemplate, templateName);
+							});
+
+
+						function wrapTemplate(template, templateName) {
+							return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
+						}
+					}
 				}
 			}
 

@@ -9,5 +9,10 @@ module.exports = {
 		loaders: [
 			{ test: /\.json$/, loader: 'json' }
 		]
+	},
+	resolve: {
+		alias: {
+			'handlebars': 'handlebars/runtime'
+		}
 	}
 };
