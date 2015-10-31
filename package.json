@@ -38,6 +38,7 @@
     "handlebars": "^4.0.2",
     "html-pdf": "^1.4.0",
     "istextorbinary": "^1.0.2",
+    "js-string-escape": "^1.0.0",
     "jshashes": "^1.0.5",
     "json-loader": "^0.5.2",
     "junk": "^1.0.2",
