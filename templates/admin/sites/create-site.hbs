@@ -37,7 +37,7 @@
 										{{#each content.themes as |theme|}}
 										<label class="theme-preview-control no-margin" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
 											<input type="radio" name="theme.id"
-												value="{{ ../content.site.theme.id }}"
+												value="{{ theme.id }}"
 												{{#if (eq theme.id ../content.site.theme.id)}}checked="checked"{{/if}}
 											/>
 											<div class="thumbnail no-padding no-margin">
@@ -102,7 +102,6 @@
 													<input type="text" class="form-control"
 														name="root.path"
 														value="{{ content.site.root.path }}"
-														disabled="disabled"
 														data-bind-value="site-name|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
 														data-validate="path,notEmpty,startsWith:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}',notEqualTo:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}'"
 													/>
