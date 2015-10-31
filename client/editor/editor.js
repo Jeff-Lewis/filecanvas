@@ -468,7 +468,7 @@ function initLivePreview() {
 								currentSiteModel = siteModel;
 								updatePreview(currentSiteModel, currentThemeConfigOverrides);
 							})
-							.then(function() {
+							.always(function() {
 								hideUploadProgressIndicator();
 							});
 					});
