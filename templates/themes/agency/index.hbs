@@ -135,7 +135,7 @@
 							{{/if}}
 							{{/each}}
 							{{#if resource.private}}
-							<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{{ logoutUrl @root }}}{{/if}}">Log out</a></li>
+							<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{ logoutUrl @root }}{{/if}}">Log out</a></li>
 							{{/if}}
 						</ul>
 						{{/if}}
@@ -208,7 +208,7 @@
 								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
 								{{#each (folders folder) as |subfolder|}}
 								{{#if subfolder.directory}}
-								<li{{#if ../../metadata.admin }} data-admin-upload={{ subfolder.path }}{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
+								<li{{#if ../../metadata.admin }} data-admin-upload="{{ subfolder.path }}"{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
 								{{/if}}
 								{{/each}}
 							</ul>
