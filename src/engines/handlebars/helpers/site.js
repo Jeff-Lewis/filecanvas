@@ -61,8 +61,8 @@ function sortByFilename(file1, file2) {
 }
 
 function sortByLastModified(file1, file2) {
-	var file1Date = file1.modified;
-	var file2Date = file2.modified;
+	var file1Date = new Date(file1.modified);
+	var file2Date = new Date(file2.modified);
 	return file2Date.getTime() - file1Date.getTime();
 }
 

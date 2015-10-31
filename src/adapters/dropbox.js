@@ -302,7 +302,7 @@ function parseStatModel(statModel, rootPath) {
 		path: statModel.path.replace(rootPath, '') || '/',
 		mimeType: statModel.mime_type,
 		size: statModel.bytes,
-		modified: new Date(statModel.modified),
+		modified: new Date(statModel.modified).toUTCString(),
 		readOnly: statModel.read_only,
 		thumbnail: statModel.thumb_exists
 	};

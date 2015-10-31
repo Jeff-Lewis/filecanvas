@@ -14,7 +14,7 @@ module.exports = function(stat, filePath) {
 		path: filePath,
 		mimeType: mimeType,
 		size: stat.size,
-		modified: stat.mtime,
+		modified: stat.mtime.toUTCString(),
 		readOnly: !ownerCanWrite,
 		thumbnail: hasThumbnail,
 		directory: isDirectory
