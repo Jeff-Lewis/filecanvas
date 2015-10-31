@@ -5,9 +5,10 @@ var escapeString = require('js-string-escape');
 var FileCacheService = require('./FileCacheService.js');
 var AsyncCacheService = require('./AsyncCacheService.js');
 
-function TemplateService() {
+function TemplateService(options) {
+	options = options || {};
+	var fileCache = options.fileCache || new FileCacheService();
 	var self = this;
-	var fileCache = new FileCacheService();
 	this.compiledTemplateCache = new AsyncCacheService(function(templatePath) {
 		return fileCache.get(templatePath)
 			.then(function(templateSource) {

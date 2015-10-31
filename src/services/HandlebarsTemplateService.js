@@ -6,9 +6,11 @@ var Handlebars = require('handlebars');
 var TemplateService = require('./TemplateService.js');
 
 function HandlebarsTemplateService(options) {
-	TemplateService.call(this);
-
 	options = options || {};
+	TemplateService.call(this, {
+		fileCache: options.fileCache || null
+	});
+
 	this.helpers = options.helpers || {};
 	this.compilerOptions = options.compiler || {};
 }

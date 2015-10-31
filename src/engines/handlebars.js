@@ -1,19 +1,9 @@
 'use strict';
 
-var helpers = require('./handlebars/helpers');
-var HandlebarsTemplateService = require('../services/HandlebarsTemplateService');
-
-var templateService = new HandlebarsTemplateService({
-	helpers: helpers,
-	compiler: {
-		strict: true,
-		knownHelpersOnly: true,
-		knownHelpers: helpers
-	}
-});
+var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
 
 module.exports = function(templatePath, options, callback) {
-	templateService.render(templatePath, options)
+	handlebarsTemplateService.render(templatePath, options)
 		.then(function(output) {
 			callback(null, output);
 		})
