@@ -230,7 +230,8 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 
 		function getUploadUrl(endpoint, filePath, params) {
 			var queryString = formatQueryString(params);
-			var url = endpoint + filePath + (queryString ? '?' + queryString : '');
+			var escapedPath = filePath.split('/').map(encodeURIComponent).join('/');
+			var url = endpoint + escapedPath + (queryString ? '?' + queryString : '');
 			return url;
 
 
