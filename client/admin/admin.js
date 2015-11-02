@@ -637,7 +637,7 @@ function initPathControls() {
 				updateAppearance($inputElement.val());
 
 				$segmentsElement.on('click', function(event) {
-					if ($inputElement.prop('disabled')) { return; }
+					if ($inputElement.prop('disabled') || $inputElement.prop('readonly')) { return; }
 					$element.addClass('editing');
 					$inputElement.focus().val($inputElement.val());
 				});

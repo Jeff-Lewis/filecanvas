@@ -102,6 +102,7 @@
 													<input type="text" class="form-control"
 														name="root.path"
 														value="{{ content.site.root.path }}"
+														readonly="readonly"
 														data-bind-value="site-name|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
 														data-validate="path,notEmpty,startsWith:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}',notEqualTo:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}'"
 													/>

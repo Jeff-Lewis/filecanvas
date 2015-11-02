@@ -591,10 +591,10 @@ footer.content-footer {
 .path-control-segments > li:last-child {
 	margin-right: 0;
 }
-.path-control > input:not(:disabled) + .path-control-segments > li {
+.path-control > input:not(:disabled):not([readonly]) + .path-control-segments > li {
 	cursor: pointer;
 }
-.path-control > input:not(:disabled) + .path-control-segments > li:hover {
+.path-control > input:not(:disabled):not([readonly]) + .path-control-segments > li:hover {
 	background-color: #f4f4f4;
 }
 .path-control-segments > li::before,
