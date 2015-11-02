@@ -56,7 +56,7 @@ LocalAdapter.prototype.getMetadata = function(adapterConfig) {
 	return {
 		name: this.metadata.name,
 		label: this.metadata.label,
-		path: this.metadata.defaultSitesFolder
+		path: this.metadata.path
 	};
 };
 
