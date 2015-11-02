@@ -26,14 +26,18 @@
 	transform-origin: 0 10px;
 	transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
 }
-.editor-sidepanel-toggle {
+.editor-sidepanel .panel .panel-controls button {
+	height: 18px;
+	vertical-align: top;
+	background-color: transparent;
 	color: rgba(255, 255, 255, 0.8);
 }
-.editor-sidepanel-toggle:hover {
+.editor-sidepanel .panel .panel-controls button:hover {
 	color: white;
 }
-.editor-sidepanel-toggle i {
+.editor-sidepanel .panel .panel-controls button i {
 	font-size: 16px;
+	line-height: 18px;
 }
 .editor-main {
 	position: absolute;
