@@ -442,7 +442,10 @@ function initLivePreview() {
 
 			function uploadFiles(files, shuntApi, adapterConfig) {
 				showUploadProgressIndicator();
-				var upload = shuntApi.uploadFiles(files, adapterConfig);
+				var upload = shuntApi.uploadFiles(files, {
+					adapter: adapterConfig,
+					retries: 2
+				});
 				upload
 					.progress(function(uploadBatch) {
 						setUploadProgress(uploadBatch);

@@ -50,7 +50,10 @@ Shunt.prototype.validateFolder = function(adapter, path) {
 		});
 };
 
-Shunt.prototype.uploadFiles = function(files, adapterConfig) {
+Shunt.prototype.uploadFiles = function(files, options) {
+	options = options || {};
+	var adapterConfig = options.adapter;
+	var numRetries = options.retries || 0;
 	if (files.length === 0) {
 		return new $.Deferred().resolve().promise();
 	}
@@ -104,15 +107,12 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 
 		var deferred = new $.Deferred();
 		var file = queueItem.file;
+		var numRetriesRemaining = numRetries;
 
 		queueItem.started = true;
 		deferred.notify(queueItem);
 
-		var fileUpload = uploadFile(file);
-		fileUpload
-			.progress(onFileProgress)
-			.then(onFileLoaded)
-			.fail(onFileError);
+		var fileUpload = startUpload(queueItem);
 
 		var promise = deferred.promise();
 		promise.abort = function() {
@@ -121,23 +121,38 @@ Shunt.prototype.uploadFiles = function(files, adapterConfig) {
 		return promise;
 
 
-		function onFileProgress(progress) {
-			queueItem.bytesLoaded = progress.bytesLoaded;
-			deferred.notify(queueItem);
-		}
+		function startUpload(queueItem) {
+			var upload = uploadFile(file);
+			upload
+				.progress(onFileProgress)
+				.then(onFileLoaded)
+				.fail(onFileError);
+			return upload;
 
-		function onFileLoaded(response) {
-			var renamedPath = response.path;
-			var renamedFilename = renamedPath.split('/').pop();
-			queueItem.bytesLoaded = queueItem.bytesTotal;
-			queueItem.completed = true;
-			queueItem.filename = renamedFilename;
-			deferred.resolve(queueItem);
-		}
 
-		function onFileError(error) {
-			queueItem.error = error;
-			deferred.reject(error);
+			function onFileProgress(progress) {
+				queueItem.bytesLoaded = progress.bytesLoaded;
+				deferred.notify(queueItem);
+			}
+
+			function onFileLoaded(response) {
+				var renamedPath = response.path;
+				var renamedFilename = renamedPath.split('/').pop();
+				queueItem.bytesLoaded = queueItem.bytesTotal;
+				queueItem.completed = true;
+				queueItem.filename = renamedFilename;
+				deferred.resolve(queueItem);
+			}
+
+			function onFileError(error) {
+				if (numRetriesRemaining > 0) {
+					numRetriesRemaining--;
+					fileUpload = startUpload(queueItem);
+					return;
+				}
+				queueItem.error = error;
+				deferred.reject(error);
+			}
 		}
 	}
 
