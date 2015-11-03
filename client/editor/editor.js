@@ -7,6 +7,7 @@ var virtualize = require('vdom-virtualize');
 var template = require('lodash.template');
 var merge = require('lodash.merge');
 var isEqual = require('lodash.isequal');
+var Mousetrap = require('mousetrap');
 var Handlebars = require('handlebars/runtime');
 
 var HistoryStack = require('./lib/HistoryStack');
@@ -156,6 +157,8 @@ function initLivePreview() {
 		$formElement.on('change', onFormFieldChanged);
 		$undoButtonElement.on('click', onUndoButtonClicked);
 		$redoButtonElement.on('click', onRedoButtonClicked);
+		Mousetrap.bind('mod+z', onCtrlZPressed);
+		Mousetrap.bind('mod+shift+z', onCtrlShiftZPressed);
 
 
 		function getFormFieldValues($formElement) {
@@ -253,28 +256,50 @@ function initLivePreview() {
 			if (!hasChanged) { return; }
 			formUndoHistory.add(formValues);
 			updateUndoRedoButtonState();
-			currentThemeConfigOverrides = formValues.theme.config;
-			setTimeout(function() {
-				updatePreview(currentSiteModel, currentThemeConfigOverrides);
-			});
+			updateFormPreview(formValues);
 		}
 
 		function onUndoButtonClicked(event) {
+			undo();
+		}
+
+		function onRedoButtonClicked(event) {
+			redo();
+		}
+
+		function onCtrlZPressed(event) {
+			event.stopImmediatePropagation();
+			event.preventDefault();
+			var isUndoDisabled = !formUndoHistory.getHasPrevious();
+			if (isUndoDisabled) { return; }
+			undo();
+		}
+
+		function onCtrlShiftZPressed(event) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			var isRedoDisabled = !formUndoHistory.getHasNext();
+			if (isRedoDisabled) { return; }
+			redo();
+		}
+
+		function undo() {
 			formUndoHistory.previous();
 			updateUndoRedoButtonState();
 			var formValues = formUndoHistory.getState();
 			setFormFieldValues($formElement, formValues);
-			currentThemeConfigOverrides = formValues.theme.config;
-			setTimeout(function() {
-				updatePreview(currentSiteModel, currentThemeConfigOverrides);
-			});
+			updateFormPreview(formValues);
 		}
 
-		function onRedoButtonClicked(event) {
+		function redo() {
 			formUndoHistory.next();
 			updateUndoRedoButtonState();
 			var formValues = formUndoHistory.getState();
 			setFormFieldValues($formElement, formValues);
+			updateFormPreview(formValues);
+		}
+
+		function updateFormPreview(formValues) {
 			currentThemeConfigOverrides = formValues.theme.config;
 			setTimeout(function() {
 				updatePreview(currentSiteModel, currentThemeConfigOverrides);
