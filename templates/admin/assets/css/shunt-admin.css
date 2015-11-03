@@ -388,7 +388,12 @@ button.bg-bluegrey:hover :not(:disabled) {
 	.md-pt2 { padding-top: 2px }
 	.md-pb2 { padding-bottom: 2px }
 }
-
+.no-transition {
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+}
 
 .brand-logo {
 	font-weight: bold;
