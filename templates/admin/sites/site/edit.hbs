@@ -2,19 +2,21 @@
 	<input type="hidden" name="_method" value="PUT"/>
 	<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
 	<div class="title-bar">
-		<div class="title-bar-controls">
-			<button type="button" class="btn editor-title-bar-control no-transition mr5" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
-			<button type="button" class="btn editor-title-bar-control no-transition mr5" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
-			<button type="reset" class="btn btn-default mr5">Reset changes</button>
-			<button type="submit" class="btn btn-success mr5">Save and Exit</button>
-			<a href="{{ session.urls.sites }}/{{ content.site.name }}" class="p10" title="Back to site settings" data-editor-close><i class="fa fa-times"></i></a>
-		</div>
 		<div class="title-bar-title">
 			<div class="brand">
 				<h3 class="brand-logo"><a href="/">Shunt</a></h3>
 			</div>
 		</div>
+		<div class="title-bar-separator"></div>
 		<h3 class="title-bar-subtitle">Site editor</h3>
+		<div class="title-bar-controls">
+			<button type="button" class="btn editor-title-bar-control no-transition" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
+			<button type="button" class="btn editor-title-bar-control no-transition" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
+			<div class="title-bar-separator"></div>
+			<button type="reset" class="btn btn-default">Reset changes</button>
+			<button type="submit" class="btn btn-success">Save and Exit</button>
+			<a class="title-bar-close" href="{{ session.urls.sites }}/{{ content.site.name }}" title="Back to site settings" data-editor-close><i class="fa fa-times"></i></a>
+		</div>
 	</div>
 	<div class="editor-sidepanel" id="editor-sidepanel">
 		<div class="panel panel-primary mb0">

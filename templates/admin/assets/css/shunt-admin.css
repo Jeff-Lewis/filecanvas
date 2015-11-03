@@ -465,6 +465,13 @@ body.full-page .title-bar {
 .title-bar-title {
 	float: left;
 }
+.title-bar-separator {
+	float: left;
+	height: 35px;
+	margin-left: 3px;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+	margin-right: 3px;
+}
 .title-bar-title .brand {
 	height: 35px;
 }
@@ -478,13 +485,27 @@ body.full-page .title-bar {
     height: 35px;
     line-height: 35px;
     margin: 0;
-    border-left: 2px solid rgba(255, 255, 255, 0.2);
-	margin-left: 3px;
-    padding-left: 12px;
+    padding-left: 9px;
 	font-weight: 300;
 }
 .title-bar-controls {
 	float: right;
+}
+.title-bar-controls button,
+.title-bar-controls a:link {
+	float: left;
+	margin-left: 5px;
+}
+.title-bar-controls .title-bar-separator {
+	margin-left: 10px;
+	margin-right: 5px;
+}
+.title-bar-close {
+	padding: 7px;
+}
+.title-bar-close i {
+	font-size: 16px;
+	line-height: 1;
 }
 
 footer.content-footer {
