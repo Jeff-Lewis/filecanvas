@@ -344,6 +344,9 @@ function initLivePreview() {
 			$closeButtonElement.on('click', onCloseButtonClicked);
 			$confirmCloseOkButtonElement.on('click', onConfirmCloseOkButtonClicked);
 			$(window).on('beforeunload', onBeforeUnload);
+			$formElement.on('submit', function() {
+				removeBeforeUnloadListener();
+			});
 
 
 			function onCloseButtonClicked(event) {
