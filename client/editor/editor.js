@@ -50,6 +50,9 @@ function initLivePreview() {
 	var $previewElement = $('[data-editor-preview]');
 	var $undoButtonElement = $('[data-editor-undo]');
 	var $redoButtonElement = $('[data-editor-redo]');
+	var $closeButtonElement = $('[data-editor-close]');
+	var $confirmCloseModalElement = $('[data-editor-confirm-close-modal]');
+	var $confirmCloseOkButtonElement = $('[data-editor-confirm-close-ok]');
 	var iframeSrc = $previewElement.data('src');
 
 	var precompiledTemplate = Handlebars.templates['index'];
@@ -65,7 +68,12 @@ function initLivePreview() {
 		hideLoadingIndicator($previewElement);
 	});
 	initInlineUploads();
-	initLiveUpdates();
+	initLiveUpdates(function(formValues) {
+		currentThemeConfigOverrides = formValues.theme.config;
+		setTimeout(function() {
+			updatePreview(currentSiteModel, currentThemeConfigOverrides);
+		});
+	});
 
 
 	function showLoadingIndicator($previewElement) {
@@ -149,17 +157,10 @@ function initLivePreview() {
 		}
 	}
 
-	function initLiveUpdates() {
+	function initLiveUpdates(updateCallback) {
 		var initialFormValues = getFormFieldValues($formElement);
-		var formUndoHistory = new HistoryStack();
-		formUndoHistory.add(initialFormValues);
-		$formElement.on('input', debounce(onFormFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
-		$formElement.on('change', onFormFieldChanged);
-		$undoButtonElement.on('click', onUndoButtonClicked);
-		$redoButtonElement.on('click', onRedoButtonClicked);
-		Mousetrap.bind('mod+z', onCtrlZPressed);
-		Mousetrap.bind('mod+shift+z', onCtrlShiftZPressed);
-
+		initLiveEditorState(initialFormValues, updateCallback);
+		initUnsavedChangesWarning(initialFormValues);
 
 		function getFormFieldValues($formElement) {
 			var formFieldValues = parseFormFieldValues($formElement);
@@ -214,118 +215,170 @@ function initLivePreview() {
 			}
 		}
 
-		function setFormFieldValues($formElement, fieldValues) {
-			var flattenedFieldValues = getFlattenedPropertyValues(fieldValues);
-			updateFormValues($formElement, flattenedFieldValues);
+		function initLiveEditorState(initialFormValues, updateCallback) {
+			var formUndoHistory = new HistoryStack();
+			formUndoHistory.add(initialFormValues);
+			$formElement.on('input', debounce(onFormFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
+			$formElement.on('change', onFormFieldChanged);
+			$undoButtonElement.on('click', onUndoButtonClicked);
+			$redoButtonElement.on('click', onRedoButtonClicked);
+			Mousetrap.bind('mod+z', onCtrlZPressed);
+			Mousetrap.bind('mod+shift+z', onCtrlShiftZPressed);
 
 
-			function getFlattenedPropertyValues(nestedValues) {
-				return flattenObjectKeys(nestedValues, '');
+			function setFormFieldValues($formElement, fieldValues) {
+				var flattenedFieldValues = getFlattenedPropertyValues(fieldValues);
+				updateFormValues($formElement, flattenedFieldValues);
 
-				function flattenObjectKeys(object, keyPrefix) {
-					return Object.keys(object).reduce(function(flattenedValues, key) {
-						var propertyValue = object[key];
-						var isNestedObject = propertyValue && (typeof propertyValue === 'object');
-						if (isNestedObject) {
-							var childKeyPrefix = keyPrefix + key + '.';
-							objectAssign(flattenedValues, flattenObjectKeys(propertyValue, childKeyPrefix));
-						} else {
-							flattenedValues[keyPrefix + key] = propertyValue;
+
+				function getFlattenedPropertyValues(nestedValues) {
+					return flattenObjectKeys(nestedValues, '');
+
+					function flattenObjectKeys(object, keyPrefix) {
+						return Object.keys(object).reduce(function(flattenedValues, key) {
+							var propertyValue = object[key];
+							var isNestedObject = propertyValue && (typeof propertyValue === 'object');
+							if (isNestedObject) {
+								var childKeyPrefix = keyPrefix + key + '.';
+								objectAssign(flattenedValues, flattenObjectKeys(propertyValue, childKeyPrefix));
+							} else {
+								flattenedValues[keyPrefix + key] = propertyValue;
+							}
+							return flattenedValues;
+						}, {});
+					}
+				}
+
+				function updateFormValues($formElement, fieldValues) {
+					var fieldElements = Array.prototype.slice.call($formElement.prop('elements'));
+					fieldElements.forEach(function(element) {
+						var elementName = element.name;
+						if (elementName in fieldValues) {
+							var fieldValue = fieldValues[elementName];
+							element.value = fieldValue;
 						}
-						return flattenedValues;
-					}, {});
+					});
 				}
 			}
 
-			function updateFormValues($formElement, fieldValues) {
-				var fieldElements = Array.prototype.slice.call($formElement.prop('elements'));
-				fieldElements.forEach(function(element) {
-					var elementName = element.name;
-					if (elementName in fieldValues) {
-						var fieldValue = fieldValues[elementName];
-						element.value = fieldValue;
-					}
-				});
+			function onFormFieldChanged(event) {
+				var $formElement = $(event.currentTarget);
+				var formValues = getFormFieldValues($formElement);
+				var hasChanged = !isEqual(formValues, formUndoHistory.getState());
+				if (!hasChanged) { return; }
+				formUndoHistory.add(formValues);
+				updateUndoRedoButtonState();
+				updateCallback(formValues);
+			}
+
+			function onUndoButtonClicked(event) {
+				undo();
+			}
+
+			function onRedoButtonClicked(event) {
+				redo();
+			}
+
+			function onCtrlZPressed(event) {
+				event.stopImmediatePropagation();
+				event.preventDefault();
+				var isUndoDisabled = !formUndoHistory.getHasPrevious();
+				if (isUndoDisabled) { return; }
+				undo();
+			}
+
+			function onCtrlShiftZPressed(event) {
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				var isRedoDisabled = !formUndoHistory.getHasNext();
+				if (isRedoDisabled) { return; }
+				redo();
+			}
+
+			function undo() {
+				formUndoHistory.previous();
+				updateUndoRedoButtonState();
+				var formValues = formUndoHistory.getState();
+				setFormFieldValues($formElement, formValues);
+				updateCallback(formValues);
+			}
+
+			function redo() {
+				formUndoHistory.next();
+				updateUndoRedoButtonState();
+				var formValues = formUndoHistory.getState();
+				setFormFieldValues($formElement, formValues);
+				updateCallback(formValues);
+			}
+
+			function updateUndoRedoButtonState() {
+				var isUndoDisabled = !formUndoHistory.getHasPrevious();
+				var isRedoDisabled = !formUndoHistory.getHasNext();
+				$undoButtonElement.prop('disabled', isUndoDisabled);
+				$redoButtonElement.prop('disabled', isRedoDisabled);
+			}
+
+			function debounce(func, wait, immediate) {
+				var timeout;
+				return function() {
+					var context = this, args = arguments;
+					var later = function() {
+						timeout = null;
+						if (!immediate) { func.apply(context, args); }
+					};
+					var callNow = immediate && !timeout;
+					clearTimeout(timeout);
+					timeout = setTimeout(later, wait);
+					if (callNow) { func.apply(context, args); }
+				};
 			}
 		}
 
-		function onFormFieldChanged(event) {
-			var $formElement = $(event.currentTarget);
-			var formValues = getFormFieldValues($formElement);
-			var hasChanged = !isEqual(formValues, formUndoHistory.getState());
-			if (!hasChanged) { return; }
-			formUndoHistory.add(formValues);
-			updateUndoRedoButtonState();
-			updateFormPreview(formValues);
-		}
-
-		function onUndoButtonClicked(event) {
-			undo();
-		}
-
-		function onRedoButtonClicked(event) {
-			redo();
-		}
-
-		function onCtrlZPressed(event) {
-			event.stopImmediatePropagation();
-			event.preventDefault();
-			var isUndoDisabled = !formUndoHistory.getHasPrevious();
-			if (isUndoDisabled) { return; }
-			undo();
-		}
-
-		function onCtrlShiftZPressed(event) {
-			event.preventDefault();
-			event.stopImmediatePropagation();
-			var isRedoDisabled = !formUndoHistory.getHasNext();
-			if (isRedoDisabled) { return; }
-			redo();
-		}
-
-		function undo() {
-			formUndoHistory.previous();
-			updateUndoRedoButtonState();
-			var formValues = formUndoHistory.getState();
-			setFormFieldValues($formElement, formValues);
-			updateFormPreview(formValues);
-		}
-
-		function redo() {
-			formUndoHistory.next();
-			updateUndoRedoButtonState();
-			var formValues = formUndoHistory.getState();
-			setFormFieldValues($formElement, formValues);
-			updateFormPreview(formValues);
-		}
-
-		function updateFormPreview(formValues) {
-			currentThemeConfigOverrides = formValues.theme.config;
-			setTimeout(function() {
-				updatePreview(currentSiteModel, currentThemeConfigOverrides);
+		function initUnsavedChangesWarning(initialFormValues) {
+			$confirmCloseModalElement.modal({
+				show: false
+			}).on('shown.bs.modal', function(event) {
+				$confirmCloseOkButtonElement.focus();
 			});
-		}
+			var targetUrl = null;
+			$closeButtonElement.on('click', onCloseButtonClicked);
+			$confirmCloseOkButtonElement.on('click', onConfirmCloseOkButtonClicked);
+			$(window).on('beforeunload', onBeforeUnload);
 
-		function updateUndoRedoButtonState() {
-			var isUndoDisabled = !formUndoHistory.getHasPrevious();
-			var isRedoDisabled = !formUndoHistory.getHasNext();
-			$undoButtonElement.prop('disabled', isUndoDisabled);
-			$redoButtonElement.prop('disabled', isRedoDisabled);
-		}
 
-		function debounce(func, wait, immediate) {
-			var timeout;
-			return function() {
-				var context = this, args = arguments;
-				var later = function() {
-					timeout = null;
-					if (!immediate) { func.apply(context, args); }
-				};
-				var callNow = immediate && !timeout;
-				clearTimeout(timeout);
-				timeout = setTimeout(later, wait);
-				if (callNow) { func.apply(context, args); }
-			};
+			function onCloseButtonClicked(event) {
+				var hasUnsavedChanges = getHasUnsavedChanges($formElement);
+				if (hasUnsavedChanges) {
+					event.preventDefault();
+					var $linkElement = $(event.currentTarget);
+					targetUrl = $linkElement.attr('href');
+					$confirmCloseModalElement.modal('show');
+					$confirmCloseOkButtonElement.focus();
+				}
+			}
+
+			function onConfirmCloseOkButtonClicked(event) {
+				removeBeforeUnloadListener();
+				document.location.href = targetUrl;
+			}
+
+			function removeBeforeUnloadListener() {
+				$(window).off('beforeunload', onBeforeUnload);
+			}
+
+			function onBeforeUnload(event) {
+				var hasUnsavedChanges = getHasUnsavedChanges($formElement);
+				if (!hasUnsavedChanges) { return; }
+				if (hasUnsavedChanges) {
+					return 'You have unsaved changes.';
+				}
+			}
+
+			function getHasUnsavedChanges($formElement) {
+				var formValues = getFormFieldValues($formElement);
+				var hasUnsavedChanges = !isEqual(formValues, initialFormValues);
+				return hasUnsavedChanges;
+			}
 		}
 	}
 
