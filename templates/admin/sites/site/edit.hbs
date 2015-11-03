@@ -3,6 +3,8 @@
 	<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
 	<div class="title-bar">
 		<div class="title-bar-controls">
+			<button type="button" class="btn editor-title-bar-control mr5" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
+			<button type="button" class="btn editor-title-bar-control mr5" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
 			<button type="reset" class="btn btn-default mr5">Reset changes</button>
 			<button type="submit" class="btn btn-success mr5">Save and Exit</button>
 			<a href="{{ session.urls.sites }}/{{ content.site.name }}" class="p10" title="Back to site settings"><i class="fa fa-times"></i></a>

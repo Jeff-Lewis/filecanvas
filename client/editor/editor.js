@@ -1,11 +1,15 @@
 'use strict';
 
 var junk = require('junk');
+var objectAssign = require('object-assign');
 var vdom = require('virtual-dom');
 var virtualize = require('vdom-virtualize');
 var template = require('lodash.template');
 var merge = require('lodash.merge');
+var isEqual = require('lodash.isequal');
 var Handlebars = require('handlebars/runtime');
+
+var HistoryStack = require('./lib/HistoryStack');
 
 var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
 
@@ -43,6 +47,8 @@ function initSidepanel() {
 function initLivePreview() {
 	var $formElement = $('[data-editor-form]');
 	var $previewElement = $('[data-editor-preview]');
+	var $undoButtonElement = $('[data-editor-undo]');
+	var $redoButtonElement = $('[data-editor-redo]');
 	var iframeSrc = $previewElement.data('src');
 
 	var precompiledTemplate = Handlebars.templates['index'];
@@ -143,14 +149,19 @@ function initLivePreview() {
 	}
 
 	function initLiveUpdates() {
-		$formElement.on('change input', debounce(onFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
+		var initialFormValues = getFormFieldValues($formElement);
+		var formUndoHistory = new HistoryStack();
+		formUndoHistory.add(initialFormValues);
+		$formElement.on('input', debounce(onFormFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
+		$formElement.on('change', onFormFieldChanged);
+		$undoButtonElement.on('click', onUndoButtonClicked);
+		$redoButtonElement.on('click', onRedoButtonClicked);
 
 
-		function onFieldChanged() {
+		function getFormFieldValues($formElement) {
 			var formFieldValues = parseFormFieldValues($formElement);
 			var nestedFormFieldValues = parseNestedPropertyValues(formFieldValues);
-			currentThemeConfigOverrides = nestedFormFieldValues.theme.config;
-			updatePreview(currentSiteModel, currentThemeConfigOverrides);
+			return nestedFormFieldValues;
 
 
 			function parseFormFieldValues($formElement) {
@@ -162,7 +173,12 @@ function initLivePreview() {
 						'key': elementName,
 						'value': elementValue
 					};
-				}).reduce(function(values, property) {
+				})
+				.filter(function(property) {
+					var key = property.key;
+					return (key && (key.charAt(0) !== '_'));
+				})
+				.reduce(function(values, property) {
 					var key = property.key;
 					var value = property.value;
 					values[key] = value;
@@ -193,6 +209,83 @@ function initLivePreview() {
 					return values;
 				}, {});
 			}
+		}
+
+		function setFormFieldValues($formElement, fieldValues) {
+			var flattenedFieldValues = getFlattenedPropertyValues(fieldValues);
+			updateFormValues($formElement, flattenedFieldValues);
+
+
+			function getFlattenedPropertyValues(nestedValues) {
+				return flattenObjectKeys(nestedValues, '');
+
+				function flattenObjectKeys(object, keyPrefix) {
+					return Object.keys(object).reduce(function(flattenedValues, key) {
+						var propertyValue = object[key];
+						var isNestedObject = propertyValue && (typeof propertyValue === 'object');
+						if (isNestedObject) {
+							var childKeyPrefix = keyPrefix + key + '.';
+							objectAssign(flattenedValues, flattenObjectKeys(propertyValue, childKeyPrefix));
+						} else {
+							flattenedValues[keyPrefix + key] = propertyValue;
+						}
+						return flattenedValues;
+					}, {});
+				}
+			}
+
+			function updateFormValues($formElement, fieldValues) {
+				var fieldElements = Array.prototype.slice.call($formElement.prop('elements'));
+				fieldElements.forEach(function(element) {
+					var elementName = element.name;
+					if (elementName in fieldValues) {
+						var fieldValue = fieldValues[elementName];
+						element.value = fieldValue;
+					}
+				});
+			}
+		}
+
+		function onFormFieldChanged(event) {
+			var $formElement = $(event.currentTarget);
+			var formValues = getFormFieldValues($formElement);
+			var hasChanged = !isEqual(formValues, formUndoHistory.getState());
+			if (!hasChanged) { return; }
+			formUndoHistory.add(formValues);
+			updateUndoRedoButtonState();
+			currentThemeConfigOverrides = formValues.theme.config;
+			setTimeout(function() {
+				updatePreview(currentSiteModel, currentThemeConfigOverrides);
+			});
+		}
+
+		function onUndoButtonClicked(event) {
+			formUndoHistory.previous();
+			updateUndoRedoButtonState();
+			var formValues = formUndoHistory.getState();
+			setFormFieldValues($formElement, formValues);
+			currentThemeConfigOverrides = formValues.theme.config;
+			setTimeout(function() {
+				updatePreview(currentSiteModel, currentThemeConfigOverrides);
+			});
+		}
+
+		function onRedoButtonClicked(event) {
+			formUndoHistory.next();
+			updateUndoRedoButtonState();
+			var formValues = formUndoHistory.getState();
+			setFormFieldValues($formElement, formValues);
+			currentThemeConfigOverrides = formValues.theme.config;
+			setTimeout(function() {
+				updatePreview(currentSiteModel, currentThemeConfigOverrides);
+			});
+		}
+
+		function updateUndoRedoButtonState() {
+			var isUndoDisabled = !formUndoHistory.getHasPrevious();
+			var isRedoDisabled = !formUndoHistory.getHasNext();
+			$undoButtonElement.prop('disabled', isUndoDisabled);
+			$redoButtonElement.prop('disabled', isRedoDisabled);
 		}
 
 		function debounce(func, wait, immediate) {

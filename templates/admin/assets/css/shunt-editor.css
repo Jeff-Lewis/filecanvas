@@ -14,10 +14,11 @@
 .editor-sidepanel-title {
 	white-space: nowrap;
 	overflow: hidden;
+	line-height: 20px;
 }
 .editor-sidepanel-collapsed-title {
 	position: absolute;
-	top: 51px;
+	top: 50px;
 	left: 100%;
 	margin-left: -43px;
 	margin-top: 0;
@@ -27,17 +28,37 @@
 	transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
 }
 .editor-sidepanel .panel .panel-controls button {
-	height: 18px;
+	width: 16px;
+	height: 16px;
 	vertical-align: top;
 	background-color: transparent;
 	color: rgba(255, 255, 255, 0.8);
 }
+.editor-sidepanel .panel .panel-controls button:focus,
 .editor-sidepanel .panel .panel-controls button:hover {
 	color: white;
 }
 .editor-sidepanel .panel .panel-controls button i {
 	font-size: 16px;
-	line-height: 18px;
+	line-height: 16px;
+}
+.editor-title-bar-control {
+	font-weight: bold;
+	background-color: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.8);
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+.editor-title-bar-control:focus,
+.editor-title-bar-control:hover {
+	background-color: rgba(200, 255, 255, 0.12);
+	color: white;
+}
+.editor-title-bar-control i {
+	font-size: 16px;
+	line-height: 16px;
 }
 .editor-main {
 	position: absolute;
@@ -121,10 +142,22 @@
 	top: 0;
 	left: 0;
 	width: 100%;
+	border-bottom: none;
+	line-height: 20px;
+	height: 50px;
+}
+.editor-sidepanel > .panel > .panel-heading > .panel-controls {
+	float: none;
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	margin: -15px;
+	padding: 15px;
+	line-height: 20px;
 }
 .editor-sidepanel > .panel > .panel-body {
 	position: absolute;
-	top: 51px;
+	top: 50px;
 	left: 0;
 	width: 100%;
 	bottom: 0;
@@ -141,7 +174,7 @@
 	background-color: #c9c9c9;
 }
 .theme-options-accordion > .panel-default > .panel-heading + .panel-collapse .panel-body {
-    border-top-color: #ececec;
+	border-top-color: #ececec;
 }
 .theme-options-accordion > .panel-default > .panel-heading,
 .theme-options-accordion > .panel-default > .panel-collapse > .panel-body > .control-label {
