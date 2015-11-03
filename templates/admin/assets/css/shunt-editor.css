@@ -3,6 +3,26 @@
 	width: 100%;
 	height: 100%;
 }
+
+.editor-title-bar-control {
+	font-weight: bold;
+	background-color: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.8);
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+.editor-title-bar-control:focus,
+.editor-title-bar-control:hover {
+	background-color: rgba(200, 255, 255, 0.12);
+	color: white;
+}
+.editor-title-bar-control i {
+	font-size: 16px;
+	line-height: 16px;
+}
+
 .editor-sidepanel {
 	position: absolute;
 	top: 55px;
@@ -27,39 +47,77 @@
 	transform-origin: 0 10px;
 	transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
 }
-.editor-sidepanel .panel .panel-controls button {
-	width: 16px;
-	height: 16px;
+.editor-sidepanel > .panel {
+	height: 100%;
+}
+.editor-sidepanel-heading {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	border-bottom: none;
+	line-height: 20px;
+	height: 50px;
+}
+.editor-sidepanel-controls {
+	float: none;
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	line-height: 20px;
+}
+.editor-sidepanel-controls button,
+.editor-sidepanel-controls button.btn-icon-icon.btn-xs {
+	width: 46px;
+	height: 50px;
+	margin: -15px;
+	padding: 15px;
 	vertical-align: top;
 	background-color: transparent;
 	color: rgba(255, 255, 255, 0.8);
 }
-.editor-sidepanel .panel .panel-controls button:focus,
-.editor-sidepanel .panel .panel-controls button:hover {
+.editor-sidepanel-controls button:hover,
+.editor-sidepanel-controls button:focus,
+.editor-sidepanel-controls button.btn-icon-icon.btn-xs:hover,
+.editor-sidepanel-controls button.btn-icon-icon.btn-xs:focus {
 	color: white;
 }
-.editor-sidepanel .panel .panel-controls button i {
+.editor-sidepanel-controls button i,
+.editor-sidepanel-controls button.btn-icon-icon.btn-xs i {
 	font-size: 16px;
 	line-height: 16px;
+	padding: 16px 15px 18px;
 }
-.editor-title-bar-control {
-	font-weight: bold;
-	background-color: rgba(255, 255, 255, 0.1);
-	color: rgba(255, 255, 255, 0.8);
-	-webkit-transition: none;
-	-moz-transition: none;
-	-o-transition: none;
-	transition: none;
+.editor-sidepanel-body {
+	position: absolute;
+	top: 50px;
+	left: 0;
+	width: 100%;
+	bottom: 0;
 }
-.editor-title-bar-control:focus,
-.editor-title-bar-control:hover {
-	background-color: rgba(200, 255, 255, 0.12);
-	color: white;
+.editor-sidepanel,
+.editor-sidepanel-title,
+.editor-sidepanel-collapsed-title,
+.editor-sidepanel-body,
+.editor-sidepanel + .editor-main {
+	transition: all 0.3s ease;
 }
-.editor-title-bar-control i {
-	font-size: 16px;
-	line-height: 16px;
+.editor-sidepanel.collapsed {
+	width: 43px;
 }
+.editor-sidepanel.collapsed + .editor-main {
+	left: 43px;
+}
+.editor-sidepanel-collapsed-title,
+.editor-sidepanel.collapsed .editor-sidepanel-title,
+.editor-sidepanel.collapsed .editor-sidepanel-body {
+	opacity: 0;
+}
+.editor-sidepanel.collapsed .editor-sidepanel-collapsed-title {
+	opacity: 1;
+	transform: translate(20px, 0) rotate(90deg);
+}
+
 .editor-main {
 	position: absolute;
 	top: 55px;
@@ -80,9 +138,11 @@
 	pointer-events: none;
 	z-index: 1;
 }
+
 .editor-loading {
 	display: none;
 }
+
 .editor-progress {
 	position: absolute;
 	top: 0;
@@ -100,6 +160,7 @@
 .editor-progress-cancel-button {
 	margin-right: -5px;
 }
+
 .editor-preview {
 	width: 100%;
 	height: 100%;
@@ -111,57 +172,6 @@
 	display: block;
 }
 
-.editor-sidepanel,
-.editor-sidepanel-title,
-.editor-sidepanel-collapsed-title,
-.editor-sidepanel > .panel > .panel-body,
-.editor-sidepanel + .editor-main {
-	transition: all 0.3s ease;
-}
-.editor-sidepanel.collapsed {
-	width: 43px;
-}
-.editor-sidepanel.collapsed + .editor-main {
-	left: 43px;
-}
-.editor-sidepanel-collapsed-title,
-.editor-sidepanel.collapsed > .panel > .panel-body,
-.editor-sidepanel.collapsed .editor-sidepanel-title {
-	opacity: 0;
-}
-.editor-sidepanel.collapsed .editor-sidepanel-collapsed-title {
-	opacity: 1;
-	transform: translate(20px, 0) rotate(90deg);
-}
-
-.editor-sidepanel > .panel {
-	height: 100%;
-}
-.editor-sidepanel > .panel > .panel-heading {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	border-bottom: none;
-	line-height: 20px;
-	height: 50px;
-}
-.editor-sidepanel > .panel > .panel-heading > .panel-controls {
-	float: none;
-	position: absolute;
-	top: 15px;
-	right: 15px;
-	margin: -15px;
-	padding: 15px;
-	line-height: 20px;
-}
-.editor-sidepanel > .panel > .panel-body {
-	position: absolute;
-	top: 50px;
-	left: 0;
-	width: 100%;
-	bottom: 0;
-}
 
 .theme-options-accordion {
 	height: 100%;

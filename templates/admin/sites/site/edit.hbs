@@ -3,8 +3,8 @@
 	<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
 	<div class="title-bar">
 		<div class="title-bar-controls">
-			<button type="button" class="btn editor-title-bar-control mr5" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
-			<button type="button" class="btn editor-title-bar-control mr5" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
+			<button type="button" class="btn editor-title-bar-control no-transition mr5" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
+			<button type="button" class="btn editor-title-bar-control no-transition mr5" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
 			<button type="reset" class="btn btn-default mr5">Reset changes</button>
 			<button type="submit" class="btn btn-success mr5">Save and Exit</button>
 			<a href="{{ session.urls.sites }}/{{ content.site.name }}" class="p10" title="Back to site settings"><i class="fa fa-times"></i></a>
@@ -18,16 +18,16 @@
 	</div>
 	<div class="editor-sidepanel" id="editor-sidepanel">
 		<div class="panel panel-primary mb0">
-			<div class="panel-heading">
-				<div class="panel-controls">
-					<button type="button" class="btn btn-icon-icon btn-xs" data-toggle="collapse-sidepanel" data-target="#editor-sidepanel" aria-controls="editor-sidepanel">
+			<div class="panel-heading editor-sidepanel-heading">
+				<div class="editor-sidepanel-controls">
+					<button type="button" class="btn btn-icon-icon btn-xs no-transition" data-toggle="collapse-sidepanel" data-target="#editor-sidepanel" aria-controls="editor-sidepanel">
 						<i class="fa fa-bars"></i>
 					</button>
 				</div>
 				<h4 class="editor-sidepanel-collapsed-title bg-white text-uppercase">Theme options</h4>
 				<h4 class="editor-sidepanel-title no-margin text-uppercase">Theme options</h4>
 			</div>
-			<div class="panel-body no-padding">
+			<div class="panel-body no-padding editor-sidepanel-body">
 				<div id="theme-options" class="panel-group theme-options-accordion" role="tablist" aria-multiselectable="false" data-fixed-accordion>
 					{{#each (lookup (lookup content.themes content.site.theme.id) 'config') as |configGroup|}}
 					<div class="panel panel-default">
