@@ -7,7 +7,7 @@
 	{
 		"id": "site-folder",
 		"title": "Where are my Shunt sites stored?",
-		"body": "<p>Shunt does <b>not</b> store any your files. All the files in your Shunt sites are located on Dropbox's secure file servers.</p><p>By default, whenever you create a Shunt site, Shunt will create a new <b>site folder</b> within a folder named <code>shunt</code> inside your Dropbox. Your Shunt site will then stay in sync with the contents of this folder.</p>"
+		"body": "<p>Shunt does <b>not</b> store any of your files. All the files in your Shunt sites are located on Dropbox's secure file servers.</p><p>By default, whenever you create a Shunt site, Shunt will create a new <b>site folder</b> within a folder named <code>shunt</code> inside your Dropbox. Your Shunt site will then stay in sync with the contents of this folder.</p>"
 	},
 	{
 		"id": "share-folder",
