@@ -410,7 +410,14 @@ module.exports = function(database, options) {
 				var username = req.params.user;
 				var siteName = req.params.site;
 				var useCached = (req.query.cached === 'true');
-				var themeConfigOverrides = (req.query.config ? JSON.parse(req.query.config) : null);
+				var themeConfigOverrides = null;
+				if (req.query['theme.config']) {
+					try {
+						themeConfigOverrides = JSON.parse(req.query['theme.config']);
+					} catch (error) {
+						return next(new HttpError(400, 'Invalid theme configuration: ' + req.query['theme.config']));
+					}
+				}
 				userService.retrieveUser(username)
 					.then(function(userModel) {
 						var username = userModel.username;
