@@ -466,13 +466,6 @@ body.full-page .title-bar {
 	float: left;
 }
 .title-bar-separator {
-	float: left;
-	height: 35px;
-	margin-left: 3px;
-    border-left: 2px solid rgba(255, 255, 255, 0.2);
-	margin-right: 3px;
-}
-.title-bar-title .brand {
 	height: 35px;
 }
 .title-bar-title .brand-logo {
@@ -483,10 +476,13 @@ body.full-page .title-bar {
 .title-bar-subtitle {
 	float: left;
     height: 35px;
-    line-height: 35px;
-    margin: 0;
-    padding-left: 9px;
 	font-weight: 300;
+    line-height: 35px;
+    margin-top: 0;
+    margin-bottom: 0;
+	margin-left: 3px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+    padding-left: 12px;
 }
 .title-bar-controls {
 	float: right;
@@ -496,7 +492,11 @@ body.full-page .title-bar {
 	float: left;
 	margin-left: 5px;
 }
-.title-bar-controls .title-bar-separator {
+.title-bar-separator {
+	float: left;
+    height: 41px;
+    margin-top: -3px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
 	margin-left: 10px;
 	margin-right: 5px;
 }
