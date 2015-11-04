@@ -4,15 +4,6 @@
 	height: 100%;
 }
 
-.editor-title-bar-control {
-	font-weight: bold;
-	background-color: rgba(255, 255, 255, 0.1);
-	color: rgba(255, 255, 255, 0.8);
-	-webkit-transition: none;
-	-moz-transition: none;
-	-o-transition: none;
-	transition: none;
-}
 .editor-title-bar-control:focus,
 .editor-title-bar-control:hover {
 	background-color: rgba(200, 255, 255, 0.12);

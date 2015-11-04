@@ -487,18 +487,10 @@ body.full-page .title-bar {
 .title-bar-controls {
 	float: right;
 }
-.title-bar-controls button,
-.title-bar-controls a:link {
+.title-bar-controls .btn,
+.title-bar-controls .title-bar-close {
 	float: left;
 	margin-left: 5px;
-}
-.title-bar-separator {
-	float: left;
-    height: 41px;
-    margin-top: -3px;
-    border-left: 2px solid rgba(255, 255, 255, 0.1);
-	margin-left: 10px;
-	margin-right: 5px;
 }
 .title-bar-close {
 	padding: 7px;
@@ -506,6 +498,34 @@ body.full-page .title-bar {
 .title-bar-close i {
 	font-size: 16px;
 	line-height: 1;
+}
+.title-bar-toolbar {
+	float: left;
+}
+.title-bar-toolbar .btn {
+	font-weight: bold;
+	background-color: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.8);
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+.title-bar-toolbar-label {
+	float: left;
+	font-size: 14px;
+	line-height: 34px;
+	vertical-align: top;
+}
+.title-bar-toolbar::after {
+	content: '';
+	display: block;
+	float: left;
+    height: 41px;
+    margin-top: -3px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+	margin-left: 10px;
+	margin-right: 5px;
 }
 
 footer.content-footer {
