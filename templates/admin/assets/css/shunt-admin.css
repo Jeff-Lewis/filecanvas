@@ -456,10 +456,13 @@ button.bg-bluegrey:hover :not(:disabled) {
 body.full-page .title-bar {
 	margin: 0;
 }
-.title-bar a {
+.title-bar .brand {
+	height: 35px;
+}
+.title-bar .brand a {
     color: #b2b6be;
 }
-.title-bar a:hover {
+.title-bar .brand a:hover {
     color: #c0c3ca;
 }
 .title-bar-title {
@@ -494,6 +497,10 @@ body.full-page .title-bar {
 }
 .title-bar-close {
 	padding: 7px;
+    color: #b2b6be;
+}
+.title-bar-close:hover {
+    color: #c0c3ca;
 }
 .title-bar-close i {
 	font-size: 16px;
