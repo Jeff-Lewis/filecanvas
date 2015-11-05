@@ -1,0 +1,21 @@
+<form class="theme-gallery" role="form" method="POST" action="{{ session.urls.sitesCreate }}" autocomplete="off">
+	<input type="hidden" name="_method" value="GET"/>
+	<input type="hidden" name="theme.id" value="{{ content.theme.id }}"/>
+	<div class="title-bar">
+		<div class="title-bar-title">
+			<div class="brand">
+				<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+			</div>
+		</div>
+		<h3 class="title-bar-subtitle">Theme gallery</h3>
+		<div class="title-bar-controls">
+			<a class="btn btn-default" href="{{ session.urls.sitesCreateThemes }}/{{ content.previousTheme.id }}">Previous theme<a>
+			<a class="btn btn-default" href="{{ session.urls.sitesCreateThemes }}/{{ content.nextTheme.id }}">Next theme<a>
+			<button type="submit" class="btn btn-success">Use this theme</button>
+			<a class="title-bar-close" href="{{ session.urls.sitesCreate }}" title="Back to site creator"><i class="fa fa-times"></i></a>
+		</div>
+	</div>
+	<div class="theme-gallery-main">
+		<iframe class="theme-gallery-preview" frameborder="0" src="{{ session.urls.themes }}/{{ content.theme.id }}/preview"></iframe>
+	</div>
+</div>

@@ -284,6 +284,7 @@ module.exports = function(database, options) {
 						logout: '/logout',
 						sites: '/sites',
 						sitesCreate: '/sites/create-site',
+						sitesCreateThemes: '/sites/create-site/themes',
 						preview: '/preview',
 						terms: '/terms',
 						privacy: '/privacy',
@@ -453,6 +454,8 @@ module.exports = function(database, options) {
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 			app.get('/sites/create-site', ensureAuth, initAdminSession, retrieveCreateSiteRoute);
+			app.get('/sites/create-site/themes', ensureAuth, initAdminSession, retrieveCreateSiteThemesRoute);
+			app.get('/sites/create-site/themes/:theme', ensureAuth, initAdminSession, retrieveCreateSiteThemeRoute);
 			app.get('/sites/:site', ensureAuth, initAdminSession, retrieveSiteRoute);
 			app.put('/sites/:site', ensureAuth, initAdminSession, updateSiteRoute);
 			app.delete('/sites/:site', ensureAuth, initAdminSession, deleteSiteRoute);
@@ -471,7 +474,7 @@ module.exports = function(database, options) {
 			app.use('/themes', composeMiddleware([
 				ensureAuth,
 				initAdminSession,
-				createThemeFilesServer(themes, themesPath)
+				createThemesApp(themes, themesPath)
 			]));
 
 			app.use('/preview', composeMiddleware([
@@ -659,6 +662,14 @@ module.exports = function(database, options) {
 
 			function retrieveCreateSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
+				var theme = req.body.theme || null;
+				if (theme && theme.config) {
+					try {
+						theme.config = JSON.parse(theme.config);
+					} catch (error) {
+						return next(new HttpError(400, 'Invalid theme configuration: ' + theme.config));
+					}
+				}
 				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
 					return adapterName !== 'default';
 				}).reduce(function(adaptersMetadata, adapterName) {
@@ -679,7 +690,7 @@ module.exports = function(database, options) {
 					private: false,
 					published: false,
 					home: false,
-					theme: null
+					theme: theme
 				};
 				var templateData = {
 					title: 'Site dashboard',
@@ -693,7 +704,7 @@ module.exports = function(database, options) {
 						},
 						{
 							link: '/sites/create-site',
-							icon: 'globe',
+							icon: 'plus',
 							label: 'Create a site'
 						}
 					],
@@ -707,6 +718,78 @@ module.exports = function(database, options) {
 					.catch(function(error) {
 						next(error);
 					});
+			}
+
+			function retrieveCreateSiteThemesRoute(req, res, next) {
+				var themeIds = Object.keys(themes);
+				var firstThemeId = themeIds[0];
+				res.redirect('/sites/create-site/themes/' + firstThemeId);
+			}
+
+			function retrieveCreateSiteThemeRoute(req, res, next) {
+				var themeId = req.params.theme;
+				if (!(themeId in themes)) {
+					return next(new HttpError(404));
+				}
+				var theme = themes[themeId];
+				var previousTheme = getPreviousTheme(themes, themeId);
+				var nextTheme = getNextTheme(themes, themeId);
+				var templateData = {
+					title: 'Theme gallery',
+					fullPage: true,
+					navigation: false,
+					footer: false,
+					breadcrumb: [
+						{
+							link: '/sites',
+							icon: 'dashboard',
+							label: 'Site dashboard'
+						},
+						{
+							link: '/sites/create-site',
+							icon: 'plus',
+							label: 'Create a site'
+						},
+						{
+							link: '/sites/create-site/themes',
+							icon: 'image',
+							label: 'Theme gallery'
+						},
+						{
+							link: '/sites/create-site/themes/' + theme.id,
+							icon: null,
+							label: theme.name
+						}
+					],
+					content: {
+						theme: theme,
+						previous: previousTheme,
+						next: nextTheme
+					}
+				};
+				renderAdminPage(req, res, 'sites/create-site/themes/theme', templateData)
+					.catch(function(error) {
+						next(error);
+					});
+
+
+				function getPreviousTheme(themes, themeId) {
+					var themeIds = Object.keys(themes);
+					var themeIndex = themeIds.indexOf(themeId);
+					var previousThemeIndex = (themeIndex <= 0 ? themeIds.length - 1 : themeIndex - 1);
+					var previousThemeId = themeIds[previousThemeIndex];
+					var previousTheme = themes[previousThemeId];
+					return previousTheme;
+				}
+
+				function getNextTheme(themes, themeId) {
+					var themeIds = Object.keys(themes);
+					var themeIndex = themeIds.indexOf(themeId);
+					var nextThemeIndex = (themeIndex >= themeIds.length - 1 ? 0 : themeIndex + 1);
+					var nextThemeId = themeIds[nextThemeIndex];
+					var nextTheme = themes[nextThemeId];
+					return nextTheme;
+				}
 			}
 
 			function createSiteRoute(req, res, next) {
@@ -1052,12 +1135,13 @@ module.exports = function(database, options) {
 					}
 			}
 
-			function createThemeFilesServer(themes, themesPath) {
+			function createThemesApp(themes, themesPath) {
 				var app = express();
 				var staticServer = express.static(path.resolve(themesPath));
 				app.get('/:theme', rewriteManifestRequest, staticServer);
 				app.get('/:theme/thumbnail', rewriteThumbnailRequest, staticServer);
 				app.get('/:theme/template/:template.js', retrievePrecompiledTemplate);
+				app.get('/:theme/preview', retrieveThemePreviewRoute);
 				return app;
 
 
@@ -1113,6 +1197,10 @@ module.exports = function(database, options) {
 							return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
 						}
 					}
+				}
+
+				function retrieveThemePreviewRoute(req, res, next) {
+					next(new HttpError(404));
 				}
 			}
 

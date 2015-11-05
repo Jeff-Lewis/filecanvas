@@ -29,25 +29,33 @@
 							<i class="fa fa-arrow-right mr10"></i>Step 1: Choose a theme
 						</h4>
 					</div>
-					<div id="create-form-theme" class="panel-collapse collapse in">
+					<div id="create-form-theme" class="panel-collapse collapse{{#if (not content.site.theme.id)}} in{{/if}}">
 						<div class="panel-body form-horizontal bordered-group">
 							<div class="row no-margin">
-								<div class="col-lg-12">
-									<div class="row">
-										{{#each content.themes as |theme|}}
-										<label class="theme-preview-control no-margin" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
-											<input type="radio" name="theme.id"
+								<p>Choose a theme from the selection below. You'll be able to customise the theme after the site has been created.</p>
+								<ul class="theme-previews">
+									{{#each content.themes as |theme|}}
+									<li class="theme-preview-control p15">
+										<div class="theme-preview-control-title h5 mt0 pb5"><strong>{{ theme.name }}</strong> </div>
+										<div class="widget bg-white no-padding mb0 text-center bordered">
+											<a class="theme-preview-control-thumbnail" href="{{ ../session.urls.sitesCreateThemes }}/{{ theme.id }}">
+												<img class="theme-preview-control-thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/thumbnail">
+												<div class="theme-preview-control-thumbnail-icon">
+													<i class="fa fa-search-plus"></i>
+												</div>
+											</a>
+										</div>
+										<label class="btn btn-primary block mt10" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
+											<input type="radio" class="theme-preview-control-radio-input"
+												name="theme.id"
 												value="{{ theme.id }}"
 												{{#if (eq theme.id ../content.site.theme.id)}}checked="checked"{{/if}}
 											/>
-											<div class="thumbnail no-padding no-margin">
-												<img class="thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/thumbnail">
-												<h5 class="thumbnail-caption text-center bold bg-info no-margin p5">{{ theme.name }}</h5>
-											</div>
+											Use this theme
 										</label>
-										{{/each}}
-									</div>
-								</div>
+									</li>
+									{{/each}}
+								</ul>
 							</div>
 						</div>
 					</div>
@@ -56,7 +64,7 @@
 					<div class="panel-heading">
 						<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Site settings</h4>
 					</div>
-					<div id="create-form-fields" class="panel-collapse collapse">
+					<div id="create-form-fields" class="panel-collapse collapse{{#if content.site.theme.id}} in{{/if}}">
 						<div class="panel-body form-horizontal bordered-group">
 							<div class="row no-margin">
 								<div class="col-lg-12">
