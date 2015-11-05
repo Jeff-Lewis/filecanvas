@@ -5,7 +5,6 @@ var fs = require('fs');
 var mapSeries = require('promise-map-series');
 var express = require('express');
 var LocalStrategy = require('passport-local').Strategy;
-var junk = require('junk');
 var mkdirp = require('mkdirp');
 var slug = require('slug');
 
@@ -13,7 +12,7 @@ var AuthenticationService = require('../services/AuthenticationService');
 var RegistrationService = require('../services/RegistrationService');
 var UserService = require('../services/UserService');
 
-var parseStatModel = require('../utils/parseStatModel');
+var loadFileMetadata = require('../utils/loadFileMetadata');
 
 var HttpError = require('../errors/HttpError');
 
@@ -147,10 +146,10 @@ LocalAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 
 	function copySiteFiles(sitePath, dirContents) {
 		var files = getFileListing(dirContents);
-		return Promise.resolve(mapSeries(files, function(fileMetaData) {
-			var filePath = path.join(sitePath, fileMetaData.path);
+		return Promise.resolve(mapSeries(files, function(fileMetadata) {
+			var filePath = path.join(sitePath, fileMetadata.path);
 			var fullPath = path.join(sitesRoot, filePath);
-			var fileContents = fileMetaData.contents;
+			var fileContents = fileMetadata.contents;
 			return writeFile(fullPath, fileContents);
 		}).then(function(results) {
 			return;
@@ -191,53 +190,29 @@ LocalAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 LocalAdapter.prototype.loadFolderContents = function(folderPath, options) {
 	var sitesRoot = this.sitesRoot;
 	var fullPath = path.join(sitesRoot, folderPath);
-	return loadFileListing(fullPath, fullPath)
+	return loadFileMetadata(fullPath, {
+		root: fullPath,
+		contents: true
+	})
 		.then(function(rootFolder) {
 			return {
 				root: rootFolder,
 				cache: null
 			};
 		});
-
-
-	function loadFileListing(filePath, rootPath) {
-		return new Promise(function(resolve, reject) {
-			fs.stat(filePath, function(error, stat) {
-				if (error) { return reject(error); }
-				var relativePath = filePath.replace(rootPath, '') || '/';
-				var fileModel = parseStatModel(stat, relativePath);
-				if (stat.isFile()) {
-					return resolve(fileModel);
-				}
-				fs.readdir(filePath, function(error, filenames) {
-					if (error) { return reject(error); }
-					filenames = filenames.filter(junk.not);
-					mapSeries(filenames, function(filename) {
-						var childFilePath = path.join(filePath, filename);
-						return loadFileListing(childFilePath, rootPath);
-					}).then(function(files) {
-						fileModel.contents = files;
-						return fileModel;
-					}).then(function(fileModel) {
-						resolve(fileModel);
-					});
-				});
-			});
-		});
-	}
 };
 
 LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 	var sitesRoot = this.sitesRoot;
 	var fullPath = path.resolve(sitesRoot, filePath);
-	return new Promise(function(resolve, reject) {
-		fs.stat(fullPath, function(error, stat) {
-			if (error && error.code === 'ENOENT') { return resolve(null); }
-			if (error) { return reject(error); }
-			var fileModel = parseStatModel(stat, fullPath);
-			resolve(fileModel);
+	return loadFileMetadata(fullPath, {
+		root: sitesRoot,
+		contents: false
+	})
+		.catch(function(error) {
+			if (error.code === 'ENOENT') { return null; }
+			throw error;
 		});
-	});
 };
 
 LocalAdapter.prototype.retrieveDownloadLink = function(filePath, options) {

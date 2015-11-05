@@ -6,7 +6,7 @@ var mkdirp = require('mkdirp');
 var express = require('express');
 var cors = require('cors');
 
-var parseStatModel = require('../utils/parseStatModel');
+var loadFileMetadata = require('../utils/loadFileMetadata');
 
 var HttpError = require('../errors/HttpError');
 
@@ -34,7 +34,10 @@ module.exports = function(destDir, options) {
 		.then(function(destPath) {
 			return writeFile(req, destPath)
 				.then(function() {
-					return loadFileMetaData(destPath);
+					return loadFileMetadata(destPath, {
+						root: destDir,
+						contents: false
+					});
 				});
 		})
 		.then(function(fileModel) {
@@ -118,16 +121,6 @@ module.exports = function(destDir, options) {
 				sourceStream.on('error', reject);
 				destStream.on('error', reject);
 				sourceStream.pipe(destStream);
-			});
-		});
-	}
-
-	function loadFileMetaData(filePath) {
-		return new Promise(function(resolve, reject) {
-			fs.stat(filePath, function(error, stat) {
-				if (error) { return reject(error); }
-				var fileModel = parseStatModel(stat, filePath);
-				resolve(fileModel);
 			});
 		});
 	}

@@ -178,9 +178,9 @@ DropboxAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options)
 	function copySiteFiles(dropboxClient, sitePath, dirContents) {
 		var files = getFileListing(dirContents);
 		var writeOptions = {};
-		return Promise.resolve(mapSeries(files, function(fileMetaData) {
-			var filePath = sitePath + '/' + fileMetaData.path;
-			var fileContents = fileMetaData.contents;
+		return Promise.resolve(mapSeries(files, function(fileMetadata) {
+			var filePath = sitePath + '/' + fileMetadata.path;
+			var fileContents = fileMetadata.contents;
 			return dropboxClient.writeFile(filePath, fileContents, writeOptions);
 		}).then(function(results) {
 			return;
@@ -215,7 +215,7 @@ DropboxAdapter.prototype.loadFolderContents = function(folderPath, options) {
 			return dropboxClient.loadFolderContents(folderPath, cache);
 		})
 		.then(function(dropboxContents) {
-			var folder = parseStatModel(dropboxContents.data, folderPath);
+			var folder = parseStatModel(dropboxContents.data, { root: folderPath });
 			return {
 				root: folder,
 				cache: dropboxContents
@@ -254,7 +254,7 @@ DropboxAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 		.then(function(dropboxClient) {
 			return dropboxClient.retrieveFileMetadata(filePath)
 				.then(function(stat) {
-					return parseStatModel(stat.json());
+					return parseStatModel(stat.json(), { root: null });
 				});
 		});
 };
@@ -294,27 +294,33 @@ DropboxConnector.prototype.connect = function(appKey, appSecret, accessToken, ui
 	});
 };
 
-function parseStatModel(statModel, rootPath) {
-	rootPath = rootPath || '';
+function parseStatModel(statModel, options) {
+	options = options || {};
+	var rootPath = options.root || '';
 	if (!statModel) { return null; }
 	if (statModel.is_deleted) { return null; }
-	var fileMetaData = {
-		path: statModel.path.replace(rootPath, '') || '/',
-		mimeType: statModel.mime_type,
-		size: statModel.bytes,
-		modified: new Date(statModel.modified).toUTCString(),
-		readOnly: statModel.read_only,
-		thumbnail: statModel.thumb_exists
-	};
-	if (statModel.is_dir) {
-		fileMetaData.directory = true;
-		if (statModel.contents) {
-			fileMetaData.contents = statModel.contents.map(function(childStatModel) {
-				return parseStatModel(childStatModel, rootPath);
-			});
+	return createFileModel(statModel, rootPath);
+
+
+	function createFileModel(statModel, rootPath) {
+		var fileMetadata = {
+			path: statModel.path.replace(rootPath, '') || '/',
+			mimeType: statModel.mime_type,
+			size: statModel.bytes,
+			modified: new Date(statModel.modified).toUTCString(),
+			readOnly: statModel.read_only,
+			thumbnail: statModel.thumb_exists
+		};
+		if (statModel.is_dir) {
+			fileMetadata.directory = true;
+			if (statModel.contents) {
+				fileMetadata.contents = statModel.contents.map(function(childStatModel) {
+					return createFileModel(childStatModel, rootPath);
+				});
+			}
 		}
+		return new FileModel(fileMetadata);
 	}
-	return new FileModel(fileMetaData);
 }
 
 
