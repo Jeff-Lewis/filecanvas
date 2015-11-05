@@ -1,34 +1,145 @@
 'use strict';
 
+var path = require('path');
 var express = require('express');
-var cors = require('cors');
+
+var constants = require('constants');
 
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
+var loadThemes = require('../utils/loadThemes');
+
+var handlebarsEngine = require('../engines/handlebars');
+var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
+
+var HttpError = require('../errors/HttpError');
+
+var THEME_MANIFEST_FILENAME = constants.THEME_MANIFEST_FILENAME;
+
 module.exports = function(options) {
 	options = options || {};
-	var themesPath = options.themesPath;
+	var templatesPath = options.templatesPath;
+	var errorTemplatesPath = options.errorTemplatesPath;
+	var themeAssetsUrl = options.themeAssetsUrl;
+
+	if (!templatesPath) { throw new Error('Missing templates path'); }
+	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
+	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
+
+	var themes = loadThemes(options.templatesPath);
 
 	var app = express();
 
-	app.use(cors());
-
-	var staticMiddleware = express.static(themesPath);
-	app.use(function(req, res, next) {
-		var THEME_RESOURCE_URL_REGEXP = /^\/(.+?)\/(.+)$/;
-		var results = THEME_RESOURCE_URL_REGEXP.exec(req.url);
-		if (!results) { return next(); }
-		var themeName = results[1];
-		var filePath = results[2];
-		req.url = '/' + themeName + '/resources/' + filePath;
-		staticMiddleware(req, res, next);
+	initViewEngine(app, {
+		templatesPath: templatesPath
+	});
+	initRoutes(app, {
+		themesPath: templatesPath,
+		themeAssetsUrl: themeAssetsUrl,
+		themes: themes
+	});
+	initErrorHandler(app, {
+		templatesPath: errorTemplatesPath,
+		template: 'error'
 	});
 
-	app.use(invalidRoute());
-	app.use(errorHandler({
-		template: 'error'
-	}));
-
 	return app;
+
+
+	function initViewEngine(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+
+		app.engine('hbs', handlebarsEngine);
+
+		app.set('views', templatesPath);
+		app.set('view engine', 'hbs');
+	}
+
+	function initErrorHandler(app, options) {
+		options = options || {};
+		var template = options.template;
+		var templatesPath = options.templatesPath;
+
+		app.use(errorHandler({
+			templatesPath: templatesPath,
+			template: template
+		}));
+	}
+
+	function initRoutes(app, options) {
+		var themesPath = options.themesPath;
+		var themes = options.themes;
+
+		var staticServer = express.static(path.resolve(themesPath));
+
+		app.get('/:theme', retrieveThemePreviewRoute);
+		app.get('/:theme/metadata', rewriteManifestRequest, staticServer);
+		app.get('/:theme/thumbnail', rewriteThumbnailRequest, staticServer);
+		app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
+
+		app.use(invalidRoute());
+
+		return app;
+
+
+		function retrieveThemePreviewRoute(req, res, next) {
+			return next(new HttpError(501));
+		}
+
+		function rewriteManifestRequest(req, res, next) {
+			var themeId = req.params.theme;
+			req.url = '/' + themeId + '/' + THEME_MANIFEST_FILENAME;
+			next();
+		}
+
+		function rewriteThumbnailRequest(req, res, next) {
+			var themeId = req.params.theme;
+			if (!(themeId in themes)) {
+				return next(new HttpError(404));
+			}
+			var theme = themes[themeId];
+			var thumbnailPath = theme.thumbnail;
+			req.url = '/' + themeId + '/' + thumbnailPath;
+			next();
+		}
+
+		function retrievePrecompiledTemplateRoute(req, res, next) {
+			var themeId = req.params.theme;
+			var templateId = req.params.template;
+			if (!(themeId in themes)) {
+				return next(new HttpError(404));
+			}
+			var theme = themes[themeId];
+			if (!(templateId in theme.templates)) {
+				return next(new HttpError(404));
+			}
+			var templateFilename = theme.templates[templateId];
+			var templatePath = path.resolve(themesPath, themeId, templateFilename);
+			retrieveSerializedTemplate(templatePath, { name: templateId })
+				.then(function(serializedTemplate) {
+					res.set('Content-Type', 'text/javscript');
+					res.send(serializedTemplate);
+				})
+				.catch(function(error) {
+					return next(error);
+				});
+
+
+			function retrieveSerializedTemplate(templatePath, options) {
+				options = options || {};
+				var templateName = options.name;
+				return handlebarsTemplateService.serialize(templatePath)
+					.then(function(serializedTemplate) {
+						return wrapTemplate(serializedTemplate, templateName);
+					});
+
+
+				function wrapTemplate(template, templateName) {
+					return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
+				}
+			}
+		}
+	}
 };

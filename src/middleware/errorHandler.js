@@ -7,7 +7,7 @@ var handlebarsEngine = require('../engines/handlebars');
 module.exports = function(options) {
 	options = options || {};
 	var template = options.template;
-	var templatesPath = path.resolve(__dirname, '../../templates/error');
+	var templatesPath = options.templatesPath;
 	var isProduction = process.env.NODE_ENV === 'production';
 
 	return function(err, req, res, next) {

@@ -17,7 +17,6 @@ var constants = require('../constants');
 var SECONDS = 1000;
 var DROPBOX_CACHE_EXPIRY_DURATION = 5 * SECONDS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
-var SITE_TEMPLATE_FILES = constants.SITE_TEMPLATE_FILES;
 
 function SiteService(database, options) {
 	options = options || {};
@@ -35,7 +34,7 @@ function SiteService(database, options) {
 
 SiteService.prototype.database = null;
 
-SiteService.prototype.createSite = function(siteModel) {
+SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
 	if (!siteModel) { return Promise.reject(new Error('No site model specified')); }
 	var database = this.database;
 	var host = this.host;
@@ -65,7 +64,7 @@ SiteService.prototype.createSite = function(siteModel) {
 						user: userModel,
 						site: siteModel
 					};
-					return generateSiteFiles(context)
+					return generateSiteFiles(siteTemplateFiles, context)
 						.then(function(siteFiles) {
 							var siteRoot = siteModel.root;
 							var siteAdapter = siteRoot.adapter;
@@ -493,9 +492,8 @@ function deleteSiteUser(database, username, siteName, siteUsername) {
 		});
 }
 
-function generateSiteFiles(context) {
-	var templateFiles = SITE_TEMPLATE_FILES;
-	var flattenedTemplateFiles = flattenPathHierarchy(templateFiles);
+function generateSiteFiles(siteTemplateFiles, context) {
+	var flattenedTemplateFiles = flattenPathHierarchy(siteTemplateFiles);
 	var expandedTemplateFiles = expandPlaceholders(flattenedTemplateFiles, context);
 	return convertMarkdownFiles(expandedTemplateFiles, { pdf: false });
 

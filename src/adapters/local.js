@@ -217,12 +217,12 @@ LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 
 LocalAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
 	var downloadUrl = this.downloadUrl;
-	return Promise.resolve(downloadUrl + filePath);
+	return Promise.resolve(downloadUrl + filePath.substr('/'.length));
 };
 
 LocalAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
 	var thumbnailUrl = this.thumbnailUrl;
-	return Promise.resolve(thumbnailUrl + filePath);
+	return Promise.resolve(thumbnailUrl + filePath.substr('/'.length));
 };
 
 LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {

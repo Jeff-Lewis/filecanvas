@@ -1,10 +1,11 @@
 'use strict';
 
-var path = require('path');
-var readDirContentsSync = require('./utils/readDirContentsSync');
-
-
 exports.DB_COLLECTION_SITES = 'sites';
 exports.DB_COLLECTION_USERS = 'users';
 
-exports.SITE_TEMPLATE_FILES = readDirContentsSync(path.join(__dirname, '../templates/site'));
+exports.THEME_MANIFEST_FILENAME = 'theme.json';
+exports.THEME_THUMBNAIL_FILENAME = 'thumbnail.png';
+exports.THEME_TEMPLATE_FILENAMES = {
+	'index': 'index.hbs',
+	'login': 'login.hbs'
+};

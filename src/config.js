@@ -67,6 +67,9 @@ config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 config.themes = {};
 config.themes.root = process.env.THEMES_ROOT || null;
 
+config.gallery = {};
+config.gallery.root = process.env.GALLERY_ROOT || null;
+
 config.auth = {};
 config.auth.site = {};
 config.auth.site.strategy = 'bcrypt';

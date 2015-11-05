@@ -8,8 +8,6 @@ var express = require('express');
 var composeMiddleware = require('compose-middleware').compose;
 var Passport = require('passport').Passport;
 
-var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
-
 var sitesApp = require('./sites');
 
 var transport = require('../middleware/transport');
@@ -19,7 +17,9 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
+var loadThemes = require('../utils/loadThemes');
 var loadAdapters = require('../utils/loadAdapters');
+var readDirContentsSync = require('../utils/readDirContentsSync');
 var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
 var HttpError = require('../errors/HttpError');
 
@@ -28,31 +28,40 @@ var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
 var RegistrationService = require('../services/RegistrationService');
 
-var faqData = require('../../templates/admin/faq.json');
-
-var THEME_MANIFEST_FILENAME = 'theme.json';
-var THEME_THUMBNAIL_FILENAME = 'thumbnail.png';
-var THEME_TEMPLATE_FILENAMES = {
-	'index': 'index.hbs',
-	'login': 'login.hbs'
-};
-
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
+	var templatesPath = options.templatesPath;
+	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
-	var themesUrl = options.themesUrl;
+	var assetsPath = options.assetsPath;
+	var termsPath = options.termsPath;
+	var privacyPath = options.privacyPath;
+	var faqPath = options.faqPath;
+	var siteTemplatePath = options.siteTemplatePath;
+	var themeAssetsUrl = options.themeAssetsUrl;
+	var galleryUrl = options.galleryUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
-	if (!themesPath) { throw new Error('Missing site themes path'); }
-	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!templatesPath) { throw new Error('Missing templates path'); }
+	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
+	if (!themesPath) { throw new Error('Missing themes path'); }
+	if (!assetsPath) { throw new Error('Missing assets path'); }
+	if (!termsPath) { throw new Error('Missing terms and conditions path'); }
+	if (!privacyPath) { throw new Error('Missing privacy policy path'); }
+	if (!faqPath) { throw new Error('Missing FAQ path'); }
+	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
+	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
+	if (!galleryUrl) { throw new Error('Missing gallery URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
+	var themes = loadThemes(themesPath);
 	var adapters = loadAdapters(adaptersConfig, database);
+	var siteTemplateFiles = readDirContentsSync(siteTemplatePath);
 
 	var userService = new UserService(database);
 	var siteService = new SiteService(database, {
@@ -66,69 +75,36 @@ module.exports = function(database, options) {
 	app.use(sessionState());
 	var passport = new Passport();
 
-	var themes = loadThemes(themesPath);
-
 	initAuth(app, passport, database, adapters);
 	initAssetsRoot(app, '/assets', {
-		assetsRoot: path.resolve(__dirname, '../../templates/admin') + '/assets'
+		assetsRoot: assetsPath
 	});
 	initStaticPages(app, {
-		'/terms': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/terms/terms.html'), { encoding: 'utf8' }),
-		'/privacy': fs.readFileSync(path.resolve(__dirname, '../../templates/legal/privacy/privacy.html'), { encoding: 'utf8' })
+		'/terms': fs.readFileSync(termsPath, { encoding: 'utf8' }),
+		'/privacy': fs.readFileSync(privacyPath, { encoding: 'utf8' })
 	});
 	initRoutes(app, passport, database, {
 		themes: themes,
 		themesPath: themesPath,
-		themesUrl: themesUrl,
-		faqData: faqData,
+		errorTemplatesPath: errorTemplatesPath,
+		themeAssetsUrl: themeAssetsUrl,
+		galleryUrl: galleryUrl,
+		faqData: JSON.parse(fs.readFileSync(faqPath, { encoding: 'utf8' })),
 		adapters: adapters,
 		adaptersConfig: adaptersConfig,
+		siteTemplate: siteTemplateFiles,
 		siteAuth: siteAuthOptions
 	});
 	initErrorHandler(app, {
+		templatesPath: errorTemplatesPath,
 		template: 'error'
 	});
 	initViewEngine(app, {
-		templatesPath: path.resolve(__dirname, '../../templates/admin')
+		templatesPath: templatesPath
 	});
 
 	return app;
 
-
-	function loadThemes(themesPath) {
-		var filenames = fs.readdirSync(themesPath)
-			.filter(function(filename) {
-				return filename.charAt(0) !== '.';
-			});
-		var themes = filenames.reduce(function(themes, filename) {
-			var themeManifestPath = path.join(themesPath, filename, THEME_MANIFEST_FILENAME);
-			var theme = require(themeManifestPath);
-			theme.id = filename;
-			theme.thumbnail = theme.thumbnail || THEME_THUMBNAIL_FILENAME;
-			theme.templates = merge({}, THEME_TEMPLATE_FILENAMES, theme.templates);
-			theme.defaults = parseThemeConfigDefaults(theme.config);
-			themes[filename] = theme;
-			return themes;
-		}, {});
-		return themes;
-
-
-		function parseThemeConfigDefaults(configSchema) {
-			return configSchema.reduce(function(defaults, configGroup) {
-				var configGroupDefaults = parseConfigGroupDefaults(configGroup);
-				defaults[configGroup.name] = configGroupDefaults;
-				return defaults;
-			}, {});
-
-			function parseConfigGroupDefaults(configGroup) {
-				var configGroupFields = configGroup.fields;
-				return configGroupFields.reduce(function(defaults, field) {
-					defaults[field.name] = field.default;
-					return defaults;
-				}, {});
-			}
-		}
-	}
 
 	function initAssetsRoot(app, pathPrefix, options) {
 		options = options || {};
@@ -210,9 +186,11 @@ module.exports = function(database, options) {
 	function initErrorHandler(app, options) {
 		options = options || {};
 		var template = options.template;
+		var templatesPath = options.templatesPath;
 
 		app.use(errorHandler({
-			template: template
+			template: template,
+			templatesPath: templatesPath
 		}));
 	}
 
@@ -220,14 +198,17 @@ module.exports = function(database, options) {
 		options = options || {};
 		var themes = options.themes;
 		var themesPath = options.themesPath;
-		var themesUrl = options.themesUrl;
+		var errorTemplatesPath = options.errorTemplatesPath;
+		var themeAssetsUrl = options.themeAssetsUrl;
+		var galleryUrl = options.galleryUrl;
 		var faqData = options.faqData;
+		var siteTemplateFiles = options.siteTemplate;
 		var siteAuthOptions = options.siteAuth;
 		var adapters = options.adapters;
 		var adaptersConfig = options.adaptersConfig;
 
 		initPublicRoutes(app, passport, adapters);
-		initPrivateRoutes(app, passport, themes, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig);
+		initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, galleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -287,8 +268,14 @@ module.exports = function(database, options) {
 						preview: '/preview',
 						terms: '/terms',
 						privacy: '/privacy',
-						themes: '/themes'
+						gallery: stripTrailingSlash(galleryUrl)
 					};
+
+
+					function stripTrailingSlash(string) {
+						var REGEXP_TRAILING_SLASH = /\/+$/;
+						return string.replace(REGEXP_TRAILING_SLASH, '');
+					}
 				}
 			}
 		}
@@ -440,7 +427,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, themesPath, themesUrl, faqData, siteAuthOptions, adapters, adaptersConfig) {
+		function initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, galleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -470,18 +457,14 @@ module.exports = function(database, options) {
 
 			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
-			app.use('/themes', composeMiddleware([
-				ensureAuth,
-				initAdminSession,
-				createThemesApp(themes, themesPath)
-			]));
-
 			app.use('/preview', composeMiddleware([
 				ensureAuth,
 				initAdminSession,
 				createPreviewApp(database, {
 					host: host,
-					themesUrl: themesUrl,
+					templatesPath: themesPath,
+					errorTemplatesPath: errorTemplatesPath,
+					themeAssetsUrl: themeAssetsUrl,
 					adaptersConfig: adaptersConfig
 				})
 			]));
@@ -825,7 +808,7 @@ module.exports = function(database, options) {
 				siteModel.theme.config = merge({}, defaultThemeConfig, themeConfig);
 
 
-				siteService.createSite(siteModel)
+				siteService.createSite(siteModel, siteTemplateFiles)
 					.then(function(siteModel) {
 						if (!isDefaultSite) { return siteModel; }
 						return userService.updateUserDefaultSiteName(username, siteModel.name)
@@ -1078,7 +1061,7 @@ module.exports = function(database, options) {
 							scripts: [
 								'/assets/js/bootstrap-colorpicker.min.js',
 								'/assets/js/shunt-editor.js',
-								'/themes/' + siteModel.theme.id + '/template/index.js'
+								galleryUrl + siteModel.theme.id + '/template/index.js'
 							],
 							fullPage: true,
 							navigation: false,
@@ -1134,75 +1117,6 @@ module.exports = function(database, options) {
 					}
 			}
 
-			function createThemesApp(themes, themesPath) {
-				var app = express();
-				var staticServer = express.static(path.resolve(themesPath));
-				app.get('/:theme', rewriteManifestRequest, staticServer);
-				app.get('/:theme/thumbnail', rewriteThumbnailRequest, staticServer);
-				app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
-				app.get('/:theme/preview', retrieveThemePreviewRoute);
-				return app;
-
-
-				function rewriteManifestRequest(req, res, next) {
-					var themeId = req.params.theme;
-					req.url = '/' + themeId + '/' + THEME_MANIFEST_FILENAME;
-					next();
-				}
-
-				function rewriteThumbnailRequest(req, res, next) {
-					var themeId = req.params.theme;
-					if (!(themeId in themes)) {
-						return next(new HttpError(404));
-					}
-					var theme = themes[themeId];
-					var thumbnailPath = theme.thumbnail;
-					req.url = '/' + themeId + '/' + thumbnailPath;
-					next();
-				}
-
-				function retrievePrecompiledTemplateRoute(req, res, next) {
-					var themeId = req.params.theme;
-					var templateId = req.params.template;
-					if (!(themeId in themes)) {
-						return next(new HttpError(404));
-					}
-					var theme = themes[themeId];
-					if (!(templateId in theme.templates)) {
-						return next(new HttpError(404));
-					}
-					var templateFilename = theme.templates[templateId];
-					var templatePath = path.resolve(themesPath, themeId, templateFilename);
-					retrieveSerializedTemplate(templatePath, { name: templateId })
-						.then(function(serializedTemplate) {
-							res.set('Content-Type', 'text/javscript');
-							res.send(serializedTemplate);
-						})
-						.catch(function(error) {
-							return next(error);
-						});
-
-
-					function retrieveSerializedTemplate(templatePath, options) {
-						options = options || {};
-						var templateName = options.name;
-						return handlebarsTemplateService.serialize(templatePath)
-							.then(function(serializedTemplate) {
-								return wrapTemplate(serializedTemplate, templateName);
-							});
-
-
-						function wrapTemplate(template, templateName) {
-							return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
-						}
-					}
-				}
-
-				function retrieveThemePreviewRoute(req, res, next) {
-					next(new HttpError(404));
-				}
-			}
-
 			function retrieveFileMetadataRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
@@ -1247,7 +1161,9 @@ module.exports = function(database, options) {
 			function createPreviewApp(database, options) {
 				options = options || {};
 				var host = options.host;
-				var themesUrl = options.themesUrl;
+				var templatesPath = options.templatesPath;
+				var errorTemplatesPath = options.errorTemplatesPath;
+				var themeAssetsUrl = options.themeAssetsUrl;
 				var adaptersConfig = options.adaptersConfig;
 
 				var app = express();
@@ -1255,7 +1171,9 @@ module.exports = function(database, options) {
 				app.use(sitesApp(database, {
 					preview: true,
 					host: host,
-					themesUrl: themesUrl,
+					templatesPath: templatesPath,
+					errorTemplatesPath: errorTemplatesPath,
+					themeAssetsUrl: themeAssetsUrl,
 					adapters: adaptersConfig
 				}));
 				return app;

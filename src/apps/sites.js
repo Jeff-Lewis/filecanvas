@@ -1,6 +1,5 @@
 'use strict';
 
-var path = require('path');
 var express = require('express');
 var Passport = require('passport').Passport;
 var LocalStrategy = require('passport-local').Strategy;
@@ -22,13 +21,17 @@ var AuthenticationService = require('../services/AuthenticationService');
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
-	var themesUrl = options.themesUrl;
+	var templatesPath = options.templatesPath;
+	var errorTemplatesPath = options.errorTemplatesPath;
+	var themeAssetsUrl = options.themeAssetsUrl;
 	var isPreview = options.preview;
 	var adaptersConfig = options.adapters;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
-	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!templatesPath) { throw new Error('Missing templates path'); }
+	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
+	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 
 	var adapters = loadAdapters(adaptersConfig, database);
@@ -45,15 +48,16 @@ module.exports = function(database, options) {
 	if (!isPreview) {
 		initAuth(app, passport, database);
 	}
-	initViewEngine(app, {
-		templatesPath: path.resolve(__dirname, '../../templates')
-	});
 	initRoutes(app, passport, database, {
-		themesUrl: themesUrl,
+		themeAssetsUrl: themeAssetsUrl,
 		preview: isPreview
 	});
 	initErrorHandler(app, {
+		templatesPath: errorTemplatesPath,
 		template: 'error'
+	});
+	initViewEngine(app, {
+		templatesPath: templatesPath
 	});
 
 	return app;
@@ -167,20 +171,22 @@ module.exports = function(database, options) {
 	function initErrorHandler(app, options) {
 		options = options || {};
 		var template = options.template;
+		var templatesPath = options.templatesPath;
 
 		app.use(errorHandler({
-			template: template
+			template: template,
+			templatesPath: templatesPath
 		}));
 	}
 
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
 		var isPreview = options.preview;
-		var themesUrl = options.themesUrl;
+		var themeAssetsUrl = options.themeAssetsUrl;
 
 		initDefaultSiteRedirectRoutes(app);
 		initAuthRoutes(app, passport, isPreview);
-		initSiteRoutes(app, themesUrl, isPreview);
+		initSiteRoutes(app, themeAssetsUrl, isPreview);
 		app.use(invalidRoute());
 
 
@@ -302,7 +308,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initSiteRoutes(app, themesUrl, isPreview) {
+		function initSiteRoutes(app, themeAssetsUrl, isPreview) {
 			app.get('/:user/:site/login', loginRoute);
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
@@ -383,7 +389,7 @@ module.exports = function(database, options) {
 								var templateData = {
 									metadata: {
 										siteRoot: getSiteRootUrl(req, '/login'),
-										themeRoot: themesUrl + siteModel.theme.id + '/',
+										themeRoot: themeAssetsUrl + siteModel.theme.id + '/',
 										theme: {
 											id: siteModel.theme.id,
 											config: merge({}, siteModel.theme.config, themeConfigOverrides)
@@ -397,7 +403,7 @@ module.exports = function(database, options) {
 									templateData.metadata.admin = true;
 									templateData.metadata.preview = true;
 								}
-								var template = 'themes/' + siteModel.theme.id + '/login';
+								var template = siteModel.theme.id + '/login';
 								renderTemplate(res, template, templateData);
 							});
 					})
@@ -436,7 +442,7 @@ module.exports = function(database, options) {
 								var templateData = {
 									metadata: {
 										siteRoot: getSiteRootUrl(req),
-										themeRoot: themesUrl + siteModel.theme.id + '/',
+										themeRoot: themeAssetsUrl + siteModel.theme.id + '/',
 										theme: {
 											id: siteModel.theme.id,
 											config: merge({}, siteModel.theme.config, themeConfigOverrides)
@@ -451,7 +457,7 @@ module.exports = function(database, options) {
 									templateData.metadata.admin = true;
 									templateData.metadata.preview = true;
 								}
-								var template = 'themes/' + siteModel.theme.id + '/index';
+								var template = siteModel.theme.id + '/index';
 								renderTemplate(res, template, templateData);
 							});
 					})
@@ -494,7 +500,7 @@ module.exports = function(database, options) {
 						res.render(template, templateData);
 					},
 					'application/json': function() {
-						res.render('api/response', { payload: templateData });
+						res.json(templateData);
 					}
 				});
 			}

@@ -6,5 +6,5 @@ module.exports = function(options) {
 	var host = options.host || null;
 	var protocol = options.protocol || 'http';
 	var port = options.port || (protocol === 'https' ? 443 : 80);
-	return protocol + '://' + (subdomain ? subdomain + '.' : '') + host + (port === (protocol === 'https' ? 443 : 80) ? '' : ':' + port);
+	return protocol + '://' + (subdomain ? subdomain + '.' : '') + host + (port === (protocol === 'https' ? 443 : 80) ? '' : ':' + port) + '/';
 };

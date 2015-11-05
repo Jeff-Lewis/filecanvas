@@ -4,11 +4,13 @@ var path = require('path');
 var express = require('express');
 
 var pingApp = require('./ping');
+var assetsApp = require('./assets');
 var themesApp = require('./themes');
 var sitesApp = require('./sites');
 var adminApp = require('./admin');
 var wwwApp = require('./www');
 
+var getSubdomainUrl = require('../utils/getSubdomainUrl');
 var customDomain = require('../middleware/customDomain');
 var subdomain = require('../middleware/subdomain');
 var redirectToSubdomain = require('../middleware/redirectToSubdomain');
@@ -26,25 +28,69 @@ module.exports = function(database, config) {
 
 	var app = express();
 
+	var templatesPath = path.resolve(__dirname, '../../templates');
+	var themesPath = path.join(templatesPath, 'themes');
+	var wwwTemplatesPath = path.join(templatesPath, 'www');
+	var adminTemplatesPath = path.join(templatesPath, 'admin');
+	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
+	var legalTemplatesPath = path.join(templatesPath, 'legal');
+	var termsPath = path.join(legalTemplatesPath, 'terms/terms.html');
+	var privacyPath = path.join(legalTemplatesPath, 'privacy/privacy.html');
+	var faqPath = path.join(adminTemplatesPath, 'faq.json');
+	var errorTemplatesPath = path.join(templatesPath, 'error');
+	var siteTemplatePath = path.join(templatesPath, 'site');
+
+	var assetsSubdomainUrl = getSubdomainUrl({
+		subdomain: 'assets',
+		host: config.host,
+		protocol: config.https.port ? 'https' : 'http',
+		port: config.https.port || config.http.port
+	});
+	var themeGallerySubdomainUrl = getSubdomainUrl({
+		subdomain: 'themes',
+		host: config.host,
+		protocol: config.https.port ? 'https' : 'http',
+		port: config.https.port || config.http.port
+	});
+
+	var themeAssetsUrl = config.themes.root || assetsSubdomainUrl + 'themes/';
+	var galleryUrl = config.gallery.root || themeGallerySubdomainUrl;
+
 	var subdomains = {
 		'ping': pingApp(),
 		'www': wwwApp({
-			sitePath: path.resolve(__dirname, '../../templates/www')
+			templatesPath: wwwTemplatesPath,
+			errorTemplatesPath: errorTemplatesPath
+		}),
+		'assets': assetsApp({
+			themesPath: themesPath,
+			errorTemplatesPath: errorTemplatesPath
 		}),
 		'themes': themesApp({
-			themesPath: path.resolve(__dirname, '../../templates/themes')
+			templatesPath: themesPath,
+			errorTemplatesPath: errorTemplatesPath,
+			themeAssetsUrl: themeAssetsUrl
 		}),
 		'my': adminApp(database, {
 			host: config.host,
-			themesPath: path.resolve(__dirname, '../../templates/themes'),
-			defaultSiteTheme: config.themes.default,
-			themesUrl: config.themes.root,
+			templatesPath: adminTemplatesPath,
+			errorTemplatesPath: errorTemplatesPath,
+			assetsPath: adminAssetsPath,
+			themesPath: themesPath,
+			termsPath: termsPath,
+			privacyPath: privacyPath,
+			faqPath: faqPath,
+			siteTemplatePath: siteTemplatePath,
+			themeAssetsUrl: themeAssetsUrl,
+			galleryUrl: galleryUrl,
 			adapters: config.adapters,
 			siteAuth: config.auth.site
 		}),
 		'sites': sitesApp(database, {
 			host: config.host,
-			themesUrl: config.themes.root,
+			templatesPath: themesPath,
+			errorTemplatesPath: errorTemplatesPath,
+			themeAssetsUrl: themeAssetsUrl,
 			adapters: config.adapters
 		}),
 		'*': 'sites',
@@ -78,6 +124,7 @@ module.exports = function(database, config) {
 	});
 
 	initErrorHandler(app, {
+		templatesPath: errorTemplatesPath,
 		template: 'error'
 	});
 
