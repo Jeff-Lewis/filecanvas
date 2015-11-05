@@ -6,9 +6,9 @@ var merge = require('lodash.merge');
 
 var constants = require('../constants');
 
-var THEME_MANIFEST_FILENAME = constants.THEME_MANIFEST_FILENAME;
-var THEME_THUMBNAIL_FILENAME = constants.THEME_THUMBNAIL_FILENAME;
-var THEME_TEMPLATE_FILENAMES = constants.THEME_TEMPLATE_FILENAMES;
+var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
+var THEME_THUMBNAIL_PATH = constants.THEME_THUMBNAIL_PATH;
+var THEME_TEMPLATE_PATHS = constants.THEME_TEMPLATE_PATHS;
 
 module.exports = function(themesPath) {
 	var filenames = fs.readdirSync(themesPath)
@@ -16,11 +16,12 @@ module.exports = function(themesPath) {
 			return filename.charAt(0) !== '.';
 		});
 	var themes = filenames.reduce(function(themes, filename) {
-		var themeManifestPath = path.join(themesPath, filename, THEME_MANIFEST_FILENAME);
+		var themePath = path.join(themesPath, filename);
+		var themeManifestPath = path.join(themePath, THEME_MANIFEST_PATH);
 		var theme = require(themeManifestPath);
 		theme.id = filename;
-		theme.thumbnail = theme.thumbnail || THEME_THUMBNAIL_FILENAME;
-		theme.templates = merge({}, THEME_TEMPLATE_FILENAMES, theme.templates);
+		theme.thumbnail = theme.thumbnail || THEME_THUMBNAIL_PATH;
+		theme.templates = merge({}, THEME_TEMPLATE_PATHS, theme.templates);
 		theme.defaults = parseThemeConfigDefaults(theme.config);
 		themes[filename] = theme;
 		return themes;

@@ -15,7 +15,7 @@ var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
 
 var HttpError = require('../errors/HttpError');
 
-var THEME_MANIFEST_FILENAME = constants.THEME_MANIFEST_FILENAME;
+var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
 
 module.exports = function(options) {
 	options = options || {};
@@ -90,7 +90,7 @@ module.exports = function(options) {
 
 		function rewriteManifestRequest(req, res, next) {
 			var themeId = req.params.theme;
-			req.url = '/' + themeId + '/' + THEME_MANIFEST_FILENAME;
+			req.url = '/' + themeId + '/' + THEME_MANIFEST_PATH;
 			next();
 		}
 
