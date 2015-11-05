@@ -254,9 +254,8 @@ module.exports = function(database, options) {
 					})
 					.then(function(sortedSiteModels) {
 						var urlService = new UrlService(req);
-						var adminUrls = getAdminUrls(urlService, userModel, adapters);
 						return {
-							urls: adminUrls,
+							urls: getAdminUrls(urlService, userModel, adapters),
 							location: urlService.location,
 							sites: sortedSiteModels
 						};
@@ -1140,7 +1139,7 @@ module.exports = function(database, options) {
 				var staticServer = express.static(path.resolve(themesPath));
 				app.get('/:theme', rewriteManifestRequest, staticServer);
 				app.get('/:theme/thumbnail', rewriteThumbnailRequest, staticServer);
-				app.get('/:theme/template/:template.js', retrievePrecompiledTemplate);
+				app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
 				app.get('/:theme/preview', retrieveThemePreviewRoute);
 				return app;
 
@@ -1162,7 +1161,7 @@ module.exports = function(database, options) {
 					next();
 				}
 
-				function retrievePrecompiledTemplate(req, res, next) {
+				function retrievePrecompiledTemplateRoute(req, res, next) {
 					var themeId = req.params.theme;
 					var templateId = req.params.template;
 					if (!(themeId in themes)) {
