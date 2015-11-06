@@ -24,7 +24,7 @@ module.exports = function(root, options) {
 	var staticMiddleware = express.static(path.resolve(cachePath));
 	var cachedPaths = {};
 	return function(req, res, next) {
-		var imagePath = stripLeadingSlash(req.url);
+		var imagePath = stripLeadingSlash(decodeURIComponent(req.url));
 		var isOutsideRoot = !isPathInside(path.resolve(root, imagePath), root);
 		if (isOutsideRoot) {
 			return next(new HttpError(404));
