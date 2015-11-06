@@ -131,8 +131,12 @@ module.exports = function(options) {
 					root: theme.preview.files
 				}
 			};
-			var template = path.resolve(themesPath, themeId + '/index');
-			renderTemplate(res, template, templateData);
+			try {
+				var template = path.resolve(themesPath, themeId + '/index');
+				renderTemplate(res, template, templateData);
+			} catch(error) {
+				next(error);
+			}
 		}
 
 		function rewritePreviewThumbnailRequest(req, res, next) {
