@@ -65,7 +65,7 @@ config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.e
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.assets = {};
-config.assets.root = process.env.ASSETS_ROOT || null;
+config.assets.themes = process.env.ASSETS_THEMES_ROOT || null;
 config.assets.admin = process.env.ASSETS_ADMIN_ROOT || null;
 
 config.themes = {};

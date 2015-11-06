@@ -34,7 +34,7 @@ module.exports = function(database, config) {
 	var app = express();
 
 	var templatesPath = path.resolve(__dirname, '../../templates');
-	var themesPath = path.join(templatesPath, 'themes');
+	var themesPath = path.resolve(__dirname, '../../themes');
 	var wwwTemplatesPath = path.join(templatesPath, 'www');
 	var adminTemplatesPath = path.join(templatesPath, 'admin');
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
@@ -42,6 +42,7 @@ module.exports = function(database, config) {
 	var termsPath = path.join(legalTemplatesPath, 'terms/terms.html');
 	var privacyPath = path.join(legalTemplatesPath, 'privacy/privacy.html');
 	var faqPath = path.join(adminTemplatesPath, 'faq.json');
+	var themesTemplatesPath = path.join(templatesPath, 'themes');
 	var errorTemplatesPath = path.join(templatesPath, 'error');
 	var siteTemplatePath = path.join(templatesPath, 'site');
 
@@ -58,8 +59,8 @@ module.exports = function(database, config) {
 		port: config.https.port || config.http.port
 	});
 
-	var themeAssetsUrl = config.assets.root || assetsSubdomainUrl + 'themes/';
 	var adminAssetsUrl = config.assets.admin || assetsSubdomainUrl + 'admin/';
+	var themeAssetsUrl = config.assets.themes || assetsSubdomainUrl + 'themes/';
 	var themeGalleryUrl = config.themes.root || themesSubdomainUrl;
 
 	var subdomains = {
@@ -76,8 +77,9 @@ module.exports = function(database, config) {
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'themes': themesApp({
-			templatesPath: themesPath,
+			templatesPath: themesTemplatesPath,
 			errorTemplatesPath: errorTemplatesPath,
+			themesPath: themesPath,
 			themeAssetsUrl: themeAssetsUrl,
 			thumbnailsPath: path.join(thumbnailsPath, 'theme'),
 			thumbnailWidth: config.themes.thumbnail.width,

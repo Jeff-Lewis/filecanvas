@@ -22,6 +22,7 @@ var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 module.exports = function(options) {
 	options = options || {};
 	var templatesPath = options.templatesPath;
+	var themesPath = options.themesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
 	var thumbnailsPath = options.thumbnailsPath;
@@ -31,12 +32,12 @@ module.exports = function(options) {
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
-	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
+	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
 	if (!thumbnailsPath) { throw new Error('Missing thumbnails path'); }
 	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
 	if (!thumbnailHeight) { throw new Error('Missing thumbnail height'); }
 
-	var themes = loadThemes(options.templatesPath, {
+	var themes = loadThemes(themesPath, {
 		preview: true
 	});
 
@@ -46,7 +47,7 @@ module.exports = function(options) {
 		templatesPath: templatesPath
 	});
 	initRoutes(app, {
-		themesPath: templatesPath,
+		themesPath: themesPath,
 		themeAssetsUrl: themeAssetsUrl,
 		themes: themes,
 		thumbnailsPath: thumbnailsPath,
@@ -130,7 +131,7 @@ module.exports = function(options) {
 					root: theme.preview.files
 				}
 			};
-			var template = themeId + '/index';
+			var template = path.resolve(themesPath, themeId + '/index');
 			renderTemplate(res, template, templateData);
 		}
 
