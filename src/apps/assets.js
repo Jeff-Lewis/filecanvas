@@ -23,8 +23,8 @@ module.exports = function(options) {
 
 	app.use(cors());
 
-	app.use('/themes', createThemeAssetsApp(themesPath));
-	app.use('/admin', express.static(adminAssetsPath));
+	app.use('/themes', createThemeAssetsApp(themesPath, { redirect: false }));
+	app.use('/admin', express.static(adminAssetsPath, { redirect: false }));
 
 	app.use(invalidRoute());
 	app.use(errorHandler({

@@ -118,7 +118,7 @@ module.exports = function(database, config) {
 
 	if (config.adapters.local) {
 		subdomains['upload'] = uploader(config.adapters.local.root, { host: host });
-		subdomains[config.adapters.local.download.subdomain] = express.static(config.adapters.local.root);
+		subdomains[config.adapters.local.download.subdomain] = express.static(config.adapters.local.root, { redirect: false });
 		subdomains[config.adapters.local.thumbnail.subdomain] = thumbnailer(config.adapters.local.root, {
 			width: config.adapters.local.thumbnail.width,
 			height: config.adapters.local.thumbnail.height,

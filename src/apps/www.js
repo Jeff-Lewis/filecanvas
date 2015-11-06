@@ -15,7 +15,7 @@ module.exports = function(options) {
 
 	var app = express();
 
-	app.use(express.static(templatesPath));
+	app.use(express.static(templatesPath, { redirect: false }));
 	app.use(invalidRoute());
 	app.use(errorHandler({
 		templatesPath: errorTemplatesPath,
