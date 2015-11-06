@@ -10,6 +10,9 @@ module.exports = function(options) {
 	var templatesPath = options.templatesPath;
 	var isProduction = process.env.NODE_ENV === 'production';
 
+	if (!template) { throw new Error('Missing default error template'); }
+	if (!templatesPath) { throw new Error('Missing templates path'); }
+
 	return function(err, req, res, next) {
 		var templatePath = path.join(templatesPath, template + '.hbs');
 		var context = {

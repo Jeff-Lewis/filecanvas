@@ -204,7 +204,11 @@ module.exports = function(database, config) {
 	function initErrorHandler(app, options) {
 		options = options || {};
 		var template = options.template;
+		var templatesPath = options.templatesPath;
 
-		app.use(errorHandler({ template: template }));
+		app.use(errorHandler({
+			templatesPath: templatesPath,
+			template: template
+		}));
 	}
 };
