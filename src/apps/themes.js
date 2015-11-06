@@ -179,8 +179,7 @@ module.exports = function(options) {
 			var templatePath = path.resolve(themesPath, themeId, templateFilename);
 			retrieveSerializedTemplate(templatePath, { name: templateId })
 				.then(function(serializedTemplate) {
-					res.set('Content-Type', 'text/javscript');
-					res.send(serializedTemplate);
+					renderPrecompiledTemplate(res, serializedTemplate);
 				})
 				.catch(function(error) {
 					return next(error);
@@ -211,6 +210,11 @@ module.exports = function(options) {
 					res.json(templateData);
 				}
 			});
+		}
+
+		function renderPrecompiledTemplate(res, template) {
+			res.set('Content-Type', 'text/javscript');
+			res.send(template);
 		}
 	}
 };
