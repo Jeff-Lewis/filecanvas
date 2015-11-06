@@ -13,10 +13,7 @@ AdminPageService.prototype.render = function(templateName, req, res, context) {
 	var indexTemplate = this.template;
 	return new Promise(function(resolve, reject) {
 		var templateData = getTemplateData(req, res, context);
-		renderTemplate(req, res, {
-			template: templateName,
-			context: templateData
-		}, function(error, pageContent) {
+		res.render(templateName, templateData, function(error, pageContent) {
 			if (error) { return reject(error); }
 			var templateOptions = {
 				partials: {
@@ -27,10 +24,7 @@ AdminPageService.prototype.render = function(templateName, req, res, context) {
 			if (req.session && req.session.state) {
 				delete req.session.state;
 			}
-			renderTemplate(req, res, {
-				template: indexTemplate,
-				context: templateData
-			}, function(error, data) {
+			res.render(indexTemplate, templateData, function(error, data) {
 				if (error) { return reject(error); }
 				res.send(data);
 				resolve(data);
@@ -57,11 +51,4 @@ function getTemplateData(req, res, context, templateOptions) {
 		};
 		return objectAssign({}, res.locals, session);
 	}
-}
-
-function renderTemplate(req, res, options, callback) {
-	options = options || {};
-	var template = options.template;
-	var context = options.context;
-	res.render(template, context, callback);
 }
