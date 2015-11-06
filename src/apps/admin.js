@@ -34,11 +34,11 @@ module.exports = function(database, options) {
 	var templatesPath = options.templatesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
-	var assetsPath = options.assetsPath;
 	var termsPath = options.termsPath;
 	var privacyPath = options.privacyPath;
 	var faqPath = options.faqPath;
 	var siteTemplatePath = options.siteTemplatePath;
+	var adminAssetsUrl = options.adminAssetsUrl;
 	var themeAssetsUrl = options.themeAssetsUrl;
 	var themeGalleryUrl = options.themeGalleryUrl;
 	var adaptersConfig = options.adapters;
@@ -49,11 +49,11 @@ module.exports = function(database, options) {
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!assetsPath) { throw new Error('Missing assets path'); }
 	if (!termsPath) { throw new Error('Missing terms and conditions path'); }
 	if (!privacyPath) { throw new Error('Missing privacy policy path'); }
 	if (!faqPath) { throw new Error('Missing FAQ path'); }
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
+	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
 	if (!themeGalleryUrl) { throw new Error('Missing theme gallery URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
@@ -76,9 +76,6 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	initAuth(app, passport, database, adapters);
-	initAssetsRoot(app, '/assets', {
-		assetsRoot: assetsPath
-	});
 	initStaticPages(app, {
 		'/terms': fs.readFileSync(termsPath, { encoding: 'utf8' }),
 		'/privacy': fs.readFileSync(privacyPath, { encoding: 'utf8' })
@@ -87,6 +84,7 @@ module.exports = function(database, options) {
 		themes: themes,
 		themesPath: themesPath,
 		errorTemplatesPath: errorTemplatesPath,
+		adminAssetsUrl: adminAssetsUrl,
 		themeAssetsUrl: themeAssetsUrl,
 		themeGalleryUrl: themeGalleryUrl,
 		faqData: JSON.parse(fs.readFileSync(faqPath, { encoding: 'utf8' })),
@@ -105,15 +103,6 @@ module.exports = function(database, options) {
 
 	return app;
 
-
-	function initAssetsRoot(app, pathPrefix, options) {
-		options = options || {};
-		var assetsRoot = options.assetsRoot;
-
-		app.use(pathPrefix, express.static(assetsRoot, {
-			redirect: false
-		}));
-	}
 
 	function initStaticPages(app, pages) {
 		Object.keys(pages).forEach(function(path) {
@@ -199,6 +188,7 @@ module.exports = function(database, options) {
 		var themes = options.themes;
 		var themesPath = options.themesPath;
 		var errorTemplatesPath = options.errorTemplatesPath;
+		var adminAssetsUrl = options.adminAssetsUrl;
 		var themeAssetsUrl = options.themeAssetsUrl;
 		var themeGalleryUrl = options.themeGalleryUrl;
 		var faqData = options.faqData;
@@ -208,7 +198,7 @@ module.exports = function(database, options) {
 		var adaptersConfig = options.adaptersConfig;
 
 		initPublicRoutes(app, passport, adapters);
-		initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
+		initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -268,6 +258,7 @@ module.exports = function(database, options) {
 						preview: '/preview',
 						terms: '/terms',
 						privacy: '/privacy',
+						assets: adminAssetsUrl,
 						themes: stripTrailingSlash(themeGalleryUrl)
 					};
 
@@ -427,7 +418,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
+		function initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -1060,12 +1051,12 @@ module.exports = function(database, options) {
 						var templateData = {
 							title: 'Site editor',
 							stylesheets: [
-								'/assets/css/bootstrap-colorpicker.min.css',
-								'/assets/css/shunt-editor.css'
+								adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
+								adminAssetsUrl + 'css/shunt-editor.css'
 							],
 							scripts: [
-								'/assets/js/bootstrap-colorpicker.min.js',
-								'/assets/js/shunt-editor.js',
+								adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
+								adminAssetsUrl + 'js/shunt-editor.js',
 								themeGalleryUrl + siteModel.theme.id + '/template/index.js'
 							],
 							fullPage: true,

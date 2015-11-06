@@ -7,8 +7,8 @@
 		<meta name="author" content=""/>
 		<link rel="shortcut icon" href="/favicon.ico"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<link rel="stylesheet" href="/assets/css/app.min.css"/>
-		<link rel="stylesheet" href="/assets/css/shunt-admin.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}css/app.min.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-admin.css"/>
 		{{#each stylesheets as |stylesheet|}}
 		<link rel="stylesheet" href="{{ stylesheet }}"/>
 		{{/each}}
@@ -121,8 +121,8 @@
 		</div>
 		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-		<script src="/assets/js/shunt-api.js"></script>
-		<script src="/assets/js/shunt-admin.js"></script>
+		<script src="{{ session.urls.assets }}js/shunt-api.js"></script>
+		<script src="{{ session.urls.assets }}js/shunt-admin.js"></script>
 		{{#each scripts as |script|}}
 		<script src="{{ script }}"></script>
 		{{/each}}

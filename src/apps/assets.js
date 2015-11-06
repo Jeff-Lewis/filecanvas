@@ -12,9 +12,11 @@ var HttpError = require('../errors/HttpError');
 module.exports = function(options) {
 	options = options || {};
 	var themesPath = options.themesPath;
+	var adminAssetsPath = options.adminAssetsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 
 	if (!themesPath) { throw new Error('Missing themes path'); }
+	if (!adminAssetsPath) { throw new Error('Missing admin assets path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 
 	var app = express();
@@ -22,6 +24,7 @@ module.exports = function(options) {
 	app.use(cors());
 
 	app.use('/themes', createThemeAssetsApp(themesPath));
+	app.use('/admin', express.static(adminAssetsPath));
 
 	app.use(invalidRoute());
 	app.use(errorHandler({

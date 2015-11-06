@@ -66,6 +66,7 @@ config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.assets = {};
 config.assets.root = process.env.ASSETS_ROOT || null;
+config.assets.admin = process.env.ASSETS_ADMIN_ROOT || null;
 
 config.themes = {};
 config.themes.root = process.env.THEMES_ROOT || null;

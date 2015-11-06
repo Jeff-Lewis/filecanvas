@@ -59,6 +59,7 @@ module.exports = function(database, config) {
 	});
 
 	var themeAssetsUrl = config.assets.root || assetsSubdomainUrl + 'themes/';
+	var adminAssetsUrl = config.assets.admin || assetsSubdomainUrl + 'admin/';
 	var themeGalleryUrl = config.themes.root || themesSubdomainUrl;
 
 	var subdomains = {
@@ -71,6 +72,7 @@ module.exports = function(database, config) {
 		}),
 		'assets': assetsApp({
 			themesPath: themesPath,
+			adminAssetsPath: adminAssetsPath,
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'themes': themesApp({
@@ -80,18 +82,20 @@ module.exports = function(database, config) {
 			thumbnailsPath: path.join(thumbnailsPath, 'theme'),
 			thumbnailWidth: config.themes.thumbnail.width,
 			thumbnailHeight: config.themes.thumbnail.height,
-			thumbnailFormat: config.themes.thumbnail.format
+			thumbnailFormat: config.themes.thumbnail.format,
+			adminTemplatePath: path.join(adminTemplatesPath, 'index'),
+			adminAssetsUrl: adminAssetsUrl
 		}),
 		'my': adminApp(database, {
 			host: config.host,
 			templatesPath: adminTemplatesPath,
 			errorTemplatesPath: errorTemplatesPath,
-			assetsPath: adminAssetsPath,
 			themesPath: themesPath,
 			termsPath: termsPath,
 			privacyPath: privacyPath,
 			faqPath: faqPath,
 			siteTemplatePath: siteTemplatePath,
+			adminAssetsUrl: adminAssetsUrl,
 			themeAssetsUrl: themeAssetsUrl,
 			themeGalleryUrl: themeGalleryUrl,
 			adapters: config.adapters,
