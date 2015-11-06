@@ -1,7 +1,6 @@
 'use strict';
 
 var fs = require('fs');
-var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 var express = require('express');
@@ -27,6 +26,7 @@ var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
 var RegistrationService = require('../services/RegistrationService');
+var AdminPageService = require('../services/AdminPageService');
 
 module.exports = function(database, options) {
 	options = options || {};
@@ -67,6 +67,9 @@ module.exports = function(database, options) {
 	var siteService = new SiteService(database, {
 		host: host,
 		adapters: adapters
+	});
+	var adminPageService = new AdminPageService({
+		template: 'index'
 	});
 
 	var app = express();
@@ -271,59 +274,6 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function renderAdminPage(req, res, templateName, context) {
-			return new Promise(function(resolve, reject) {
-				var templateData = getTemplateData(req, res, context);
-				renderTemplate(req, res, {
-					template: templateName,
-					context: templateData
-				}, function(error, pageContent) {
-					if (error) { return reject(error); }
-					var templateOptions = {
-						partials: {
-							'page': pageContent
-						}
-					};
-					var templateData = getTemplateData(req, res, context, templateOptions);
-					delete req.session.state;
-					renderTemplate(req, res, {
-						template: 'index',
-						context: templateData
-					}, function(error, data) {
-						if (error) { return reject(error); }
-						res.send(data);
-						resolve(data);
-					});
-				});
-			});
-
-
-			function renderTemplate(req, res, options, callback) {
-				options = options || {};
-				var template = options.template;
-				var context = options.context;
-				var extension = path.extname(req.url) || '.hbs';
-				res.render(template + extension, context, callback);
-			}
-
-			function getTemplateData(req, res, context, templateOptions) {
-				templateOptions = templateOptions || null;
-				var templateData = {
-					_: templateOptions,
-					session: getTemplateSessionData(req, res)
-				};
-				return objectAssign({}, context, templateData);
-			}
-
-			function getTemplateSessionData(req, res) {
-				var session = {
-					state: req.session.state,
-					user: req.user || null
-				};
-				return objectAssign({}, res.locals, session);
-			}
-		}
-
 		function initPublicRoutes(app, passport, adapters) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
 			app.get('/register', redirectIfLoggedIn, redirectIfNoPendingUser, initAdminSession, retrieveRegisterRoute);
@@ -359,7 +309,7 @@ module.exports = function(database, options) {
 						adapters: adaptersHash
 					}
 				};
-				renderAdminPage(req, res, 'login', templateData)
+				adminPageService.render('login', req, res, templateData)
 					.catch(function(error) {
 						next(error);
 					});
@@ -386,7 +336,7 @@ module.exports = function(database, options) {
 								user: pendingUser.user
 							}
 						};
-						renderAdminPage(req, res, 'register', templateData)
+						adminPageService.render('register', req, res, templateData)
 							.catch(function(error) {
 								next(error);
 							});
@@ -515,7 +465,7 @@ module.exports = function(database, options) {
 						questions: faqs
 					}
 				};
-				renderAdminPage(req, res, 'faq', templateData)
+				adminPageService.render('faq', req, res, templateData)
 					.catch(function(error) {
 						next(error);
 					});
@@ -545,7 +495,7 @@ module.exports = function(database, options) {
 					],
 					content: null
 				};
-				renderAdminPage(req, res, 'support', templateData)
+				adminPageService.render('support', req, res, templateData)
 					.catch(function(error) {
 						next(error);
 					});
@@ -568,7 +518,7 @@ module.exports = function(database, options) {
 						user: userModel
 					}
 				};
-				return renderAdminPage(req, res, 'account', templateData);
+				return adminPageService.render('account', req, res, templateData);
 			}
 
 			function updateUserAccountRoute(req, res, next) {
@@ -627,7 +577,7 @@ module.exports = function(database, options) {
 						themes: themes
 					}
 				};
-				renderAdminPage(req, res, 'sites', templateData)
+				adminPageService.render('sites', req, res, templateData)
 					.catch(function(error) {
 						next(error);
 					});
@@ -687,7 +637,7 @@ module.exports = function(database, options) {
 						adapters: adaptersMetadata
 					}
 				};
-				renderAdminPage(req, res, 'sites/create-site', templateData)
+				adminPageService.render('sites/create-site', req, res, templateData)
 					.catch(function(error) {
 						next(error);
 					});
@@ -740,7 +690,7 @@ module.exports = function(database, options) {
 						next: nextTheme
 					}
 				};
-				renderAdminPage(req, res, 'sites/create-site/themes/theme', templateData)
+				adminPageService.render('sites/create-site/themes/theme', req, res, templateData)
 					.catch(function(error) {
 						next(error);
 					});
@@ -864,7 +814,7 @@ module.exports = function(database, options) {
 								adapters: adaptersMetadata
 							}
 						};
-						return renderAdminPage(req, res, 'sites/site', templateData);
+						return adminPageService.render('sites/site', req, res, templateData);
 					})
 					.catch(function(error) {
 						next(error);
@@ -973,7 +923,7 @@ module.exports = function(database, options) {
 								site: siteModel
 							}
 						};
-						return renderAdminPage(req, res, 'sites/site/users', templateData);
+						return adminPageService.render('sites/site/users', req, res, templateData);
 					})
 					.catch(function(error) {
 						next(error);
@@ -1085,7 +1035,7 @@ module.exports = function(database, options) {
 								adapter: adapterConfig
 							}
 						};
-						return renderAdminPage(req, res, 'sites/site/edit', templateData);
+						return adminPageService.render('sites/site/edit', req, res, templateData);
 					})
 					.catch(function(error) {
 						next(error);
@@ -1126,7 +1076,7 @@ module.exports = function(database, options) {
 							adapter: adapterName
 						}
 					};
-					renderAdminPage(req, res, 'logout', templateData)
+					adminPageService.render('logout', req, res, templateData)
 						.catch(function(error) {
 							next(error);
 						});
