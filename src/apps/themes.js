@@ -202,13 +202,13 @@ module.exports = function(options) {
 			}
 		}
 
-		function renderTemplate(res, template, templateData) {
+		function renderTemplate(res, template, context) {
 			res.format({
 				'text/html': function() {
-					res.render(template, templateData);
+					res.render(template, context);
 				},
 				'application/json': function() {
-					res.json(templateData);
+					res.json(context);
 				}
 			});
 		}
