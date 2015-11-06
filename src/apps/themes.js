@@ -3,7 +3,7 @@
 var path = require('path');
 var express = require('express');
 
-var constants = require('constants');
+var constants = require('../constants');
 
 var thumbnailer = require('../middleware/thumbnailer');
 var invalidRoute = require('../middleware/invalidRoute');
@@ -17,6 +17,7 @@ var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
 var HttpError = require('../errors/HttpError');
 
 var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
+var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 
 module.exports = function(options) {
 	options = options || {};
@@ -135,14 +136,14 @@ module.exports = function(options) {
 		function rewritePreviewThumbnailRequest(req, res, next) {
 			var themeId = req.params.theme;
 			var imagePath = req.params[0];
-			req.url = '/' + themeId + '/preview/files/' + imagePath;
+			req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + imagePath;
 			next();
 		}
 
 		function rewritePreviewDownloadRequest(req, res, next) {
 			var themeId = req.params.theme;
 			var filePath = req.params[0];
-			req.url = '/' + themeId + '/preview/files/' + filePath;
+			req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + filePath;
 			next();
 		}
 
