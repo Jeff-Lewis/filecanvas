@@ -130,7 +130,8 @@ module.exports = function(options) {
 					root: theme.preview.files
 				}
 			};
-			res.render(themeId + '/index', templateData);
+			var template = themeId + '/index';
+			renderTemplate(res, template, templateData);
 		}
 
 		function rewritePreviewThumbnailRequest(req, res, next) {
@@ -199,6 +200,17 @@ module.exports = function(options) {
 					return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
 				}
 			}
+		}
+
+		function renderTemplate(res, template, templateData) {
+			res.format({
+				'text/html': function() {
+					res.render(template, templateData);
+				},
+				'application/json': function() {
+					res.json(templateData);
+				}
+			});
 		}
 	}
 };
