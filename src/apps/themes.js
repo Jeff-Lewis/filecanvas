@@ -11,6 +11,8 @@ var errorHandler = require('../middleware/errorHandler');
 
 var loadThemes = require('../utils/loadThemes');
 
+var AdminPageService = require('../services/AdminPageService');
+
 var handlebarsEngine = require('../engines/handlebars');
 var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
 
@@ -29,6 +31,8 @@ module.exports = function(options) {
 	var thumbnailWidth = options.thumbnailWidth;
 	var thumbnailHeight = options.thumbnailHeight;
 	var thumbnailFormat = options.thumbnailFormat;
+	var adminTemplatePath = options.adminTemplatePath;
+	var adminAssetsUrl = options.adminAssetsUrl;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
@@ -36,9 +40,14 @@ module.exports = function(options) {
 	if (!thumbnailsPath) { throw new Error('Missing thumbnails path'); }
 	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
 	if (!thumbnailHeight) { throw new Error('Missing thumbnail height'); }
+	if (!adminTemplatePath) { throw new Error('Missing admin template path'); }
+	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 
 	var themes = loadThemes(themesPath, {
 		preview: true
+	});
+	var adminPageService = new AdminPageService({
+		template: adminTemplatePath
 	});
 
 	var app = express();
@@ -94,7 +103,10 @@ module.exports = function(options) {
 
 		var staticServer = express.static(path.resolve(themesPath));
 
+		app.get('/', retrieveThemesRoute);
+		app.get('/:theme', retrieveThemeRoute);
 		app.get('/:theme/preview', retrieveThemePreviewRoute);
+		app.get('/:theme/edit', retrieveThemeEditRoute);
 		app.get('/:theme/thumbnail/*', rewritePreviewThumbnailRequest, thumbnailer(themesPath, {
 			width: thumbnailWidth,
 			height: thumbnailHeight,
@@ -110,6 +122,60 @@ module.exports = function(options) {
 
 		return app;
 
+
+		function retrieveThemesRoute(req, res, next) {
+			var themeIds = Object.keys(themes);
+			var firstThemeId = themeIds[0];
+			res.redirect('/' + firstThemeId);
+		}
+
+		function retrieveThemeRoute(req, res, next) {
+			var themeId = req.params.theme;
+			if (!(themeId in themes)) {
+				return next(new HttpError(404));
+			}
+			var theme = themes[themeId];
+			var previousTheme = getPreviousTheme(themes, themeId);
+			var nextTheme = getNextTheme(themes, themeId);
+			var templateData = {
+				session: {
+					urls: {
+						assets: adminAssetsUrl
+					}
+				},
+				content: {
+					theme: theme,
+					previousTheme: previousTheme,
+					nextTheme: nextTheme
+				}
+			};
+			res.locals.urls = {
+				assets: adminAssetsUrl
+			};
+			adminPageService.render('theme', req, res, templateData)
+				.catch(function(error) {
+					next(error);
+				});
+
+
+			function getPreviousTheme(themes, themeId) {
+				var themeIds = Object.keys(themes);
+				var themeIndex = themeIds.indexOf(themeId);
+				var previousThemeIndex = (themeIndex <= 0 ? themeIds.length - 1 : themeIndex - 1);
+				var previousThemeId = themeIds[previousThemeIndex];
+				var previousTheme = themes[previousThemeId];
+				return previousTheme;
+			}
+
+			function getNextTheme(themes, themeId) {
+				var themeIds = Object.keys(themes);
+				var themeIndex = themeIds.indexOf(themeId);
+				var nextThemeIndex = (themeIndex >= themeIds.length - 1 ? 0 : themeIndex + 1);
+				var nextThemeId = themeIds[nextThemeIndex];
+				var nextTheme = themes[nextThemeId];
+				return nextTheme;
+			}
+		}
 
 		function retrieveThemePreviewRoute(req, res, next) {
 			var themeId = req.params.theme;
@@ -137,6 +203,10 @@ module.exports = function(options) {
 			} catch(error) {
 				next(error);
 			}
+		}
+
+		function retrieveThemeEditRoute(req, res, next) {
+			next(new HttpError(501));
 		}
 
 		function rewritePreviewThumbnailRequest(req, res, next) {
