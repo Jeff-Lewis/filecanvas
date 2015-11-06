@@ -93,7 +93,7 @@ module.exports = function(options) {
 
 		var staticServer = express.static(path.resolve(themesPath));
 
-		app.get('/:theme', retrieveThemePreviewRoute);
+		app.get('/:theme/preview', retrieveThemePreviewRoute);
 		app.get('/:theme/thumbnail/*', rewritePreviewThumbnailRequest, thumbnailer(themesPath, {
 			width: thumbnailWidth,
 			height: thumbnailHeight,
