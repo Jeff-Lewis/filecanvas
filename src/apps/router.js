@@ -10,7 +10,6 @@ var sitesApp = require('./sites');
 var adminApp = require('./admin');
 var wwwApp = require('./www');
 
-var getSubdomainUrl = require('../utils/getSubdomainUrl');
 var customDomain = require('../middleware/customDomain');
 var subdomain = require('../middleware/subdomain');
 var redirectToSubdomain = require('../middleware/redirectToSubdomain');
@@ -21,10 +20,16 @@ var errorHandler = require('../middleware/errorHandler');
 var uploader = require('../middleware/uploader');
 var thumbnailer = require('../middleware/thumbnailer');
 
+var getSubdomainUrl = require('../utils/getSubdomainUrl');
+var generateTempPath = require('../utils/generateTempPath');
+
 module.exports = function(database, config) {
 	var host = config.host;
 
 	if (!host) { throw new Error('Missing host name'); }
+
+	var tempPath = generateTempPath('shunt');
+	var thumbnailsPath = path.join(tempPath, 'thumbnails');
 
 	var app = express();
 
@@ -46,18 +51,20 @@ module.exports = function(database, config) {
 		protocol: config.https.port ? 'https' : 'http',
 		port: config.https.port || config.http.port
 	});
-	var themeGallerySubdomainUrl = getSubdomainUrl({
+	var themesSubdomainUrl = getSubdomainUrl({
 		subdomain: 'themes',
 		host: config.host,
 		protocol: config.https.port ? 'https' : 'http',
 		port: config.https.port || config.http.port
 	});
 
-	var themeAssetsUrl = config.themes.root || assetsSubdomainUrl + 'themes/';
-	var galleryUrl = config.gallery.root || themeGallerySubdomainUrl;
+	var themeAssetsUrl = config.assets.root || assetsSubdomainUrl + 'themes/';
+	var themeGalleryUrl = config.themes.root || themesSubdomainUrl;
 
 	var subdomains = {
-		'ping': pingApp(),
+		'ping': pingApp({
+			errorTemplatesPath: errorTemplatesPath
+		}),
 		'www': wwwApp({
 			templatesPath: wwwTemplatesPath,
 			errorTemplatesPath: errorTemplatesPath
@@ -69,7 +76,10 @@ module.exports = function(database, config) {
 		'themes': themesApp({
 			templatesPath: themesPath,
 			errorTemplatesPath: errorTemplatesPath,
-			themeAssetsUrl: themeAssetsUrl
+			themeAssetsUrl: themeAssetsUrl,
+			thumbnailsPath: path.join(thumbnailsPath, 'theme'),
+			thumbnailWidth: config.themes.thumbnail.width,
+			thumbnailHeight: config.themes.thumbnail.height
 		}),
 		'my': adminApp(database, {
 			host: config.host,
@@ -82,7 +92,7 @@ module.exports = function(database, config) {
 			faqPath: faqPath,
 			siteTemplatePath: siteTemplatePath,
 			themeAssetsUrl: themeAssetsUrl,
-			galleryUrl: galleryUrl,
+			themeGalleryUrl: themeGalleryUrl,
 			adapters: config.adapters,
 			siteAuth: config.auth.site
 		}),
@@ -105,7 +115,7 @@ module.exports = function(database, config) {
 		subdomains[config.adapters.local.thumbnail.subdomain] = thumbnailer(config.adapters.local.root, {
 			width: config.adapters.local.thumbnail.width,
 			height: config.adapters.local.thumbnail.height,
-			cache: config.adapters.local.thumbnail.cache
+			cache: path.join(thumbnailsPath, 'local')
 		});
 	}
 

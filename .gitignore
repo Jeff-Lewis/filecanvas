@@ -4,7 +4,6 @@
 /db/data/
 /db/backup/
 /sites
-/.thumbnailcache
 
 /keys/cert.pem
 /keys/key.pem

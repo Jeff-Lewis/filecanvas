@@ -40,7 +40,7 @@ module.exports = function(database, options) {
 	var faqPath = options.faqPath;
 	var siteTemplatePath = options.siteTemplatePath;
 	var themeAssetsUrl = options.themeAssetsUrl;
-	var galleryUrl = options.galleryUrl;
+	var themeGalleryUrl = options.themeGalleryUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
 
@@ -54,8 +54,8 @@ module.exports = function(database, options) {
 	if (!privacyPath) { throw new Error('Missing privacy policy path'); }
 	if (!faqPath) { throw new Error('Missing FAQ path'); }
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
-	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
-	if (!galleryUrl) { throw new Error('Missing gallery URL'); }
+	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
+	if (!themeGalleryUrl) { throw new Error('Missing theme gallery URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
@@ -88,7 +88,7 @@ module.exports = function(database, options) {
 		themesPath: themesPath,
 		errorTemplatesPath: errorTemplatesPath,
 		themeAssetsUrl: themeAssetsUrl,
-		galleryUrl: galleryUrl,
+		themeGalleryUrl: themeGalleryUrl,
 		faqData: JSON.parse(fs.readFileSync(faqPath, { encoding: 'utf8' })),
 		adapters: adapters,
 		adaptersConfig: adaptersConfig,
@@ -200,7 +200,7 @@ module.exports = function(database, options) {
 		var themesPath = options.themesPath;
 		var errorTemplatesPath = options.errorTemplatesPath;
 		var themeAssetsUrl = options.themeAssetsUrl;
-		var galleryUrl = options.galleryUrl;
+		var themeGalleryUrl = options.themeGalleryUrl;
 		var faqData = options.faqData;
 		var siteTemplateFiles = options.siteTemplate;
 		var siteAuthOptions = options.siteAuth;
@@ -208,7 +208,7 @@ module.exports = function(database, options) {
 		var adaptersConfig = options.adaptersConfig;
 
 		initPublicRoutes(app, passport, adapters);
-		initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, galleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
+		initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -268,7 +268,7 @@ module.exports = function(database, options) {
 						preview: '/preview',
 						terms: '/terms',
 						privacy: '/privacy',
-						gallery: stripTrailingSlash(galleryUrl)
+						themes: stripTrailingSlash(themeGalleryUrl)
 					};
 
 
@@ -427,7 +427,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, galleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
+		function initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -1061,7 +1061,7 @@ module.exports = function(database, options) {
 							scripts: [
 								'/assets/js/bootstrap-colorpicker.min.js',
 								'/assets/js/shunt-editor.js',
-								galleryUrl + siteModel.theme.id + '/template/index.js'
+								themeGalleryUrl + siteModel.theme.id + '/template/index.js'
 							],
 							fullPage: true,
 							navigation: false,

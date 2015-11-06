@@ -46,7 +46,6 @@ if (process.env.LOCAL === 'true') {
 	});
 	config.adapters.local.thumbnail.width = 256;
 	config.adapters.local.thumbnail.height = 256;
-	config.adapters.local.thumbnail.cache = path.resolve(__dirname, '../.thumbnailcache');
 }
 
 if (process.env.DROPBOX_APP_KEY) {
@@ -64,11 +63,14 @@ config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.e
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
+config.assets = {};
+config.assets.root = process.env.ASSETS_ROOT || null;
+
 config.themes = {};
 config.themes.root = process.env.THEMES_ROOT || null;
-
-config.gallery = {};
-config.gallery.root = process.env.GALLERY_ROOT || null;
+config.themes.thumbnail = {};
+config.themes.thumbnail.width = 256;
+config.themes.thumbnail.height = 256;
 
 config.auth = {};
 config.auth.site = {};

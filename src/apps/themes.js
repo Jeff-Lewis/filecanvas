@@ -5,6 +5,7 @@ var express = require('express');
 
 var constants = require('constants');
 
+var thumbnailer = require('../middleware/thumbnailer');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
@@ -22,12 +23,20 @@ module.exports = function(options) {
 	var templatesPath = options.templatesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
+	var thumbnailsPath = options.thumbnailsPath;
+	var thumbnailWidth = options.thumbnailWidth;
+	var thumbnailHeight = options.thumbnailHeight;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
+	if (!thumbnailsPath) { throw new Error('Missing thumbnails path'); }
+	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
+	if (!thumbnailHeight) { throw new Error('Missing thumbnail height'); }
 
-	var themes = loadThemes(options.templatesPath);
+	var themes = loadThemes(options.templatesPath, {
+		preview: true
+	});
 
 	var app = express();
 
@@ -37,7 +46,10 @@ module.exports = function(options) {
 	initRoutes(app, {
 		themesPath: templatesPath,
 		themeAssetsUrl: themeAssetsUrl,
-		themes: themes
+		themes: themes,
+		thumbnailsPath: thumbnailsPath,
+		thumbnailWidth: thumbnailWidth,
+		thumbnailHeight: thumbnailHeight
 	});
 	initErrorHandler(app, {
 		templatesPath: errorTemplatesPath,
@@ -70,13 +82,22 @@ module.exports = function(options) {
 
 	function initRoutes(app, options) {
 		var themesPath = options.themesPath;
+		var thumbnailsPath = options.thumbnailsPath;
+		var thumbnailWidth = options.thumbnailWidth;
+		var thumbnailHeight = options.thumbnailHeight;
 		var themes = options.themes;
 
 		var staticServer = express.static(path.resolve(themesPath));
 
 		app.get('/:theme', retrieveThemePreviewRoute);
+		app.get('/:theme/thumbnail/*', rewritePreviewThumbnailRequest, thumbnailer(themesPath, {
+			width: thumbnailWidth,
+			height: thumbnailHeight,
+			cache: thumbnailsPath
+		}));
+		app.get('/:theme/download/*', rewritePreviewDownloadRequest, staticServer);
 		app.get('/:theme/metadata', rewriteManifestRequest, staticServer);
-		app.get('/:theme/thumbnail', rewriteThumbnailRequest, staticServer);
+		app.get('/:theme/metadata/thumbnail', rewriteThumbnailRequest, staticServer);
 		app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
 
 		app.use(invalidRoute());
@@ -85,7 +106,40 @@ module.exports = function(options) {
 
 
 		function retrieveThemePreviewRoute(req, res, next) {
-			return next(new HttpError(501));
+			var themeId = req.params.theme;
+			if (!(themeId in themes)) {
+				return next(new HttpError(404));
+			}
+			var theme = themes[themeId];
+			var templateData = {
+				metadata: {
+					siteRoot: '/' + themeId + '/',
+					themeRoot: themeAssetsUrl + themeId + '/',
+					theme: {
+						id: themeId,
+						config: theme.preview.config
+					}
+				},
+				resource: {
+					private: false,
+					root: theme.preview.files
+				}
+			};
+			res.render(themeId + '/index', templateData);
+		}
+
+		function rewritePreviewThumbnailRequest(req, res, next) {
+			var themeId = req.params.theme;
+			var imagePath = req.params[0];
+			req.url = '/' + themeId + '/preview/files/' + imagePath;
+			next();
+		}
+
+		function rewritePreviewDownloadRequest(req, res, next) {
+			var themeId = req.params.theme;
+			var filePath = req.params[0];
+			req.url = '/' + themeId + '/preview/files/' + filePath;
+			next();
 		}
 
 		function rewriteManifestRequest(req, res, next) {

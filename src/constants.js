@@ -9,3 +9,5 @@ exports.THEME_TEMPLATE_PATHS = {
 	'index': 'index.hbs',
 	'login': 'login.hbs'
 };
+exports.THEME_PREVIEW_CONFIG_PATH = 'preview/config.json';
+exports.THEME_PREVIEW_FILES_PATH = 'preview/files';

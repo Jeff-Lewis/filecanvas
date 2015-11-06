@@ -6,11 +6,18 @@ var merge = require('lodash.merge');
 
 var constants = require('../constants');
 
+var loadFileMetadata = require('./loadFileMetadata');
+
 var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
 var THEME_THUMBNAIL_PATH = constants.THEME_THUMBNAIL_PATH;
 var THEME_TEMPLATE_PATHS = constants.THEME_TEMPLATE_PATHS;
+var THEME_PREVIEW_CONFIG_PATH = constants.THEME_PREVIEW_CONFIG_PATH;
+var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 
-module.exports = function(themesPath) {
+module.exports = function(themesPath, options) {
+	options = options || {};
+	var loadPreviewFiles = options.preview || {};
+
 	var filenames = fs.readdirSync(themesPath)
 		.filter(function(filename) {
 			return filename.charAt(0) !== '.';
@@ -24,6 +31,18 @@ module.exports = function(themesPath) {
 		theme.templates = merge({}, THEME_TEMPLATE_PATHS, theme.templates);
 		theme.defaults = parseThemeConfigDefaults(theme.config);
 		themes[filename] = theme;
+		if (loadPreviewFiles) {
+			var previewConfigPath = path.join(themePath, THEME_PREVIEW_CONFIG_PATH);
+			var previewFilesPath = path.join(themePath, THEME_PREVIEW_FILES_PATH);
+			theme.preview = {
+				config: JSON.parse(fs.readFileSync(previewConfigPath, { encoding: 'utf8' })),
+				files: loadFileMetadata(previewFilesPath, {
+					root: previewFilesPath,
+					contents: true,
+					sync: true
+				})
+			};
+		}
 		return themes;
 	}, {});
 	return themes;
