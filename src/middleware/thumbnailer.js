@@ -1,8 +1,8 @@
 'use strict';
 
+var fs = require('fs');
 var path = require('path');
 var express = require('express');
-var pathExists = require('path-exists');
 var isPathInside = require('is-path-inside');
 
 var HttpError = require('../errors/HttpError');
@@ -51,13 +51,24 @@ module.exports = function(root, options) {
 			var extension = '.' + format;
 			outputImagePath = path.join(path.dirname(imagePath), path.basename(imagePath, path.extname(imagePath)) + extension);
 		}
-		if (isAlreadyProcessed) { return Promise.resolve(outputImagePath); }
+		if (isAlreadyProcessed) {
+			if (cachedPaths[imagePath] === false) {
+				return Promise.reject(new HttpError(404));
+			}
+			return Promise.resolve(outputImagePath);
+		}
 		var source = path.resolve(root, imagePath);
 		var destination = path.resolve(cachePath, outputImagePath);
 		return createThumbnail(source, {
 			width: width,
 			height: height,
 			destination: destination
+		})
+		.catch(function(error) {
+			if (error.status === 404) {
+				cachedPaths[imagePath] = false;
+			}
+			throw error;
 		})
 		.then(function() {
 			cachedPaths[imagePath] = true;
@@ -70,7 +81,7 @@ module.exports = function(root, options) {
 		var width = options.width;
 		var height = options.height;
 		var destination = options.destination;
-		return pathExists(imagePath)
+		return fileExists(imagePath)
 			.then(function(exists) {
 				if (!exists) { throw new HttpError(404); }
 			})
@@ -81,5 +92,18 @@ module.exports = function(root, options) {
 					height: height
 				});
 			});
+
+		function fileExists(filePath) {
+			return new Promise(function(resolve, reject) {
+				fs.stat(filePath, function(error, stat) {
+					if (error && (error.code === 'ENOENT')) {
+						return resolve(false);
+					}
+					if (error) { return reject(error); }
+					if (!stat.isFile()) { return resolve(false); }
+					resolve(true);
+				});
+			});
+		}
 	}
 };
