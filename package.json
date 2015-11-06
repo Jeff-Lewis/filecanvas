@@ -46,6 +46,7 @@
     "json-loader": "^0.5.2",
     "junk": "^1.0.2",
     "lodash.isequal": "^3.0.4",
+    "lodash.memoize": "^3.0.4",
     "lodash.merge": "^3.3.2",
     "lodash.template": "^3.6.2",
     "method-override": "^2.3.5",

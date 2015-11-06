@@ -11,3 +11,7 @@ exports.THEME_TEMPLATE_PATHS = {
 };
 exports.THEME_PREVIEW_CONFIG_PATH = 'preview/config.json';
 exports.THEME_PREVIEW_FILES_PATH = 'preview/files';
+
+exports.HANDLEBARS_COMPILER_OPTIONS = {
+	knownHelpersOnly: true
+};

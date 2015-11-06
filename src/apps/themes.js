@@ -14,7 +14,7 @@ var loadThemes = require('../utils/loadThemes');
 var AdminPageService = require('../services/AdminPageService');
 
 var handlebarsEngine = require('../engines/handlebars');
-var handlebarsTemplateService = require('../globals/handlebarsTemplateService');
+var serializeHandlebarsTemplate = require('../engines/handlebars/utils/serialize');
 
 var HttpError = require('../errors/HttpError');
 
@@ -24,6 +24,7 @@ var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 module.exports = function(options) {
 	options = options || {};
 	var templatesPath = options.templatesPath;
+	var partialsPath = options.partialsPath;
 	var themesPath = options.themesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
@@ -31,7 +32,7 @@ module.exports = function(options) {
 	var thumbnailWidth = options.thumbnailWidth;
 	var thumbnailHeight = options.thumbnailHeight;
 	var thumbnailFormat = options.thumbnailFormat;
-	var adminTemplatePath = options.adminTemplatePath;
+	var adminTemplatesPath = options.adminTemplatesPath;
 	var adminAssetsUrl = options.adminAssetsUrl;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
@@ -40,20 +41,21 @@ module.exports = function(options) {
 	if (!thumbnailsPath) { throw new Error('Missing thumbnails path'); }
 	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
 	if (!thumbnailHeight) { throw new Error('Missing thumbnail height'); }
-	if (!adminTemplatePath) { throw new Error('Missing admin template path'); }
+	if (!adminTemplatesPath) { throw new Error('Missing admin templates path'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 
 	var themes = loadThemes(themesPath, {
 		preview: true
 	});
 	var adminPageService = new AdminPageService({
-		template: adminTemplatePath
+		templatesPath: templatesPath,
+		partialsPath: partialsPath
 	});
 
 	var app = express();
 
 	initViewEngine(app, {
-		templatesPath: templatesPath
+		templatesPath: adminTemplatesPath
 	});
 	initRoutes(app, {
 		themesPath: themesPath,
@@ -152,7 +154,10 @@ module.exports = function(options) {
 			res.locals.urls = {
 				assets: adminAssetsUrl
 			};
-			adminPageService.render('theme', req, res, templateData)
+			adminPageService.render(req, res, {
+				template: path.resolve(templatesPath, 'theme'),
+				context: templateData
+			})
 				.catch(function(error) {
 					next(error);
 				});
@@ -264,7 +269,7 @@ module.exports = function(options) {
 			function retrieveSerializedTemplate(templatePath, options) {
 				options = options || {};
 				var templateName = options.name;
-				return handlebarsTemplateService.serialize(templatePath)
+				return serializeHandlebarsTemplate(templatePath)
 					.then(function(serializedTemplate) {
 						return wrapTemplate(serializedTemplate, templateName);
 					});

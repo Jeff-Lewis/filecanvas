@@ -1,36 +1,83 @@
 'use strict';
 
+var path = require('path');
 var objectAssign = require('object-assign');
+var merge = require('lodash.merge');
+
+var compileHandlebarsTemplate = require('../engines/handlebars/utils/compile');
 
 function AdminPageService(options) {
 	options = options || {};
-	this.template = options.template;
+	this.templatesPath = options.templatesPath;
+	this.partialsPath = options.partialsPath;
 }
 
 AdminPageService.prototype.template = null;
 
-AdminPageService.prototype.render = function(templateName, req, res, context) {
-	var indexTemplate = this.template;
-	return new Promise(function(resolve, reject) {
-		var templateData = getTemplateData(req, res, context);
-		res.render(templateName, templateData, function(error, pageContent) {
-			if (error) { return reject(error); }
-			var templateOptions = {
-				partials: {
-					'page': pageContent
-				}
-			};
+AdminPageService.prototype.getTemplatePath = function(templateName) {
+	return path.resolve(this.templatesPath, templateName + '.hbs');
+};
+
+AdminPageService.prototype.getPartialPath = function(partialName) {
+	return path.resolve(this.partialsPath, partialName + '.hbs');
+};
+
+AdminPageService.prototype.render = function(req, res, options) {
+	options = options || {};
+	var pageTemplateName = options.template;
+	var context = options.context || null;
+	var templateOptions = options.options || null;
+	var partials = options.partials || {};
+
+	var pageTemplatePath = this.getTemplatePath(pageTemplateName);
+	var self = this;
+	var resolvedPartials = Object.keys(partials).reduce(function(resolvedPartials, partialName) {
+		var templateName = partials[partialName];
+		resolvedPartials[partialName] = self.getPartialPath(templateName);
+		return resolvedPartials;
+	}, {});
+	var combinedPartials = merge({}, resolvedPartials, { page: pageTemplatePath });
+	return compilePartials(combinedPartials)
+		.then(function(compiledPartials) {
+			templateOptions = merge({}, templateOptions, {
+				partials: compiledPartials
+			});
 			var templateData = getTemplateData(req, res, context, templateOptions);
 			if (req.session && req.session.state) {
 				delete req.session.state;
 			}
-			res.render(indexTemplate, templateData, function(error, data) {
+			return renderTemplate('index', templateData)
+				.then(function(data) {
+					res.send(data);
+					return data;
+				});
+		});
+
+
+	function compilePartials(partials) {
+		var partialNames = Object.keys(partials);
+		return Promise.all(
+			partialNames.map(function(partialName) {
+				var templatePath = partials[partialName];
+				return compileHandlebarsTemplate(templatePath);
+			})
+		).then(function(compiledPartials) {
+			return compiledPartials.reduce(function(compiledPartialsHash, compiledPartial, index) {
+				var partialName = partialNames[index];
+				compiledPartialsHash[partialName] = compiledPartial;
+				return compiledPartialsHash;
+			}, {});
+		});
+	}
+
+	function renderTemplate(templateName, context) {
+		return new Promise(function(resolve, reject) {
+			res.render(templateName, context, function(error, data) {
 				if (error) { return reject(error); }
-				res.send(data);
 				resolve(data);
 			});
 		});
-	});
+	}
 };
 
 module.exports = AdminPageService;
@@ -52,3 +99,4 @@ function getTemplateData(req, res, context, templateOptions) {
 		return objectAssign({}, res.locals, session);
 	}
 }
+

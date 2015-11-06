@@ -43,10 +43,12 @@ module.exports = function(database, options) {
 	var themeGalleryUrl = options.themeGalleryUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
+	var partialsPath = options.partialsPath;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
+	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!termsPath) { throw new Error('Missing terms and conditions path'); }
@@ -69,7 +71,8 @@ module.exports = function(database, options) {
 		adapters: adapters
 	});
 	var adminPageService = new AdminPageService({
-		template: 'index'
+		templatesPath: templatesPath,
+		partialsPath: partialsPath
 	});
 
 	var app = express();
@@ -309,7 +312,10 @@ module.exports = function(database, options) {
 						adapters: adaptersHash
 					}
 				};
-				adminPageService.render('login', req, res, templateData)
+				adminPageService.render(req, res, {
+					template: 'login',
+					context: templateData
+				})
 					.catch(function(error) {
 						next(error);
 					});
@@ -336,7 +342,10 @@ module.exports = function(database, options) {
 								user: pendingUser.user
 							}
 						};
-						adminPageService.render('register', req, res, templateData)
+						adminPageService.render(req, res, {
+							template: 'register',
+							context: templateData
+						})
 							.catch(function(error) {
 								next(error);
 							});
@@ -465,7 +474,10 @@ module.exports = function(database, options) {
 						questions: faqs
 					}
 				};
-				adminPageService.render('faq', req, res, templateData)
+				adminPageService.render(req, res, {
+					template: 'faq',
+					context: templateData
+				})
 					.catch(function(error) {
 						next(error);
 					});
@@ -495,7 +507,10 @@ module.exports = function(database, options) {
 					],
 					content: null
 				};
-				adminPageService.render('support', req, res, templateData)
+				adminPageService.render(req, res, {
+					template: 'support',
+					context: templateData
+				})
 					.catch(function(error) {
 						next(error);
 					});
@@ -518,7 +533,10 @@ module.exports = function(database, options) {
 						user: userModel
 					}
 				};
-				return adminPageService.render('account', req, res, templateData);
+				return adminPageService.render(req, res, {
+					template: 'account',
+					context: templateData
+				});
 			}
 
 			function updateUserAccountRoute(req, res, next) {
@@ -577,7 +595,10 @@ module.exports = function(database, options) {
 						themes: themes
 					}
 				};
-				adminPageService.render('sites', req, res, templateData)
+				adminPageService.render(req, res, {
+					template: 'sites',
+					context: templateData
+				})
 					.catch(function(error) {
 						next(error);
 					});
@@ -637,7 +658,10 @@ module.exports = function(database, options) {
 						adapters: adaptersMetadata
 					}
 				};
-				adminPageService.render('sites/create-site', req, res, templateData)
+				adminPageService.render(req, res, {
+					template: 'sites/create-site',
+					context: templateData
+				})
 					.catch(function(error) {
 						next(error);
 					});
@@ -690,7 +714,10 @@ module.exports = function(database, options) {
 						next: nextTheme
 					}
 				};
-				adminPageService.render('sites/create-site/themes/theme', req, res, templateData)
+				adminPageService.render(req, res, {
+					template: 'sites/create-site/themes/theme',
+					context: templateData
+				})
 					.catch(function(error) {
 						next(error);
 					});
@@ -814,7 +841,10 @@ module.exports = function(database, options) {
 								adapters: adaptersMetadata
 							}
 						};
-						return adminPageService.render('sites/site', req, res, templateData);
+						return adminPageService.render(req, res, {
+							template: 'sites/site',
+							context: templateData
+						});
 					})
 					.catch(function(error) {
 						next(error);
@@ -923,7 +953,10 @@ module.exports = function(database, options) {
 								site: siteModel
 							}
 						};
-						return adminPageService.render('sites/site/users', req, res, templateData);
+						return adminPageService.render(req, res, {
+							template: 'sites/site/users',
+							context: templateData
+						});
 					})
 					.catch(function(error) {
 						next(error);
@@ -1035,7 +1068,10 @@ module.exports = function(database, options) {
 								adapter: adapterConfig
 							}
 						};
-						return adminPageService.render('sites/site/edit', req, res, templateData);
+						return adminPageService.render(req, res, {
+							template: 'sites/site/edit',
+							context: templateData
+						});
 					})
 					.catch(function(error) {
 						next(error);
@@ -1076,7 +1112,10 @@ module.exports = function(database, options) {
 							adapter: adapterName
 						}
 					};
-					adminPageService.render('logout', req, res, templateData)
+					adminPageService.render(req, res, {
+						template: 'logout',
+						context: templateData
+					})
 						.catch(function(error) {
 							next(error);
 						});
