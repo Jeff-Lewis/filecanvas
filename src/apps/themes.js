@@ -26,6 +26,7 @@ module.exports = function(options) {
 	var thumbnailsPath = options.thumbnailsPath;
 	var thumbnailWidth = options.thumbnailWidth;
 	var thumbnailHeight = options.thumbnailHeight;
+	var thumbnailFormat = options.thumbnailFormat;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
@@ -49,7 +50,8 @@ module.exports = function(options) {
 		themes: themes,
 		thumbnailsPath: thumbnailsPath,
 		thumbnailWidth: thumbnailWidth,
-		thumbnailHeight: thumbnailHeight
+		thumbnailHeight: thumbnailHeight,
+		thumbnailFormat: thumbnailFormat
 	});
 	initErrorHandler(app, {
 		templatesPath: errorTemplatesPath,
@@ -85,6 +87,7 @@ module.exports = function(options) {
 		var thumbnailsPath = options.thumbnailsPath;
 		var thumbnailWidth = options.thumbnailWidth;
 		var thumbnailHeight = options.thumbnailHeight;
+		var thumbnailFormat = options.thumbnailFormat;
 		var themes = options.themes;
 
 		var staticServer = express.static(path.resolve(themesPath));
@@ -93,6 +96,7 @@ module.exports = function(options) {
 		app.get('/:theme/thumbnail/*', rewritePreviewThumbnailRequest, thumbnailer(themesPath, {
 			width: thumbnailWidth,
 			height: thumbnailHeight,
+			format: thumbnailFormat,
 			cache: thumbnailsPath
 		}));
 		app.get('/:theme/download/*', rewritePreviewDownloadRequest, staticServer);

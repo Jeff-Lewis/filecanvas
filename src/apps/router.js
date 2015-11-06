@@ -79,7 +79,8 @@ module.exports = function(database, config) {
 			themeAssetsUrl: themeAssetsUrl,
 			thumbnailsPath: path.join(thumbnailsPath, 'theme'),
 			thumbnailWidth: config.themes.thumbnail.width,
-			thumbnailHeight: config.themes.thumbnail.height
+			thumbnailHeight: config.themes.thumbnail.height,
+			thumbnailFormat: config.themes.thumbnail.format
 		}),
 		'my': adminApp(database, {
 			host: config.host,
@@ -115,6 +116,7 @@ module.exports = function(database, config) {
 		subdomains[config.adapters.local.thumbnail.subdomain] = thumbnailer(config.adapters.local.root, {
 			width: config.adapters.local.thumbnail.width,
 			height: config.adapters.local.thumbnail.height,
+			format: config.adapters.local.thumbnail.format,
 			cache: path.join(thumbnailsPath, 'local')
 		});
 	}

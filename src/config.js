@@ -44,6 +44,7 @@ if (process.env.LOCAL === 'true') {
 		protocol: config.https.port ? 'https' : 'http',
 		port: config.https.port || config.http.port
 	});
+	config.adapters.local.thumbnail.format = null;
 	config.adapters.local.thumbnail.width = 256;
 	config.adapters.local.thumbnail.height = 256;
 }
@@ -69,6 +70,7 @@ config.assets.root = process.env.ASSETS_ROOT || null;
 config.themes = {};
 config.themes.root = process.env.THEMES_ROOT || null;
 config.themes.thumbnail = {};
+config.themes.thumbnail.format = null;
 config.themes.thumbnail.width = 256;
 config.themes.thumbnail.height = 256;
 
