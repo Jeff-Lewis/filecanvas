@@ -1,5 +1,6 @@
 <form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 	<input type="hidden" name="_method" value="PUT"/>
+	<input type="hidden" value="{{ json content.adapter }}" data-editor-adapter-config/>
 	<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
 	<div class="title-bar">
 		<div class="title-bar-title">

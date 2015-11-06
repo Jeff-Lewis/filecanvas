@@ -47,6 +47,7 @@ function initSidepanel() {
 
 function initLivePreview() {
 	var $formElement = $('[data-editor-form]');
+	var $adapterConfigElement = $('[data-editor-adapter-config]');
 	var $previewElement = $('[data-editor-preview]');
 	var $undoButtonElement = $('[data-editor-undo]');
 	var $redoButtonElement = $('[data-editor-redo]');
@@ -57,6 +58,7 @@ function initLivePreview() {
 
 	var precompiledTemplate = Handlebars.templates['index'];
 	var templateFunction = createTemplateFunction(precompiledTemplate, handlebarsHelpers);
+	var adapterConfig = parseAdapterConfig($adapterConfigElement.val());
 	var currentSiteModel = null;
 	var currentThemeConfigOverrides = null;
 	var patchIframeContent = null;
@@ -67,13 +69,13 @@ function initLivePreview() {
 		patchIframeContent = domPatcher;
 		hideLoadingIndicator($previewElement);
 	});
-	initInlineUploads();
 	initLiveUpdates(function(formValues) {
 		currentThemeConfigOverrides = formValues.theme.config;
 		setTimeout(function() {
 			updatePreview(currentSiteModel, currentThemeConfigOverrides);
 		});
 	});
+	initInlineUploads(adapterConfig);
 
 
 	function showLoadingIndicator($previewElement) {
@@ -92,6 +94,14 @@ function initLivePreview() {
 		});
 		var templateFunction = compiler.template(precompiledTemplate);
 		return templateFunction;
+	}
+
+	function parseAdapterConfig(string) {
+		try {
+			return JSON.parse(string);
+		} catch (error) {
+			return null;
+		}
 	}
 
 	function getPreviewUrl(previewUrl, params) {
@@ -393,32 +403,11 @@ function initLivePreview() {
 		var $progressCancelButtonElement = $('[data-editor-progress-cancel]');
 		var $uploadStatusModalElement = $('[data-editor-upload-status-modal]');
 		var shuntApi = window.shunt;
-		var adapterConfig = loadAdapterConfig();
 		var activeUpload = null;
 		var showUploadStatus = initUploadStatusModal($uploadStatusModalElement);
 		initUploadHotspots($previewElement, onFilesSelected);
 		$progressCancelButtonElement.on('click', onUploadCancelRequested);
 
-
-		function loadAdapterConfig() {
-			var cookies = parseCookies(document.cookie);
-			var adapterConfig = JSON.parse(cookies.adapter);
-			return adapterConfig;
-
-			function parseCookies(cookiesString) {
-				var cookies = cookiesString.split(/;\s*/).map(function(cookieString) {
-					var match = /^(.*?)=(.*)$/.exec(cookieString);
-					return {
-						key: match[1],
-						value: match[2]
-					};
-				}).reduce(function(cookies, cookie) {
-					cookies[cookie.key] = decodeURIComponent(cookie.value);
-					return cookies;
-				}, {});
-				return cookies;
-			}
-		}
 
 		function initUploadStatusModal($element) {
 			var $modalElement = $element.modal({

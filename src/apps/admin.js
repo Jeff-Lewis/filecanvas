@@ -1052,6 +1052,11 @@ module.exports = function(database, options) {
 					users: includeUsers
 				})
 					.then(function(siteModel) {
+						var siteAdapter = siteModel.root.adapter;
+						var sitePath = siteModel.root.path;
+						var adapterOptions = userAdapters[siteAdapter];
+						var adapter = adapters[siteAdapter];
+						var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
 						var templateData = {
 							title: 'Site editor',
 							stylesheets: [
@@ -1085,36 +1090,15 @@ module.exports = function(database, options) {
 							],
 							content: {
 								site: siteModel,
-								themes: themes
+								themes: themes,
+								adapter: adapterConfig
 							}
 						};
-						var siteAdapter = siteModel.root.adapter;
-						var sitePath = siteModel.root.path;
-						var adapterOptions = userAdapters[siteAdapter];
-						var adapter = adapters[siteAdapter];
-						var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
-						if (adapterConfig) {
-							setPageCookies(req, res, {
-								adapter: JSON.stringify(adapterConfig)
-							});
-						}
 						return renderAdminPage(req, res, 'sites/site/edit', templateData);
 					})
 					.catch(function(error) {
 						next(error);
 					});
-
-
-					function setPageCookies(req, res, cookies) {
-						var cookiePath = req.url.split('?')[0];
-						Object.keys(cookies).forEach(function(key) {
-							var value = cookies[key];
-							res.cookie(key, value, {
-								path: cookiePath,
-								secure: true
-							});
-						});
-					}
 			}
 
 			function retrieveFileMetadataRoute(req, res, next) {
