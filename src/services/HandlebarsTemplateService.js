@@ -14,7 +14,6 @@ HandlebarsTemplateService.prototype.helpers = null;
 HandlebarsTemplateService.prototype.compilerOptions = null;
 
 HandlebarsTemplateService.prototype.compile = function(templatePath) {
-	console.log('Compiling', templatePath);
 	var helpers = this.helpers;
 	var compilerOptions = this.compilerOptions;
 	return loadFile(templatePath)
