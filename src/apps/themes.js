@@ -32,7 +32,6 @@ module.exports = function(options) {
 	var thumbnailWidth = options.thumbnailWidth;
 	var thumbnailHeight = options.thumbnailHeight;
 	var thumbnailFormat = options.thumbnailFormat;
-	var adminTemplatesPath = options.adminTemplatesPath;
 	var adminAssetsUrl = options.adminAssetsUrl;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
@@ -41,7 +40,6 @@ module.exports = function(options) {
 	if (!thumbnailsPath) { throw new Error('Missing thumbnails path'); }
 	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
 	if (!thumbnailHeight) { throw new Error('Missing thumbnail height'); }
-	if (!adminTemplatesPath) { throw new Error('Missing admin templates path'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 
 	var themes = loadThemes(themesPath, {
@@ -55,7 +53,7 @@ module.exports = function(options) {
 	var app = express();
 
 	initViewEngine(app, {
-		templatesPath: adminTemplatesPath
+		templatesPath: templatesPath
 	});
 	initRoutes(app, {
 		themesPath: themesPath,
@@ -140,11 +138,6 @@ module.exports = function(options) {
 			var previousTheme = getPreviousTheme(themes, themeId);
 			var nextTheme = getNextTheme(themes, themeId);
 			var templateData = {
-				session: {
-					urls: {
-						assets: adminAssetsUrl
-					}
-				},
 				content: {
 					theme: theme,
 					previousTheme: previousTheme,
@@ -155,7 +148,7 @@ module.exports = function(options) {
 				assets: adminAssetsUrl
 			};
 			adminPageService.render(req, res, {
-				template: path.resolve(templatesPath, 'theme'),
+				template: 'theme',
 				context: templateData
 			})
 				.catch(function(error) {
@@ -203,7 +196,7 @@ module.exports = function(options) {
 				}
 			};
 			try {
-				var template = path.resolve(themesPath, themeId + '/index');
+				var template = path.resolve(themesPath, themeId, 'index');
 				renderTemplate(res, template, templateData);
 			} catch(error) {
 				next(error);
@@ -259,7 +252,7 @@ module.exports = function(options) {
 			var templatePath = path.resolve(themesPath, themeId, templateFilename);
 			retrieveSerializedTemplate(templatePath, { name: templateId })
 				.then(function(serializedTemplate) {
-					renderPrecompiledTemplate(res, serializedTemplate);
+					sendPrecompiledTemplate(res, serializedTemplate);
 				})
 				.catch(function(error) {
 					return next(error);
@@ -292,7 +285,7 @@ module.exports = function(options) {
 			});
 		}
 
-		function renderPrecompiledTemplate(res, template) {
+		function sendPrecompiledTemplate(res, template) {
 			res.set('Content-Type', 'text/javscript');
 			res.send(template);
 		}

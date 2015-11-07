@@ -1,127 +1,131 @@
-<div class="row">
-	<div class="col-md-12 col-lg-10">
-		<div class="mb15">
-			<h4 class="no-margin text-uppercase">
-				Create a site
-			</h4>
-		</div>
-		<form role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
-			<div id="create-form" class="panel-group">
-				<div class="panel mb25">
-					<input type="hidden" name="_method" value="POST"/>
-					<input type="hidden"
-						name="private"
-						value="{{#if content.site.private}}true{{else}}false{{/if}}"
-					/>
-					<input type="hidden"
-						name="published"
-						value="{{#if content.site.published}}true{{else}}false{{/if}}"
-					/>
-					<input type="hidden"
-						name="home"
-						value="{{#if content.site.home}}true{{else}}false{{/if}}"
-					/>
-					<div class="panel-heading">
-						<h4 class="no-margin text-uppercase">
-							<i class="fa fa-arrow-right mr10"></i>Step 1: Choose a theme
-						</h4>
-					</div>
-					<div id="create-form-theme" class="panel-collapse collapse{{#if (not content.site.theme.id)}} in{{/if}}">
-						<div class="panel-body form-horizontal bordered-group">
-							<div class="row no-margin">
-								<p>Choose a theme from the selection below. You'll be able to customise the theme after the site has been created.</p>
-								<ul class="theme-previews">
-									{{#each content.themes as |theme|}}
-									<li class="theme-preview-control p15">
-										<div class="theme-preview-control-title h5 mt0 pb5"><strong>{{ theme.name }}</strong> </div>
-										<div class="widget bg-white no-padding mb0 text-center bordered">
-											<a class="theme-preview-control-thumbnail" href="{{ ../session.urls.sitesCreateThemes }}/{{ theme.id }}">
-												<img class="theme-preview-control-thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/metadata/thumbnail">
-												<div class="theme-preview-control-thumbnail-icon">
-													<i class="fa fa-search-plus"></i>
+{{#> index}}
+	{{#*inline 'content'}}
+		<div class="row">
+			<div class="col-md-12 col-lg-10">
+				<div class="mb15">
+					<h4 class="no-margin text-uppercase">
+						Create a site
+					</h4>
+				</div>
+				<form role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
+					<div id="create-form" class="panel-group">
+						<div class="panel mb25">
+							<input type="hidden" name="_method" value="POST"/>
+							<input type="hidden"
+								name="private"
+								value="{{#if content.site.private}}true{{else}}false{{/if}}"
+							/>
+							<input type="hidden"
+								name="published"
+								value="{{#if content.site.published}}true{{else}}false{{/if}}"
+							/>
+							<input type="hidden"
+								name="home"
+								value="{{#if content.site.home}}true{{else}}false{{/if}}"
+							/>
+							<div class="panel-heading">
+								<h4 class="no-margin text-uppercase">
+									<i class="fa fa-arrow-right mr10"></i>Step 1: Choose a theme
+								</h4>
+							</div>
+							<div id="create-form-theme" class="panel-collapse collapse{{#if (not content.site.theme.id)}} in{{/if}}">
+								<div class="panel-body form-horizontal bordered-group">
+									<div class="row no-margin">
+										<p>Choose a theme from the selection below. You'll be able to customise the theme after the site has been created.</p>
+										<ul class="theme-previews">
+											{{#each content.themes as |theme|}}
+											<li class="theme-preview-control p15">
+												<div class="theme-preview-control-title h5 mt0 pb5"><strong>{{ theme.name }}</strong> </div>
+												<div class="widget bg-white no-padding mb0 text-center bordered">
+													<a class="theme-preview-control-thumbnail" href="{{ ../session.urls.sitesCreateThemes }}/{{ theme.id }}">
+														<img class="theme-preview-control-thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/metadata/thumbnail">
+														<div class="theme-preview-control-thumbnail-icon">
+															<i class="fa fa-search-plus"></i>
+														</div>
+													</a>
 												</div>
-											</a>
-										</div>
-										<label class="btn btn-primary block mt10" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
-											<input type="radio" class="theme-preview-control-radio-input"
-												name="theme.id"
-												value="{{ theme.id }}"
-												{{#if (eq theme.id ../content.site.theme.id)}}checked="checked"{{/if}}
-											/>
-											Use this theme
-										</label>
-									</li>
-									{{/each}}
-								</ul>
+												<label class="btn btn-primary block mt10" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
+													<input type="radio" class="theme-preview-control-radio-input"
+														name="theme.id"
+														value="{{ theme.id }}"
+														{{#if (eq theme.id ../content.site.theme.id)}}checked="checked"{{/if}}
+													/>
+													Use this theme
+												</label>
+											</li>
+											{{/each}}
+										</ul>
+									</div>
+								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-				<div class="panel">
-					<div class="panel-heading">
-						<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Site settings</h4>
-					</div>
-					<div id="create-form-fields" class="panel-collapse collapse{{#if content.site.theme.id}} in{{/if}}">
-						<div class="panel-body form-horizontal bordered-group">
-							<div class="row no-margin">
-								<div class="col-lg-12">
-									<div id="row">
-										<div class="form-group">
-											<label class="col-sm-2 control-label">Site name</label>
-											<div class="col-sm-10">
-												<input type="text" class="form-control" autofocus="autofocus"
-													name="label"
-													value="{{ content.site.label }}"
-													data-bind-id="site-label"
-													data-validate="notEmpty"
-												/>
-												<span class="form-control-feedback fa" aria-hidden="true"></span>
-												<p class="help-block">The site name is used to identify the site in the Shunt admin area</p>
-											</div>
-										</div>
-										<div class="form-group">
-											<label class="col-sm-2 control-label">Site address</label>
-											<div class="col-sm-10">
-												<div class="web-address-control input-group">
-													<span class="input-group-addon">{{ session.urls.webroot }}</span>
-													<input type="text" class="form-control"
-														name="name"
-														value="{{ content.site.name }}"
-														data-bind-value="site-label|slug"
-														data-bind-id="site-name"
-														data-parser="slug"
-														data-validate="slug"
-													/>
-													<span class="form-control-feedback fa" aria-hidden="true"></span>
+						<div class="panel">
+							<div class="panel-heading">
+								<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Site settings</h4>
+							</div>
+							<div id="create-form-fields" class="panel-collapse collapse{{#if content.site.theme.id}} in{{/if}}">
+								<div class="panel-body form-horizontal bordered-group">
+									<div class="row no-margin">
+										<div class="col-lg-12">
+											<div id="row">
+												<div class="form-group">
+													<label class="col-sm-2 control-label">Site name</label>
+													<div class="col-sm-10">
+														<input type="text" class="form-control" autofocus="autofocus"
+															name="label"
+															value="{{ content.site.label }}"
+															data-bind-id="site-label"
+															data-validate="notEmpty"
+														/>
+														<span class="form-control-feedback fa" aria-hidden="true"></span>
+														<p class="help-block">The site name is used to identify the site in the Shunt admin area</p>
+													</div>
 												</div>
-												<p class="help-block">Once the site has been published, it will be viewable at this web address.<br/>You'll have the chance to preview your site before you publish it.</p>
-											</div>
-										</div>
-										<div class="form-group">
-											<label class="col-sm-2 control-label">Site folder</label>
-											<div class="col-sm-10">
-												<input type="hidden" name="root.adapter"
-													value="{{ content.site.root.adapter }}"
-												/>
-												<div class="path-control" data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}">
-													<input type="text" class="form-control"
-														name="root.path"
-														value="{{ content.site.root.path }}"
-														readonly="readonly"
-														data-bind-value="site-name|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
-														data-validate="path,notEmpty,startsWith:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}',notEqualTo:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}'"
-													/>
-													<ul class="path-control-segments"></ul>
-													<span class="form-control-feedback fa" aria-hidden="true"></span>
+												<div class="form-group">
+													<label class="col-sm-2 control-label">Site address</label>
+													<div class="col-sm-10">
+														<div class="web-address-control input-group">
+															<span class="input-group-addon">{{ session.urls.webroot }}</span>
+															<input type="text" class="form-control"
+																name="name"
+																value="{{ content.site.name }}"
+																data-bind-value="site-label|slug"
+																data-bind-id="site-name"
+																data-parser="slug"
+																data-validate="slug"
+															/>
+															<span class="form-control-feedback fa" aria-hidden="true"></span>
+														</div>
+														<p class="help-block">Once the site has been published, it will be viewable at this web address.<br/>You'll have the chance to preview your site before you publish it.</p>
+													</div>
 												</div>
-												<span class="form-control-feedback fa" aria-hidden="true"></span>
-												<p class="help-block">This is where Shunt will store the site's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}.<br/>If this folder doesn't already exist, it will be created.</p>
-											</div>
-										</div>
-										<div class="form-group">
-											<div class="col-sm-offset-2 col-sm-10">
-												<button type="submit" class="btn btn-success">Create site</button>
-												<button type="reset" class="btn btn-default pull-right" data-toggle="collapse" data-target="#create-form-theme" data-parent="#create-form">Cancel</button>
+												<div class="form-group">
+													<label class="col-sm-2 control-label">Site folder</label>
+													<div class="col-sm-10">
+														<input type="hidden" name="root.adapter"
+															value="{{ content.site.root.adapter }}"
+														/>
+														<div class="path-control" data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}">
+															<input type="text" class="form-control"
+																name="root.path"
+																value="{{ content.site.root.path }}"
+																readonly="readonly"
+																data-bind-value="site-name|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
+																data-validate="path,notEmpty,startsWith:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}',notEqualTo:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}'"
+															/>
+															<ul class="path-control-segments"></ul>
+															<span class="form-control-feedback fa" aria-hidden="true"></span>
+														</div>
+														<span class="form-control-feedback fa" aria-hidden="true"></span>
+														<p class="help-block">This is where Shunt will store the site's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}.<br/>If this folder doesn't already exist, it will be created.</p>
+													</div>
+												</div>
+												<div class="form-group">
+													<div class="col-sm-offset-2 col-sm-10">
+														<button type="submit" class="btn btn-success">Create site</button>
+														<button type="reset" class="btn btn-default pull-right" data-toggle="collapse" data-target="#create-form-theme" data-parent="#create-form">Cancel</button>
+													</div>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -129,8 +133,8 @@
 							</div>
 						</div>
 					</div>
-				</div>
+				</form>
 			</div>
-		</form>
-	</div>
-</div>
+		</div>
+	{{/inline}}
+{{/index}}

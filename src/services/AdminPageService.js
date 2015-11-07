@@ -27,17 +27,15 @@ AdminPageService.prototype.render = function(req, res, options) {
 	var pageTemplateName = options.template;
 	var context = options.context || null;
 	var templateOptions = options.options || null;
-	var partials = options.partials || {};
+	var partials = merge({}, options.partials, { index: '_index' });
 
-	var pageTemplatePath = this.getTemplatePath(pageTemplateName);
 	var self = this;
 	var resolvedPartials = Object.keys(partials).reduce(function(resolvedPartials, partialName) {
 		var templateName = partials[partialName];
 		resolvedPartials[partialName] = self.getPartialPath(templateName);
 		return resolvedPartials;
 	}, {});
-	var combinedPartials = merge({}, resolvedPartials, { page: pageTemplatePath });
-	return compilePartials(combinedPartials)
+	return compilePartials(resolvedPartials)
 		.then(function(compiledPartials) {
 			templateOptions = merge({}, templateOptions, {
 				partials: compiledPartials
@@ -46,7 +44,7 @@ AdminPageService.prototype.render = function(req, res, options) {
 			if (req.session && req.session.state) {
 				delete req.session.state;
 			}
-			return renderTemplate('index', templateData)
+			return renderTemplate(pageTemplateName, templateData)
 				.then(function(data) {
 					res.send(data);
 					return data;

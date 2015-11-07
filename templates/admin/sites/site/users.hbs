@@ -1,39 +1,118 @@
-<div class="row">
-	<div class="col-md-8 col-lg-6">
-		<div class="mb15">
-			<h4 class="no-margin text-uppercase">
-				<a class="pull-right" href="{{ session.urls.sites }}/{{ content.site.name }}">
-					<i class="fa fa-times"></i>
-				</a>
-				Site users: {{ content.site.name }}
-			</h4>
-		</div>
-		{{#unless content.site.users}}
-		<div class="alert alert-info">
-			<h5>There are no users registered for this site.</h5>
-		</div>
-		{{/unless}}
-		{{#if content.site.users}}
-		<div class="site-users mb10">
-			{{#each content.site.users as |user|}}
-			<div id="panel-{{ user.username }}" class="panel panel-white panel-bordered mb0" data-toggle="panel" data-target="#panel-content-{{ user.username }}" aria-expanded="false" aria-controls="panel-content-{{ user.username }}">
-				<div class="panel-heading">
-					<div class="panel-controls">
-						<button type="button" class="btn btn-xs btn-round btn-icon-icon bg-primary mr10" title="Edit this user's settings" data-toggle="panel-action" data-panel-action="edit" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}"><i class="fa fa-pencil text-white"></i></a>
-						<button type="button" class="btn btn-xs btn-round btn-icon-icon bg-danger" title="Delete this user" data-toggle="panel-action" data-panel-action="delete" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}"><i class="fa fa-trash text-white"></i></a>
-					</div>
-					<i class="fa fa-user mr5"></i> {{ user.username }}
+{{#> index}}
+	{{#*inline 'content'}}
+		<div class="row">
+			<div class="col-md-8 col-lg-6">
+				<div class="mb15">
+					<h4 class="no-margin text-uppercase">
+						<a class="pull-right" href="{{ session.urls.sites }}/{{ content.site.name }}">
+							<i class="fa fa-times"></i>
+						</a>
+						Site users: {{ content.site.name }}
+					</h4>
 				</div>
-				<div id="panel-content-{{ user.username }}">
-					<div class="panel-body panel-body-edit">
-						<div class="row no-margin">
+				{{#unless content.site.users}}
+				<div class="alert alert-info">
+					<h5>There are no users registered for this site.</h5>
+				</div>
+				{{/unless}}
+				{{#if content.site.users}}
+				<div class="site-users mb10">
+					{{#each content.site.users as |user|}}
+					<div id="panel-{{ user.username }}" class="panel panel-white panel-bordered mb0" data-toggle="panel" data-target="#panel-content-{{ user.username }}" aria-expanded="false" aria-controls="panel-content-{{ user.username }}">
+						<div class="panel-heading">
+							<div class="panel-controls">
+								<button type="button" class="btn btn-xs btn-round btn-icon-icon bg-primary mr10" title="Edit this user's settings" data-toggle="panel-action" data-panel-action="edit" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}"><i class="fa fa-pencil text-white"></i></a>
+								<button type="button" class="btn btn-xs btn-round btn-icon-icon bg-danger" title="Delete this user" data-toggle="panel-action" data-panel-action="delete" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}"><i class="fa fa-trash text-white"></i></a>
+							</div>
+							<i class="fa fa-user mr5"></i> {{ user.username }}
+						</div>
+						<div id="panel-content-{{ user.username }}">
+							<div class="panel-body panel-body-edit">
+								<div class="row no-margin">
+									<div class="col-lg-12">
+										<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
+											<input type="hidden" name="_method" value="PUT"/>
+											<div class="form-group">
+												<label class="col-sm-3 control-label">Username</label>
+												<div class="col-sm-9">
+													<p class="form-control-static">{{ user.username }}</p>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-3 control-label">Password</label>
+												<div class="col-sm-9">
+													<input type="password" class="form-control"
+														name="password"
+														placeholder="New password"
+														data-validate="notEmpty"
+														data-trigger="focus"
+													/>
+													<span class="form-control-feedback fa" aria-hidden="true"></span>
+												</div>
+											</div>
+											<div class="form-group">
+												<div class="col-sm-offset-3 col-sm-9">
+													<button type="submit" class="btn btn-success">Save changes</button>
+													<button type="reset" class="btn btn-default ml5" data-toggle="panel-action" data-panel-action="edit" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}">Cancel</button>
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+							<div class="panel-body panel-body-delete">
+								<div class="row no-margin">
+									<div class="col-lg-12">
+										<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
+											<input type="hidden" name="_method" value="DELETE"/>
+											<div class="form-group">
+												<label class="col-sm-3 control-label">Are you sure?</label>
+												<div class="col-sm-9">
+													<div class="checkbox">
+														<label><input type="checkbox" data-bind-id="confirm-delete-{{ user.username }}"/> I want to permanently delete <strong>{{ user.username }}</strong></label>
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<div class="col-sm-offset-3 col-sm-9">
+													<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete-{{ user.username }}">Delete user</button>
+													<button type="reset" class="btn btn-default ml5" data-toggle="panel-action" data-panel-action="delete" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}">Cancel</button>
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{{/each}}
+				</div>
+				{{/if}}
+				<div>
+					<button class="widget btn btn-reset bg-white mb0" data-toggle="collapse" data-target="#add-user" aria-expanded="false" aria-controls="add-user">
+						<i class="widget-icon bg-primary pull-left fa fa-user-plus"></i>
+						<h4>Add a user</h4>
+					</button>
+					<div class="widget bg-primary mb0">
+						<i class="widget-icon bg-white pull-left fa fa-user-plus"></i>
+						<h4>Add a user</h4>
+					</div>
+					<div class="collapse" id="add-user" data-collapse-anchor>
+						<div class="panel-body bg-white">
 							<div class="col-lg-12">
-								<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
-									<input type="hidden" name="_method" value="PUT"/>
+								<form class="form-horizontal" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}/users" autocomplete="off">
+									<input type="hidden" name="_method" value="POST"/>
 									<div class="form-group">
 										<label class="col-sm-3 control-label">Username</label>
 										<div class="col-sm-9">
-											<p class="form-control-static">{{ user.username }}</p>
+											<input type="text" class="form-control"
+												name="username"
+												placeholder="Username"
+												value=""
+												data-validate="notEmpty"
+												data-trigger="focus"
+											/>
+											<span class="form-control-feedback fa" aria-hidden="true"></span>
 										</div>
 									</div>
 									<div class="form-group">
@@ -41,7 +120,8 @@
 										<div class="col-sm-9">
 											<input type="password" class="form-control"
 												name="password"
-												placeholder="New password"
+												placeholder="Password"
+												value=""
 												data-validate="notEmpty"
 												data-trigger="focus"
 											/>
@@ -50,31 +130,8 @@
 									</div>
 									<div class="form-group">
 										<div class="col-sm-offset-3 col-sm-9">
-											<button type="submit" class="btn btn-success">Save changes</button>
-											<button type="reset" class="btn btn-default ml5" data-toggle="panel-action" data-panel-action="edit" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}">Cancel</button>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
-					<div class="panel-body panel-body-delete">
-						<div class="row no-margin">
-							<div class="col-lg-12">
-								<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
-									<input type="hidden" name="_method" value="DELETE"/>
-									<div class="form-group">
-										<label class="col-sm-3 control-label">Are you sure?</label>
-										<div class="col-sm-9">
-											<div class="checkbox">
-												<label><input type="checkbox" data-bind-id="confirm-delete-{{ user.username }}"/> I want to permanently delete <strong>{{ user.username }}</strong></label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-sm-offset-3 col-sm-9">
-											<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete-{{ user.username }}">Delete user</button>
-											<button type="reset" class="btn btn-default ml5" data-toggle="panel-action" data-panel-action="delete" data-target="#panel-{{ user.username }}" aria-controls="panel-{{ user.username }}">Cancel</button>
+											<button type="submit" class="btn btn-success">Add user</button>
+											<button type="reset" class="btn btn-default ml5" data-toggle="collapse" data-target="#add-user" aria-expanded="false" aria-controls="add-user">Cancel</button>
 										</div>
 									</div>
 								</form>
@@ -83,59 +140,6 @@
 					</div>
 				</div>
 			</div>
-			{{/each}}
 		</div>
-		{{/if}}
-		<div>
-			<button class="widget btn btn-reset bg-white mb0" data-toggle="collapse" data-target="#add-user" aria-expanded="false" aria-controls="add-user">
-				<i class="widget-icon bg-primary pull-left fa fa-user-plus"></i>
-				<h4>Add a user</h4>
-			</button>
-			<div class="widget bg-primary mb0">
-				<i class="widget-icon bg-white pull-left fa fa-user-plus"></i>
-				<h4>Add a user</h4>
-			</div>
-			<div class="collapse" id="add-user" data-collapse-anchor>
-				<div class="panel-body bg-white">
-					<div class="col-lg-12">
-						<form class="form-horizontal" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}/users" autocomplete="off">
-							<input type="hidden" name="_method" value="POST"/>
-							<div class="form-group">
-								<label class="col-sm-3 control-label">Username</label>
-								<div class="col-sm-9">
-									<input type="text" class="form-control"
-										name="username"
-										placeholder="Username"
-										value=""
-										data-validate="notEmpty"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-3 control-label">Password</label>
-								<div class="col-sm-9">
-									<input type="password" class="form-control"
-										name="password"
-										placeholder="Password"
-										value=""
-										data-validate="notEmpty"
-										data-trigger="focus"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-								</div>
-							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-3 col-sm-9">
-									<button type="submit" class="btn btn-success">Add user</button>
-									<button type="reset" class="btn btn-default ml5" data-toggle="collapse" data-target="#add-user" aria-expanded="false" aria-controls="add-user">Cancel</button>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+	{{/inline}}
+{{/index}}

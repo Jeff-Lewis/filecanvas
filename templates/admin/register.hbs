@@ -1,79 +1,83 @@
-<div class="row">
-	<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-		<div class="register-panel panel panel-primary mb25">
-			<div class="panel-heading border">
-				<h4 class="no-margin text-uppercase">Your profile</h4>
-			</div>
-			<div class="panel-body">
-				<div class="row no-margin">
-					<div class="col-lg-12">
-						<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.register }}" autocomplete="off">
-							<input type="hidden" name="_method" value="POST"/>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Username</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control"
-										name="username"
-										placeholder="Username"
-										value="{{ content.user.username }}"
-										data-bind-id="username"
-										data-parser="slug"
-										data-validate="slug"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-									<p class="help-block">Your Shunt web root will be {{#replace '$0' content.user.username}}{{#replace '$0' '<strong data-bind-value="username">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Name</label>
-								<div class="col-sm-4">
-									<input type="text" class="form-control"
-										name="firstName"
-										placeholder="First name"
-										value="{{ content.user.firstName }}"
-										data-validate="notEmpty"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-								</div>
-								<div class="col-sm-6">
-									<input type="text" class="form-control"
-										name="lastName"
-										placeholder="Last name"
-										value="{{ content.user.lastName }}"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label">Email</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control"
-										name="email"
-										placeholder="Email address"
-										value="{{ content.user.email }}"
-										data-validate="email"
-									/>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-								</div>
-							</div>
-							<div class="form-group">
-								<div class="text-center">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox"
-												data-bind-id="confirm-terms"
-											/>I agree to the <a href="{{ session.urls.terms }}" target="_blank">terms and conditions</a>
-										</label>
+{{#> index}}
+	{{#*inline 'content'}}
+		<div class="row">
+			<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+				<div class="register-panel panel panel-primary mb25">
+					<div class="panel-heading border">
+						<h4 class="no-margin text-uppercase">Your profile</h4>
+					</div>
+					<div class="panel-body">
+						<div class="row no-margin">
+							<div class="col-lg-12">
+								<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.register }}" autocomplete="off">
+									<input type="hidden" name="_method" value="POST"/>
+									<div class="form-group">
+										<label class="col-sm-2 control-label">Username</label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control"
+												name="username"
+												placeholder="Username"
+												value="{{ content.user.username }}"
+												data-bind-id="username"
+												data-parser="slug"
+												data-validate="slug"
+											/>
+											<span class="form-control-feedback fa" aria-hidden="true"></span>
+											<p class="help-block">Your Shunt web root will be {{#replace '$0' content.user.username}}{{#replace '$0' '<strong data-bind-value="username">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+										</div>
 									</div>
-									<button type="submit" class="btn btn-success mt15" disabled="disabled"
-										data-bind-value="confirm-terms"
-									>Create account</button>
-								</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label">Name</label>
+										<div class="col-sm-4">
+											<input type="text" class="form-control"
+												name="firstName"
+												placeholder="First name"
+												value="{{ content.user.firstName }}"
+												data-validate="notEmpty"
+											/>
+											<span class="form-control-feedback fa" aria-hidden="true"></span>
+										</div>
+										<div class="col-sm-6">
+											<input type="text" class="form-control"
+												name="lastName"
+												placeholder="Last name"
+												value="{{ content.user.lastName }}"
+											/>
+											<span class="form-control-feedback fa" aria-hidden="true"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label">Email</label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control"
+												name="email"
+												placeholder="Email address"
+												value="{{ content.user.email }}"
+												data-validate="email"
+											/>
+											<span class="form-control-feedback fa" aria-hidden="true"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="text-center">
+											<div class="checkbox">
+												<label>
+													<input type="checkbox"
+														data-bind-id="confirm-terms"
+													/>I agree to the <a href="{{ session.urls.terms }}" target="_blank">terms and conditions</a>
+												</label>
+											</div>
+											<button type="submit" class="btn btn-success mt15" disabled="disabled"
+												data-bind-value="confirm-terms"
+											>Create account</button>
+										</div>
+									</div>
+								</form>
 							</div>
-						</form>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
+	{{/inline}}
+{{/index}}

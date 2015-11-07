@@ -88,7 +88,6 @@ module.exports = function(database, config) {
 			thumbnailWidth: config.themes.thumbnail.width,
 			thumbnailHeight: config.themes.thumbnail.height,
 			thumbnailFormat: config.themes.thumbnail.format,
-			adminTemplatesPath: adminTemplatesPath,
 			adminAssetsUrl: adminAssetsUrl
 		}),
 		'my': adminApp(database, {
