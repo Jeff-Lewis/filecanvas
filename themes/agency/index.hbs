@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<meta name="HandheldFriendly" content="true">
-	<meta name="description" content="">
-	<meta name="author" content="">
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+	<meta name="HandheldFriendly" content="true"/>
+	<meta name="description" content=""/>
+	<meta name="author" content=""/>
 	<link rel="shortcut icon" href="{{ resourceUrl @root 'favicon.ico' }}"/>
 	<title>{{ metadata.theme.config.browser.title }}</title>
 	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-	<!--[if lt IE 10]>
-		<link href= "css/ie.css" rel= "stylesheet" media= "all" />
-	<![endif]-->
-	<!--[if lt IE 9]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-	<![endif]-->
-	<link rel="stylesheet" href="{{ resourceUrl @root 'css/base.css' }}">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"/>
+	<!--[if lt IE 10]><link href="css/ie.css" rel="stylesheet" media="all"/><![endif]-->
+	<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link rel="stylesheet" href="{{ resourceUrl @root 'css/base.css' }}"/>
 	<style type="text/css">
 		::selection {
 			background-color: {{ metadata.theme.config.colors.brandColor }};
@@ -82,13 +78,9 @@
 		}
 		{{/if}}
 	</style>
-	<style type="text/css">
-{{{ metadata.theme.config.scripts.css }}}
-	</style>
+	<style type="text/css">{{{ metadata.theme.config.scripts.css }}}</style>
 </head>
-
 <body{{#if metadata.admin }} data-admin data-admin-upload{{/if}}>
-
 	{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
 	<header id="home">
 		<div class="header-bg"></div>
@@ -112,9 +104,7 @@
 		</div>
 	</header>
 	{{/if}}
-
 	<div class="wrapper">
-
 		<nav id="mainnav">
 			<div class="container">
 				<div class="row">
@@ -143,9 +133,7 @@
 				</div>
 			</div>
 		</nav>
-
 		<section class="pages">
-
 			{{#if (or metadata.theme.config.content.introTitle metadata.theme.config.content.introText (files resource.root))}}
 			<div class="page">
 				<div class="container">
@@ -193,7 +181,6 @@
 				</div>
 			</div>
 			{{/if}}
-
 			{{#each (folders resource.root) as |folder|}}
 			<div id="{{ slug (basename folder) }}" class="page">
 				<div class="container">
@@ -202,7 +189,6 @@
 							<div class="title">{{ strip-number-prefix folder }}</div>
 							<hr/>
 							<div class="lead-small" data-section-header="{{ strip-number-prefix folder }}"></div>
-
 							{{#if (folders folder)}}
 							<ul class="option-set" data-option-key="filter">
 								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
@@ -213,7 +199,6 @@
 								{{/each}}
 							</ul>
 							{{/if}}
-
 							<div class="posts row isotope">
 								{{#each (files folder) as |file|}}
 								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
@@ -271,9 +256,7 @@
 				</div>
 			</div>
 			{{/each}}
-
 		</section>
-
 		<footer>
 			{{#if (or
 				metadata.theme.config.content.contactTitle
@@ -311,15 +294,12 @@
 				</div>
 			</div>
 			{{/if}}
-
 			<div class="copyright">
 				<p class="copyright-message">Powered by <a href="https://www.shunt.io/">Shunt.io</a></p>
 			</div>
 		</footer>
 	</div>
-
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-
 	<script src="{{ resourceUrl @root 'js/main.js' }}"></script>
 	<script src="{{ resourceUrl @root 'js/jquery.easing.min.js' }}"></script>
 	<script src="{{ resourceUrl @root 'js/jquery.sticky.js' }}"></script>
@@ -334,7 +314,5 @@
 	<script src="{{ resourceUrl @root 'js/jquery.fancybox-media.js' }}"></script>
 	<script src="{{ resourceUrl @root 'js/jflickrfeed.js' }}"></script>
 	<script src="{{ resourceUrl @root 'js/settings.js' }}"></script>
-
 </body>
-
 </html>
