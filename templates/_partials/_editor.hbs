@@ -1,0 +1,150 @@
+<div class="editor-sidepanel" id="editor-sidepanel">
+	<div class="panel panel-primary mb0">
+		<div class="panel-heading editor-sidepanel-heading">
+			<div class="editor-sidepanel-controls">
+				<button type="button" class="btn btn-icon-icon btn-xs no-transition" data-toggle="collapse-sidepanel" data-target="#editor-sidepanel" aria-controls="editor-sidepanel">
+					<i class="fa fa-bars"></i>
+				</button>
+			</div>
+			<h4 class="editor-sidepanel-collapsed-title bg-white text-uppercase">Theme options</h4>
+			<h4 class="editor-sidepanel-title no-margin text-uppercase">Theme options</h4>
+		</div>
+		<div class="panel-body no-padding editor-sidepanel-body">
+			<div id="theme-options" class="panel-group theme-options-accordion" role="tablist" aria-multiselectable="false" data-fixed-accordion>
+				{{#each (lookup (lookup content.themes content.site.theme.id) 'config') as |configGroup|}}
+				<div class="panel panel-default">
+					<a class="panel-heading{{#unless (eq @index 0)}} collapsed{{/unless}}" role="tab" data-toggle="collapse" data-parent="#theme-options" href="#theme-options-{{ configGroup.name }}" aria-controls="theme-options-{{ configGroup.name }}" aria-expanded="{{eq @index 0 }}">
+						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+						<h5 class="text-uppercase mt2 mb0">
+							{{#if configGroup.icon}}<i class="fa fa-{{ configGroup.icon }} mr10"></i>{{/if}}
+							{{ configGroup.label }}
+						</h5>
+					</a>
+					<div id="theme-options-{{ configGroup.name }}" class="panel-collapse collapse{{#if (eq @index 0)}} in{{/if}}" role="tabpanel">
+						<fieldset class="panel-body">
+							{{#each configGroup.fields as |field|}}
+							<label class="control-label">{{ field.label }}</label>
+							<div class="mb15">
+								{{#if (eq field.editor.name 'input')}}
+								<input type="{{ field.editor.options.type }}" class="form-control"
+									name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+									placeholder="{{ field.editor.options.placeholder }}"
+									maxlength="{{ field.editor.options.maxLength }}"
+									value="{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}"
+								/>
+								{{/if}}
+								{{#if (eq field.editor.name 'textarea')}}
+								<textarea class="form-control"
+									name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+									placeholder="{{ field.editor.options.placeholder }}"
+									maxlength="{{ field.editor.options.maxLength }}"
+									rows="{{ field.editor.options.rows }}"
+								>{{ escapeNewlines (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) }}</textarea>
+								{{/if}}
+								{{#if (eq field.editor.name 'code')}}
+								<textarea class="form-control code-editor"
+									name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+									placeholder="{{ field.editor.options.placeholder }}"
+									maxlength="{{ field.editor.options.maxLength }}"
+									rows="{{ field.editor.options.rows }}"
+									data-language="{{ field.editor.options.language }}"
+								>{{ escapeNewlines (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) }}</textarea>
+								{{/if}}
+								{{#if (eq field.editor.name 'colorpicker')}}
+								<div class="input-group" data-colorpicker
+									{{#if field.editor.options.format }}
+									data-format="{{ field.editor.options.format }}"
+									{{/if}}
+									{{#if field.editor.options.presets }}
+									data-color-selectors="{{ json field.editor.options.presets }}"
+									{{/if}}
+								>
+									<input class="form-control"
+										name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+										placeholder="{{ field.editor.options.placeholder }}"
+										value="{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}"
+									/><span class="input-group-addon no-bg">
+										<i></i>
+									</span>
+								</div>
+								{{/if}}
+							</div>
+							{{/each}}
+						</fieldset>
+					</div>
+				</div>
+				{{/each}}
+			</div>
+		</div>
+	</div>
+</div>
+<div class="editor-main">
+	<iframe class="editor-preview" frameborder="0"
+		data-editor-preview
+		data-src="{{ session.urls.preview }}/{{ content.site.name }}"
+	></iframe>
+	<div class="editor-progress bg-white p15" data-editor-progress>
+		<p class="mt0 mb5">
+			<button type="button" class="editor-progress-cancel-button pull-right btn btn-link btn-xs" title="Cancel upload" data-editor-progress-cancel>
+				<i class="fa fa-times-circle" style="font-size: 16px;"></i>
+			</button>
+			Uploading <span data-editor-progress-label></span>…
+		</p>
+		<div class="progress progress-striped active mb0">
+			<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0" data-percent="0" data-editor-progress-bar></div>
+		</div>
+	</div>
+	<div class="editor-loading form-centered center-block mb25">
+		<h4 class="text-center mt5 mb25">
+			<i class="form-centered-icon fa fa-cog fa-3 fa-spin"></i>
+			<p>Building site preview…</p>
+		</h4>
+	</div>
+	<div class="modal fade" tabindex="-1" role="dialog" data-editor-upload-status-modal>
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Upload status</h4>
+				</div>
+				<div class="modal-body">
+					<script type="text/template">
+						<% if (error) { %>
+							<p>Upload failed.</p>
+						<% } %>
+						<% if (upload.numFailed === 0) { %>
+							<p>All files uploaded successfully.</p>
+						<% } else { %>
+							<p>Failed to upload the following files/folders:</p>
+							<ul>
+								<% upload.failedItems.forEach(function(item) { %>
+								<li><%= item.filename %></li>
+								<% }); %>
+							</ul>
+							<% if (upload.failedItems.some(function(item) { return !item.type; }) && (navigator.userAgent.indexOf('Chrome') === -1)) { %>
+								<p>Please note that uploading entire folders is currently only supported in <a href="https://www.google.com/chrome/" target="_blank">Google Chrome</a>.</p>
+							<% } %>
+						<% } %>
+					</script>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" tabindex="-1" role="dialog" data-editor-confirm-close-modal>
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-body text-center">
+					<h5>You have unsaved changes.</h5>
+					<h5>Are you sure you want to leave this page?</h5>
+				</div>
+				<div class="modal-footer text-center">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" data-editor-confirm-close-ok>Continue</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
