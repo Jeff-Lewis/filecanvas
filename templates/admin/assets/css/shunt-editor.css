@@ -159,7 +159,7 @@
 .editor-preview.loading {
 	display: none;
 }
-.editor-preview.loading + .editor-progress + .editor-loading {
+.editor-preview.loading + .editor-loading {
 	display: block;
 }
 

@@ -60,9 +60,17 @@ module.exports = function(database, config) {
 		protocol: config.https.port ? 'https' : 'http',
 		port: config.https.port || config.http.port
 	});
+	var adminSubdomainUrl = getSubdomainUrl({
+		subdomain: 'my',
+		host: config.host,
+		protocol: config.https.port ? 'https' : 'http',
+		port: config.https.port || config.http.port
+	});
 
-	var adminAssetsUrl = config.assets.admin || assetsSubdomainUrl + 'admin/';
-	var themeAssetsUrl = config.assets.themes || assetsSubdomainUrl + 'themes/';
+	var adminUrl = config.assets.admin || adminSubdomainUrl;
+	var createSiteUrl = adminUrl + 'sites/create-site';
+	var adminAssetsUrl = config.assets.admin || (assetsSubdomainUrl + 'admin/');
+	var themeAssetsUrl = config.assets.themes || (assetsSubdomainUrl + 'themes/');
 	var themeGalleryUrl = config.themes.root || themesSubdomainUrl;
 
 	var subdomains = {
@@ -88,7 +96,8 @@ module.exports = function(database, config) {
 			thumbnailWidth: config.themes.thumbnail.width,
 			thumbnailHeight: config.themes.thumbnail.height,
 			thumbnailFormat: config.themes.thumbnail.format,
-			adminAssetsUrl: adminAssetsUrl
+			adminAssetsUrl: adminAssetsUrl,
+			createSiteUrl: createSiteUrl
 		}),
 		'my': adminApp(database, {
 			host: config.host,

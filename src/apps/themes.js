@@ -1,6 +1,7 @@
 'use strict';
 
 var path = require('path');
+var merge = require('lodash.merge');
 var express = require('express');
 
 var constants = require('../constants');
@@ -33,6 +34,7 @@ module.exports = function(options) {
 	var thumbnailHeight = options.thumbnailHeight;
 	var thumbnailFormat = options.thumbnailFormat;
 	var adminAssetsUrl = options.adminAssetsUrl;
+	var createSiteUrl = options.createSiteUrl;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
@@ -41,6 +43,7 @@ module.exports = function(options) {
 	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
 	if (!thumbnailHeight) { throw new Error('Missing thumbnail height'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
+	if (!createSiteUrl) { throw new Error('Missing create site URL'); }
 
 	var themes = loadThemes(themesPath, {
 		preview: true
@@ -204,7 +207,63 @@ module.exports = function(options) {
 		}
 
 		function retrieveThemeEditRoute(req, res, next) {
-			next(new HttpError(501));
+			var themeId = req.params.theme;
+			if (!(themeId in themes)) {
+				return next(new HttpError(404));
+			}
+			var theme = themes[themeId];
+			var siteModel = {
+				private: false,
+				theme: {
+					id: themeId,
+					config: merge({}, theme.preview.config)
+				},
+				root: {}
+			};
+			var templateData = {
+				title: 'Site editor',
+				stylesheets: [
+					adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
+					adminAssetsUrl + 'css/shunt-editor.css'
+				],
+				scripts: [
+					adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
+					adminAssetsUrl + 'js/shunt-editor.js',
+					'/' + siteModel.theme.id + '/template/index.js'
+				],
+				fullPage: true,
+				navigation: false,
+				footer: false,
+				content: {
+					site: siteModel,
+					themes: themes,
+					adapter: null,
+					preview: {
+						metadata: {
+							siteRoot: '/' + siteModel.theme.id + '/preview',
+							themeRoot: themeAssetsUrl + siteModel.theme.id + '/',
+							theme: siteModel.theme,
+							preview: true,
+							admin: false
+						},
+						resource: siteModel
+					}
+				}
+			};
+			res.locals.urls = {
+				assets: adminAssetsUrl,
+				createSite: createSiteUrl
+			};
+			return adminPageService.render(req, res, {
+					template: 'theme/edit',
+					context: templateData,
+					partials: {
+						editor: '_editor'
+					}
+				})
+				.catch(function(error) {
+					next(error);
+				});
 		}
 
 		function rewritePreviewThumbnailRequest(req, res, next) {

@@ -23,6 +23,12 @@
 								name="home"
 								value="{{#if content.site.home}}true{{else}}false{{/if}}"
 							/>
+							{{#if content.site.theme.config}}
+							<input type="hidden"
+								name="theme.config"
+								value="{{ json content.site.theme.config }}"
+							/>
+							{{/if}}
 							<div class="panel-heading">
 								<h4 class="no-margin text-uppercase">
 									<i class="fa fa-arrow-right mr10"></i>Step 1: Choose a theme

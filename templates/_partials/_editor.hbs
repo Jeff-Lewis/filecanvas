@@ -79,10 +79,24 @@
 	</div>
 </div>
 <div class="editor-main">
+	{{#if content.preview}}
+	<script type="application/json" data-editor-preview-data>
+		{{{ json content.preview }}}
+	</script>
+	{{/if}}
 	<iframe class="editor-preview" frameborder="0"
 		data-editor-preview
+		{{#if content.site.root}}
 		data-src="{{ session.urls.preview }}/{{ content.site.name }}"
+		{{/if}}
 	></iframe>
+	<div class="editor-loading form-centered center-block mb25">
+		<h4 class="text-center mt5 mb25">
+			<i class="form-centered-icon fa fa-cog fa-3 fa-spin"></i>
+			<p>Building site preview…</p>
+		</h4>
+	</div>
+	{{#if content.site.root}}
 	<div class="editor-progress bg-white p15" data-editor-progress>
 		<p class="mt0 mb5">
 			<button type="button" class="editor-progress-cancel-button pull-right btn btn-link btn-xs" title="Cancel upload" data-editor-progress-cancel>
@@ -93,12 +107,6 @@
 		<div class="progress progress-striped active mb0">
 			<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0" data-percent="0" data-editor-progress-bar></div>
 		</div>
-	</div>
-	<div class="editor-loading form-centered center-block mb25">
-		<h4 class="text-center mt5 mb25">
-			<i class="form-centered-icon fa fa-cog fa-3 fa-spin"></i>
-			<p>Building site preview…</p>
-		</h4>
 	</div>
 	<div class="modal fade" tabindex="-1" role="dialog" data-editor-upload-status-modal>
 		<div class="modal-dialog" role="document">
@@ -133,6 +141,7 @@
 			</div>
 		</div>
 	</div>
+	{{/if}}
 	<div class="modal fade" tabindex="-1" role="dialog" data-editor-confirm-close-modal>
 		<div class="modal-dialog modal-sm" role="document">
 			<div class="modal-content">

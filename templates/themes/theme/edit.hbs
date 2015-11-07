@@ -1,9 +1,7 @@
 {{#> index}}
 	{{#*inline 'content'}}
-		<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
-			<input type="hidden" name="_method" value="PUT"/>
+		<form class="editor" role="form" method="GET" action="{{ session.urls.createSite }}" autocomplete="off" data-editor-form>
 			<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
-			<input type="hidden" value="{{ json content.adapter }}" data-editor-adapter-config/>
 			<div class="title-bar">
 				<div class="title-bar-title">
 					<div class="brand">
@@ -17,8 +15,7 @@
 						<button type="button" class="btn" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
 					</div>
 					<button type="reset" class="btn btn-default">Reset changes</button>
-					<button type="submit" class="btn btn-success">Save and Exit</button>
-					<a class="title-bar-close" href="{{ session.urls.sites }}/{{ content.site.name }}" title="Back to site settings" data-editor-close><i class="fa fa-times"></i></a>
+					<button type="submit" class="btn btn-success bold">Next: Add files</button>
 				</div>
 			</div>
 			{{> editor}}

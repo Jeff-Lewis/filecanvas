@@ -49,6 +49,7 @@ function initLivePreview() {
 	var $formElement = $('[data-editor-form]');
 	var $adapterConfigElement = $('[data-editor-adapter-config]');
 	var $previewElement = $('[data-editor-preview]');
+	var $previewDataElement = $('[data-editor-preview-data]');
 	var $undoButtonElement = $('[data-editor-undo]');
 	var $redoButtonElement = $('[data-editor-redo]');
 	var $closeButtonElement = $('[data-editor-close]');
@@ -58,14 +59,14 @@ function initLivePreview() {
 
 	var precompiledTemplate = Handlebars.templates['index'];
 	var templateFunction = createTemplateFunction(precompiledTemplate, handlebarsHelpers);
-	var adapterConfig = parseAdapterConfig($adapterConfigElement.val());
-	var currentSiteModel = null;
+	var adapterConfig = parseAdapterConfig($adapterConfigElement);
+	var currentSiteModel = parseSiteModel($previewDataElement);
 	var currentThemeConfigOverrides = null;
 	var patchIframeContent = null;
 	var previewUrl = getPreviewUrl(iframeSrc);
 
 	showLoadingIndicator($previewElement);
-	loadPreview(function(domPatcher) {
+	initPreview(currentSiteModel, previewUrl, function(domPatcher) {
 		patchIframeContent = domPatcher;
 		hideLoadingIndicator($previewElement);
 	});
@@ -96,7 +97,17 @@ function initLivePreview() {
 		return templateFunction;
 	}
 
-	function parseAdapterConfig(string) {
+	function parseAdapterConfig($adapterConfigElement) {
+		var json = $adapterConfigElement.val() || null;
+		return (json ? parseJson(json) : null);
+	}
+
+	function parseSiteModel($previewDataElement) {
+		var json = $previewDataElement.text() || null;
+		return (json ? parseJson(json) : null);
+	}
+
+	function parseJson(string) {
 		try {
 			return JSON.parse(string);
 		} catch (error) {
@@ -104,7 +115,9 @@ function initLivePreview() {
 		}
 	}
 
+
 	function getPreviewUrl(previewUrl, params) {
+		if (!previewUrl) { return null; }
 		if (!params) { return previewUrl; }
 		var baseUrl = previewUrl.split('#')[0].split('?')[0];
 		return baseUrl + '?' + serializeQueryParams(params);
@@ -118,8 +131,8 @@ function initLivePreview() {
 		}
 	}
 
-	function loadPreview(callback) {
-		loadJson(previewUrl)
+	function initPreview(siteModel, previewUrl, callback) {
+		loadSiteModel(siteModel, previewUrl)
 			.then(function(siteModel) {
 				var html = templateFunction(siteModel);
 				currentSiteModel = siteModel;
@@ -133,6 +146,11 @@ function initLivePreview() {
 					});
 			});
 
+
+		function loadSiteModel(siteModel, previewUrl) {
+			if (siteModel) { return new $.Deferred().resolve(siteModel).promise(); }
+			return loadJson(previewUrl);
+		}
 
 		function initVirtualDomPatcher(documentElement) {
 			var htmlElement = documentElement.documentElement;
@@ -171,6 +189,7 @@ function initLivePreview() {
 		var initialFormValues = getFormFieldValues($formElement);
 		initLiveEditorState(initialFormValues, updateCallback);
 		initUnsavedChangesWarning(initialFormValues);
+
 
 		function getFormFieldValues($formElement) {
 			var formFieldValues = parseFormFieldValues($formElement);
@@ -395,7 +414,8 @@ function initLivePreview() {
 		}
 	}
 
-	function initInlineUploads() {
+	function initInlineUploads(adapterConfig) {
+		if (!adapterConfig) { return; }
 		var $previewElement = $('[data-editor-preview]');
 		var $progressElement = $('[data-editor-progress]');
 		var $progressLabelElement = $('[data-editor-progress-label]');

@@ -606,14 +606,8 @@ module.exports = function(database, options) {
 
 			function retrieveCreateSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
-				var theme = req.body.theme || null;
-				if (theme && theme.config) {
-					try {
-						theme.config = JSON.parse(theme.config);
-					} catch (error) {
-						return next(new HttpError(400, 'Invalid theme configuration: ' + theme.config));
-					}
-				}
+				var theme = req.query.theme || req.body.theme || null;
+				console.log(theme);
 				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
 					return adapterName !== 'default';
 				}).reduce(function(adaptersMetadata, adapterName) {
@@ -752,6 +746,13 @@ module.exports = function(database, options) {
 
 				var themeId = req.body.theme && req.body.theme.id || null;
 				var themeConfig = req.body.theme && req.body.theme.config || null;
+				if (typeof themeConfig === 'string') {
+					try {
+						themeConfig = JSON.parse(themeConfig);
+					} catch(error) {
+						return next(new HttpError(401));
+					}
+				}
 
 				var siteModel = {
 					'owner': username,
