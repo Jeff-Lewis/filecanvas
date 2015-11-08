@@ -607,7 +607,6 @@ module.exports = function(database, options) {
 			function retrieveCreateSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
 				var theme = req.query.theme || req.body.theme || null;
-				console.log(theme);
 				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
 					return adapterName !== 'default';
 				}).reduce(function(adaptersMetadata, adapterName) {
