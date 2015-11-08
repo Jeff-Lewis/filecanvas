@@ -84,7 +84,7 @@
 		{{{ json content.preview }}}
 	</script>
 	{{/if}}
-	<iframe class="editor-preview" frameborder="0"
+	<iframe class="editor-preview loading" frameborder="0"
 		data-editor-preview="{{ substr (extname (lookup (lookup (lookup content.themes content.site.theme.id) 'templates') 'index')) 1 }}"
 		{{#if content.site.root}}
 		data-src="{{ session.urls.preview }}/{{ content.site.name }}"
