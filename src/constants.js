@@ -6,8 +6,8 @@ exports.DB_COLLECTION_USERS = 'users';
 exports.THEME_MANIFEST_PATH = 'theme.json';
 exports.THEME_THUMBNAIL_PATH = 'thumbnail.png';
 exports.THEME_TEMPLATE_PATHS = {
-	'index': 'index.hbs',
-	'login': 'login.hbs'
+	'index': 'index.handlebars',
+	'login': 'login.handlebars'
 };
 exports.THEME_PREVIEW_CONFIG_PATH = 'preview/config.json';
 exports.THEME_PREVIEW_FILES_PATH = 'preview/files';

@@ -1,10 +1,9 @@
 {
 	"name": "Agency",
 	"thumbnail": "thumbnail.png",
-	"engine": "handlebars",
 	"templates": {
-		"index": "index.hbs",
-		"login": "login.hbs"
+		"index": "index.handlebars",
+		"login": "login.handlebars"
 	},
 	"config": [
 		{

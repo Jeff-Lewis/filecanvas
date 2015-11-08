@@ -88,9 +88,9 @@ module.exports = function(database, config) {
 		}),
 		'themes': themesApp({
 			templatesPath: themesTemplatesPath,
+			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
-			partialsPath: partialsPath,
 			themeAssetsUrl: themeAssetsUrl,
 			thumbnailsPath: path.join(thumbnailsPath, 'theme'),
 			thumbnailWidth: config.themes.thumbnail.width,
@@ -119,6 +119,7 @@ module.exports = function(database, config) {
 			host: config.host,
 			templatesPath: themesPath,
 			errorTemplatesPath: errorTemplatesPath,
+			themesPath: themesPath,
 			themeAssetsUrl: themeAssetsUrl,
 			adapters: config.adapters
 		}),

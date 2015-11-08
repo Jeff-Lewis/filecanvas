@@ -310,10 +310,7 @@ module.exports = function(options) {
 			var templateFilename = theme.templates[templateId];
 			var templatePath = path.resolve(themesPath, themeId, templateFilename);
 			retrieveSerializedTemplate(templatePath, {
-				engine: theme.engine,
-				options: {
-					name: templateId
-				}
+				name: templateId
 			})
 				.then(function(serializedTemplate) {
 					sendPrecompiledTemplate(res, serializedTemplate);
@@ -323,10 +320,9 @@ module.exports = function(options) {
 				});
 
 
-			function retrieveSerializedTemplate(templatePath, options) {
+			function retrieveSerializedTemplate(templatePath, engineOptions) {
 				options = options || {};
-				var engine = options.engine;
-				var engineOptions = options.options;
+				var engine = path.extname(templatePath).substr('.'.length);
 				switch (engine) {
 					case 'handlebars':
 						return retrieveSerializedHandlebarsTemplate(templatePath, engineOptions);

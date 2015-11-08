@@ -414,6 +414,7 @@ module.exports = function(database, options) {
 					host: host,
 					templatesPath: themesPath,
 					errorTemplatesPath: errorTemplatesPath,
+					themesPath: themesPath,
 					themeAssetsUrl: themeAssetsUrl,
 					adaptersConfig: adaptersConfig
 				})
@@ -1130,6 +1131,7 @@ module.exports = function(database, options) {
 				var host = options.host;
 				var templatesPath = options.templatesPath;
 				var errorTemplatesPath = options.errorTemplatesPath;
+				var themesPath = options.themesPath;
 				var themeAssetsUrl = options.themeAssetsUrl;
 				var adaptersConfig = options.adaptersConfig;
 
@@ -1140,6 +1142,7 @@ module.exports = function(database, options) {
 					host: host,
 					templatesPath: templatesPath,
 					errorTemplatesPath: errorTemplatesPath,
+					themesPath: themesPath,
 					themeAssetsUrl: themeAssetsUrl,
 					adapters: adaptersConfig
 				}));
