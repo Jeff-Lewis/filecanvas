@@ -9,7 +9,7 @@ var merge = require('lodash.merge');
 var isEqual = require('lodash.isequal');
 var Mousetrap = require('mousetrap');
 var Handlebars = require('handlebars/runtime');
-var Htmlbars = require('./lib/Htmlbars');
+var Htmlbars = require('htmlbars/dist/cjs/htmlbars-runtime');
 var DOMHelper = require('htmlbars/dist/cjs/dom-helper');
 
 var HistoryStack = require('./lib/HistoryStack');
