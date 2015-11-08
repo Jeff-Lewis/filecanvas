@@ -140,25 +140,25 @@ function initLivePreview() {
 				renderTemplate(templateEngine, templateName, context, iframeDocumentElement, callback);
 
 
-				function renderTemplate(engineName, templateName, context, parentElement, callback) {
+				function renderTemplate(engineName, templateName, context, documentElement, callback) {
 					switch (engineName) {
 						case 'handlebars':
-							return renderHandlebarsTemplate(templateName, context, parentElement, callback);
+							return renderHandlebarsTemplate(templateName, context, documentElement, callback);
 						case 'htmlbars':
-							return renderHtmlbarsTemplate(templateName, context, parentElement, callback);
+							return renderHtmlbarsTemplate(templateName, context, documentElement, callback);
 						default:
 							throw new Error('Invalid template engine: ' + engineName);
 					}
 
 
-					function renderHandlebarsTemplate(templateName, context, parentElement, callback) {
+					function renderHandlebarsTemplate(templateName, context, documentElement, callback) {
 						var precompiledTemplate = Handlebars.templates[templateName];
 						var templateFunction = createHandlebarsTemplateFunction(precompiledTemplate, handlebarsHelpers);
 						var html = templateFunction(context);
 						previewIframeElement.srcdoc = html;
 						onIframeDomReady(previewIframeElement)
 							.then(function(iframeDocumentElement) {
-								var patcher = initVirtualDomPatcher(iframeDocumentElement);
+								var patcher = initVirtualDomPatcher(documentElement);
 								updatePreview(currentSiteModel, currentThemeConfigOverrides);
 								var rerender = function(context) {
 									var html = templateFunction(context);
@@ -193,12 +193,12 @@ function initLivePreview() {
 						}
 					}
 
-					function renderHtmlbarsTemplate(templateName, context, parentElement, callback) {
+					function renderHtmlbarsTemplate(templateName, context, documentElement, callback) {
 						var template = Htmlbars.templates[templateName];
 						var templateOptions = {
 							helpers: htmlbarsHelpers
 						};
-						var rerender = render(template, context, templateOptions, iframeDocumentElement);
+						var rerender = render(template, context, templateOptions, documentElement);
 						callback(null, rerender);
 
 
