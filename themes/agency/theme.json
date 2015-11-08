@@ -22,8 +22,7 @@
 						"options": {
 							"type": "text",
 							"placeholder": "Main page header",
-							"maxLength": 128,
-							"rows": 3
+							"maxLength": 128
 						}
 					}
 				},
