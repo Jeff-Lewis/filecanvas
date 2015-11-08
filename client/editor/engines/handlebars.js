@@ -12,7 +12,7 @@ window.Handlebars = Handlebars;
 window.Handlebars.templates = {};
 
 module.exports = {
-	throttle: true,
+	throttle: 500,
 	render: render
 };
 

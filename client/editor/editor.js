@@ -14,12 +14,11 @@ var loadJson = require('./utils/loadJson');
 var parseJson = require('./utils/parseJson');
 var serializeQueryParams = require('./utils/serializeQueryParams');
 var getFormFieldValues = require('./utils/getFormFieldValues');
+var debounce = require('./utils/debounce');
 
 var HistoryStack = require('./lib/HistoryStack');
 
 var engines = require('./engines');
-
-var LIVE_UPDATE_DEBOUNCE_DURATION = 500;
 
 $(function() {
 	initColorpickers();
@@ -151,7 +150,7 @@ function initLivePreview() {
 
 	function initLiveUpdates(options, updateCallback) {
 		options = options || {};
-		var throttle = Boolean(options.throttle);
+		var throttle = options.throttle || null;
 		var initialFormValues = getFormFieldValues($formElement);
 		initLiveEditorState(initialFormValues, { throttle: throttle }, updateCallback);
 		initUnsavedChangesWarning(initialFormValues);
@@ -159,10 +158,10 @@ function initLivePreview() {
 
 		function initLiveEditorState(initialFormValues, options, updateCallback) {
 			options = options || {};
-			var throttle = Boolean(options.throttle);
+			var throttle = options.throttle || null;
 			var formUndoHistory = new HistoryStack();
 			formUndoHistory.add(initialFormValues);
-			$formElement.on('input', throttle ? debounce(onFormFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION) : onFormFieldChanged);
+			$formElement.on('input', throttle ? debounce(onFormFieldChanged, options.throttle) : onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
 			$undoButtonElement.on('click', onUndoButtonClicked);
 			$redoButtonElement.on('click', onRedoButtonClicked);
@@ -262,21 +261,6 @@ function initLivePreview() {
 				var isRedoDisabled = !formUndoHistory.getHasNext();
 				$undoButtonElement.prop('disabled', isUndoDisabled);
 				$redoButtonElement.prop('disabled', isRedoDisabled);
-			}
-
-			function debounce(func, wait, immediate) {
-				var timeout;
-				return function() {
-					var context = this, args = arguments;
-					var later = function() {
-						timeout = null;
-						if (!immediate) { func.apply(context, args); }
-					};
-					var callNow = immediate && !timeout;
-					clearTimeout(timeout);
-					timeout = setTimeout(later, wait);
-					if (callNow) { func.apply(context, args); }
-				};
 			}
 		}
 
