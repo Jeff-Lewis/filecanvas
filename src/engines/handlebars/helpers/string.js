@@ -10,6 +10,11 @@ module.exports['concat'] = function(item1, options) {
 	var items = Array.prototype.slice.call(arguments, 0, -1);
 	return items.join('');
 };
+module.exports['substr'] = function(value, start, length, options) {
+	var args = Array.prototype.slice.call(arguments, 0, -1);
+	length = args[2];
+	return value.substr(start, length);
+};
 module.exports['startsWith'] = function(haystack, needle, options) {
 	return haystack.indexOf(needle) === 0;
 };

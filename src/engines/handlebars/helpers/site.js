@@ -1,6 +1,7 @@
 'use strict';
 
 var path = require('path');
+var bytes = require('bytes');
 
 module.exports['loginUrl'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'login';
@@ -16,6 +17,12 @@ module.exports['downloadUrl'] = function(rootModel, file) {
 };
 module.exports['thumbnailUrl'] = function(rootModel, file) {
 	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;
+};
+module.exports['extension'] = function(file, options) {
+	return path.extname(file.path).replace(/^\./, '');
+};
+module.exports['filesize'] = function(file, options) {
+	return bytes.format(file.size, { precision: 1 });
 };
 module.exports['files'] = function(value, options) {
 	if (!value.contents) { return null; }
