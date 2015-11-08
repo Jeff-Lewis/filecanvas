@@ -394,8 +394,10 @@ function initLivePreview() {
 				var formValues = getFormFieldValues($formElement);
 				var hasChanged = !isEqual(formValues, formUndoHistory.getState());
 				if (!hasChanged) { return; }
-				formUndoHistory.add(formValues);
-				updateUndoRedoButtonState();
+				if (event.type === 'change') {
+					formUndoHistory.add(formValues);
+					updateUndoRedoButtonState();
+				}
 				updateCallback(formValues);
 			}
 
