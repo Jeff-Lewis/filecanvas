@@ -3,8 +3,25 @@
 var slug = require('slug');
 var Handlebars = require('handlebars');
 
-module.exports['replace'] = function(item1, item2, options) {
-	return options.fn(this).replace(item1, item2);
+module.exports['replace'] = function(value, pattern, replacement, options) {
+	var sourceIsSafeString = (typeof value.toHTML === 'function');
+	var replacementIsSafeString = (typeof replacement.toHTML === 'function');
+	if (!sourceIsSafeString && !replacementIsSafeString) {
+		return value.replace(pattern, replacement);
+	} else if (sourceIsSafeString && replacementIsSafeString) {
+		value = value.toString();
+		replacement = replacement.toString();
+		return new Handlebars.SafeString(value.replace(pattern, replacement));
+	} else {
+		var segments = value.split(pattern);
+		var lhs = segments[0];
+		var rhs = value.substr(lhs.length + pattern.length);
+		if (sourceIsSafeString) {
+			return new Handlebars.SafeString(lhs + Handlebars.Utils.escapeExpression(replacement) + rhs);
+		} else {
+			return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(lhs) + replacement + Handlebars.Utils.escapeExpression(rhs));
+		}
+	}
 };
 module.exports['concat'] = function(item1, options) {
 	var items = Array.prototype.slice.call(arguments, 0, -1);
@@ -25,4 +42,7 @@ module.exports['escapeNewlines'] = function(value, options) {
 };
 module.exports['slug'] = function(value, options) {
 	return slug(value, { lower: true });
+};
+module.exports['wrap'] = function(value, left, right, options) {
+	return new Handlebars.SafeString(left + Handlebars.Utils.escapeExpression(value) + right);
 };

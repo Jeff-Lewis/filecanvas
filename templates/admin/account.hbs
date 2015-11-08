@@ -107,7 +107,7 @@
 													data-validate="slug"
 												/>
 												<span class="form-control-feedback fa" aria-hidden="true"></span>
-												<p class="help-block">Sites will be moved to {{#replace '$0' content.user.username}}{{#replace '$0' '<strong data-bind-value="username">$0</strong>'}}{{ session.urls.domain }}{{/replace}}{{/replace}}</p>
+												<p class="help-block">Sites will be moved to {{ replace session.urls.domain '$0' (wrap content.user.username '<strong data-bind-value="username">' '</strong>') }}
 											</div>
 										</div>
 										<div class="form-group">
