@@ -50,5 +50,15 @@ module.exports = function(templatePath, context, callback) {
 };
 
 module.exports.compile = compile;
-module.exports.serialize = serialize;
+module.exports.serialize = function(templatePath, templateId) {
+	return serialize(templatePath)
+		.then(function(serializedTemplate) {
+			return wrapHtmlbarsTemplate(serializedTemplate, templateId);
+		});
+
+
+	function wrapHtmlbarsTemplate(template, exportName) {
+		return '(Htmlbars.templates=Htmlbars.templates||{})["' + exportName + '"]=' + template + ';';
+	}
+};
 

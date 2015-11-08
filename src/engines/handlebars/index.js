@@ -45,4 +45,15 @@ module.exports = function(templatePath, context, callback) {
 };
 
 module.exports.compile = compile;
-module.exports.serialize = serialize;
+
+module.exports.serialize = function(templatePath, templateId) {
+	return serialize(templatePath)
+		.then(function(serializedTemplate) {
+			return wrapHandlebarsTemplate(serializedTemplate, templateId);
+		});
+
+
+	function wrapHandlebarsTemplate(template, exportName) {
+		return '(Handlebars.templates=Handlebars.templates||{})["' + exportName + '"]=' + template + ';';
+	}
+};
