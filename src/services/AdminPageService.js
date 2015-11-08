@@ -4,7 +4,7 @@ var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 
-var compileHandlebarsTemplate = require('../engines/handlebars/utils/compile');
+var handlebarsEngine = require('../engines/handlebars');
 
 function AdminPageService(options) {
 	options = options || {};
@@ -57,7 +57,7 @@ AdminPageService.prototype.render = function(req, res, options) {
 		return Promise.all(
 			partialNames.map(function(partialName) {
 				var templatePath = partials[partialName];
-				return compileHandlebarsTemplate(templatePath);
+				return handlebarsEngine.compile(templatePath);
 			})
 		).then(function(compiledPartials) {
 			return compiledPartials.reduce(function(compiledPartialsHash, compiledPartial, index) {

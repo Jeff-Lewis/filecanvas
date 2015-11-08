@@ -15,3 +15,6 @@ exports.THEME_PREVIEW_FILES_PATH = 'preview/files';
 exports.HANDLEBARS_COMPILER_OPTIONS = {
 	knownHelpersOnly: true
 };
+exports.HTMLBARS_COMPILER_OPTIONS = {
+	knownHelpersOnly: true
+};

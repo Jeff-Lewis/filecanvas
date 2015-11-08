@@ -85,7 +85,7 @@
 	</script>
 	{{/if}}
 	<iframe class="editor-preview" frameborder="0"
-		data-editor-preview
+		data-editor-preview="{{ lookup (lookup content.themes content.site.theme.id) 'engine' }}"
 		{{#if content.site.root}}
 		data-src="{{ session.urls.preview }}/{{ content.site.name }}"
 		{{/if}}

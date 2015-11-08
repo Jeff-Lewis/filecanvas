@@ -4,16 +4,16 @@ var fs = require('fs');
 var merge = require('lodash.merge');
 var Handlebars = require('handlebars');
 
-function HandlebarsTemplateService(options) {
+function HandlebarsService(options) {
 	options = options || {};
 	this.helpers = options.helpers || {};
 	this.compilerOptions = merge({ knownHelpers: this.helpers }, options.compiler || {});
 }
 
-HandlebarsTemplateService.prototype.helpers = null;
-HandlebarsTemplateService.prototype.compilerOptions = null;
+HandlebarsService.prototype.helpers = null;
+HandlebarsService.prototype.compilerOptions = null;
 
-HandlebarsTemplateService.prototype.compile = function(templatePath) {
+HandlebarsService.prototype.compile = function(templatePath) {
 	var helpers = this.helpers;
 	var compilerOptions = this.compilerOptions;
 	return loadFile(templatePath)
@@ -38,7 +38,7 @@ HandlebarsTemplateService.prototype.compile = function(templatePath) {
 	}
 };
 
-HandlebarsTemplateService.prototype.render = function(templatePath, context) {
+HandlebarsService.prototype.render = function(templatePath, context) {
 	return this.compile(templatePath)
 		.then(function(templateFunction) {
 			// Extract the Handlebars render options from the
@@ -52,7 +52,7 @@ HandlebarsTemplateService.prototype.render = function(templatePath, context) {
 		});
 };
 
-HandlebarsTemplateService.prototype.serialize = function(templatePath) {
+HandlebarsService.prototype.serialize = function(templatePath) {
 	var compilerOptions = this.compilerOptions;
 	return loadFile(templatePath)
 		.then(function(templateSource) {
@@ -60,7 +60,7 @@ HandlebarsTemplateService.prototype.serialize = function(templatePath) {
 		});
 };
 
-module.exports = HandlebarsTemplateService;
+module.exports = HandlebarsService;
 
 
 function loadFile(filePath) {

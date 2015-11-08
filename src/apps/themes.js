@@ -15,7 +15,7 @@ var loadThemes = require('../utils/loadThemes');
 var AdminPageService = require('../services/AdminPageService');
 
 var handlebarsEngine = require('../engines/handlebars');
-var serializeHandlebarsTemplate = require('../engines/handlebars/utils/serialize');
+var htmlbarsEngine = require('../engines/htmlbars');
 
 var HttpError = require('../errors/HttpError');
 
@@ -309,7 +309,12 @@ module.exports = function(options) {
 			}
 			var templateFilename = theme.templates[templateId];
 			var templatePath = path.resolve(themesPath, themeId, templateFilename);
-			retrieveSerializedTemplate(templatePath, { name: templateId })
+			retrieveSerializedTemplate(templatePath, {
+				engine: theme.engine,
+				options: {
+					name: templateId
+				}
+			})
 				.then(function(serializedTemplate) {
 					sendPrecompiledTemplate(res, serializedTemplate);
 				})
@@ -320,15 +325,42 @@ module.exports = function(options) {
 
 			function retrieveSerializedTemplate(templatePath, options) {
 				options = options || {};
-				var templateName = options.name;
-				return serializeHandlebarsTemplate(templatePath)
-					.then(function(serializedTemplate) {
-						return wrapTemplate(serializedTemplate, templateName);
-					});
+				var engine = options.engine;
+				var engineOptions = options.options;
+				switch (engine) {
+					case 'handlebars':
+						return retrieveSerializedHandlebarsTemplate(templatePath, engineOptions);
+					case 'htmlbars':
+						return retrieveSerializedHtmlbarsTemplate(templatePath, engineOptions);
+					default:
+						return Promise.reject(new Error('Invalid template engine: ' + engine));
+				}
 
 
-				function wrapTemplate(template, templateName) {
-					return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
+				function retrieveSerializedHandlebarsTemplate(templatePath, options) {
+					var templateName = options.name;
+					return handlebarsEngine.serialize(templatePath)
+						.then(function(serializedTemplate) {
+							return wrapHandlebarsTemplate(serializedTemplate, templateName);
+						});
+
+
+					function wrapHandlebarsTemplate(template, templateName) {
+						return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
+					}
+				}
+
+				function retrieveSerializedHtmlbarsTemplate(templatePath, options) {
+					var templateName = options.name;
+					return htmlbarsEngine.serialize(templatePath)
+						.then(function(serializedTemplate) {
+							return wrapHtmlbarsTemplate(serializedTemplate, templateName);
+						});
+
+
+					function wrapHtmlbarsTemplate(template, templateName) {
+						return '(Htmlbars.templates=Htmlbars.templates||{})["' + templateName + '"]=' + template + ';';
+					}
 				}
 			}
 		}
