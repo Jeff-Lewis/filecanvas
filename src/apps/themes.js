@@ -80,6 +80,7 @@ module.exports = function(options) {
 		var templatesPath = options.templatesPath;
 
 		app.engine('hbs', handlebarsEngine);
+		app.engine('htmlbars', htmlbarsEngine);
 
 		app.set('views', templatesPath);
 		app.set('view engine', 'hbs');
