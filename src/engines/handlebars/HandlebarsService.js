@@ -24,10 +24,7 @@ HandlebarsService.prototype.compile = function(templatePath) {
 
 	function compileTemplate(templateSource, helpers, compilerOptions) {
 		var compiler = Handlebars.create();
-		Object.keys(helpers).forEach(function(helperName) {
-			var helper = helpers[helperName];
-			compiler.registerHelper(helperName, helper);
-		});
+		compiler.registerHelper(helpers);
 		var templateFunction = compiler.compile(templateSource, compilerOptions);
 		return templateFunction;
 	}
