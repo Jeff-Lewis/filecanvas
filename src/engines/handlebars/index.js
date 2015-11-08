@@ -46,14 +46,23 @@ module.exports = function(templatePath, context, callback) {
 
 module.exports.compile = compile;
 
-module.exports.serialize = function(templatePath, templateId) {
+module.exports.serialize = function(templatePath, templateId, options) {
+	options = options || {};
+	var isPartial = Boolean(options.partial);
 	return serialize(templatePath)
 		.then(function(serializedTemplate) {
-			return wrapHandlebarsTemplate(serializedTemplate, templateId);
+			return wrapHandlebarsTemplate(serializedTemplate, {
+				export: templateId,
+				partial: isPartial
+			});
 		});
 
 
-	function wrapHandlebarsTemplate(template, exportName) {
-		return '(Handlebars.templates=Handlebars.templates||{})["' + exportName + '"]=' + template + ';';
+	function wrapHandlebarsTemplate(template, options) {
+		options = options || {};
+		var exportName = options.export;
+		var isPartial = Boolean(options.partial);
+		var namespace = (isPartial ? 'Handlebars.partials' : 'Handlebars.templates');
+		return '(' + namespace + '=' + namespace + '||{})["' + exportName + '"]=' + template + ';';
 	}
 };
