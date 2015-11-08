@@ -9,16 +9,13 @@ var transport = require('../middleware/transport');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
-var handlebarsEngine = require('../engines/handlebars');
-var htmlbarsEngine = require('../engines/htmlbars');
-
-var loadThemes = require('../utils/loadThemes');
 var loadAdapters = require('../utils/loadAdapters');
 var HttpError = require('../errors/HttpError');
 
 var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var AuthenticationService = require('../services/AuthenticationService');
+var ThemeService = require('../services/ThemeService');
 
 module.exports = function(database, options) {
 	options = options || {};
@@ -38,7 +35,9 @@ module.exports = function(database, options) {
 	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 
-	var themes = loadThemes(themesPath);
+	var themeService = new ThemeService({
+		themesPath: themesPath
+	});
 	var adapters = loadAdapters(adaptersConfig, database);
 
 	var siteService = new SiteService(database, {
@@ -54,16 +53,12 @@ module.exports = function(database, options) {
 		initAuth(app, passport, database);
 	}
 	initRoutes(app, passport, database, {
-		themes: themes,
 		themeAssetsUrl: themeAssetsUrl,
 		preview: isPreview
 	});
 	initErrorHandler(app, {
 		templatesPath: errorTemplatesPath,
 		template: 'error'
-	});
-	initViewEngine(app, {
-		templatesPath: templatesPath
 	});
 
 	return app;
@@ -89,39 +84,43 @@ module.exports = function(database, options) {
 			var siteName = deserializedUser.site;
 			var siteUsername = deserializedUser.siteUser;
 
-			siteService.retrieveSiteAuthenticationDetails(username, siteName, {
-				published: true
-			})
-				.then(function(authenticationDetails) {
-					var isPrivate = authenticationDetails.private;
-					if (!isPrivate) {
-						var anonymousUser = {
+			new Promise(function(resolve, reject) {
+				resolve(
+					siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+						published: true
+					})
+					.then(function(authenticationDetails) {
+						var isPrivate = authenticationDetails.private;
+						if (!isPrivate) {
+							var anonymousUser = {
+								user: username,
+								site: siteName,
+								model: null
+							};
+							return callback(null, anonymousUser);
+						}
+						var validUsers = authenticationDetails.users;
+						var matchedUsers = validUsers.filter(function(validUser) {
+							return validUser.username === siteUsername;
+						});
+
+						if (matchedUsers.length === 0) {
+							throw new Error('Username not found: "' + siteUsername + '"');
+						}
+
+						var siteUserModel = matchedUsers[0];
+						var passportUser = {
 							user: username,
 							site: siteName,
-							model: null
+							model: siteUserModel
 						};
-						return callback(null, anonymousUser);
-					}
-					var validUsers = authenticationDetails.users;
-					var matchedUsers = validUsers.filter(function(validUser) {
-						return validUser.username === siteUsername;
-					});
-
-					if (matchedUsers.length === 0) {
-						throw new Error('Username not found: "' + siteUsername + '"');
-					}
-
-					var siteUserModel = matchedUsers[0];
-					var passportUser = {
-						user: username,
-						site: siteName,
-						model: siteUserModel
-					};
-					return callback(null, passportUser);
-				})
-				.catch(function(error) {
-					return callback(error);
-				});
+						return callback(null, passportUser);
+					})
+				);
+			})
+			.catch(function(error) {
+				return callback(error);
+			});
 		});
 
 		passport.use('site/local', new LocalStrategy({ passReqToCallback: true },
@@ -129,49 +128,43 @@ module.exports = function(database, options) {
 				var username = req.params.user;
 				var siteName = req.params.site;
 
-				siteService.retrieveSiteAuthenticationDetails(username, siteName, {
-					published: true
-				})
-					.then(function(authenticationDetails) {
-						var isPrivate = authenticationDetails.private;
-						if (!isPrivate) {
-							var passportUser = {
-								user: username,
-								site: siteName,
-								model: null
-							};
-							return callback(null, passportUser);
-						}
-
-						var validUsers = authenticationDetails.users;
-						var authenticationService = new AuthenticationService();
-						return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
-							.then(function(siteUserModel) {
-								if (!siteUserModel) { return callback(null, false); }
-
+				new Promise(function(resolve, reject) {
+					resolve(
+						siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+							published: true
+						})
+						.then(function(authenticationDetails) {
+							var isPrivate = authenticationDetails.private;
+							if (!isPrivate) {
 								var passportUser = {
 									user: username,
 									site: siteName,
-									model: siteUserModel
+									model: null
 								};
 								return callback(null, passportUser);
-							});
-					})
-					.catch(function(error) {
-						return callback(error);
-					});
+							}
+
+							var validUsers = authenticationDetails.users;
+							var authenticationService = new AuthenticationService();
+							return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
+								.then(function(siteUserModel) {
+									if (!siteUserModel) { return callback(null, false); }
+
+									var passportUser = {
+										user: username,
+										site: siteName,
+										model: siteUserModel
+									};
+									return callback(null, passportUser);
+								});
+						})
+					);
+				})
+				.catch(function(error) {
+					return callback(error);
+				});
 			})
 		);
-	}
-
-	function initViewEngine(app, options) {
-		options = options || {};
-		var templatesPath = options.templatesPath;
-
-		app.engine('handlebars', handlebarsEngine);
-		app.engine('htmlbars', htmlbarsEngine);
-
-		app.set('views', templatesPath);
 	}
 
 	function initErrorHandler(app, options) {
@@ -188,12 +181,11 @@ module.exports = function(database, options) {
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
 		var isPreview = options.preview;
-		var themes = options.themes;
 		var themeAssetsUrl = options.themeAssetsUrl;
 
 		initDefaultSiteRedirectRoutes(app);
 		initAuthRoutes(app, passport, isPreview);
-		initSiteRoutes(app, themes, themeAssetsUrl, isPreview);
+		initSiteRoutes(app, themeAssetsUrl, isPreview);
 		app.use(invalidRoute());
 
 
@@ -210,20 +202,25 @@ module.exports = function(database, options) {
 				pathSuffix = pathSuffix || '';
 				return function(req, res, next) {
 					var username = req.params.user;
-					userService.retrieveUserDefaultSiteName(username)
-						.then(function(siteName) {
-							if (!siteName) {
-								throw new HttpError(404);
-							}
-							var wildcardPath = req.params[0];
-							var WILDCARD_REGEXP = /\/\*$/;
-							var fullPath = pathSuffix.replace(WILDCARD_REGEXP, '/' + wildcardPath);
-							req.url = '/' + username + '/' + siteName + fullPath;
-							next();
-						})
-						.catch(function(error) {
-							next(error);
-						});
+
+					new Promise(function(resolve, reject) {
+						resolve(
+							userService.retrieveUserDefaultSiteName(username)
+								.then(function(siteName) {
+									if (!siteName) {
+										throw new HttpError(404);
+									}
+									var wildcardPath = req.params[0];
+									var WILDCARD_REGEXP = /\/\*$/;
+									var fullPath = pathSuffix.replace(WILDCARD_REGEXP, '/' + wildcardPath);
+									req.url = '/' + username + '/' + siteName + fullPath;
+									next();
+								})
+						);
+					})
+					.catch(function(error) {
+						next(error);
+					});
 				};
 			}
 		}
@@ -248,17 +245,22 @@ module.exports = function(database, options) {
 						return redirectToSitePage(req, res);
 					}
 				}
-				siteService.retrieveSiteAuthenticationDetails(username, siteName, {
-					published: true
+
+				new Promise(function(resolve, reject) {
+					resolve(
+						siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+							published: true
+						})
+						.then(function(authenticationDetails) {
+							var isPrivate = authenticationDetails.private;
+							if (!isPrivate) { return redirectToSitePage(req, res); }
+							next();
+						})
+					);
 				})
-					.then(function(authenticationDetails) {
-						var isPrivate = authenticationDetails.private;
-						if (!isPrivate) { return redirectToSitePage(req, res); }
-						next();
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				.catch(function(error) {
+					next(error);
+				});
 
 
 				function redirectToSitePage(req, res) {
@@ -315,7 +317,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initSiteRoutes(app, themes, themeAssetsUrl, isPreview) {
+		function initSiteRoutes(app, themeAssetsUrl, isPreview) {
 			app.get('/:user/:site/login', loginRoute);
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
@@ -332,36 +334,41 @@ module.exports = function(database, options) {
 						return next();
 					}
 				}
-				siteService.retrieveSiteAuthenticationDetails(username, siteName, {
-					published: true
+
+				new Promise(function(resolve, reject) {
+					resolve(
+						siteService.retrieveSiteAuthenticationDetails(username, siteName, {
+							published: true
+						})
+						.then(function(authenticationDetails) {
+							var isPrivate = authenticationDetails.private;
+							if (!isPrivate) {
+								return ensurePreviousUserLoggedOut(req)
+									.then(function() {
+										return next();
+									})
+									.catch(function(error) {
+										return next(error);
+									});
+							}
+
+							var requestPath = req.originalUrl.split('?')[0];
+
+							var siteLoginUrl = '/login';
+							var isDownloadLink = (requestPath.indexOf('/download') === 0);
+							if (isDownloadLink) {
+								// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
+								siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
+							} else {
+								siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
+							}
+							res.redirect(siteLoginUrl);
+						})
+					);
 				})
-					.then(function(authenticationDetails) {
-						var isPrivate = authenticationDetails.private;
-						if (!isPrivate) {
-							return ensurePreviousUserLoggedOut(req)
-								.then(function() {
-									return next();
-								})
-								.catch(function(error) {
-									return next(error);
-								});
-						}
-
-						var requestPath = req.originalUrl.split('?')[0];
-
-						var siteLoginUrl = '/login';
-						var isDownloadLink = (requestPath.indexOf('/download') === 0);
-						if (isDownloadLink) {
-							// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
-							siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
-						} else {
-							siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
-						}
-						res.redirect(siteLoginUrl);
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function getSiteRootUrl(req, currentPath) {
@@ -376,58 +383,61 @@ module.exports = function(database, options) {
 			function loginRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
-				var themeConfigOverrides = (req.query.config ? JSON.parse(req.query.config) : null);
-				userService.retrieveUser(username)
-					.then(function(userModel) {
-						var username = userModel.username;
-						var published = !isPreview;
-						var includeTheme = true;
-						var includeContents = false;
-						var includeUsers = false;
-						var useCached = false;
-						return siteService.retrieveSite(username, siteName, {
-							published: published,
-							theme: includeTheme,
-							contents: includeContents,
-							users: includeUsers,
-							cacheDuration: (useCached ? Infinity : null)
-						})
-							.then(function(siteModel) {
-								var themeId = siteModel.theme.id;
-								if (!(themeId in themes)) {
-									throw new Error('Invalid theme: ' + themeId);
-								}
-								var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
-								var templateData = {
-									metadata: {
-										siteRoot: getSiteRootUrl(req, '/login'),
-										themeRoot: themeAssetsUrl + themeId + '/',
-										theme: {
-											id: themeId,
-											config: themeConfig
+				var themeConfigOverrides = null;
+				if (req.query.theme && req.query.theme.config) {
+					try {
+						themeConfigOverrides = JSON.parse(req.query['theme.config']);
+					} catch (error) {
+						return next(new HttpError(400, 'Invalid theme configuration: ' + req.query['theme.config']));
+					}
+				}
+
+				new Promise(function(resolve, reject) {
+					resolve(
+						userService.retrieveUser(username)
+							.then(function(userModel) {
+								var username = userModel.username;
+								var published = !isPreview;
+								var includeTheme = true;
+								var includeContents = false;
+								var includeUsers = false;
+								var useCached = false;
+								return siteService.retrieveSite(username, siteName, {
+									published: published,
+									theme: includeTheme,
+									contents: includeContents,
+									users: includeUsers,
+									cacheDuration: (useCached ? Infinity : null)
+								})
+									.then(function(siteModel) {
+										var themeId = siteModel.theme.id;
+										var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
+										var templateData = {
+											metadata: {
+												siteRoot: getSiteRootUrl(req, '/login'),
+												themeRoot: themeAssetsUrl + themeId + '/',
+												theme: {
+													id: themeId,
+													config: themeConfig
+												}
+											},
+											resource: {
+												private: siteModel.private
+											}
+										};
+										if (isPreview) {
+											templateData.metadata.admin = true;
+											templateData.metadata.preview = true;
 										}
-									},
-									resource: {
-										private: siteModel.private
-									}
-								};
-								if (isPreview) {
-									templateData.metadata.admin = true;
-									templateData.metadata.preview = true;
-								}
-								var theme = themes[themeId];
-								var templateId = 'login';
-								var templateMetadata = theme.templates[templateId];
-								var templateFilename = templateMetadata.filename;
-								var templateOptions = templateMetadata.options;
-								var template = themeId + '/' + templateFilename;
-								var context = merge({ '_': templateOptions }, templateData);
-								renderTemplate(res, template, context);
-							});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+										var templateId = 'login';
+										renderTemplate(res, themeId, templateId, templateData, next);
+									});
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function siteRoute(req, res, next) {
@@ -435,64 +445,60 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				var useCached = (req.query.cached === 'true');
 				var themeConfigOverrides = null;
-				if (req.query['theme.config']) {
+				if (req.query.theme && req.query.theme.config) {
 					try {
 						themeConfigOverrides = JSON.parse(req.query['theme.config']);
 					} catch (error) {
 						return next(new HttpError(400, 'Invalid theme configuration: ' + req.query['theme.config']));
 					}
 				}
-				userService.retrieveUser(username)
-					.then(function(userModel) {
-						var username = userModel.username;
-						var published = !isPreview;
-						var includeTheme = true;
-						var includeContents = true;
-						var includeUsers = false;
-						return siteService.retrieveSite(username, siteName, {
-							published: published,
-							theme: includeTheme,
-							contents: includeContents,
-							users: includeUsers,
-							cacheDuration: (useCached ? Infinity : null)
-						})
-							.then(function(siteModel) {
-								var themeId = siteModel.theme.id;
-								if (!(themeId in themes)) {
-									throw new Error('Invalid theme: ' + themeId);
-								}
-								var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
-								var templateData = {
-									metadata: {
-										siteRoot: getSiteRootUrl(req),
-										themeRoot: themeAssetsUrl + themeId + '/',
-										theme: {
-											id: themeId,
-											config: themeConfig
+
+				new Promise(function(resolve, reject) {
+					resolve(
+						userService.retrieveUser(username)
+							.then(function(userModel) {
+								var username = userModel.username;
+								var published = !isPreview;
+								var includeTheme = true;
+								var includeContents = true;
+								var includeUsers = false;
+								return siteService.retrieveSite(username, siteName, {
+									published: published,
+									theme: includeTheme,
+									contents: includeContents,
+									users: includeUsers,
+									cacheDuration: (useCached ? Infinity : null)
+								})
+									.then(function(siteModel) {
+										var themeId = siteModel.theme.id;
+										var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
+										var templateData = {
+											metadata: {
+												siteRoot: getSiteRootUrl(req),
+												themeRoot: themeAssetsUrl + themeId + '/',
+												theme: {
+													id: themeId,
+													config: themeConfig
+												}
+											},
+											resource: {
+												private: siteModel.private,
+												root: siteModel.contents
+											}
+										};
+										if (isPreview) {
+											templateData.metadata.admin = true;
+											templateData.metadata.preview = true;
 										}
-									},
-									resource: {
-										private: siteModel.private,
-										root: siteModel.contents
-									}
-								};
-								if (isPreview) {
-									templateData.metadata.admin = true;
-									templateData.metadata.preview = true;
-								}
-								var theme = themes[themeId];
-								var templateId = 'index';
-								var templateMetadata = theme.templates[templateId];
-								var templateFilename = templateMetadata.filename;
-								var templateOptions = templateMetadata.options;
-								var template = themeId + '/' + templateFilename;
-								var context = merge({ '_': templateOptions }, templateData);
-								renderTemplate(res, template, context);
-							});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+										var templateId = 'index';
+										renderTemplate(res, themeId, templateId, templateData, next);
+									});
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function downloadRoute(req, res, next) {
@@ -500,13 +506,17 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				var filePath = req.params[0];
 
-				siteService.retrieveSiteDownloadLink(username, siteName, filePath)
-					.then(function(downloadUrl) {
-						res.redirect(downloadUrl);
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				new Promise(function(resolve, reject) {
+					resolve(
+						siteService.retrieveSiteDownloadLink(username, siteName, filePath)
+							.then(function(downloadUrl) {
+								res.redirect(downloadUrl);
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function thumbnailRoute(req, res, next) {
@@ -514,22 +524,32 @@ module.exports = function(database, options) {
 				var siteName = req.params.site;
 				var filePath = req.params[0];
 
-				siteService.retrieveSiteThumbnailLink(username, siteName, filePath)
-					.then(function(thumbnailUrl) {
-						res.redirect(thumbnailUrl);
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				new Promise(function(resolve, reject) {
+					resolve(
+						siteService.retrieveSiteThumbnailLink(username, siteName, filePath)
+							.then(function(thumbnailUrl) {
+								res.redirect(thumbnailUrl);
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
-			function renderTemplate(res, template, templateData) {
+			function renderTemplate(res, themeId, templateId, context, next) {
 				res.format({
 					'text/html': function() {
-						res.render(template, templateData);
+						themeService.render(themeId, templateId, context)
+							.then(function(output) {
+								res.send(output);
+							})
+							.catch(function(error) {
+								next(error);
+							});
 					},
 					'application/json': function() {
-						res.json(templateData);
+						res.json(context);
 					}
 				});
 			}

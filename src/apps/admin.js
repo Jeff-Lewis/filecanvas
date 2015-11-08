@@ -16,7 +16,6 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
-var loadThemes = require('../utils/loadThemes');
 var loadAdapters = require('../utils/loadAdapters');
 var readDirContentsSync = require('../utils/readDirContentsSync');
 var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
@@ -27,6 +26,7 @@ var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
 var RegistrationService = require('../services/RegistrationService');
 var AdminPageService = require('../services/AdminPageService');
+var ThemeService = require('../services/ThemeService');
 
 module.exports = function(database, options) {
 	options = options || {};
@@ -61,7 +61,6 @@ module.exports = function(database, options) {
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
-	var themes = loadThemes(themesPath);
 	var adapters = loadAdapters(adaptersConfig, database);
 	var siteTemplateFiles = readDirContentsSync(siteTemplatePath);
 
@@ -73,6 +72,9 @@ module.exports = function(database, options) {
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath
+	});
+	var themeService = new ThemeService({
+		themesPath: themesPath
 	});
 
 	var app = express();
@@ -87,7 +89,6 @@ module.exports = function(database, options) {
 		'/privacy': fs.readFileSync(privacyPath, { encoding: 'utf8' })
 	});
 	initRoutes(app, passport, database, {
-		themes: themes,
 		themesPath: themesPath,
 		errorTemplatesPath: errorTemplatesPath,
 		adminAssetsUrl: adminAssetsUrl,
@@ -191,7 +192,6 @@ module.exports = function(database, options) {
 
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
-		var themes = options.themes;
 		var themesPath = options.themesPath;
 		var errorTemplatesPath = options.errorTemplatesPath;
 		var adminAssetsUrl = options.adminAssetsUrl;
@@ -204,7 +204,7 @@ module.exports = function(database, options) {
 		var adaptersConfig = options.adaptersConfig;
 
 		initPublicRoutes(app, passport, adapters);
-		initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
+		initPrivateRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -300,84 +300,96 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveLoginRoute(req, res, next) {
-				var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
-					adaptersHash[key] = true;
-					return adaptersHash;
-				}, {});
-				var templateData = {
-					title: 'Login',
-					navigation: false,
-					footer: true,
-					content: {
-						adapters: adaptersHash
-					}
-				};
-				adminPageService.render(req, res, {
-					template: 'login',
-					context: templateData
+				new Promise(function(resolve, reject) {
+					var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
+						adaptersHash[key] = true;
+						return adaptersHash;
+					}, {});
+					var templateData = {
+						title: 'Login',
+						navigation: false,
+						footer: true,
+						content: {
+							adapters: adaptersHash
+						}
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'login',
+							context: templateData
+						})
+					);
 				})
-					.catch(function(error) {
-						next(error);
-					});
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveRegisterRoute(req, res, next) {
-				var registrationService = new RegistrationService(req);
-				var pendingUser = registrationService.getPendingUser();
-				var userDetails = pendingUser.user;
-				var username = userDetails.username;
-				userService.generateUsername(username)
-					.then(function(username) {
-						userDetails = objectAssign(userDetails, {
-							username: username
-						});
-						var templateData = {
-							title: 'Your profile',
-							navigation: false,
-							header: {
-								title: 'Create account'
-							},
-							footer: true,
-							content: {
-								user: pendingUser.user
-							}
-						};
-						adminPageService.render(req, res, {
-							template: 'register',
-							context: templateData
-						})
-							.catch(function(error) {
-								next(error);
-							});
-					});
+				new Promise(function(resolve, reject) {
+					var registrationService = new RegistrationService(req);
+					var pendingUser = registrationService.getPendingUser();
+					var userDetails = pendingUser.user;
+					var username = userDetails.username;
+					return resolve(
+						userService.generateUsername(username)
+							.then(function(username) {
+								userDetails = objectAssign(userDetails, {
+									username: username
+								});
+								var templateData = {
+									title: 'Your profile',
+									navigation: false,
+									header: {
+										title: 'Create account'
+									},
+									footer: true,
+									content: {
+										user: pendingUser.user
+									}
+								};
+								return adminPageService.render(req, res, {
+									template: 'register',
+									context: templateData
+								});
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function processRegisterRoute(req, res, next) {
-				var registrationService = new RegistrationService(req);
-				var pendingUser = registrationService.getPendingUser();
-				var adapter = pendingUser.adapter;
-				var adapterConfig = pendingUser.adapterConfig;
-				var userDetails = {
-					username: req.body.username,
-					firstName: req.body.firstName,
-					lastName: req.body.lastName,
-					email: req.body.email
-				};
-				userService.createUser(userDetails, adapter, adapterConfig)
-					.then(function(userModel) {
-						registrationService.clearPendingUser();
-						req.login(userModel, function(error) {
-							if (error) { return next(error); }
-							res.redirect('/');
-						});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				new Promise(function(resolve, reject) {
+					var registrationService = new RegistrationService(req);
+					var pendingUser = registrationService.getPendingUser();
+					var adapter = pendingUser.adapter;
+					var adapterConfig = pendingUser.adapterConfig;
+					var userDetails = {
+						username: req.body.username,
+						firstName: req.body.firstName,
+						lastName: req.body.lastName,
+						email: req.body.email
+					};
+					return resolve(
+						userService.createUser(userDetails, adapter, adapterConfig)
+							.then(function(userModel) {
+								registrationService.clearPendingUser();
+								req.login(userModel, function(error) {
+									if (error) { return next(error); }
+									res.redirect('/');
+								});
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themes, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
+		function initPrivateRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
@@ -455,33 +467,38 @@ module.exports = function(database, options) {
 			function retrieveFaqRoute(req, res, next) {
 				var username = req.user.username;
 				var siteModels = res.locals.sites;
-				var siteName = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].name : 'my-site');
-				var faqs = replaceFaqPlaceholders(faqData, {
-					username: username,
-					sitename: siteName
-				});
-				var templateData = {
-					title: 'FAQ',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/faq',
-							icon: 'info-circle',
-							label: 'FAQ'
-						}
-					],
-					content: {
-						questions: faqs
-					}
-				};
-				adminPageService.render(req, res, {
-					template: 'faq',
-					context: templateData
-				})
-					.catch(function(error) {
-						next(error);
+
+				new Promise(function(resolve, reject) {
+					var siteName = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].name : 'my-site');
+					var faqs = replaceFaqPlaceholders(faqData, {
+						username: username,
+						sitename: siteName
 					});
+					var templateData = {
+						title: 'FAQ',
+						navigation: true,
+						footer: true,
+						breadcrumb: [
+							{
+								link: '/faq',
+								icon: 'info-circle',
+								label: 'FAQ'
+							}
+						],
+						content: {
+							questions: faqs
+						}
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'faq',
+							context: templateData
+						})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 
 
 				function replaceFaqPlaceholders(faqData, options) {
@@ -495,48 +512,60 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveSupportRoute(req, res, next) {
-				var templateData = {
-					title: 'Support',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/support',
-							icon: 'question-circle',
-							label: 'Support'
-						}
-					],
-					content: null
-				};
-				adminPageService.render(req, res, {
-					template: 'support',
-					context: templateData
+				new Promise(function(resolve, reject) {
+					var templateData = {
+						title: 'Support',
+						navigation: true,
+						footer: true,
+						breadcrumb: [
+							{
+								link: '/support',
+								icon: 'question-circle',
+								label: 'Support'
+							}
+						],
+						content: null
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'support',
+							context: templateData
+						})
+					);
 				})
-					.catch(function(error) {
-						next(error);
-					});
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveUserAccountRoute(req, res, next) {
 				var userModel = req.user;
-				var templateData = {
-					title: 'Your account',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/account',
-							icon: 'user',
-							label: 'Your account'
+
+				new Promise(function(resolve, reject) {
+					var templateData = {
+						title: 'Your account',
+						navigation: true,
+						footer: true,
+						breadcrumb: [
+							{
+								link: '/account',
+								icon: 'user',
+								label: 'Your account'
+							}
+						],
+						content: {
+							user: userModel
 						}
-					],
-					content: {
-						user: userModel
-					}
-				};
-				return adminPageService.render(req, res, {
-					template: 'account',
-					context: templateData
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'account',
+							context: templateData
+						})
+					);
+				})
+				.catch(function(error) {
+					next(error);
 				});
 			}
 
@@ -549,119 +578,137 @@ module.exports = function(database, options) {
 				if ('lastName' in req.body) { updates.lastName = req.body.lastName; }
 				if ('email' in req.body) { updates.email = req.body.email; }
 				if ('defaultSite' in req.body) { updates.defaultSite = req.body.defaultSite || null; }
-				userService.updateUser(username, updates)
-					.then(function() {
-						var hasUpdatedUsername = ('username' in updates) && (updates.username !== userModel.username);
-						if (!hasUpdatedUsername) { return; }
-						return updatePassportUsername(req, userModel, updates.username);
-					})
-					.then(function(userModel) {
-						res.redirect(303, '/account');
-					})
-					.catch(function(error) {
-						next(error);
-					});
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						userService.updateUser(username, updates)
+							.then(function() {
+								var hasUpdatedUsername = ('username' in updates) && (updates.username !== userModel.username);
+								if (!hasUpdatedUsername) { return; }
+								return updatePassportUsername(req, userModel, updates.username);
+							})
+							.then(function(userModel) {
+								res.redirect(303, '/account');
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function deleteUserAccountRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
-				userService.deleteUser(username)
-					.then(function() {
-						req.logout();
-						req.session.regenerate(function(error) {
-							if (error) { return next(error); }
-							res.redirect(303, '/');
-						});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				new Promise(function(resolve, reject) {
+					return resolve(
+						userService.deleteUser(username)
+							.then(function() {
+								req.logout();
+								req.session.regenerate(function(error) {
+									if (error) { return next(error); }
+									res.redirect(303, '/');
+								});
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveSitesRoute(req, res, next) {
-				var templateData = {
-					title: 'Site dashboard',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/sites',
-							icon: 'dashboard',
-							label: 'Site dashboard'
+				new Promise(function(resolve, reject) {
+					var templateData = {
+						title: 'Site dashboard',
+						navigation: true,
+						footer: true,
+						breadcrumb: [
+							{
+								link: '/sites',
+								icon: 'dashboard',
+								label: 'Site dashboard'
+							}
+						],
+						content: {
+							sites: res.locals.sites,
+							themes: themeService.getThemes()
 						}
-					],
-					content: {
-						sites: res.locals.sites,
-						themes: themes
-					}
-				};
-				adminPageService.render(req, res, {
-					template: 'sites',
-					context: templateData
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'sites',
+							context: templateData
+						})
+					);
 				})
-					.catch(function(error) {
-						next(error);
-					});
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveCreateSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
 				var theme = req.query.theme || req.body.theme || null;
-				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
-					return adapterName !== 'default';
-				}).reduce(function(adaptersMetadata, adapterName) {
-					var adapter = adapters[adapterName];
-					var adapterConfig = userAdapters[adapterName];
-					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
-					return adaptersMetadata;
-				}, {});
-				var defaultAdapterName = userAdapters.default;
-				var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
-				var siteModel = {
-					name: '',
-					label: '',
-					root: {
-						adapter: defaultAdapterName,
-						path: defaultAdapterPath
-					},
-					private: false,
-					published: false,
-					home: false,
-					theme: theme
-				};
-				var templateData = {
-					title: 'Site dashboard',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/sites',
-							icon: 'dashboard',
-							label: 'Site dashboard'
+				new Promise(function(resolve, reject) {
+					var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
+						return adapterName !== 'default';
+					}).reduce(function(adaptersMetadata, adapterName) {
+						var adapter = adapters[adapterName];
+						var adapterConfig = userAdapters[adapterName];
+						adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+						return adaptersMetadata;
+					}, {});
+					var defaultAdapterName = userAdapters.default;
+					var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
+					var siteModel = {
+						name: '',
+						label: '',
+						root: {
+							adapter: defaultAdapterName,
+							path: defaultAdapterPath
 						},
-						{
-							link: '/sites/create-site',
-							icon: 'plus',
-							label: 'Create a site'
+						private: false,
+						published: false,
+						home: false,
+						theme: theme
+					};
+					var templateData = {
+						title: 'Site dashboard',
+						navigation: true,
+						footer: true,
+						breadcrumb: [
+							{
+								link: '/sites',
+								icon: 'dashboard',
+								label: 'Site dashboard'
+							},
+							{
+								link: '/sites/create-site',
+								icon: 'plus',
+								label: 'Create a site'
+							}
+						],
+						content: {
+							site: siteModel,
+							themes: themeService.getThemes(),
+							adapters: adaptersMetadata
 						}
-					],
-					content: {
-						site: siteModel,
-						themes: themes,
-						adapters: adaptersMetadata
-					}
-				};
-				adminPageService.render(req, res, {
-					template: 'sites/create-site',
-					context: templateData
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'sites/create-site',
+							context: templateData
+						})
+					);
 				})
-					.catch(function(error) {
-						next(error);
-					});
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveCreateSiteThemesRoute(req, res, next) {
+				var themes = themeService.getThemes();
 				var themeIds = Object.keys(themes);
 				var firstThemeId = themeIds[0];
 				res.redirect('/sites/create-site/themes/' + firstThemeId);
@@ -669,71 +716,53 @@ module.exports = function(database, options) {
 
 			function retrieveCreateSiteThemeRoute(req, res, next) {
 				var themeId = req.params.theme;
-				if (!(themeId in themes)) {
-					return next(new HttpError(404));
-				}
-				var theme = themes[themeId];
-				var previousTheme = getPreviousTheme(themes, themeId);
-				var nextTheme = getNextTheme(themes, themeId);
-				var templateData = {
-					title: 'Theme gallery',
-					fullPage: true,
-					navigation: false,
-					footer: false,
-					breadcrumb: [
-						{
-							link: '/sites',
-							icon: 'dashboard',
-							label: 'Site dashboard'
-						},
-						{
-							link: '/sites/create-site',
-							icon: 'plus',
-							label: 'Create a site'
-						},
-						{
-							link: '/sites/create-site/themes',
-							icon: 'image',
-							label: 'Theme gallery'
-						},
-						{
-							link: '/sites/create-site/themes/' + theme.id,
-							icon: null,
-							label: theme.name
+				new Promise(function(resolve, reject) {
+					var theme = themeService.getTheme(themeId);
+					var previousTheme = themeService.getPreviousTheme(themeId);
+					var nextTheme = themeService.getNextTheme(themeId);
+					var templateData = {
+						title: 'Theme gallery',
+						fullPage: true,
+						navigation: false,
+						footer: false,
+						breadcrumb: [
+							{
+								link: '/sites',
+								icon: 'dashboard',
+								label: 'Site dashboard'
+							},
+							{
+								link: '/sites/create-site',
+								icon: 'plus',
+								label: 'Create a site'
+							},
+							{
+								link: '/sites/create-site/themes',
+								icon: 'image',
+								label: 'Theme gallery'
+							},
+							{
+								link: '/sites/create-site/themes/' + theme.id,
+								icon: null,
+								label: theme.name
+							}
+						],
+						content: {
+							theme: theme,
+							previous: previousTheme,
+							next: nextTheme
 						}
-					],
-					content: {
-						theme: theme,
-						previous: previousTheme,
-						next: nextTheme
-					}
-				};
-				adminPageService.render(req, res, {
-					template: 'sites/create-site/themes/theme',
-					context: templateData
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'sites/create-site/themes/theme',
+							context: templateData
+						})
+					);
 				})
-					.catch(function(error) {
-						next(error);
-					});
-
-
-				function getPreviousTheme(themes, themeId) {
-					var themeIds = Object.keys(themes);
-					var themeIndex = themeIds.indexOf(themeId);
-					var previousThemeIndex = (themeIndex <= 0 ? themeIds.length - 1 : themeIndex - 1);
-					var previousThemeId = themeIds[previousThemeIndex];
-					var previousTheme = themes[previousThemeId];
-					return previousTheme;
-				}
-
-				function getNextTheme(themes, themeId) {
-					var themeIds = Object.keys(themes);
-					var themeIndex = themeIds.indexOf(themeId);
-					var nextThemeIndex = (themeIndex >= themeIds.length - 1 ? 0 : themeIndex + 1);
-					var nextThemeId = themeIds[nextThemeIndex];
-					var nextTheme = themes[nextThemeId];
-					return nextTheme;
-				}
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function createSiteRoute(req, res, next) {
@@ -754,43 +783,46 @@ module.exports = function(database, options) {
 					}
 				}
 
-				var siteModel = {
-					'owner': username,
-					'name': req.body.name,
-					'label': req.body.label,
-					'theme': {
-						'id': themeId,
-						'config': null
-					},
-					'root': req.body.root || null,
-					'private': isPrivate,
-					'users': [],
-					'published': isPublished,
-					'cache': null
-				};
+				new Promise(function(resolve, reject) {
+					var siteModel = {
+						'owner': username,
+						'name': req.body.name,
+						'label': req.body.label,
+						'theme': {
+							'id': themeId,
+							'config': null
+						},
+						'root': req.body.root || null,
+						'private': isPrivate,
+						'users': [],
+						'published': isPublished,
+						'cache': null
+					};
 
-				var theme = themes[themeId];
-				var defaultThemeConfig = expandConfigPlaceholders(theme.defaults, {
-					site: siteModel,
-					user: req.user
-				});
-				siteModel.theme.config = merge({}, defaultThemeConfig, themeConfig);
-
-
-				siteService.createSite(siteModel, siteTemplateFiles)
-					.then(function(siteModel) {
-						if (!isDefaultSite) { return siteModel; }
-						return userService.updateUserDefaultSiteName(username, siteModel.name)
-							.then(function() {
-								return siteModel;
-							});
-					})
-					.then(function(siteModel) {
-						res.redirect(303, '/sites/' + siteModel.name);
-					})
-					.catch(function(error) {
-						next(error);
+					var theme = themeService.getTheme(themeId);
+					var defaultThemeConfig = expandConfigPlaceholders(theme.defaults, {
+						site: siteModel,
+						user: req.user
 					});
+					siteModel.theme.config = merge({}, defaultThemeConfig, themeConfig);
+
+					return resolve(
+						siteService.createSite(siteModel, siteTemplateFiles)
+							.then(function(siteModel) {
+								if (!isDefaultSite) { return siteModel; }
+								return userService.updateUserDefaultSiteName(username, siteModel.name)
+									.then(function() {
+										return siteModel;
+									});
+							})
+							.then(function(siteModel) {
+								res.redirect(303, '/sites/' + siteModel.name);
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveSiteRoute(req, res, next) {
@@ -799,57 +831,62 @@ module.exports = function(database, options) {
 				var defaultSiteName = userModel.defaultSite;
 				var siteName = req.params.site;
 				var userAdapters = req.user.adapters;
-				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
-					return adapterName !== 'default';
-				}).reduce(function(adaptersMetadata, adapterName) {
-					var adapter = adapters[adapterName];
-					var adapterConfig = userAdapters[adapterName];
-					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
-					return adaptersMetadata;
-				}, {});
-				var includeTheme = false;
-				var includeContents = false;
-				var includeUsers = true;
-				siteService.retrieveSite(username, siteName, {
-					theme: includeTheme,
-					contents: includeContents,
-					users: includeUsers
+
+				new Promise(function(resolve, reject) {
+					var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
+						return adapterName !== 'default';
+					}).reduce(function(adaptersMetadata, adapterName) {
+						var adapter = adapters[adapterName];
+						var adapterConfig = userAdapters[adapterName];
+						adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+						return adaptersMetadata;
+					}, {});
+					var includeTheme = false;
+					var includeContents = false;
+					var includeUsers = true;
+					return resolve(
+						siteService.retrieveSite(username, siteName, {
+							theme: includeTheme,
+							contents: includeContents,
+							users: includeUsers
+						})
+							.then(function(siteModel) {
+								var isDefaultSite = (siteModel.name === defaultSiteName);
+								siteModel.home = isDefaultSite;
+								return siteModel;
+							})
+							.then(function(siteModel) {
+								var templateData = {
+									title: 'Site settings: ' + siteModel.label,
+									navigation: true,
+									footer: true,
+									breadcrumb: [
+										{
+											link: '/sites',
+											icon: 'dashboard',
+											label: 'Site dashboard'
+										},
+										{
+											link: '/sites/' + siteName,
+											icon: 'globe',
+											label: siteModel.label
+										}
+									],
+									content: {
+										site: siteModel,
+										adapters: adaptersMetadata
+									}
+								};
+								return adminPageService.render(req, res, {
+									template: 'sites/site',
+									context: templateData
+								});
+							})
+					);
 				})
-					.then(function(siteModel) {
-						var isDefaultSite = (siteModel.name === defaultSiteName);
-						siteModel.home = isDefaultSite;
-						return siteModel;
-					})
-					.then(function(siteModel) {
-						var templateData = {
-							title: 'Site settings: ' + siteModel.label,
-							navigation: true,
-							footer: true,
-							breadcrumb: [
-								{
-									link: '/sites',
-									icon: 'dashboard',
-									label: 'Site dashboard'
-								},
-								{
-									link: '/sites/' + siteName,
-									icon: 'globe',
-									label: siteModel.label
-								}
-							],
-							content: {
-								site: siteModel,
-								adapters: adaptersMetadata
-							}
-						};
-						return adminPageService.render(req, res, {
-							template: 'sites/site',
-							context: templateData
-						});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function updateSiteRoute(req, res, next) {
@@ -872,21 +909,25 @@ module.exports = function(database, options) {
 				if (req.body.private) { updates.private = req.body.private === 'true'; }
 				if (req.body.published) { updates.published = req.body.published === 'true'; }
 
-				var isDefaultSite = siteName === defaultSiteName;
-				var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
-				var updatedSiteName = ('name' in updates ? updates.name : siteName);
-				siteService.updateSite(username, siteName, updates)
-					.then(function() {
-						var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));
-						if (updatedDefaultSiteName === defaultSiteName) { return; }
-						return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
-					})
-					.then(function() {
-						res.redirect(303, '/sites/' + updatedSiteName);
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				new Promise(function(resolve, reject) {
+					var isDefaultSite = siteName === defaultSiteName;
+					var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
+					var updatedSiteName = ('name' in updates ? updates.name : siteName);
+					return resolve(
+						siteService.updateSite(username, siteName, updates)
+							.then(function() {
+								var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));
+								if (updatedDefaultSiteName === defaultSiteName) { return; }
+								return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
+							})
+							.then(function() {
+								res.redirect(303, '/sites/' + updatedSiteName);
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function purgeSiteRoute(req, res, next) {
@@ -894,26 +935,36 @@ module.exports = function(database, options) {
 				var username = userModel.username;
 				var siteName = req.params.site;
 				var cache = null;
-				siteService.updateSiteCache(username, siteName, cache)
-					.then(function() {
-						res.redirect(303, '/sites/' + siteName);
-					})
-					.catch(function(error) {
-						next(error);
-					});
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.updateSiteCache(username, siteName, cache)
+							.then(function() {
+								res.redirect(303, '/sites/' + siteName);
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function deleteSiteRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
 				var siteName = req.params.site;
-				siteService.deleteSite(username, siteName)
-					.then(function(siteModel) {
-						res.redirect(303, '/sites');
-					})
-					.catch(function(error) {
-						next(error);
-					});
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.deleteSite(username, siteName)
+							.then(function(siteModel) {
+								res.redirect(303, '/sites');
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveSiteUsersRoute(req, res, next) {
@@ -923,45 +974,50 @@ module.exports = function(database, options) {
 				var includeTheme = false;
 				var includeContents = false;
 				var includeUsers = true;
-				siteService.retrieveSite(username, siteName, {
-					theme: includeTheme,
-					contents: includeContents,
-					users: includeUsers
-				})
-					.then(function(siteModel) {
-						var templateData = {
-							title: 'Edit site users: ' + siteModel.label,
-							navigation: true,
-							footer: true,
-							breadcrumb: [
-								{
-									link: '/sites',
-									icon: 'dashboard',
-									label: 'Site dashboard'
-								},
-								{
-									link: '/sites/' + siteName,
-									icon: 'globe',
-									label: siteModel.label
-								},
-								{
-									link: '/sites/' + siteName + '/users',
-									icon: 'users',
-									label: 'Site users'
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.retrieveSite(username, siteName, {
+							theme: includeTheme,
+							contents: includeContents,
+							users: includeUsers
+						})
+						.then(function(siteModel) {
+							var templateData = {
+								title: 'Edit site users: ' + siteModel.label,
+								navigation: true,
+								footer: true,
+								breadcrumb: [
+									{
+										link: '/sites',
+										icon: 'dashboard',
+										label: 'Site dashboard'
+									},
+									{
+										link: '/sites/' + siteName,
+										icon: 'globe',
+										label: siteModel.label
+									},
+									{
+										link: '/sites/' + siteName + '/users',
+										icon: 'users',
+										label: 'Site users'
+									}
+								],
+								content: {
+									site: siteModel
 								}
-							],
-							content: {
-								site: siteModel
-							}
-						};
-						return adminPageService.render(req, res, {
-							template: 'sites/site/users',
-							context: templateData
-						});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+							};
+							return adminPageService.render(req, res, {
+								template: 'sites/site/users',
+								context: templateData
+							});
+						})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function createSiteUserRoute(req, res, next) {
@@ -972,13 +1028,18 @@ module.exports = function(database, options) {
 					username: req.body.username,
 					password: req.body.password
 				};
-				siteService.createSiteUser(username, siteName, siteUserAuthDetails, siteAuthOptions)
-					.then(function(userModel) {
-						res.redirect(303, '/sites/' + siteName + '/users');
-					})
-					.catch(function(error) {
-						next(error);
-					});
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.createSiteUser(username, siteName, siteUserAuthDetails, siteAuthOptions)
+							.then(function(userModel) {
+								res.redirect(303, '/sites/' + siteName + '/users');
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function updateSiteUserRoute(req, res, next) {
@@ -990,13 +1051,18 @@ module.exports = function(database, options) {
 					username: req.params.username,
 					password: req.body.password
 				};
-				siteService.updateSiteUser(username, siteName, siteUsername, siteUserAuthDetails, siteAuthOptions)
-					.then(function(userModel) {
-						res.redirect(303, '/sites/' + siteName + '/users');
-					})
-					.catch(function(error) {
-						next(error);
-					});
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.updateSiteUser(username, siteName, siteUsername, siteUserAuthDetails, siteAuthOptions)
+							.then(function(userModel) {
+								res.redirect(303, '/sites/' + siteName + '/users');
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function deleteSiteUserRoute(req, res, next) {
@@ -1004,13 +1070,17 @@ module.exports = function(database, options) {
 				var username = userModel.username;
 				var siteName = req.params.site;
 				var siteUsername = req.params.username;
-				siteService.deleteSiteUser(username, siteName, siteUsername)
-					.then(function() {
-						res.redirect(303, '/sites/' + siteName + '/users');
-					})
-					.catch(function(error) {
-						next(error);
-					});
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.deleteSiteUser(username, siteName, siteUsername)
+							.then(function() {
+								res.redirect(303, '/sites/' + siteName + '/users');
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveSiteEditRoute(req, res, next) {
@@ -1021,65 +1091,70 @@ module.exports = function(database, options) {
 				var includeTheme = true;
 				var includeContents = false;
 				var includeUsers = false;
-				siteService.retrieveSite(username, siteName, {
-					theme: includeTheme,
-					contents: includeContents,
-					users: includeUsers
-				})
-					.then(function(siteModel) {
-						var siteAdapter = siteModel.root.adapter;
-						var sitePath = siteModel.root.path;
-						var adapterOptions = userAdapters[siteAdapter];
-						var adapter = adapters[siteAdapter];
-						var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
-						var templateData = {
-							title: 'Site editor',
-							stylesheets: [
-								adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
-								adminAssetsUrl + 'css/shunt-editor.css'
-							],
-							scripts: [
-								adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
-								adminAssetsUrl + 'js/shunt-editor.js',
-								themeGalleryUrl + siteModel.theme.id + '/template/index.js'
-							],
-							fullPage: true,
-							navigation: false,
-							footer: false,
-							breadcrumb: [
-								{
-									link: '/sites',
-									icon: 'dashboard',
-									label: 'Site dashboard'
-								},
-								{
-									link: '/sites/' + siteName,
-									icon: 'globe',
-									label: siteModel.label
-								},
-								{
-									link: '/sites/' + siteName + '/theme',
-									icon: 'paint-brush',
-									label: 'Theme editor'
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.retrieveSite(username, siteName, {
+							theme: includeTheme,
+							contents: includeContents,
+							users: includeUsers
+						})
+						.then(function(siteModel) {
+							var siteAdapter = siteModel.root.adapter;
+							var sitePath = siteModel.root.path;
+							var adapterOptions = userAdapters[siteAdapter];
+							var adapter = adapters[siteAdapter];
+							var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
+							var templateData = {
+								title: 'Site editor',
+								stylesheets: [
+									adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
+									adminAssetsUrl + 'css/shunt-editor.css'
+								],
+								scripts: [
+									adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
+									adminAssetsUrl + 'js/shunt-editor.js',
+									themeGalleryUrl + siteModel.theme.id + '/template/index.js'
+								],
+								fullPage: true,
+								navigation: false,
+								footer: false,
+								breadcrumb: [
+									{
+										link: '/sites',
+										icon: 'dashboard',
+										label: 'Site dashboard'
+									},
+									{
+										link: '/sites/' + siteName,
+										icon: 'globe',
+										label: siteModel.label
+									},
+									{
+										link: '/sites/' + siteName + '/theme',
+										icon: 'paint-brush',
+										label: 'Theme editor'
+									}
+								],
+								content: {
+									site: siteModel,
+									themes: themeService.getThemes(),
+									adapter: adapterConfig
 								}
-							],
-							content: {
-								site: siteModel,
-								themes: themes,
-								adapter: adapterConfig
-							}
-						};
-						return adminPageService.render(req, res, {
-							template: 'sites/site/edit',
-							context: templateData,
-							partials: {
-								'editor': '_editor'
-							}
-						});
-					})
-					.catch(function(error) {
-						next(error);
-					});
+							};
+							return adminPageService.render(req, res, {
+								template: 'sites/site/edit',
+								context: templateData,
+								partials: {
+									'editor': '_editor'
+								}
+							});
+						})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveFileMetadataRoute(req, res, next) {
@@ -1087,17 +1162,25 @@ module.exports = function(database, options) {
 				var username = userModel.username;
 				var adapter = req.params.adapter;
 				var filePath = req.params[0];
-				siteService.retrieveFileMetadata(username, adapter, filePath)
-					.then(function(metadata) {
-						res.json(metadata);
-					})
-					.catch(function(error) {
-						if (error.status === 404) {
-							res.json(null);
-							return;
-						}
-						next(error);
-					});
+
+				new Promise(function(resolve, reject) {
+					return resolve(
+						siteService.retrieveFileMetadata(username, adapter, filePath)
+							.then(function(metadata) {
+								res.json(metadata);
+							})
+							.catch(function(error) {
+								if (error.status === 404) {
+									res.json(null);
+								} else {
+									throw error;
+								}
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function retrieveLogoutRoute(req, res, next) {

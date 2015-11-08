@@ -10,14 +10,10 @@ var thumbnailer = require('../middleware/thumbnailer');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
-var loadThemes = require('../utils/loadThemes');
+var handlebarsEngine = require('../engines/handlebars');
 
 var AdminPageService = require('../services/AdminPageService');
-
-var handlebarsEngine = require('../engines/handlebars');
-var htmlbarsEngine = require('../engines/htmlbars');
-
-var HttpError = require('../errors/HttpError');
+var ThemeService = require('../services/ThemeService');
 
 var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
 var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
@@ -45,7 +41,9 @@ module.exports = function(options) {
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!createSiteUrl) { throw new Error('Missing create site URL'); }
 
-	var themes = loadThemes(themesPath);
+	var themeService = new ThemeService({
+		themesPath: themesPath
+	});
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath
@@ -59,7 +57,6 @@ module.exports = function(options) {
 	initRoutes(app, {
 		themesPath: themesPath,
 		themeAssetsUrl: themeAssetsUrl,
-		themes: themes,
 		thumbnailsPath: thumbnailsPath,
 		thumbnailWidth: thumbnailWidth,
 		thumbnailHeight: thumbnailHeight,
@@ -78,7 +75,6 @@ module.exports = function(options) {
 		var templatesPath = options.templatesPath;
 
 		app.engine('hbs', handlebarsEngine);
-		app.engine('htmlbars', htmlbarsEngine);
 
 		app.set('views', templatesPath);
 		app.set('view engine', 'hbs');
@@ -101,7 +97,6 @@ module.exports = function(options) {
 		var thumbnailWidth = options.thumbnailWidth;
 		var thumbnailHeight = options.thumbnailHeight;
 		var thumbnailFormat = options.thumbnailFormat;
-		var themes = options.themes;
 
 		var staticServer = express.static(path.resolve(themesPath));
 
@@ -126,250 +121,197 @@ module.exports = function(options) {
 
 
 		function retrieveThemesRoute(req, res, next) {
-			var themeIds = Object.keys(themes);
+			var themeIds = Object.keys(themeService.themes);
 			var firstThemeId = themeIds[0];
-			res.redirect('/' + firstThemeId);
-		}
-
-		function retrieveThemeRoute(req, res, next) {
-			var themeId = req.params.theme;
-			if (!(themeId in themes)) {
-				return next(new HttpError(404));
-			}
-			var theme = themes[themeId];
-			var previousTheme = getPreviousTheme(themes, themeId);
-			var nextTheme = getNextTheme(themes, themeId);
-			var templateData = {
-				content: {
-					theme: theme,
-					previousTheme: previousTheme,
-					nextTheme: nextTheme
-				}
-			};
-			res.locals.urls = {
-				assets: adminAssetsUrl
-			};
-			adminPageService.render(req, res, {
-				template: 'theme',
-				context: templateData
-			})
-				.catch(function(error) {
-					next(error);
-				});
-
-
-			function getPreviousTheme(themes, themeId) {
-				var themeIds = Object.keys(themes);
-				var themeIndex = themeIds.indexOf(themeId);
-				var previousThemeIndex = (themeIndex <= 0 ? themeIds.length - 1 : themeIndex - 1);
-				var previousThemeId = themeIds[previousThemeIndex];
-				var previousTheme = themes[previousThemeId];
-				return previousTheme;
-			}
-
-			function getNextTheme(themes, themeId) {
-				var themeIds = Object.keys(themes);
-				var themeIndex = themeIds.indexOf(themeId);
-				var nextThemeIndex = (themeIndex >= themeIds.length - 1 ? 0 : themeIndex + 1);
-				var nextThemeId = themeIds[nextThemeIndex];
-				var nextTheme = themes[nextThemeId];
-				return nextTheme;
-			}
-		}
-
-		function retrieveThemePreviewRoute(req, res, next) {
-			var themeId = req.params.theme;
-			if (!(themeId in themes)) {
-				return next(new HttpError(404));
-			}
-			var theme = themes[themeId];
-			var templateData = {
-				metadata: {
-					siteRoot: '/' + themeId + '/',
-					themeRoot: themeAssetsUrl + themeId + '/',
-					theme: {
-						id: themeId,
-						config: theme.preview.config
-					}
-				},
-				resource: {
-					private: false,
-					root: theme.preview.files
-				}
-			};
-			var templateId = 'index';
-			var templateMetadata = theme.templates[templateId];
-			var templateFilename = templateMetadata.filename;
-			var templateOptions = templateMetadata.options;
 			try {
-				var template = path.resolve(themesPath, themeId, templateFilename);
-				var context = merge({ '_': templateOptions }, templateData);
-				renderTemplate(res, template, context);
-			} catch(error) {
+				res.redirect('/' + firstThemeId);
+			} catch (error) {
 				next(error);
 			}
 		}
 
+		function retrieveThemeRoute(req, res, next) {
+			var themeId = req.params.theme;
+
+			new Promise(function(resolve, reject) {
+				var theme = themeService.getTheme(themeId);
+				var previousTheme = themeService.getPreviousTheme(themeId);
+				var nextTheme = themeService.getNextTheme(themeId);
+				var templateData = {
+					content: {
+						theme: theme,
+						previousTheme: previousTheme,
+						nextTheme: nextTheme
+					}
+				};
+				res.locals.urls = {
+					assets: adminAssetsUrl
+				};
+				return adminPageService.render(req, res, {
+					template: 'theme',
+					context: templateData
+				});
+			}).catch(function(error) {
+				next(error);
+			});
+		}
+
+		function retrieveThemePreviewRoute(req, res, next) {
+			var themeId = req.params.theme;
+
+			new Promise(function(resolve, reject) {
+				var theme = themeService.getTheme(themeId);
+				var templateData = {
+					metadata: {
+						siteRoot: '/' + themeId + '/',
+						themeRoot: themeAssetsUrl + themeId + '/',
+						theme: {
+							id: themeId,
+							config: theme.preview.config
+						}
+					},
+					resource: {
+						private: false,
+						root: theme.preview.files
+					}
+				};
+				var templateId = 'index';
+				renderTemplate(res, themeId, templateId, templateData, next);
+			}).catch(function(error) {
+				next(error);
+			});
+		}
+
 		function retrieveThemeEditRoute(req, res, next) {
 			var themeId = req.params.theme;
-			if (!(themeId in themes)) {
-				return next(new HttpError(404));
-			}
-			var theme = themes[themeId];
-			var siteModel = {
-				private: false,
-				theme: {
-					id: themeId,
-					config: merge({}, theme.preview.config)
-				},
-				root: {}
-			};
-			var templateData = {
-				title: 'Site editor',
-				stylesheets: [
-					adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
-					adminAssetsUrl + 'css/shunt-editor.css'
-				],
-				scripts: [
-					adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
-					adminAssetsUrl + 'js/shunt-editor.js',
-					'/' + siteModel.theme.id + '/template/index.js'
-				],
-				fullPage: true,
-				navigation: false,
-				footer: false,
-				content: {
-					site: siteModel,
-					themes: themes,
-					adapter: null,
-					preview: {
-						metadata: {
-							siteRoot: '/' + siteModel.theme.id + '/preview',
-							themeRoot: themeAssetsUrl + siteModel.theme.id + '/',
-							theme: siteModel.theme,
-							preview: true,
-							admin: false
-						},
-						resource: siteModel
+
+			new Promise(function(resolve, reject) {
+				var theme = themeService.getTheme(themeId);
+				var siteModel = {
+					private: false,
+					theme: {
+						id: themeId,
+						config: merge({}, theme.preview.config)
+					},
+					root: {}
+				};
+				var templateData = {
+					title: 'Site editor',
+					stylesheets: [
+						adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
+						adminAssetsUrl + 'css/shunt-editor.css'
+					],
+					scripts: [
+						adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
+						adminAssetsUrl + 'js/shunt-editor.js',
+						'/' + siteModel.theme.id + '/template/index.js'
+					],
+					fullPage: true,
+					navigation: false,
+					footer: false,
+					content: {
+						site: siteModel,
+						themes: themeService.getThemes(),
+						adapter: null,
+						preview: {
+							metadata: {
+								siteRoot: '/' + siteModel.theme.id + '/preview',
+								themeRoot: themeAssetsUrl + siteModel.theme.id + '/',
+								theme: siteModel.theme,
+								preview: true,
+								admin: false
+							},
+							resource: siteModel
+						}
 					}
-				}
-			};
-			res.locals.urls = {
-				assets: adminAssetsUrl,
-				createSite: createSiteUrl
-			};
-			return adminPageService.render(req, res, {
+				};
+				res.locals.urls = {
+					assets: adminAssetsUrl,
+					createSite: createSiteUrl
+				};
+				return adminPageService.render(req, res, {
 					template: 'theme/edit',
 					context: templateData,
 					partials: {
 						editor: '_editor'
 					}
-				})
-				.catch(function(error) {
-					next(error);
 				});
+			})
+			.catch(function(error) {
+				next(error);
+			});
 		}
 
 		function rewritePreviewThumbnailRequest(req, res, next) {
 			var themeId = req.params.theme;
 			var imagePath = req.params[0];
-			req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + imagePath;
-			next();
+			try {
+				req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + imagePath;
+				next();
+			} catch (error) {
+				next(error);
+			}
 		}
 
 		function rewritePreviewDownloadRequest(req, res, next) {
 			var themeId = req.params.theme;
 			var filePath = req.params[0];
-			req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + filePath;
-			next();
+			try {
+				req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + filePath;
+				next();
+			} catch (error) {
+				next(error);
+			}
 		}
 
 		function rewriteManifestRequest(req, res, next) {
 			var themeId = req.params.theme;
-			req.url = '/' + themeId + '/' + THEME_MANIFEST_PATH;
-			next();
+			try {
+				req.url = '/' + themeId + '/' + THEME_MANIFEST_PATH;
+				next();
+			} catch (error) {
+				next(error);
+			}
 		}
 
 		function rewriteThumbnailRequest(req, res, next) {
 			var themeId = req.params.theme;
-			if (!(themeId in themes)) {
-				return next(new HttpError(404));
+			try {
+				var theme = themeService.getTheme(themeId);
+				var thumbnailPath = theme.thumbnail;
+				req.url = '/' + themeId + '/' + thumbnailPath;
+				next();
+			} catch (error) {
+				next(error);
 			}
-			var theme = themes[themeId];
-			var thumbnailPath = theme.thumbnail;
-			req.url = '/' + themeId + '/' + thumbnailPath;
-			next();
 		}
 
 		function retrievePrecompiledTemplateRoute(req, res, next) {
 			var themeId = req.params.theme;
 			var templateId = req.params.template;
-			if (!(themeId in themes)) {
-				return next(new HttpError(404));
-			}
-			var theme = themes[themeId];
-			if (!(templateId in theme.templates)) {
-				return next(new HttpError(404));
-			}
-			var templateMetadata = theme.templates[templateId];
-			var templateFilename = templateMetadata.filename;
-			var templatePath = path.resolve(themesPath, themeId, templateFilename);
-			retrieveSerializedTemplate(templatePath, {
-				export: templateId
+			new Promise(function(resolve, reject) {
+				resolve(
+					themeService.serialize(themeId, templateId)
+						.then(function(serializedTemplate) {
+							sendPrecompiledTemplate(res, serializedTemplate);
+						})
+				);
 			})
-				.then(function(serializedTemplate) {
-					sendPrecompiledTemplate(res, serializedTemplate);
-				})
-				.catch(function(error) {
-					return next(error);
-				});
-
-
-			function retrieveSerializedTemplate(templatePath, engineOptions) {
-				options = options || {};
-				var engine = path.extname(templateFilename).substr('.'.length);
-				switch (engine) {
-					case 'hbs':
-						return retrieveSerializedHandlebarsTemplate(templatePath, engineOptions);
-					case 'htmlbars':
-						return retrieveSerializedHtmlbarsTemplate(templatePath, engineOptions);
-					default:
-						return Promise.reject(new Error('Invalid template engine: ' + engine));
-				}
-
-
-				function retrieveSerializedHandlebarsTemplate(templatePath, options) {
-					var exportName = options.export;
-					return handlebarsEngine.serialize(templatePath)
-						.then(function(serializedTemplate) {
-							return wrapHandlebarsTemplate(serializedTemplate, exportName);
-						});
-
-
-					function wrapHandlebarsTemplate(template, exportName) {
-						return '(Handlebars.templates=Handlebars.templates||{})["' + exportName + '"]=' + template + ';';
-					}
-				}
-
-				function retrieveSerializedHtmlbarsTemplate(templatePath, options) {
-					var exportName = options.export;
-					return htmlbarsEngine.serialize(templatePath)
-						.then(function(serializedTemplate) {
-							return wrapHtmlbarsTemplate(serializedTemplate, exportName);
-						});
-
-
-					function wrapHtmlbarsTemplate(template, exportName) {
-						return '(Htmlbars.templates=Htmlbars.templates||{})["' + exportName + '"]=' + template + ';';
-					}
-				}
-			}
+			.catch(function(error) {
+				return next(error);
+			});
 		}
 
-		function renderTemplate(res, template, context) {
+		function renderTemplate(res, themeId, templateId, context, next) {
 			res.format({
 				'text/html': function() {
-					res.render(template, context);
+					themeService.render(themeId, templateId, context)
+						.then(function(output) {
+							res.send(output);
+						})
+						.catch(function(error) {
+							next(error);
+						});
 				},
 				'application/json': function() {
 					res.json(context);

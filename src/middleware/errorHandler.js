@@ -21,7 +21,7 @@ module.exports = function(options) {
 		};
 		err.url = req.method + ' ' + req.protocol + '://' + req.get('host') + req.originalUrl;
 		handlebarsEngine(templatePath, context, function(error, output) {
-			if (error) { return next(err); }
+			if (error) { return next(error); }
 			res.status(err.status || 500);
 			res.send(output);
 		});

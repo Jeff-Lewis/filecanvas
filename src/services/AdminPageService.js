@@ -28,28 +28,33 @@ AdminPageService.prototype.render = function(req, res, options) {
 	var context = options.context || null;
 	var templateOptions = options.options || null;
 	var partials = merge({}, options.partials, { index: '_index' });
-
 	var self = this;
-	var resolvedPartials = Object.keys(partials).reduce(function(resolvedPartials, partialName) {
-		var templateName = partials[partialName];
-		resolvedPartials[partialName] = self.getPartialPath(templateName);
-		return resolvedPartials;
-	}, {});
-	return compilePartials(resolvedPartials)
-		.then(function(compiledPartials) {
-			templateOptions = merge({}, templateOptions, {
-				partials: compiledPartials
-			});
-			var templateData = getTemplateData(req, res, context, templateOptions);
-			if (req.session && req.session.state) {
-				delete req.session.state;
-			}
-			return renderTemplate(pageTemplateName, templateData)
-				.then(function(data) {
-					res.send(data);
-					return data;
-				});
+
+	return new Promise(function(resolve, reject) {
+		var resolvedPartials = Object.keys(partials).reduce(function(resolvedPartials, partialName) {
+			var templateName = partials[partialName];
+			resolvedPartials[partialName] = self.getPartialPath(templateName);
+			return resolvedPartials;
+		}, {});
+		return resolve(resolvedPartials);
+	})
+	.then(function(resolvedPartials) {
+		return compilePartials(resolvedPartials);
+	})
+	.then(function(compiledPartials) {
+		templateOptions = merge({}, templateOptions, {
+			partials: compiledPartials
 		});
+		var templateData = getTemplateData(req, res, context, templateOptions);
+		if (req.session && req.session.state) {
+			delete req.session.state;
+		}
+		return renderTemplate(pageTemplateName, templateData)
+			.then(function(data) {
+				res.send(data);
+				return data;
+			});
+	});
 
 
 	function compilePartials(partials) {
