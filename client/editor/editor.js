@@ -162,6 +162,7 @@ function initLivePreview() {
 			options = options || {};
 			var throttle = options.throttle || null;
 			var formUndoHistory = new HistoryStack();
+			var previousState = null;
 			formUndoHistory.add(initialFormValues);
 			$formElement.on('input', throttle ? debounce(onFormFieldChanged, options.throttle) : onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
@@ -209,8 +210,9 @@ function initLivePreview() {
 			function onFormFieldChanged(event) {
 				var $formElement = $(event.currentTarget);
 				var formValues = getFormFieldValues($formElement);
-				var hasChanged = !isEqual(formValues, formUndoHistory.getState());
+				var hasChanged = !isEqual(formValues, previousState);
 				if (!hasChanged) { return; }
+				previousState = formValues;
 				if (event.type === 'change') {
 					formUndoHistory.add(formValues);
 					updateUndoRedoButtonState();
