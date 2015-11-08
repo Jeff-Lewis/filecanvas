@@ -24,7 +24,6 @@ var serialize = memoize(function(templatePath) {
 });
 
 module.exports = function(templatePath, context, callback) {
-	console.log('RENDERING TEMPLATE', templatePath);
 	return compile(templatePath)
 		.then(function(template) {
 			// Extract the Htmlbars render options from the
