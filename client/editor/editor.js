@@ -33,15 +33,21 @@ $(function() {
 
 
 function initColorpickers() {
-	var isChanging = false;
-	$('[data-colorpicker]').colorpicker().on('changeColor.colorpicker', function(event) {
-		if (isChanging) { return; }
-		var $colorPickerElement = $(this);
-		var $inputElement = $colorPickerElement.data('colorpicker').input;
-		isChanging = true;
-		$inputElement.change();
-		isChanging = false;
-	});
+	$('[data-colorpicker]').colorpicker()
+		.on('showPicker.colorpicker', function(event) {
+			var $colorPickerElement = $(this);
+			var $inputElement = $colorPickerElement.data('colorpicker').input;
+			var currentValue = $inputElement.val();
+			$colorPickerElement.one('hidePicker.colorpicker', function(event) {
+				var hasChanged = (currentValue !== $inputElement.val());
+				if (hasChanged) { $inputElement.change(); }
+			});
+		})
+		.on('changeColor.colorpicker', function(event) {
+			var $colorPickerElement = $(this);
+			var $inputElement = $colorPickerElement.data('colorpicker').input;
+			$inputElement.trigger('input');
+		});
 }
 
 function initSidepanel() {
