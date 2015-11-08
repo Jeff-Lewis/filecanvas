@@ -28,7 +28,8 @@ HtmlbarsService.prototype.render = function(template, context, templateOptions) 
 	// Render the Htmlbars template
 	var env = merge({}, templateOptions, {
 		dom: new DOMHelper(document),
-		hooks: HtmlbarsRuntime.hooks
+		hooks: HtmlbarsRuntime.hooks,
+		helpers: {}
 	});
 	var result = template.render(context, env, { contextualElement: document.body });
 	var outputFragment = result.fragment;
