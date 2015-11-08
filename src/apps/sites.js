@@ -416,8 +416,13 @@ module.exports = function(database, options) {
 									templateData.metadata.preview = true;
 								}
 								var theme = themes[themeId];
-								var template = themeId + '/' + theme.templates.login;
-								renderTemplate(res, template, templateData);
+								var templateId = 'login';
+								var templateMetadata = theme.templates[templateId];
+								var templateFilename = templateMetadata.filename;
+								var templateOptions = templateMetadata.options;
+								var template = themeId + '/' + templateFilename;
+								var context = merge({ '_': templateOptions }, templateData);
+								renderTemplate(res, template, context);
 							});
 					})
 					.catch(function(error) {
@@ -476,7 +481,14 @@ module.exports = function(database, options) {
 									templateData.metadata.preview = true;
 								}
 								var theme = themes[themeId];
-								var template = themeId + '/' + theme.templates.index;
+								var templateId = 'index';
+								var templateMetadata = theme.templates[templateId];
+								var templateFilename = templateMetadata.filename;
+								var templateOptions = templateMetadata.options;
+								var template = themeId + '/' + templateFilename;
+								var context = merge({ '_': templateOptions }, templateData);
+								renderTemplate(res, template, context);
+
 								renderTemplate(res, template, templateData);
 							});
 					})

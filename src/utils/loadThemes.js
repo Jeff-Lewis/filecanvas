@@ -10,7 +10,7 @@ var loadFileMetadata = require('./loadFileMetadata');
 
 var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
 var THEME_THUMBNAIL_PATH = constants.THEME_THUMBNAIL_PATH;
-var THEME_TEMPLATE_PATHS = constants.THEME_TEMPLATE_PATHS;
+var THEME_TEMPLATES = constants.THEME_TEMPLATES;
 var THEME_PREVIEW_CONFIG_PATH = constants.THEME_PREVIEW_CONFIG_PATH;
 var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 
@@ -28,7 +28,7 @@ module.exports = function(themesPath, options) {
 		var theme = require(themeManifestPath);
 		theme.id = filename;
 		theme.thumbnail = theme.thumbnail || THEME_THUMBNAIL_PATH;
-		theme.templates = merge({}, THEME_TEMPLATE_PATHS, theme.templates);
+		theme.templates = merge({}, THEME_TEMPLATES, theme.templates);
 		theme.defaults = parseThemeConfigDefaults(theme.config);
 		themes[filename] = theme;
 		if (loadPreviewFiles) {

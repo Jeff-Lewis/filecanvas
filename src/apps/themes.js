@@ -199,9 +199,14 @@ module.exports = function(options) {
 					root: theme.preview.files
 				}
 			};
+			var templateId = 'index';
+			var templateMetadata = theme.templates[templateId];
+			var templateFilename = templateMetadata.filename;
+			var templateOptions = templateMetadata.options;
 			try {
-				var template = path.resolve(themesPath, themeId, 'index');
-				renderTemplate(res, template, templateData);
+				var template = path.resolve(themesPath, themeId, templateFilename);
+				var context = merge({ '_': templateOptions }, templateData);
+				renderTemplate(res, template, context);
 			} catch(error) {
 				next(error);
 			}
@@ -308,10 +313,11 @@ module.exports = function(options) {
 			if (!(templateId in theme.templates)) {
 				return next(new HttpError(404));
 			}
-			var templateFilename = theme.templates[templateId];
+			var templateMetadata = theme.templates[templateId];
+			var templateFilename = templateMetadata.filename;
 			var templatePath = path.resolve(themesPath, themeId, templateFilename);
 			retrieveSerializedTemplate(templatePath, {
-				name: templateId
+				export: templateId
 			})
 				.then(function(serializedTemplate) {
 					sendPrecompiledTemplate(res, serializedTemplate);
@@ -323,9 +329,9 @@ module.exports = function(options) {
 
 			function retrieveSerializedTemplate(templatePath, engineOptions) {
 				options = options || {};
-				var engine = path.extname(templatePath).substr('.'.length);
+				var engine = path.extname(templateFilename).substr('.'.length);
 				switch (engine) {
-					case 'handlebars':
+					case 'hbs':
 						return retrieveSerializedHandlebarsTemplate(templatePath, engineOptions);
 					case 'htmlbars':
 						return retrieveSerializedHtmlbarsTemplate(templatePath, engineOptions);
@@ -335,28 +341,28 @@ module.exports = function(options) {
 
 
 				function retrieveSerializedHandlebarsTemplate(templatePath, options) {
-					var templateName = options.name;
+					var exportName = options.export;
 					return handlebarsEngine.serialize(templatePath)
 						.then(function(serializedTemplate) {
-							return wrapHandlebarsTemplate(serializedTemplate, templateName);
+							return wrapHandlebarsTemplate(serializedTemplate, exportName);
 						});
 
 
-					function wrapHandlebarsTemplate(template, templateName) {
-						return '(Handlebars.templates=Handlebars.templates||{})["' + templateName + '"]=' + template + ';';
+					function wrapHandlebarsTemplate(template, exportName) {
+						return '(Handlebars.templates=Handlebars.templates||{})["' + exportName + '"]=' + template + ';';
 					}
 				}
 
 				function retrieveSerializedHtmlbarsTemplate(templatePath, options) {
-					var templateName = options.name;
+					var exportName = options.export;
 					return htmlbarsEngine.serialize(templatePath)
 						.then(function(serializedTemplate) {
-							return wrapHtmlbarsTemplate(serializedTemplate, templateName);
+							return wrapHtmlbarsTemplate(serializedTemplate, exportName);
 						});
 
 
-					function wrapHtmlbarsTemplate(template, templateName) {
-						return '(Htmlbars.templates=Htmlbars.templates||{})["' + templateName + '"]=' + template + ';';
+					function wrapHtmlbarsTemplate(template, exportName) {
+						return '(Htmlbars.templates=Htmlbars.templates||{})["' + exportName + '"]=' + template + ';';
 					}
 				}
 			}

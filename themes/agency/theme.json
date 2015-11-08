@@ -2,8 +2,18 @@
 	"name": "Agency",
 	"thumbnail": "thumbnail.png",
 	"templates": {
-		"index": "index.handlebars",
-		"login": "login.handlebars"
+		"index": {
+			"filename": "templates/index.hbs",
+			"options": {
+				"partials": "templates/partials"
+			}
+		},
+		"login": {
+			"filename": "templates/login.hbs",
+			"options": {
+				"partials": "templates/partials"
+			}
+		}
 	},
 	"config": [
 		{
