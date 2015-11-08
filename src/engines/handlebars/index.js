@@ -25,13 +25,13 @@ var serialize = memoize(function(templatePath) {
 
 module.exports = function(templatePath, context, callback) {
 	return compile(templatePath)
-		.then(function(templateFunction) {
+		.then(function(template) {
 			// Extract the Handlebars render options from the
 			// magic `_` property within the context hash
 			var templateOptions = context._ || {};
 
 			// Render the Handlebars template
-			var output = templateFunction(context, templateOptions);
+			var output = handlebarsService.render(template, context, templateOptions);
 
 			// Return the resulting string
 			return output;

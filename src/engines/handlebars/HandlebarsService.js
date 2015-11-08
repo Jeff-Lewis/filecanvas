@@ -23,33 +23,19 @@ HandlebarsService.prototype.compile = function(templatePath) {
 
 
 	function compileTemplate(templateSource, helpers, compilerOptions) {
-		// Create a new compiler instance and load it with the correct helpers
 		var compiler = Handlebars.create();
 		Object.keys(helpers).forEach(function(helperName) {
 			var helper = helpers[helperName];
 			compiler.registerHelper(helperName, helper);
 		});
-
-		// Compile the template into a standard 2-arg Handlebars template function
 		var templateFunction = compiler.compile(templateSource, compilerOptions);
-
-		// Return the Handlebars template function
 		return templateFunction;
 	}
 };
 
-HandlebarsService.prototype.render = function(templatePath, context) {
-	return this.compile(templatePath)
-		.then(function(templateFunction) {
-			// Extract the Handlebars render options from the
-			// magic `_` property within the context hash
-			var templateOptions = context._ || {};
-
-			// Render the Handlebars template
-			var output = templateFunction(context, templateOptions);
-
-			return output;
-		});
+HandlebarsService.prototype.render = function(template, context, templateOptions) {
+	var output = template(context, templateOptions);
+	return output;
 };
 
 HandlebarsService.prototype.serialize = function(templatePath) {
