@@ -1,0 +1,14 @@
+<nav id="mainnav">
+	<div class="container">
+		<div class="row">
+			<div class="span4">
+				{{#if metadata.theme.config.images.navLogo}}
+				<a class="logo"{{#if metadata.theme.config.content.contactWebsite}} href="{{ metadata.theme.config.content.contactWebsite }}" target="_blank"{{/if}}></a>
+				{{/if}}
+			</div>
+			<div class="span8">
+				{{> @partial-block }}
+			</div>
+		</div>
+	</div>
+</nav>

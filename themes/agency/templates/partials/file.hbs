@@ -1,0 +1,22 @@
+<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
+	<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
+		<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
+			{{#if file.thumbnail}}
+			<div class="profile-thumbnail">
+				<img src="{{ thumbnailUrl @root file }}"/>
+			</div>
+			{{else}}
+			<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">
+				<path class="file-icon-page" fill-rule="evenodd" d="M0,0L69,0L69,86L0,86L0,0ZM0,0L26,0L26,24L0,24L0,0ZM22,4L22,20L6,20L22,4Z"/>
+				<path class="file-icon-content" d="M12,71 L57,71 L57,74 L12,74 L12,71 Z M12,61 L57,61 L57,64 L12,64 L12,61 Z M12,51 L57,51 L57,54 L12,54 L12,51 Z M12,41 L57,41 L57,44 L12,44 L12,41 Z M12,31 L57,31 L57,34 L12,34 L12,31 Z M30,21 L57,21 L57,24 L30,24 L30,21 Z"/>
+				<rect class="file-icon-title" x="0" y="88" width="69" height="24"/>
+				<text class="file-icon-text" x="34" y="105" text-anchor="middle">.{{ extension file }}</text>
+			</svg>
+			{{/if}}
+		</div>
+		<div class="project-client">&nbsp;</div>
+		<div class="project-name">{{ strip-number-prefix file }}</div>
+		<hr class="mini"/>
+		<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
+	</a>
+</div>

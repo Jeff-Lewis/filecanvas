@@ -1,100 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8"/>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-	<meta name="HandheldFriendly" content="true"/>
-	<meta name="description" content=""/>
-	<meta name="author" content=""/>
-	<link rel="shortcut icon" href="{{ resourceUrl @root 'favicon.ico' }}"/>
-	<title>{{ metadata.theme.config.browser.title }}</title>
-	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'/>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"/>
-	<!--[if lt IE 10]><link href="css/ie.css" rel="stylesheet" media="all"/><![endif]-->
-	<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-	<link rel="stylesheet" href="{{ resourceUrl @root 'css/base.css' }}"/>
-	<style type="text/css">
-		::selection {
-			background-color: {{ metadata.theme.config.colors.brandColor }};
-			color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		::-moz-selection {
-			background-color: {{ metadata.theme.config.colors.brandColor }};
-			color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		a,
-		.logout:hover,
-		#slidecaption h2,
-		#slidecaption em,
-		#slidecaption strong,
-		.option-set li a:hover,
-		.option-set li a.selected {
-			color: {{ metadata.theme.config.colors.brandColor }};
-		}
-		nav#mainnav,
-		.project-wrp:hover,
-		.copyright {
-			background-color: {{ metadata.theme.config.colors.brandColor }};
-		}
-		.btn-primary,
-		.btn-primary:link,
-		.btn-primary:hover,
-		.btn-primary:active,
-		.btn-primary:focus {
-			background-color: {{ metadata.theme.config.colors.brandColor }} !important;
-		}
-		a,
-		hr,
-		hr.mini {
-			border-bottom: 1px solid {{ metadata.theme.config.colors.brandColor }};
-		}
-		.logout,
-		nav #fluid-nav li a,
-		.project-wrp:hover .project-name,
-		.project-wrp:hover .project-client,
-		.project-wrp:hover .project-date {
-			color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		.project-wrp:hover hr {
-			border-color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		nav #fluid-nav li a:hover {
-			color: {{ metadata.theme.config.colors.navItemRolloverColor }};
-		}
-		nav #fluid-nav li.current a {
-			color: {{ metadata.theme.config.colors.navItemSelectedColor }};
-		}
-
-		{{#if metadata.theme.config.images.headerLogo}}
-		header .logo {
-			background-image: url('{{{ metadata.theme.config.images.headerLogo }}}');
-		}
-		{{/if}}
-
-		{{#if metadata.theme.config.images.navLogo}}
-		nav#mainnav .logo {
-			background-image: url('{{{ metadata.theme.config.images.navLogo }}}');
-		}
-		{{/if}}
-	</style>
-	<style type="text/css">{{{ metadata.theme.config.scripts.css }}}</style>
+	{{>head title=metadata.theme.config.browser.title}}
 </head>
 <body>
 	<div class="wrapper">
-		<nav id="mainnav">
-			<div class="container">
-				<div class="row">
-					<div class="span4">
-						{{#if metadata.theme.config.images.headerLogo}}
-						<a class="logo"{{#if metadata.theme.config.content.contactWebsite}} href="{{ metadata.theme.config.content.contactWebsite }}"{{/if}}></a>
-						{{/if}}
-					</div>
-					<div class="span8">
-					</div>
-				</div>
-			</div>
-		</nav>
+		{{>navbar}}
 		<section class="page">
 			<div class="container">
 				<div class="row">
@@ -108,9 +19,7 @@
 			</div>
 		</section>
 		<footer>
-			<div class="copyright">
-				<p class="copyright-message">Powered by <a href="https://www.shunt.io/">Shunt.io</a></p>
-			</div>
+			{{>banner}}
 		</footer>
 	</div>
 </body>

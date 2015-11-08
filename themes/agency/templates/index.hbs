@@ -1,84 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8"/>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-	<meta name="HandheldFriendly" content="true"/>
-	<meta name="description" content=""/>
-	<meta name="author" content=""/>
-	<link rel="shortcut icon" href="{{ resourceUrl @root 'favicon.ico' }}"/>
-	<title>{{ metadata.theme.config.browser.title }}</title>
-	<link href='//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"/>
-	<!--[if lt IE 10]><link href="css/ie.css" rel="stylesheet" media="all"/><![endif]-->
-	<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-	<link rel="stylesheet" href="{{ resourceUrl @root 'css/base.css' }}"/>
-	<style type="text/css">
-		::selection {
-			background-color: {{ metadata.theme.config.colors.brandColor }};
-			color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		::-moz-selection {
-			background-color: {{ metadata.theme.config.colors.brandColor }};
-			color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		a,
-		.logout:hover,
-		#slidecaption h2,
-		#slidecaption em,
-		#slidecaption strong,
-		.option-set li a:hover,
-		.option-set li a.selected {
-			color: {{ metadata.theme.config.colors.brandColor }};
-		}
-		nav#mainnav,
-		.project-wrp:hover,
-		.copyright {
-			background-color: {{ metadata.theme.config.colors.brandColor }};
-		}
-		.btn-primary,
-		.btn-primary:link,
-		.btn-primary:hover,
-		.btn-primary:active,
-		.btn-primary:focus {
-			background-color: {{ metadata.theme.config.colors.brandColor }} !important;
-		}
-		a,
-		hr,
-		hr.mini {
-			border-bottom: 1px solid {{ metadata.theme.config.colors.brandColor }};
-		}
-		.logout,
-		nav #fluid-nav li a,
-		.project-wrp:hover .project-name,
-		.project-wrp:hover .project-client,
-		.project-wrp:hover .project-date {
-			color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		.project-wrp:hover hr {
-			border-color: {{ metadata.theme.config.colors.navItemColor }};
-		}
-		nav #fluid-nav li a:hover {
-			color: {{ metadata.theme.config.colors.navItemRolloverColor }};
-		}
-		nav #fluid-nav li.current a {
-			color: {{ metadata.theme.config.colors.navItemSelectedColor }};
-		}
-
-		{{#if metadata.theme.config.images.headerLogo}}
-		header .logo {
-			background-image: url('{{{ metadata.theme.config.images.headerLogo }}}');
-		}
-		{{/if}}
-
-		{{#if metadata.theme.config.images.navLogo}}
-		nav#mainnav .logo {
-			background-image: url('{{{ metadata.theme.config.images.navLogo }}}');
-		}
-		{{/if}}
-	</style>
-	<style type="text/css">{{{ metadata.theme.config.scripts.css }}}</style>
+	{{>head title=metadata.theme.config.browser.title}}
 </head>
 <body{{#if metadata.admin }} data-admin data-admin-upload{{/if}}>
 	{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
@@ -105,34 +28,23 @@
 	</header>
 	{{/if}}
 	<div class="wrapper">
-		<nav id="mainnav">
-			<div class="container">
-				<div class="row">
-					<div class="span4">
-						{{#if metadata.theme.config.images.navLogo}}
-						<a class="logo"{{#if metadata.theme.config.content.contactWebsite}} href="{{ metadata.theme.config.content.contactWebsite }}" target="_blank"{{/if}}></a>
-						{{/if}}
-					</div>
-					<div class="span8">
-						{{#if (or (folders resource.root) resource.private)}}
-						<ul id="fluid-nav" class="fluid-navigation visible-desktop">
-							{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
-							<li><a class="scroll-link" href="#home">Home</a></li>
-							{{/if}}
-							{{#each (folders resource.root) as |folder|}}
-							{{#if folder.contents}}
-							<li><a class="scroll-link" href="#{{ slug (basename folder) }}">{{ strip-number-prefix folder }}</a></li>
-							{{/if}}
-							{{/each}}
-							{{#if resource.private}}
-							<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{ logoutUrl @root }}{{/if}}">Log out</a></li>
-							{{/if}}
-						</ul>
-						{{/if}}
-					</div>
-				</div>
-			</div>
-		</nav>
+		{{#>navbar}}
+		{{#if (or (folders resource.root) resource.private)}}
+		<ul id="fluid-nav" class="fluid-navigation visible-desktop">
+			{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
+			<li><a class="scroll-link" href="#home">Home</a></li>
+			{{/if}}
+			{{#each (folders resource.root) as |folder|}}
+			{{#if folder.contents}}
+			<li><a class="scroll-link" href="#{{ slug (basename folder) }}">{{ strip-number-prefix folder }}</a></li>
+			{{/if}}
+			{{/each}}
+			{{#if resource.private}}
+			<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{ logoutUrl @root }}{{/if}}">Log out</a></li>
+			{{/if}}
+		</ul>
+		{{/if}}
+		{{/navbar}}
 		<section class="pages">
 			{{#if (or metadata.theme.config.content.introTitle metadata.theme.config.content.introText (files resource.root))}}
 			<div class="page">
@@ -151,28 +63,7 @@
 							{{#if (files resource.root)}}
 							<div class="posts row isotope">
 								{{#each (files resource.root) as |file|}}
-								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
-									<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
-										<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
-											{{#if file.thumbnail}}
-											<div class="profile-thumbnail">
-												<img src="{{ thumbnailUrl @root file }}"/>
-											</div>
-											{{else}}
-											<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">
-												<path class="file-icon-page" fill-rule="evenodd" d="M0,0L69,0L69,86L0,86L0,0ZM0,0L26,0L26,24L0,24L0,0ZM22,4L22,20L6,20L22,4Z"/>
-												<path class="file-icon-content" d="M12,71 L57,71 L57,74 L12,74 L12,71 Z M12,61 L57,61 L57,64 L12,64 L12,61 Z M12,51 L57,51 L57,54 L12,54 L12,51 Z M12,41 L57,41 L57,44 L12,44 L12,41 Z M12,31 L57,31 L57,34 L12,34 L12,31 Z M30,21 L57,21 L57,24 L30,24 L30,21 Z"/>
-												<rect class="file-icon-title" x="0" y="88" width="69" height="24"/>
-												<text class="file-icon-text" x="34" y="105" text-anchor="middle">.{{ extension file }}</text>
-											</svg>
-											{{/if}}
-										</div>
-										<div class="project-client">&nbsp;</div>
-										<div class="project-name">{{ strip-number-prefix file }}</div>
-										<hr class="mini"/>
-										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
-									</a>
-								</div>
+								{{>file file=file}}
 								{{/each}}
 							</div>
 							{{/if}}
@@ -201,53 +92,11 @@
 							{{/if}}
 							<div class="posts row isotope">
 								{{#each (files folder) as |file|}}
-								<div class="post item span4 isotope-item" data-file-modified="{{ timestamp file.modified }}">
-									<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
-										<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
-											{{#if file.thumbnail}}
-											<div class="profile-thumbnail">
-												<img src="{{ thumbnailUrl @root file }}"/>
-											</div>
-											{{else}}
-											<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">
-												<path class="file-icon-page" fill-rule="evenodd" d="M0,0L69,0L69,86L0,86L0,0ZM0,0L26,0L26,24L0,24L0,0ZM22,4L22,20L6,20L22,4Z"/>
-												<path class="file-icon-content" d="M12,71 L57,71 L57,74 L12,74 L12,71 Z M12,61 L57,61 L57,64 L12,64 L12,61 Z M12,51 L57,51 L57,54 L12,54 L12,51 Z M12,41 L57,41 L57,44 L12,44 L12,41 Z M12,31 L57,31 L57,34 L12,34 L12,31 Z M30,21 L57,21 L57,24 L30,24 L30,21 Z"/>
-												<rect class="file-icon-title" x="0" y="88" width="69" height="24"/>
-												<text class="file-icon-text" x="34" y="105" text-anchor="middle">.{{ extension file }}</text>
-											</svg>
-											{{/if}}
-										</div>
-										<div class="project-client">&nbsp;</div>
-										<div class="project-name">{{ strip-number-prefix file }}</div>
-										<hr class="mini"/>
-										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
-									</a>
-								</div>
+								{{>file file=file}}
 								{{/each}}
 								{{#each (folders folder) as |subfolder|}}
 								{{#each (files subfolder) as |file|}}
-								<div class="post item span4 isotope-item filter-{{ slug (basename subfolder) }}" data-file-modified="{{ timestamp file.modified }}">
-									<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
-										<div class="profile-photo{{#if file.thumbnail}} has-thumbnail{{/if}}" data-extension="{{ extension file }}">
-											{{#if file.thumbnail}}
-											<div class="profile-thumbnail">
-												<img src="{{ thumbnailUrl @root file }}"/>
-											</div>
-											{{else}}
-											<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">
-												<path class="file-icon-page" fill-rule="evenodd" d="M0,0L69,0L69,86L0,86L0,0ZM0,0L26,0L26,24L0,24L0,0ZM22,4L22,20L6,20L22,4Z"/>
-												<path class="file-icon-content" d="M12,71 L57,71 L57,74 L12,74 L12,71 Z M12,61 L57,61 L57,64 L12,64 L12,61 Z M12,51 L57,51 L57,54 L12,54 L12,51 Z M12,41 L57,41 L57,44 L12,44 L12,41 Z M12,31 L57,31 L57,34 L12,34 L12,31 Z M30,21 L57,21 L57,24 L30,24 L30,21 Z"/>
-												<rect class="file-icon-title" x="0" y="88" width="69" height="24"/>
-												<text class="file-icon-text" x="34" y="105" text-anchor="middle">.{{ extension file }}</text>
-											</svg>
-											{{/if}}
-										</div>
-										<div class="project-client">&nbsp;</div>
-										<div class="project-name">{{ strip-number-prefix file }}</div>
-										<hr class="mini"/>
-										<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
-									</a>
-								</div>
+								{{>file file=file}}
 								{{/each}}
 								{{/each}}
 							</div>
@@ -259,13 +108,13 @@
 		</section>
 		<footer>
 			{{#if (or
-				metadata.theme.config.content.contactTitle
-				metadata.theme.config.content.contactEmail
-				metadata.theme.config.content.contactWebsite
-				metadata.theme.config.content.contactPhone
-				metadata.theme.config.content.contactAddress
-				metadata.theme.config.content.footerTitle
-				metadata.theme.config.content.footerText
+			metadata.theme.config.content.contactTitle
+			metadata.theme.config.content.contactEmail
+			metadata.theme.config.content.contactWebsite
+			metadata.theme.config.content.contactPhone
+			metadata.theme.config.content.contactAddress
+			metadata.theme.config.content.footerTitle
+			metadata.theme.config.content.footerText
 			)}}
 			<div class="footer">
 				<div class="container">
@@ -294,9 +143,7 @@
 				</div>
 			</div>
 			{{/if}}
-			<div class="copyright">
-				<p class="copyright-message">Powered by <a href="https://www.shunt.io/">Shunt.io</a></p>
-			</div>
+			{{>banner}}
 		</footer>
 	</div>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
