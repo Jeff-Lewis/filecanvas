@@ -45,9 +45,7 @@ module.exports = function(options) {
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!createSiteUrl) { throw new Error('Missing create site URL'); }
 
-	var themes = loadThemes(themesPath, {
-		preview: true
-	});
+	var themes = loadThemes(themesPath);
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath
