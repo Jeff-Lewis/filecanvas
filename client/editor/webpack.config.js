@@ -12,7 +12,8 @@ module.exports = {
 	},
 	resolve: {
 		alias: {
-			'handlebars': 'handlebars/runtime'
+			'handlebars': 'handlebars/runtime',
+			'slug': 'slug/slug-browser'
 		}
 	}
 };
