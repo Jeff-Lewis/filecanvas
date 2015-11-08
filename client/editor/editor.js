@@ -2,28 +2,24 @@
 
 var junk = require('junk');
 var objectAssign = require('object-assign');
-var vdom = require('virtual-dom');
-var virtualize = require('vdom-virtualize');
 var template = require('lodash.template');
 var merge = require('lodash.merge');
 var isEqual = require('lodash.isequal');
 var Mousetrap = require('mousetrap');
-var Handlebars = require('handlebars/runtime');
-var Htmlbars = require('htmlbars/dist/cjs/htmlbars-runtime');
-var DOMHelper = require('htmlbars/dist/cjs/dom-helper');
+
+var getIframeDomElement = require('./utils/getIframeDomElement');
+var onIframeDomReady = require('./utils/onIframeDomReady');
+var removeAllChildren = require('./utils/removeAllChildren');
+var loadJson = require('./utils/loadJson');
+var parseJson = require('./utils/parseJson');
+var serializeQueryParams = require('./utils/serializeQueryParams');
+var getFormFieldValues = require('./utils/getFormFieldValues');
 
 var HistoryStack = require('./lib/HistoryStack');
 
-var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
-var htmlbarsHelpers = require('../../src/engines/htmlbars/helpers/index');
+var engines = require('./engines');
 
 var LIVE_UPDATE_DEBOUNCE_DURATION = 500;
-
-window.Handlebars = Handlebars;
-window.Handlebars.templates = {};
-
-window.Htmlbars = Htmlbars;
-window.Htmlbars.templates = {};
 
 $(function() {
 	initColorpickers();
@@ -69,7 +65,8 @@ function initLivePreview() {
 	var $confirmCloseModalElement = $('[data-editor-confirm-close-modal]');
 	var $confirmCloseOkButtonElement = $('[data-editor-confirm-close-ok]');
 	var iframeSrc = $previewElement.data('src');
-	var templateEngine = $previewElement.data('editor-preview');
+	var engineName = $previewElement.data('editor-preview');
+	var engine = engines[engineName];
 	var templateName = 'index';
 
 	var adapterConfig = parseAdapterConfig($adapterConfigElement);
@@ -79,15 +76,13 @@ function initLivePreview() {
 	var previewUrl = getPreviewUrl(iframeSrc);
 
 	showLoadingIndicator($previewElement);
-	initPreview(currentSiteModel, previewUrl, templateEngine, templateName, function(error, rerender) {
+	initPreview(currentSiteModel, previewUrl, engine, templateName, function(error, rerender) {
 		if (error) { throw error; }
 		rerenderPreview = rerender;
 		hideLoadingIndicator($previewElement);
 		initInlineUploads($previewElement, adapterConfig);
 	});
-	initLiveUpdates({
-		throttle: (templateEngine !== 'htmlbars')
-	}, function(formValues) {
+	initLiveUpdates({ throttle: engine.throttle }, function(formValues) {
 		currentThemeConfigOverrides = formValues.theme.config;
 		setTimeout(function() {
 			updatePreview(currentSiteModel, currentThemeConfigOverrides);
@@ -113,27 +108,11 @@ function initLivePreview() {
 		return (json ? parseJson(json) : null);
 	}
 
-	function parseJson(string) {
-		try {
-			return JSON.parse(string);
-		} catch (error) {
-			return null;
-		}
-	}
-
 	function getPreviewUrl(previewUrl, params) {
 		if (!previewUrl) { return null; }
 		if (!params) { return previewUrl; }
 		var baseUrl = previewUrl.split('#')[0].split('?')[0];
 		return baseUrl + '?' + serializeQueryParams(params);
-
-
-		function serializeQueryParams(params) {
-			return Object.keys(params).map(function(key) {
-				var value = params[key];
-				return key + '=' + encodeURIComponent(JSON.stringify(value));
-			}).join('&');
-		}
 	}
 
 	function initPreview(siteModel, previewUrl, templateEngine, templateName, callback) {
@@ -144,117 +123,7 @@ function initLivePreview() {
 				var iframeDocumentElement = getIframeDomElement(previewIframeElement);
 				removeAllChildren(iframeDocumentElement);
 				var context = getCustomizedSiteModel(currentSiteModel, currentThemeConfigOverrides);
-				renderTemplate(templateEngine, templateName, context, iframeDocumentElement, callback);
-
-
-				function renderTemplate(engineName, templateName, context, documentElement, callback) {
-					switch (engineName) {
-						case 'handlebars':
-							return renderHandlebarsTemplate(templateName, context, documentElement, callback);
-						case 'htmlbars':
-							return renderHtmlbarsTemplate(templateName, context, documentElement, callback);
-						default:
-							throw new Error('Invalid template engine: ' + engineName);
-					}
-
-
-					function renderHandlebarsTemplate(templateName, context, documentElement, callback) {
-						var precompiledTemplate = Handlebars.templates[templateName];
-						var templateFunction = createHandlebarsTemplateFunction(precompiledTemplate, handlebarsHelpers);
-						var html = templateFunction(context);
-						previewIframeElement.srcdoc = html;
-						onIframeDomReady(previewIframeElement)
-							.then(function(documentElement) {
-								var patcher = initVirtualDomPatcher(documentElement);
-								updatePreview(currentSiteModel, currentThemeConfigOverrides);
-								var rerender = function(context) {
-									var html = templateFunction(context);
-									patcher(html);
-								};
-								callback(null, rerender);
-							});
-
-
-						function createHandlebarsTemplateFunction(precompiledTemplate, helpers) {
-							var compiler = Handlebars.create();
-							Object.keys(helpers).forEach(function(helperName) {
-								var helper = helpers[helperName];
-								compiler.registerHelper(helperName, helper);
-							});
-							var templateFunction = compiler.template(precompiledTemplate);
-							return templateFunction;
-						}
-
-						function initVirtualDomPatcher(documentElement) {
-							var htmlElement = documentElement.documentElement;
-							var currentTree = virtualize(htmlElement);
-							return patch;
-
-
-							function patch(updatedHtml) {
-								var updatedTree = virtualize.fromHTML(updatedHtml);
-								var diff = vdom.diff(currentTree, updatedTree);
-								vdom.patch(htmlElement, diff);
-								currentTree = updatedTree;
-							}
-						}
-					}
-
-					function renderHtmlbarsTemplate(templateName, context, documentElement, callback) {
-						addDoctypeNode(documentElement, 'html');
-						var template = Htmlbars.templates[templateName];
-						var templateOptions = {
-							helpers: htmlbarsHelpers
-						};
-						var rerender = render(template, context, templateOptions, documentElement);
-						callback(null, rerender);
-
-
-						function addDoctypeNode(documentElement, qualifiedNameStr, publicId, systemId) {
-							publicId = publicId || '';
-							systemId = systemId || '';
-							try {
-								var doctypeNode = document.implementation.createDocumentType(qualifiedNameStr, publicId, systemId);
-								documentElement.appendChild(doctypeNode);
-							} catch (error) {
-								return;
-							}
-						}
-
-						function render(template, context, templateOptions, targetElement) {
-							var result = renderHtmlbarsTemplate(template, context, templateOptions);
-							var outputFragment = result.fragment;
-							for (var i = 0; i < outputFragment.childNodes.length; i++) {
-								targetElement.appendChild(outputFragment.childNodes[i]);
-							}
-
-							var currentContext = context;
-							return function(context) {
-								if (context !== currentContext) {
-									currentContext = context;
-									updateHtmlbarsTemplateContext(result, context);
-								}
-								result.rerender();
-							};
-
-							function updateHtmlbarsTemplateContext(result, context) {
-								Htmlbars.hooks.updateSelf(result.env, result.scope, context);
-							}
-
-							function renderHtmlbarsTemplate(templateFunction, context, templateOptions) {
-								var env = merge(templateOptions, {
-									dom: new DOMHelper(templateOptions.dom || null),
-									hooks: Htmlbars.hooks
-								});
-								var scope = Htmlbars.hooks.createFreshScope();
-								Htmlbars.hooks.bindSelf(env, scope, context);
-								var renderOptions = {};
-								var result = Htmlbars.render(templateFunction, env, scope, renderOptions);
-								return result;
-							}
-						}
-					}
-				}
+				engine.render(templateName, context, previewIframeElement, callback);
 			});
 
 
@@ -287,59 +156,6 @@ function initLivePreview() {
 		initLiveEditorState(initialFormValues, { throttle: throttle }, updateCallback);
 		initUnsavedChangesWarning(initialFormValues);
 
-
-		function getFormFieldValues($formElement) {
-			var formFieldValues = parseFormFieldValues($formElement);
-			var nestedFormFieldValues = parseNestedPropertyValues(formFieldValues);
-			return nestedFormFieldValues;
-
-
-			function parseFormFieldValues($formElement) {
-				var fieldElements = Array.prototype.slice.call($formElement.prop('elements'));
-				return fieldElements.map(function(element) {
-					var elementName = element.name;
-					var elementValue = element.value;
-					return {
-						'key': elementName,
-						'value': elementValue
-					};
-				})
-				.filter(function(property) {
-					var key = property.key;
-					return (key && (key.charAt(0) !== '_'));
-				})
-				.reduce(function(values, property) {
-					var key = property.key;
-					var value = property.value;
-					values[key] = value;
-					return values;
-				}, {});
-			}
-
-			function parseNestedPropertyValues(values) {
-				return Object.keys(values).map(function(key) {
-					return {
-						key: key,
-						value: values[key]
-					};
-				}).reduce(function(values, property) {
-					var propertyName = property.key;
-					var propertyValue = property.value;
-					var propertyNameSegments = propertyName.split('.');
-					propertyNameSegments.reduce(function(parent, propertyNameSegment, index, array) {
-						if (index === array.length - 1) {
-							parent[propertyNameSegment] = propertyValue;
-							return propertyValue;
-						}
-						if (!(propertyNameSegment in parent)) {
-							parent[propertyNameSegment] = {};
-						}
-						return parent[propertyNameSegment];
-					}, values);
-					return values;
-				}, {});
-			}
-		}
 
 		function initLiveEditorState(initialFormValues, options, updateCallback) {
 			options = options || {};
@@ -809,60 +625,5 @@ function initLivePreview() {
 		function onUploadCancelRequested(event) {
 			if (activeUpload) { activeUpload.abort(); }
 		}
-	}
-
-	function getIframeDomElement(iframeElement) {
-		return (iframeElement.contentDocument || iframeElement.contentWindow.document);
-	}
-
-	function removeAllChildren(element) {
-		while (element.hasChildNodes()) {
-			element.removeChild(element.firstChild);
-		}
-	}
-
-	function onIframeDomReady(iframeElement) {
-		var deferred = new $.Deferred();
-		var iframeDocumentElement = getIframeDomElement(iframeElement);
-		var isEmptyDocument = getIsEmptyDocument(iframeDocumentElement);
-		if (isEmptyDocument) {
-			// HACK: See Webkit bug #33604 (https://bugs.webkit.org/show_bug.cgi?id=33604)
-			// Sometimes the iframe does not yet contain the correct document,
-			// so we need to poll until the current document is the correct one
-			var pollInterval = 50;
-			setTimeout(
-				function() {
-					onIframeDomReady(iframeElement)
-						.then(function(documentElement) {
-							deferred.resolve(documentElement);
-						});
-				},
-				pollInterval
-			);
-		} else {
-			deferred.resolve(iframeDocumentElement);
-		}
-		return deferred.promise();
-
-
-		function getIsEmptyDocument(documentElement) {
-			return (!documentElement.head && !documentElement.body);
-		}
-	}
-
-	function loadJson(url) {
-		return $.ajax({
-			url: url,
-			dataType: 'json',
-			headers: {
-				'Accept': 'application/json'
-			}
-		})
-			.then(function(data, textStatus, jqXHR) {
-				return new $.Deferred().resolve(data).promise();
-			})
-			.fail(function(jqXHR, textStatus, errorThrown) {
-				return new $.Deferred().reject(new Error(errorThrown)).promise();
-			});
 	}
 }
