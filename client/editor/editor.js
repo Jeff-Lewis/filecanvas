@@ -156,7 +156,7 @@ function initLivePreview() {
 						var html = templateFunction(context);
 						previewIframeElement.srcdoc = html;
 						onIframeDomReady(previewIframeElement)
-							.then(function(iframeDocumentElement) {
+							.then(function(documentElement) {
 								var patcher = initVirtualDomPatcher(documentElement);
 								updatePreview(currentSiteModel, currentThemeConfigOverrides);
 								var rerender = function(context) {
