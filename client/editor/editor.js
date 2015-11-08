@@ -20,6 +20,8 @@ var HistoryStack = require('./lib/HistoryStack');
 
 var engines = require('./engines');
 
+var NUM_UPLOAD_RETRIES = 2;
+
 $(function() {
 	initColorpickers();
 	initSidepanel();
@@ -527,7 +529,7 @@ function initLivePreview() {
 				showUploadProgressIndicator();
 				var upload = shuntApi.uploadFiles(files, {
 					adapter: adapterConfig,
-					retries: 2
+					retries: NUM_UPLOAD_RETRIES
 				});
 				upload
 					.progress(function(uploadBatch) {
