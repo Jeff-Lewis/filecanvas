@@ -85,7 +85,9 @@ function initLivePreview() {
 		hideLoadingIndicator($previewElement);
 		initInlineUploads($previewElement, adapterConfig);
 	});
-	initLiveUpdates(function(formValues) {
+	initLiveUpdates({
+		throttle: (templateEngine !== 'htmlbars')
+	}, function(formValues) {
 		currentThemeConfigOverrides = formValues.theme.config;
 		setTimeout(function() {
 			updatePreview(currentSiteModel, currentThemeConfigOverrides);
@@ -278,9 +280,11 @@ function initLivePreview() {
 		});
 	}
 
-	function initLiveUpdates(updateCallback) {
+	function initLiveUpdates(options, updateCallback) {
+		options = options || {};
+		var throttle = Boolean(options.throttle);
 		var initialFormValues = getFormFieldValues($formElement);
-		initLiveEditorState(initialFormValues, updateCallback);
+		initLiveEditorState(initialFormValues, { throttle: throttle }, updateCallback);
 		initUnsavedChangesWarning(initialFormValues);
 
 
@@ -337,10 +341,12 @@ function initLivePreview() {
 			}
 		}
 
-		function initLiveEditorState(initialFormValues, updateCallback) {
+		function initLiveEditorState(initialFormValues, options, updateCallback) {
+			options = options || {};
+			var throttle = Boolean(options.throttle);
 			var formUndoHistory = new HistoryStack();
 			formUndoHistory.add(initialFormValues);
-			$formElement.on('input', debounce(onFormFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION));
+			$formElement.on('input', throttle ? debounce(onFormFieldChanged, LIVE_UPDATE_DEBOUNCE_DURATION) : onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
 			$undoButtonElement.on('click', onUndoButtonClicked);
 			$redoButtonElement.on('click', onRedoButtonClicked);
