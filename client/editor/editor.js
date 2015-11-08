@@ -134,8 +134,7 @@ function initLivePreview() {
 				currentSiteModel = siteModel;
 				var previewIframeElement = $previewElement[0];
 				var iframeDocumentElement = getIframeDomElement(previewIframeElement);
-				var existingHtmlElement = iframeDocumentElement.documentElement;
-				iframeDocumentElement.removeChild(existingHtmlElement);
+				removeAllChildren(iframeDocumentElement);
 				var context = getCustomizedSiteModel(currentSiteModel, currentThemeConfigOverrides);
 				renderTemplate(templateEngine, templateName, context, iframeDocumentElement, callback);
 
@@ -194,6 +193,7 @@ function initLivePreview() {
 					}
 
 					function renderHtmlbarsTemplate(templateName, context, documentElement, callback) {
+						addDoctypeNode(documentElement, 'html');
 						var template = Htmlbars.templates[templateName];
 						var templateOptions = {
 							helpers: htmlbarsHelpers
@@ -201,6 +201,17 @@ function initLivePreview() {
 						var rerender = render(template, context, templateOptions, documentElement);
 						callback(null, rerender);
 
+
+						function addDoctypeNode(documentElement, qualifiedNameStr, publicId, systemId) {
+							publicId = publicId || '';
+							systemId = systemId || '';
+							try {
+								var doctypeNode = document.implementation.createDocumentType(qualifiedNameStr, publicId, systemId);
+								documentElement.appendChild(doctypeNode);
+							} catch (error) {
+								return;
+							}
+						}
 
 						function render(template, context, templateOptions, targetElement) {
 							var result = renderHtmlbarsTemplate(template, context, templateOptions);
@@ -788,6 +799,12 @@ function initLivePreview() {
 
 	function getIframeDomElement(iframeElement) {
 		return (iframeElement.contentDocument || iframeElement.contentWindow.document);
+	}
+
+	function removeAllChildren(element) {
+		while (element.hasChildNodes()) {
+			element.removeChild(element.firstChild);
+		}
 	}
 
 	function onIframeDomReady(iframeElement) {
