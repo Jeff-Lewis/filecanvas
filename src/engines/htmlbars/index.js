@@ -24,17 +24,22 @@ var serialize = memoize(function(templatePath) {
 });
 
 module.exports = function(templatePath, context, callback) {
+	console.log('RENDERING TEMPLATE', templatePath);
 	return compile(templatePath)
-		.then(function(templateFunction) {
+		.then(function(template) {
 			// Extract the Htmlbars render options from the
 			// magic `_` property within the context hash
 			var templateOptions = context._ || {};
 
 			// Render the Handlebars template
-			var output = templateFunction(context, templateOptions);
+			var html = htmlbarsService.render(template, context, templateOptions);
+
+			// HTMLBars doesn't parse doctype nodes, so we need to prepend one
+			var doctype = '<!DOCTYPE html>';
+			html = doctype + '\n' + html;
 
 			// Return the resulting string
-			return output;
+			return html;
 		})
 		.then(function(output) {
 			callback(null, output);

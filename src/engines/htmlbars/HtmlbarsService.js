@@ -3,8 +3,8 @@
 var fs = require('fs');
 var merge = require('lodash.merge');
 var SimpleDom = require('simple-dom');
-var Htmlbars = require('htmlbars');
 var DOMHelper = require('htmlbars/dist/cjs/dom-helper');
+var HtmlbarsRuntime = require('./htmlbars-runtime');
 var HtmlbarsCompiler = require('htmlbars/dist/cjs/htmlbars-compiler');
 
 var document = new SimpleDom.Document();
@@ -24,26 +24,19 @@ HtmlbarsService.prototype.compile = function(templatePath) {
 		});
 };
 
-HtmlbarsService.prototype.render = function(templatePath, context) {
-	return this.compile(templatePath)
-		.then(function(template) {
-			// Extract the Htmlbars render options from the
-			// magic `_` property within the context hash
-			var templateOptions = context._ || {};
+HtmlbarsService.prototype.render = function(template, context, templateOptions) {
+	// Render the Htmlbars template
+	var env = merge({}, templateOptions, {
+		dom: new DOMHelper(document),
+		hooks: HtmlbarsRuntime.hooks
+	});
+	var result = template.render(context, env, { contextualElement: document.body });
+	var outputFragment = result.fragment;
 
-			// Render the Htmlbars template
-			var env = merge(templateOptions, {
-				dom: new DOMHelper(document),
-				hooks: Htmlbars.hooks
-			});
-			var result = template.render(context, env, { contextualElement: document.body });
-			var outputFragment = result.fragment;
-
-			// Serialize the emitted DOM element into an HTML string
-			var serializer = new SimpleDom.HTMLSerializer(SimpleDom.voidMap);
-			var html = serializer.serialize(outputFragment);
-			return html;
-		});
+	// Serialize the emitted DOM element into an HTML string
+	var serializer = new SimpleDom.HTMLSerializer(SimpleDom.voidMap);
+	var html = serializer.serialize(outputFragment);
+	return html;
 };
 
 HtmlbarsService.prototype.serialize = function(templatePath) {
