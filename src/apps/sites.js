@@ -488,8 +488,6 @@ module.exports = function(database, options) {
 								var template = themeId + '/' + templateFilename;
 								var context = merge({ '_': templateOptions }, templateData);
 								renderTemplate(res, template, context);
-
-								renderTemplate(res, template, templateData);
 							});
 					})
 					.catch(function(error) {
