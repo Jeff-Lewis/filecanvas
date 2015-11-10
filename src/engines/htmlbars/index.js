@@ -49,15 +49,24 @@ module.exports = function(templatePath, context, callback) {
 };
 
 module.exports.compile = compile;
-module.exports.serialize = function(templatePath, templateId) {
+module.exports.serialize = function(templatePath, templateId, options) {
+	options = options || {};
+	var isPartial = Boolean(options.partial);
 	return serialize(templatePath)
 		.then(function(serializedTemplate) {
-			return wrapHtmlbarsTemplate(serializedTemplate, templateId);
+			return wrapHtmlbarsTemplate(serializedTemplate, {
+				export: templateId,
+				partial: isPartial
+			});
 		});
 
 
-	function wrapHtmlbarsTemplate(template, exportName) {
-		return '(Htmlbars.templates=Htmlbars.templates||{})["' + exportName + '"]=' + template + ';';
+	function wrapHtmlbarsTemplate(template, options) {
+		options = options || {};
+		var exportName = options.export;
+		var isPartial = Boolean(options.partial);
+		var namespace = (isPartial ? 'Htmlbars.partials' : 'Htmlbars.templates');
+		return '(' + namespace + '=' + namespace + '||{})["' + exportName + '"]=' + template + ';';
 	}
 };
 

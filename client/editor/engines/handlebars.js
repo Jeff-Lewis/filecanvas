@@ -19,10 +19,10 @@ module.exports = {
 
 function render(templateName, context, previewIframeElement, callback) {
 	var precompiledTemplate = Handlebars.templates[templateName];
-	var partials = Handlebars.partials;
+	var precompiledPartials = Handlebars.partials;
 	var templateFunction = createHandlebarsTemplateFunction(precompiledTemplate, {
 		helpers: helpers,
-		partials: partials
+		partials: precompiledPartials
 	});
 	var html = templateFunction(context);
 	previewIframeElement.srcdoc = html;
@@ -43,13 +43,13 @@ function render(templateName, context, previewIframeElement, callback) {
 		var precompiledPartials = templateOptions.partials || {};
 		var compiler = Handlebars.create();
 		compiler.registerHelper(helpers);
-		var partials = instantiatePartials(precompiledPartials, compiler);
+		var partials = compilePartials(precompiledPartials, compiler);
 		compiler.registerPartial(partials);
 		var templateFunction = compiler.template(precompiledTemplate);
 		return templateFunction;
 
 
-		function instantiatePartials(precompiledPartials, compiler) {
+		function compilePartials(precompiledPartials, compiler) {
 			return Object.keys(precompiledPartials).reduce(function(partials, partialName) {
 				var precompiledPartial = precompiledPartials[partialName];
 				var partial = compiler.template(precompiledPartial);
