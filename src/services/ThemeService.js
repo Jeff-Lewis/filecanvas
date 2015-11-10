@@ -179,7 +179,13 @@ module.exports = ThemeService;
 
 
 function loadPartialPaths(dirPath, engineName) {
-	return loadDirectoryContents(dirPath).then(function(filenames) {
+	return loadDirectoryContents(dirPath)
+		.catch(function(error) {
+			if (error.code === 'ENOENT') {
+				return [];
+			}
+			throw error;
+		}).then(function(filenames) {
 		return filenames.filter(function(filename) {
 			return path.extname(filename) === '.' + engineName;
 		}).map(function(filename) {
