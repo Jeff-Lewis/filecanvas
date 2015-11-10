@@ -211,13 +211,14 @@ function initLivePreview() {
 				var $formElement = $(event.currentTarget);
 				var formValues = getFormFieldValues($formElement);
 				var hasChanged = !isEqual(formValues, previousState);
-				if (!hasChanged) { return; }
-				previousState = formValues;
+				if (hasChanged) {
+					previousState = formValues;
+					updateCallback(formValues);
+				}
 				if (event.type === 'change') {
 					formUndoHistory.add(formValues);
 					updateUndoRedoButtonState();
 				}
-				updateCallback(formValues);
 			}
 
 			function onUndoButtonClicked(event) {
