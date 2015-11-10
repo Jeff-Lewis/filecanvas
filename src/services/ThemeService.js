@@ -102,11 +102,16 @@ ThemeService.prototype.getTemplateMetadata = function(themeId, templateId) {
 	return theme.templates[templateId];
 };
 
+ThemeService.prototype.getTemplateOptions = function(templateMetadata) {
+	return merge({}, templateMetadata.options);
+};
+
 ThemeService.prototype.getTemplateEngine = function(templateMetadata) {
 	var templateFilename = templateMetadata.filename;
 	var templateEngine = path.extname(templateFilename).substr('.'.length);
 	return templateEngine;
 };
+
 ThemeService.prototype.getEngine = function(engineName) {
 	var engine = engines[engineName];
 	return engine;
@@ -133,7 +138,7 @@ ThemeService.prototype.render = function(themeId, templateId, context) {
 		var templateEngine = self.getTemplateEngine(templateMetadata);
 		var themePath = self.getThemePath(themeId);
 		var templatePath = self.getTemplatePath(themeId, templateId);
-		var templateOptions = templateMetadata.options;
+		var templateOptions = self.getTemplateOptions(templateMetadata);
 		var engine = self.getEngine(templateEngine);
 		var partialsRoot = (templateOptions.partials ? path.resolve(themePath, templateOptions.partials) : null);
 		resolve(
@@ -154,7 +159,7 @@ ThemeService.prototype.serialize = function(themeId, templateId) {
 		var templateEngine = self.getTemplateEngine(templateMetadata);
 		var themePath = self.getThemePath(themeId);
 		var templatePath = self.getTemplatePath(themeId, templateId);
-		var templateOptions = templateMetadata.options;
+		var templateOptions = self.getTemplateOptions(templateMetadata);
 		var engine = self.getEngine(templateEngine);
 		var partialsRoot = (templateOptions.partials ? path.resolve(themePath, templateOptions.partials) : null);
 		resolve(
