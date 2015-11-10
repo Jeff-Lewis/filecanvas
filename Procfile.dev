@@ -1,1 +1,1 @@
-web: supervisor --no-restart-on error --watch . --extensions js,hbs,json --ignore client,db,templates/admin/assets,templates/themes --debug server.js
+web: supervisor --no-restart-on error --watch . --extensions js,hbs,json --ignore node_modules,client,db,templates/admin/assets,templates/themes --debug server.js
