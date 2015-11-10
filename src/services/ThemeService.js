@@ -165,7 +165,7 @@ ThemeService.prototype.serialize = function(themeId, templateId) {
 		resolve(
 			serializePartials(partialsRoot, templateEngine, engine)
 				.then(function(partials) {
-					var serializedPartialsArray = objectValues(partials);
+					var serializedPartialsArray = (partials ? objectValues(partials) : []);
 					return engine.serialize(templatePath, templateId)
 						.then(function(serializedTemplate) {
 							return serializedPartialsArray.concat(serializedTemplate).join('\n');
