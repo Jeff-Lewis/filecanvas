@@ -121,7 +121,7 @@ module.exports = function(options) {
 
 
 		function retrieveThemesRoute(req, res, next) {
-			var themeIds = Object.keys(themeService.themes);
+			var themeIds = Object.keys(themeService.getThemes());
 			var firstThemeId = themeIds[0];
 			try {
 				res.redirect('/' + firstThemeId);
@@ -231,10 +231,7 @@ module.exports = function(options) {
 				};
 				return adminPageService.render(req, res, {
 					template: 'theme/edit',
-					context: templateData,
-					partials: {
-						editor: '_editor'
-					}
+					context: templateData
 				});
 			})
 			.catch(function(error) {
@@ -290,8 +287,9 @@ module.exports = function(options) {
 			var themeId = req.params.theme;
 			var templateId = req.params.template;
 			new Promise(function(resolve, reject) {
+				var template = themeService.getThemeTemplate(themeId, templateId);
 				resolve(
-					themeService.serialize(themeId, templateId)
+					template.serialize()
 						.then(function(serializedTemplate) {
 							sendPrecompiledTemplate(res, serializedTemplate);
 						})
@@ -305,13 +303,17 @@ module.exports = function(options) {
 		function renderTemplate(res, themeId, templateId, context, next) {
 			res.format({
 				'text/html': function() {
-					themeService.render(themeId, templateId, context)
-						.then(function(output) {
-							res.send(output);
-						})
-						.catch(function(error) {
-							next(error);
-						});
+					Promise.resolve(
+						themeService.getThemeTemplate(themeId, templateId)
+					).then(function(template) {
+						return template.render(context);
+					})
+					.then(function(output) {
+						res.send(output);
+					})
+					.catch(function(error) {
+						next(error);
+					});
 				},
 				'application/json': function() {
 					res.json(context);

@@ -1144,10 +1144,7 @@ module.exports = function(database, options) {
 							};
 							return adminPageService.render(req, res, {
 								template: 'sites/site/edit',
-								context: templateData,
-								partials: {
-									'editor': '_editor'
-								}
+								context: templateData
 							});
 						})
 					);

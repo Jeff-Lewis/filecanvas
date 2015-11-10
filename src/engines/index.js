@@ -1,4 +1,4 @@
 'use strict';
 
-exports['hbs'] = require('./handlebars');
+exports['handlebars'] = require('./handlebars');
 exports['htmlbars'] = require('./htmlbars');

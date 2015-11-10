@@ -1,68 +1,29 @@
 'use strict';
 
-var memoize = require('lodash.memoize');
-
 var constants = require('../../constants');
 
 var helpers = require('./helpers');
 
 var HandlebarsService = require('./HandlebarsService');
+var HandlebarsEngineFactory = require('./HandlebarsEngineFactory');
 
-var HANDLEBARS_COMPILER_OPTIONS = constants.HANDLEBARS_COMPILER_OPTIONS;
+var COMPILER_OPTIONS = constants.HANDLEBARS_COMPILER_OPTIONS;
+var DEFAULT_TEMPLATE_OPTIONS = constants.HANDLEBARS_DEFAULT_TEMPLATE_OPTIONS;
+var SERIALIZED_TEMPLATES_NAMESPACE = constants.HANDLEBARS_SERIALIZED_TEMPLATES_NAMESPACE;
+var SERIALIZED_PARTIALS_NAMESPACE = constants.HANDLEBARS_SERIALIZED_PARTIALS_NAMESPACE;
 
 var handlebarsService = new HandlebarsService({
 	helpers: helpers,
-	compiler: HANDLEBARS_COMPILER_OPTIONS
+	compiler: COMPILER_OPTIONS,
+	defaultTemplateOptions: DEFAULT_TEMPLATE_OPTIONS
 });
 
-var compile = memoize(function(templatePath) {
-	return handlebarsService.compile(templatePath);
+var engineFactory = new HandlebarsEngineFactory(handlebarsService, {
+	templatesNamespace: SERIALIZED_TEMPLATES_NAMESPACE,
+	partialsNamespace: SERIALIZED_PARTIALS_NAMESPACE,
+	templateOptions: DEFAULT_TEMPLATE_OPTIONS
 });
 
-var serialize = memoize(function(templatePath) {
-	return handlebarsService.serialize(templatePath);
-});
+var engine = engineFactory.getInstance();
 
-module.exports = function(templatePath, context, callback) {
-	return compile(templatePath)
-		.then(function(template) {
-			// Extract the Handlebars render options from the
-			// magic `_` property within the context hash
-			var templateOptions = context._ || {};
-
-			// Render the Handlebars template
-			var output = handlebarsService.render(template, context, templateOptions);
-
-			// Return the resulting string
-			return output;
-		})
-		.then(function(output) {
-			callback(null, output);
-		})
-		.catch(function(error) {
-			callback(error);
-		});
-};
-
-module.exports.compile = compile;
-
-module.exports.serialize = function(templatePath, templateId, options) {
-	options = options || {};
-	var isPartial = Boolean(options.partial);
-	return serialize(templatePath)
-		.then(function(serializedTemplate) {
-			return wrapHandlebarsTemplate(serializedTemplate, {
-				export: templateId,
-				partial: isPartial
-			});
-		});
-
-
-	function wrapHandlebarsTemplate(template, options) {
-		options = options || {};
-		var exportName = options.export;
-		var isPartial = Boolean(options.partial);
-		var namespace = (isPartial ? 'Handlebars.partials' : 'Handlebars.templates');
-		return '(' + namespace + '=' + namespace + '||{})["' + exportName + '"]=' + template + ';';
-	}
-};
+module.exports = engine;

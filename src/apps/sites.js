@@ -540,13 +540,17 @@ module.exports = function(database, options) {
 			function renderTemplate(res, themeId, templateId, context, next) {
 				res.format({
 					'text/html': function() {
-						themeService.render(themeId, templateId, context)
-							.then(function(output) {
-								res.send(output);
-							})
-							.catch(function(error) {
-								next(error);
-							});
+						Promise.resolve(
+							themeService.getThemeTemplate(themeId, templateId)
+						).then(function(template) {
+							return template.render(context);
+						})
+						.then(function(output) {
+							res.send(output);
+						})
+						.catch(function(error) {
+							next(error);
+						});
 					},
 					'application/json': function() {
 						res.json(context);
