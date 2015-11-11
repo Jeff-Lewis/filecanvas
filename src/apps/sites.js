@@ -541,10 +541,8 @@ module.exports = function(database, options) {
 				res.format({
 					'text/html': function() {
 						Promise.resolve(
-							themeService.getThemeTemplate(themeId, templateId)
-						).then(function(template) {
-							return template.render(context);
-						})
+							themeService.renderThemeTemplate(themeId, templateId, context)
+						)
 						.then(function(output) {
 							res.send(output);
 						})

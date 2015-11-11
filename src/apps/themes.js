@@ -287,9 +287,8 @@ module.exports = function(options) {
 			var themeId = req.params.theme;
 			var templateId = req.params.template;
 			new Promise(function(resolve, reject) {
-				var template = themeService.getThemeTemplate(themeId, templateId);
 				resolve(
-					template.serialize()
+					themeService.serializeThemeTemplate(themeId, templateId)
 						.then(function(serializedTemplate) {
 							sendPrecompiledTemplate(res, serializedTemplate);
 						})
@@ -304,10 +303,8 @@ module.exports = function(options) {
 			res.format({
 				'text/html': function() {
 					Promise.resolve(
-						themeService.getThemeTemplate(themeId, templateId)
-					).then(function(template) {
-						return template.render(context);
-					})
+						themeService.renderThemeTemplate(themeId, templateId, context)
+					)
 					.then(function(output) {
 						res.send(output);
 					})

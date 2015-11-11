@@ -5,13 +5,13 @@
 		"index": {
 			"filename": "templates/index.hbs",
 			"options": {
-				"partials": "./partials"
+				"partials": "templates/partials"
 			}
 		},
 		"login": {
 			"filename": "templates/login.hbs",
 			"options": {
-				"partials": "./partials"
+				"partials": "templates/partials"
 			}
 		}
 	},

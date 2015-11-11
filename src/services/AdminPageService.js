@@ -4,10 +4,14 @@ var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 
+var resolvePartials = require('../utils/resolvePartials');
+
 function AdminPageService(options) {
 	options = options || {};
-	this.templatesPath = options.templatesPath;
-	this.partialsPath = options.partialsPath;
+	var templatesPath = options.templatesPath;
+	var partialsPath = options.partialsPath;
+	this.templatesPath = templatesPath;
+	this.partials = resolvePartials(partialsPath);
 }
 
 AdminPageService.prototype.template = null;
@@ -20,7 +24,7 @@ AdminPageService.prototype.render = function(req, res, options) {
 	options = options || {};
 	var pageTemplateName = options.template;
 	var context = options.context || null;
-	var templateOptions = merge({ partials: this.partialsPath }, options.options);
+	var templateOptions = merge({ partials: this.partials }, options.options);
 
 	var templateData = getTemplateData(req, res, context, templateOptions);
 	if (req.session && req.session.state) {
