@@ -12,10 +12,12 @@ var document = new SimpleDom.Document();
 function HtmlbarsService(options) {
 	options = options || {};
 	this.helpers = options.helpers || {};
+	this.hooks = options.hooks || HtmlbarsRuntime.hooks;
 	this.compilerOptions = options.compiler || {};
 }
 
 HtmlbarsService.prototype.helpers = null;
+HtmlbarsService.prototype.hooks = null;
 HtmlbarsService.prototype.compilerOptions = null;
 
 HtmlbarsService.prototype.compile = function(templatePath) {
@@ -28,11 +30,12 @@ HtmlbarsService.prototype.compile = function(templatePath) {
 
 HtmlbarsService.prototype.render = function(template, context, templateOptions) {
 	var helpers = this.helpers;
+	var hooks = this.hooks;
 
 	// Render the Htmlbars template
 	var env = merge({ helpers: helpers }, templateOptions, {
 		dom: new DOMHelper(document),
-		hooks: HtmlbarsRuntime.hooks
+		hooks: hooks
 	});
 	var result = template.render(context, env, { contextualElement: document.body });
 	var outputFragment = result.fragment;

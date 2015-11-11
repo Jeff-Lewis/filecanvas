@@ -6,6 +6,7 @@ var memoize = require('lodash.memoize');
 var constants = require('../../constants');
 
 var helpers = require('./helpers');
+var hooks = require('./hooks');
 
 var HtmlbarsService = require('./HtmlbarsService');
 
@@ -20,6 +21,7 @@ var defaultTemplateOptions = DEFAULT_TEMPLATE_OPTIONS;
 
 var templateService = new HtmlbarsService({
 	helpers: helpers,
+	hooks: hooks,
 	compiler: COMPILER_OPTIONS
 });
 

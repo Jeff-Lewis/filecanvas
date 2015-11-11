@@ -8,6 +8,7 @@ var wrap = require('htmlbars/dist/cjs/htmlbars-runtime/hooks').wrap;
 var getIframeDomElement = require('../utils/getIframeDomElement');
 
 var helpers = require('../../../src/engines/htmlbars/helpers/index');
+var hooks = require('../../../src/engines/htmlbars/hooks');
 
 window.Htmlbars = Htmlbars;
 window.Htmlbars.templates = {};
@@ -33,7 +34,7 @@ function render(templateName, context, previewIframeElement, callback) {
 	var rerender = function(context) {
 		if (context !== currentContext) {
 			currentContext = context;
-			Htmlbars.hooks.updateSelf(result.env, result.scope, context);
+			hooks.updateSelf(result.env, result.scope, context);
 		}
 		result.rerender();
 	};
@@ -49,7 +50,7 @@ function render(templateName, context, previewIframeElement, callback) {
 		var templateFunction = function(context, targetElement) {
 			var env = merge({ helpers: helpers, partials: partials }, templateOptions, {
 				dom: new DOMHelper(templateOptions.dom || null),
-				hooks: Htmlbars.hooks
+				hooks: hooks
 			});
 			var renderOptions = { contextualElement: document.body };
 			var result = template.render(context, env, renderOptions);
