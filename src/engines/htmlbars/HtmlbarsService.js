@@ -7,6 +7,12 @@ var DOMHelper = require('htmlbars/dist/cjs/dom-helper');
 var HtmlbarsRuntime = require('./htmlbars-runtime');
 var HtmlbarsCompiler = require('htmlbars/dist/cjs/htmlbars-compiler');
 
+// HACK: Fix safe string output in Simple DOM
+// https://github.com/krisselden/morph-range/pull/7#issuecomment-145672955
+DOMHelper.prototype.parseHTML = function(html) {
+ return this.document.createRawHTMLSection(html);
+};
+
 var document = new SimpleDom.Document();
 
 function HtmlbarsService(options) {
