@@ -23,7 +23,7 @@
     "url": "https://github.com/timkendrick/shunt/issues"
   },
   "dependencies": {
-    "@timkendrick/ember-htmlbars-helpers": "^0.1.0",
+    "@timkendrick/ember-htmlbars-helpers": "^0.1.1",
     "bcrypt": "^0.8.5",
     "bytes": "timkendrick/bytes.js#feature/custom-precision",
     "clarify": "^1.0.5",

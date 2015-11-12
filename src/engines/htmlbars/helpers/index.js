@@ -1,8 +1,7 @@
 'use strict';
 
 var objectAssign = require('object-assign');
-
-var emberHelpers = require('@timkendrick/ember-htmlbars-helpers');
+var emberHelpers = require('@timkendrick/ember-htmlbars-helpers').helpers;
 var handlebarsHelpers = require('../../handlebars/helpers');
 
 var convertedHandlebarsHelpers = Object.keys(handlebarsHelpers).reduce(function(helpers, helperName) {
