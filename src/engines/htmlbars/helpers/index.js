@@ -12,12 +12,9 @@ var convertedHandlebarsHelpers = Object.keys(handlebarsHelpers).reduce(function(
 	return helpers;
 }, {});
 
-var helperModules = [
-	{ if: require('./if_unless').if, unless: require('./if_unless').unless }
-];
-
-var helpers = helperModules.reduce(function(helpers, module) {
-	return objectAssign(helpers, module);
-}, {});
+var helpers = {
+	'if': require('./if_unless').if,
+	'unless': require('./if_unless').unless
+};
 
 module.exports = objectAssign({}, emberHelpers, helpers, convertedHandlebarsHelpers);
