@@ -2,10 +2,9 @@
 
 var objectAssign = require('object-assign');
 
-var keywordModules = [];
+var emberKeywords = require('@timkendrick/ember-htmlbars-helpers').keywords;
 
-var keywords = keywordModules.reduce(function(keywords, module) {
-	return objectAssign(keywords, module);
-}, {});
+var keywords = {
+};
 
-module.exports = keywords;
+module.exports = objectAssign({}, emberKeywords, keywords);
