@@ -13,35 +13,40 @@ module.exports['resourceUrl'] = function(rootModel, filePath) {
 	return rootModel.metadata.themeRoot + filePath;
 };
 module.exports['downloadUrl'] = function(rootModel, file) {
+	if (!file || !file.path) { return null; }
 	return rootModel.metadata.siteRoot + 'download' + file.path;
 };
 module.exports['thumbnailUrl'] = function(rootModel, file) {
+	if (!file || !file.path) { return null; }
 	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;
 };
 module.exports['extension'] = function(file, options) {
+	if (!file || !file.path) { return null; }
 	return path.extname(file.path).replace(/^\./, '');
 };
 module.exports['filesize'] = function(file, options) {
+	if (!file || !file.size) { return null; }
 	return bytes.format(file.size, { precision: 1 });
 };
-module.exports['files'] = function(value, options) {
-	if (!value.contents) { return null; }
-	return value.contents.filter(function(file) {
+module.exports['files'] = function(file, options) {
+	if (!file || !file.contents) { return null; }
+	return file.contents.filter(function(file) {
 		return !file.directory;
 	}).sort(function(file1, file2) {
 		return sortByPrefixedFilename(file1, file2) || sortByLastModified(file1, file2);
 	});
 };
-module.exports['folders'] = function(value, options) {
-	if (!value.contents) { return null; }
-	return value.contents.filter(function(file) {
+module.exports['folders'] = function(file, options) {
+	if (!file || !file.contents) { return null; }
+	return file.contents.filter(function(file) {
 		return file.directory;
 	}).sort(function(file1, file2) {
 		return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
 	});
 };
-module.exports['strip-number-prefix'] = function(value, options) {
-	var label = path.basename(value.path, path.extname(value.path));
+module.exports['strip-number-prefix'] = function(file, options) {
+	if (!file || !file.path) { return null; }
+	var label = path.basename(file.path, path.extname(file.path));
 	return stripLeadingNumber(label);
 };
 
