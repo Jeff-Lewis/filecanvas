@@ -8,7 +8,7 @@ var wrap = require('htmlbars/dist/cjs/htmlbars-runtime/hooks').wrap;
 var getIframeDomElement = require('../utils/getIframeDomElement');
 
 var helpers = require('../../../src/engines/htmlbars/helpers/index');
-var hooks = require('../../../src/engines/htmlbars/hooks');
+var hooks = require('../../../src/engines/htmlbars/hooks/index');
 
 window.Htmlbars = Htmlbars;
 window.Htmlbars.templates = {};
