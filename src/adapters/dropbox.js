@@ -308,7 +308,6 @@ function parseStatModel(statModel, options) {
 			mimeType: statModel.mime_type,
 			size: statModel.bytes,
 			modified: new Date(statModel.modified).toUTCString(),
-			readOnly: statModel.read_only,
 			thumbnail: statModel.thumb_exists
 		};
 		if (statModel.is_dir) {

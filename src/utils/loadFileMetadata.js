@@ -5,7 +5,6 @@ var path = require('path');
 var mapSeries = require('promise-map-series');
 var junk = require('junk');
 var mime = require('mime');
-var Mode = require('stat-mode');
 
 var FileModel = require('../models/FileModel');
 
@@ -91,14 +90,12 @@ function loadFileMetadata(filePath, rootPath, includeContents) {
 function parseStatModel(stat, filePath) {
 	var mimeType = stat.isFile() ? mime.lookup(filePath) : null;
 	var hasThumbnail = Boolean(mimeType) && mimeType.split('/')[0] === 'image';
-	var ownerCanWrite = new Mode(stat).owner.write;
 	var isDirectory = stat.isDirectory();
 	var fileMetadata = {
 		path: filePath,
 		mimeType: mimeType,
 		size: stat.size,
 		modified: stat.mtime.toUTCString(),
-		readOnly: !ownerCanWrite,
 		thumbnail: hasThumbnail,
 		directory: isDirectory
 	};
