@@ -3,13 +3,32 @@
 var Htmlbars = require('../htmlbars-runtime');
 
 module.exports = function(morph, env, scope, params, hash, template, inverse, visitor) {
-	var scriptElement = env.dom.createElement('script');
 	if (template) {
-		var result = Htmlbars.render(template, env, scope, {});
-		scriptElement.appendChild(result.fragment);
+		return blockScriptKeyword.apply(this, arguments);
 	} else {
-		scriptElement.setAttribute('src', hash.src);
+		return inlineScriptKeyword.apply(this, arguments);
 	}
-	morph.setNode(scriptElement);
-	return true;
 };
+
+function inlineScriptKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
+	var currentValue = hash.src;
+	var hasChanged = (morph.lastValue !== currentValue);
+	if (!hasChanged) { return true; }
+	var scriptElement = env.dom.createElement('script');
+	scriptElement.setAttribute('src', currentValue);
+	morph.setNode(scriptElement);
+	morph.lastValue = currentValue;
+	return true;
+}
+
+function blockScriptKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
+	var result = Htmlbars.render(template, env, scope, {});
+	var currentValue = result.fragment.firstChild.nodeValue;
+	var hasChanged = (morph.lastValue !== currentValue);
+	if (!hasChanged) { return true; }
+	var scriptElement = env.dom.createElement('script');
+	scriptElement.appendChild(result.fragment);
+	morph.setNode(scriptElement);
+	morph.lastValue = currentValue;
+	return true;
+}
