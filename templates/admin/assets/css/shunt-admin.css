@@ -465,18 +465,18 @@ body.full-page .title-bar {
 .title-bar .brand a:hover {
     color: #c0c3ca;
 }
-.title-bar-title {
+.title-bar-header {
 	float: left;
 }
-.title-bar-separator {
-	height: 35px;
+.title-bar-header-title {
+	float: left;
 }
-.title-bar-title .brand-logo {
+.title-bar-header-title .brand-logo {
 	margin: 0 10px;
 	line-height: 35px;
 	padding: 0;
 }
-.title-bar-subtitle {
+.title-bar-header-subtitle {
 	float: left;
     height: 35px;
 	font-weight: 300;
@@ -486,6 +486,20 @@ body.full-page .title-bar {
 	margin-left: 3px;
     border-left: 2px solid rgba(255, 255, 255, 0.1);
     padding-left: 12px;
+}
+.title-bar-title {
+	text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+	line-height: 32px;
+	padding-top: 3px;
+    text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
+}
+.title-bar-title strong {
+	color: white;
+}
+.title-bar-separator {
+	height: 35px;
 }
 .title-bar-controls {
 	float: right;
