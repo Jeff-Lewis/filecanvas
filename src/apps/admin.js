@@ -749,8 +749,8 @@ module.exports = function(database, options) {
 						],
 						content: {
 							theme: theme,
-							previous: previousTheme,
-							next: nextTheme
+							previousTheme: previousTheme,
+							nextTheme: nextTheme
 						}
 					};
 					return resolve(
