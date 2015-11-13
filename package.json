@@ -64,6 +64,7 @@
     "promise-map-series": "^0.2.1",
     "showdown": "^1.3.0",
     "simple-dom": "^0.2.7",
+    "simple-mime": "^0.1.0",
     "slug": "^0.9.1",
     "trace": "^1.2.0",
     "vdom-virtualize": "^1.0.1",

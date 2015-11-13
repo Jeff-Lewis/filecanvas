@@ -1,10 +1,12 @@
 'use strict';
 
+var path = require('path');
 var junk = require('junk');
 var objectAssign = require('object-assign');
 var template = require('lodash.template');
 var merge = require('lodash.merge');
 var isEqual = require('lodash.isequal');
+var mime = require('simple-mime')(null);
 var Mousetrap = require('mousetrap');
 
 var getIframeDomElement = require('./utils/getIframeDomElement');
@@ -534,11 +536,22 @@ function initLivePreview() {
 					adapter: adapterConfig,
 					retries: NUM_UPLOAD_RETRIES
 				});
+				var numLoaded = 0;
 				upload
 					.progress(function(uploadBatch) {
 						setUploadProgress(uploadBatch);
+						if (uploadBatch.numLoaded !== numLoaded) {
+							numLoaded = uploadBatch.numLoaded;
+							mergeFiles(uploadBatch.completedItems, currentSiteModel.resource.root);
+							updatePreview(currentSiteModel, currentThemeConfigOverrides);
+						}
 					})
 					.then(function(uploadBatch) {
+						if (uploadBatch.numLoaded !== numLoaded) {
+							numLoaded = uploadBatch.numLoaded;
+							mergeFiles(uploadBatch.completedItems, currentSiteModel.resource.root);
+							updatePreview(currentSiteModel, currentThemeConfigOverrides);
+						}
 						var hasErrors = uploadBatch.numFailed > 0;
 						if (hasErrors) {
 							showUploadStatus({
@@ -554,6 +567,7 @@ function initLivePreview() {
 						});
 					})
 					.always(function() {
+						hideUploadProgressIndicator();
 						loadJson(previewUrl)
 							.then(function(siteModel) {
 								currentSiteModel = siteModel;
@@ -565,6 +579,92 @@ function initLivePreview() {
 					});
 				return upload;
 
+
+				function mergeFiles(completedItems, siteRoot) {
+					completedItems.forEach(function(item) {
+						var updatedFilename = item.filename;
+						var filePath = item.file.path.split('/').slice(0, -1).concat(updatedFilename).join('/');
+						insertFile(item.file.data, filePath, siteRoot);
+					});
+
+
+					function insertFile(file, filePath, rootFolder) {
+						var pathSegments = filePath.substr('/'.length).split('/');
+						if (pathSegments.length > 1) {
+							var parentFilename = pathSegments[0];
+							var childPath = pathSegments.slice(1).join('/');
+							var parentFolder = getChildFile(rootFolder, parentFilename) || createFolderModel(rootFolder, parentFilename, file.lastModifiedDate);
+							return insertFile(file, '/' + childPath, parentFolder);
+						} else {
+							var filename = pathSegments[0];
+							return createFileModel(rootFolder, filename, file);
+						}
+
+						function getChildFile(parentFolder, filename) {
+							var filePath = getChildPath(parentFolder.path, filename);
+							return parentFolder.contents.filter(function(file) {
+								return file.path === filePath;
+							})[0] || null;
+						}
+
+						function getChildPath(parentPath, filename) {
+							return (parentPath === '/' ? '' : parentPath) + '/' + filename;
+						}
+
+						function createFolderModel(parentFolder, folderName, modifiedDate) {
+							var folderPath = getChildPath(parentFolder.path, folderName);
+							var folderModel = {
+								path: folderPath,
+								mimeType: null,
+								size: 0,
+								modified: modifiedDate.toISOString(),
+								thumbnail: false,
+								directory: true,
+								contents: []
+							};
+							parentFolder.contents.push(folderModel);
+							return folderModel;
+						}
+
+						function createFileModel(parentFolder, filename, file) {
+							var filePath = getChildPath(parentFolder.path, filename);
+							var fileModel = {
+								path: filePath,
+								mimeType: mime(filename),
+								size: file.size,
+								modified: file.lastModifiedDate.toISOString(),
+								thumbnail: getHasThumbnail(file),
+								directory: false
+							};
+							addFile(parentFolder, fileModel);
+							return fileModel;
+
+
+							function getHasThumbnail(file) {
+								var extension = path.extname(file.name).substr('.'.length);
+								var IMAGE_TYPES = [
+									'jpg',
+									'jpeg',
+									'png',
+									'gif'
+								];
+								return IMAGE_TYPES.indexOf(extension) !== -1;
+							}
+
+							function addFile(parentFolder, file) {
+								var existingFile = parentFolder.contents.filter(function(existingFile) {
+									return existingFile.path === file.path;
+								})[0] || null;
+								if (existingFile) {
+									var existingFileIndex = parentFolder.contents.indexOf(existingFile);
+									parentFolder.contents.splice(existingFileIndex, 1, file);
+								} else {
+									parentFolder.contents.push(file);
+								}
+							}
+						}
+					}
+				}
 
 				function showUploadProgressIndicator() {
 					setProgressBarLabel(null);
