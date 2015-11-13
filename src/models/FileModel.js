@@ -8,7 +8,7 @@ function FileModel(options) {
 	this.thumbnail = Boolean(options.thumbnail);
 	this.directory = Boolean(options.directory);
 	if (options.directory) {
-		this.contents = options.contents ? options.contents.slice() : null;
+		this.contents = options.contents ? options.contents.slice() : [];
 	}
 }
 
