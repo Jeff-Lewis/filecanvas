@@ -33,17 +33,6 @@ function engine(templatePath, context, callback) {
 	// Render the HTMLBars template
 	return engine.render(templatePath, context, templateOptions)
 		.then(function(output) {
-			// HTMLBars doesn't parse doctype nodes, so we need to prepend one
-			return addHtml5Doctype(output);
-
-
-			function addHtml5Doctype(html) {
-				var doctype = '<!DOCTYPE html>';
-				html = doctype + '\n' + html;
-				return html;
-			}
-		})
-		.then(function(output) {
 			callback(null, output);
 		})
 		.catch(function(error) {
@@ -55,6 +44,17 @@ engine.render = function(templatePath, context, templateOptions) {
 	return compileTemplateBundle(templatePath, templateOptions)
 		.then(function(render) {
 			return render(context);
+		})
+		.then(function(output) {
+			// HTMLBars doesn't parse doctype nodes, so we need to prepend one
+			return addHtml5Doctype(output);
+
+
+			function addHtml5Doctype(html) {
+				var doctype = '<!DOCTYPE html>';
+				html = doctype + '\n' + html;
+				return html;
+			}
 		});
 };
 
