@@ -85,7 +85,7 @@
 								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
 								{{#each (folders folder) as |subfolder|}}
 								{{#if subfolder.directory}}
-								<li{{#if ../../metadata.admin }} data-admin-upload="{{ subfolder.path }}"{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
+								<li{{#if ../../metadata.admin }} data-admin-upload="{{ subfolder.path }}"{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder.path) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
 								{{/if}}
 								{{/each}}
 							</ul>
