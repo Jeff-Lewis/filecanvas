@@ -307,7 +307,7 @@ function parseStatModel(statModel, options) {
 			path: statModel.path.replace(rootPath, '') || '/',
 			mimeType: statModel.mime_type || null,
 			size: statModel.bytes,
-			modified: new Date(statModel.modified).toUTCString(),
+			modified: new Date(statModel.modified).toISOString(),
 			thumbnail: statModel.thumb_exists
 		};
 		if (statModel.is_dir) {

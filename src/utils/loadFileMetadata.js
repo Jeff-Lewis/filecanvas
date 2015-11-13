@@ -95,7 +95,7 @@ function parseStatModel(stat, filePath) {
 		path: filePath,
 		mimeType: mimeType,
 		size: stat.size,
-		modified: stat.mtime.toUTCString(),
+		modified: stat.mtime.toISOString(),
 		thumbnail: hasThumbnail,
 		directory: isDirectory
 	};
