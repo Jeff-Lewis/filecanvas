@@ -9,7 +9,7 @@ module.exports['loginUrl'] = function(rootModel) {
 module.exports['logoutUrl'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'logout';
 };
-module.exports['resourceUrl'] = function(rootModel, filePath) {
+module.exports['assetUrl'] = function(rootModel, filePath) {
 	return rootModel.metadata.themeRoot + filePath;
 };
 module.exports['downloadUrl'] = function(rootModel, file) {
