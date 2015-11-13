@@ -12,6 +12,10 @@ module.exports = objectAssign({}, partialKeyword, {
 			var block = templateUtils.blockFor(Htmlbars.render, template, { self: scope.self });
 			env.hooks.bindBlock(env, scope, block);
 		}
-		return partialKeyword.render.apply(this, arguments);
+		var childScope = env.hooks.createChildScope(scope);
+		Object.keys(hash).forEach(function(key) {
+			env.hooks.bindLocal(env, childScope, key, hash[key]);
+		});
+		return partialKeyword.render.call(this, renderNode, env, childScope, params, hash, template, inverse, visitor);
 	}
 });
