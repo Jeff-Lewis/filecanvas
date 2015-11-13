@@ -2,21 +2,23 @@
 
 // Sticky nav
 
-$(window).load(function(){
-  $('#mainnav').sticky({ topSpacing: 0 });
+$(document).ready(function() {
+	$('#mainnav').sticky({ topSpacing: 0 });
 });
 
 
 // One Page Navigation
 
-$('#fluid-nav').onePageNav({
-	currentClass: 'current',
-	changeHash: false,
-	scrollSpeed: 750,
-	scrollOffset: 30,
-	scrollThreshold: 0.5,
-	filter: ':not(.external)',
-	easing: 'swing'
+$(document).ready(function() {
+	$('#fluid-nav').onePageNav({
+		currentClass: 'current',
+		changeHash: false,
+		scrollSpeed: 750,
+		scrollOffset: 30,
+		scrollThreshold: 0.5,
+		filter: ':not(.external)',
+		easing: 'swing'
+	});
 });
 
 
@@ -41,15 +43,17 @@ $(document).ready(function() {
 
 // Selectnav
 
-selectnav('fluid-nav', {
-	nested: false,
-	label: false
+$(document).ready(function() {
+	selectnav('fluid-nav', {
+		nested: false,
+		label: false
+	});
 });
 
 
 // Filtering
 
-$(function(){
+$(document).ready(function(){
 	$(document).on('click', '.page .option-set a', function(event) {
 		event.preventDefault();
 

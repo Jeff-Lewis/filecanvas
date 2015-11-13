@@ -3,12 +3,14 @@
 	"thumbnail": "thumbnail.png",
 	"templates": {
 		"index": {
+			"engine": "htmlbars",
 			"filename": "templates/index.hbs",
 			"options": {
 				"partials": "templates/partials"
 			}
 		},
 		"login": {
+			"engine": "htmlbars",
 			"filename": "templates/login.hbs",
 			"options": {
 				"partials": "templates/partials"

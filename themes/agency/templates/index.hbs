@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-	{{>head title=metadata.theme.config.browser.title}}
+	{{ partial 'head' title=metadata.theme.config.browser.title }}
 </head>
-<body{{#if metadata.admin }} data-admin data-admin-upload{{/if}}>
+<body data-admin={{ if metadata.admin '' null }} data-admin-upload={{ if metadata.admin '' null }}>
 	{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
 	<header id="home">
 		<div class="header-bg"></div>
@@ -12,7 +11,11 @@
 			<div class="row">
 				<div class="span4">
 					{{#if metadata.theme.config.images.headerLogo}}
-					<a class="logo"{{#if metadata.theme.config.content.contactWebsite}} href="{{ metadata.theme.config.content.contactWebsite }}" target="_blank"{{/if}}></a>
+					{{#if metadata.theme.config.content.contactWebsite}}
+					<a class="logo" href={{ metadata.theme.config.content.contactWebsite }} target="_blank"></a>
+					{{else}}
+					<a class="logo"></a>
+					{{/if}}
 					{{/if}}
 				</div>
 			</div>
@@ -28,23 +31,23 @@
 	</header>
 	{{/if}}
 	<div class="wrapper">
-		{{#>navbar}}
+		{{#partial 'navbar'}}
 		{{#if (or (folders resource.root) resource.private)}}
 		<ul id="fluid-nav" class="fluid-navigation visible-desktop">
 			{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
 			<li><a class="scroll-link" href="#home">Home</a></li>
 			{{/if}}
-			{{#each (folders resource.root) as |folder|}}
+			{{#each (folders resource.root) key='path' as |folder|}}
 			{{#if folder.contents}}
-			<li><a class="scroll-link" href="#{{ slug (basename folder) }}">{{ strip-number-prefix folder }}</a></li>
+			<li><a class="scroll-link" href="#{{ slug (basename folder.path) }}">{{ strip-number-prefix folder }}</a></li>
 			{{/if}}
 			{{/each}}
 			{{#if resource.private}}
-			<li><a class="scroll-link external" href="{{#if metadata.preview}}javascript:;{{else}}{{ logoutUrl @root }}{{/if}}">Log out</a></li>
+			<li><a class="scroll-link external" href={{if metadata.preview 'javascript:;' (logoutUrl @root) }}>Log out</a></li>
 			{{/if}}
 		</ul>
 		{{/if}}
-		{{/navbar}}
+		{{/partial}}
 		<section class="pages">
 			{{#if (or metadata.theme.config.content.introTitle metadata.theme.config.content.introText (files resource.root))}}
 			<div class="page">
@@ -62,8 +65,8 @@
 							{{/if}}
 							{{#if (files resource.root)}}
 							<div class="posts row isotope">
-								{{#each (files resource.root) as |file|}}
-								{{>file file=file}}
+								{{#each (files resource.root) key='path' as |file|}}
+								{{ partial 'file' file=file }}
 								{{/each}}
 							</div>
 							{{/if}}
@@ -72,31 +75,31 @@
 				</div>
 			</div>
 			{{/if}}
-			{{#each (folders resource.root) as |folder|}}
-			<div id="{{ slug (basename folder) }}" class="page">
+			{{#each (folders resource.root) key='path' as |folder|}}
+			<div id={{ slug (basename folder.path) }} class="page">
 				<div class="container">
 					<div class="row">
-						<div class="span12"{{#if ../metadata.admin }} data-admin-upload="{{ folder.path }}"{{/if}}>
+						<div class="span12" data-admin-upload={{ if metadata.admin folder.path null }}>
 							<div class="title">{{ strip-number-prefix folder }}</div>
 							<hr/>
-							<div class="lead-small" data-section-header="{{ strip-number-prefix folder }}"></div>
+							<div class="lead-small" data-section-header={{ strip-number-prefix folder }}></div>
 							{{#if (folders folder)}}
 							<ul class="option-set" data-option-key="filter">
 								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
-								{{#each (folders folder) as |subfolder|}}
+								{{#each (folders folder) key='path' as |subfolder|}}
 								{{#if subfolder.directory}}
-								<li{{#if ../../metadata.admin }} data-admin-upload="{{ subfolder.path }}"{{/if}}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder.path) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
+								<li data-admin-upload={{ if metadata.admin subfolder.path null }}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder.path) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
 								{{/if}}
 								{{/each}}
 							</ul>
 							{{/if}}
 							<div class="posts row isotope">
-								{{#each (files folder) as |file|}}
-								{{>file file=file}}
+								{{#each (files folder) key='path' as |file|}}
+								{{ partial 'file' file=file }}
 								{{/each}}
-								{{#each (folders folder) as |subfolder|}}
-								{{#each (files subfolder) as |file|}}
-								{{>file file=file}}
+								{{#each (folders folder) key='path' as |subfolder|}}
+								{{#each (files subfolder) key='path' as |file|}}
+								{{ partial 'file' file=file }}
 								{{/each}}
 								{{/each}}
 							</div>
@@ -125,7 +128,7 @@
 							<p><strong>E-mail:</strong> <a class="white-text" href="mailto:{{ metadata.theme.config.content.contactEmail }}">{{ metadata.theme.config.content.contactEmail }}</a></p>
 							{{/if}}
 							{{#if metadata.theme.config.content.contactWebsite}}
-							<p><strong>Web:</strong> <a class="white-text" href="{{ metadata.theme.config.content.contactWebsite }}" target="_blank">{{ metadata.theme.config.content.contactWebsite }}</a></p>
+							<p><strong>Web:</strong> <a class="white-text" href={{ metadata.theme.config.content.contactWebsite }} target="_blank">{{ metadata.theme.config.content.contactWebsite }}</a></p>
 							{{/if}}
 							{{#if metadata.theme.config.content.contactPhone}}
 							<p><strong>Phone:</strong> <span class="white-text">{{ metadata.theme.config.content.contactPhone }}</span></p>
@@ -143,24 +146,23 @@
 				</div>
 			</div>
 			{{/if}}
-			{{>banner}}
+			{{ partial 'banner' }}
 		</footer>
 	</div>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-	<script>window.jQuery || document.write('<script src="{{ resourceUrl @root 'js/jquery-1.8.1.min.js' }}"><\/script>');</script>
-	<script src="{{ resourceUrl @root 'js/main.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.easing.min.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.sticky.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.scrollTo.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.nav.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/selectnav.min.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.flexslider.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.parallax-1.1.3.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/mql.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/shortcodes.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.fancybox.pack.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jquery.fancybox-media.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/jflickrfeed.js' }}"></script>
-	<script src="{{ resourceUrl @root 'js/settings.js' }}"></script>
+	{{ script src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js' }}
+	{{ script src=(resourceUrl @root 'js/main.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.easing.min.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.sticky.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.scrollTo.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.nav.js') }}
+	{{ script src=(resourceUrl @root 'js/selectnav.min.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.flexslider.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.parallax-1.1.3.js') }}
+	{{ script src=(resourceUrl @root 'js/mql.js') }}
+	{{ script src=(resourceUrl @root 'js/shortcodes.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.fancybox.pack.js') }}
+	{{ script src=(resourceUrl @root 'js/jquery.fancybox-media.js') }}
+	{{ script src=(resourceUrl @root 'js/jflickrfeed.js') }}
+	{{ script src=(resourceUrl @root 'js/settings.js') }}
 </body>
 </html>
