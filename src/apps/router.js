@@ -69,8 +69,8 @@ module.exports = function(database, config) {
 
 	var adminUrl = config.assets.admin || adminSubdomainUrl;
 	var createSiteUrl = adminUrl + 'sites/create-site';
-	var adminAssetsUrl = config.assets.admin || (assetsSubdomainUrl + 'admin/');
-	var themeAssetsUrl = config.assets.themes || (assetsSubdomainUrl + 'themes/');
+	var adminAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'admin/';
+	var themeAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'themes/';
 	var themeGalleryUrl = config.themes.root || themesSubdomainUrl;
 
 	var subdomains = {
