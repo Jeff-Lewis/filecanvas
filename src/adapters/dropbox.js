@@ -305,7 +305,7 @@ function parseStatModel(statModel, options) {
 	function createFileModel(statModel, rootPath) {
 		var fileMetadata = {
 			path: statModel.path.replace(rootPath, '') || '/',
-			mimeType: statModel.mime_type,
+			mimeType: statModel.mime_type || null,
 			size: statModel.bytes,
 			modified: new Date(statModel.modified).toUTCString(),
 			thumbnail: statModel.thumb_exists
