@@ -549,6 +549,7 @@ footer.content-footer {
 
 .dropdown-menu > li > a {
 	padding: 10px 20px;
+	text-decoration: none;
 }
 
 .alert {

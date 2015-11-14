@@ -84,6 +84,15 @@
 									</span>
 								</div>
 								{{/if}}
+								{{#if (eq field.editor.name 'font')}}
+								<select class="form-control selectpicker" data-container="body"
+									name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+								>
+									{{#each field.editor.options.fonts as |option|}}
+									<option value="{{ option.value }}"{{#if (eq option.value (lookup (lookup ../../../content.site.theme.config configGroup.name) field.name)) }} selected{{/if}}>{{ option.name }}</option>
+									{{/each}}
+								</select>
+								{{/if}}
 							</div>
 							{{/each}}
 						</fieldset>

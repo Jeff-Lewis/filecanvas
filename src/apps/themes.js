@@ -198,10 +198,12 @@ module.exports = function(options) {
 				var templateData = {
 					title: 'Site editor',
 					stylesheets: [
+						'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css',
 						adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
 						adminAssetsUrl + 'css/shunt-editor.css'
 					],
 					scripts: [
+						'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
 						adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 						adminAssetsUrl + 'js/shunt-editor.js',
 						'/' + siteModel.theme.id + '/template/index.js'
