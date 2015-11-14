@@ -7,8 +7,10 @@ module.exports = function($formElement) {
 
 
 	function getFormFieldValues($formElement) {
-		var fieldElements = Array.prototype.slice.call($formElement.prop('elements'));
-		return fieldElements.map(function(element) {
+		var fieldElements = $formElement.find('input,select').get();
+		return fieldElements.filter(function(element) {
+			return !getIsInputDeselected(element);
+		}).map(function(element) {
 			var elementName = element.name;
 			var elementValue = element.value;
 			return {
@@ -26,6 +28,10 @@ module.exports = function($formElement) {
 			values[key] = value;
 			return values;
 		}, {});
+	}
+
+	function getIsInputDeselected(element) {
+		return (element.type === 'checkbox') && (element.checked === false);
 	}
 
 	function parseNestedPropertyValues(values) {

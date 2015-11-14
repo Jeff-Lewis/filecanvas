@@ -33,6 +33,22 @@
 									value="{{ lookup (lookup ../../content.site.theme.config configGroup.name) field.name }}"
 								/>
 								{{/if}}
+								{{#if (eq field.editor.name 'checkbox')}}
+								<div class="checkbox">
+									<label>
+										<input type="hidden"
+											name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+											value="false"
+										/>
+										<input type="checkbox"
+											name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+											value="true"
+										   {{#if (lookup (lookup ../../content.site.theme.config configGroup.name) field.name)}}checked{{/if}}
+										/>
+										{{ field.editor.options.label }}
+									</label>
+								</div>
+								{{/if}}
 								{{#if (eq field.editor.name 'textarea')}}
 								<textarea class="form-control"
 									name="theme.config.{{ configGroup.name }}.{{ field.name }}"
