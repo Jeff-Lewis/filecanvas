@@ -23,7 +23,7 @@
 					<div id="theme-options-{{ configGroup.name }}" class="panel-collapse collapse{{#if (eq @index 0)}} in{{/if}}" role="tabpanel">
 						<fieldset class="panel-body">
 							{{#each configGroup.fields as |field|}}
-							<label class="control-label">{{ field.label }}</label>
+							{{#if field.label}}<label class="control-label">{{ field.label }}</label>{{/if}}
 							<div class="mb15">
 								{{#if (eq field.editor.name 'input')}}
 								<input type="{{ field.editor.options.type }}" class="form-control"
