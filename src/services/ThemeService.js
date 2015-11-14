@@ -136,6 +136,17 @@ ThemeService.prototype.getTheme = function(themeId) {
 	return themes[themeId];
 };
 
+ThemeService.prototype.getThemeAssetUrl = function(themeId, assetPath, themeAssetsUrl) {
+	var isExternalUrl = getIsExternalUrl(assetPath);
+	if (isExternalUrl) { return assetPath; }
+	return themeAssetsUrl + themeId + '/' + assetPath;
+
+
+	function getIsExternalUrl(assetPath) {
+		return /^(?:\w+:)?\/\//.test(assetPath);
+	}
+};
+
 ThemeService.prototype.getPreviousTheme = function(themeId) {
 	var themes = this.themes;
 	var themeIds = Object.keys(themes);

@@ -3,6 +3,7 @@
 var fs = require('fs');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
+var isUrl = require('is-url');
 var express = require('express');
 var composeMiddleware = require('compose-middleware').compose;
 var Passport = require('passport').Passport;
@@ -1105,6 +1106,9 @@ module.exports = function(database, options) {
 							var adapterOptions = userAdapters[siteAdapter];
 							var adapter = adapters[siteAdapter];
 							var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
+							var themeId = siteModel.theme.id;
+							var theme = themeService.getTheme(themeId);
+							var themeAssetsRoot = themeAssetsUrl + themeId + '/';
 							var templateData = {
 								title: 'Site editor',
 								stylesheets: [
@@ -1116,7 +1120,7 @@ module.exports = function(database, options) {
 									'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
 									adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 									adminAssetsUrl + 'js/shunt-editor.js',
-									themeGalleryUrl + siteModel.theme.id + '/template/index.js'
+									themeGalleryUrl + themeId + '/template/index.js'
 								],
 								fullPage: true,
 								navigation: false,
@@ -1144,6 +1148,10 @@ module.exports = function(database, options) {
 									adapter: adapterConfig
 								}
 							};
+							if (theme.fonts) {
+								var fontsStylesheetUrl = isUrl(theme.fonts) ? theme.fonts : themeAssetsRoot + theme.fonts;
+								templateData.stylesheets.push(fontsStylesheetUrl);
+							}
 							return adminPageService.render(req, res, {
 								template: 'sites/site/edit',
 								context: templateData

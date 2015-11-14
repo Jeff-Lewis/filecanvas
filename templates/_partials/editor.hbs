@@ -89,7 +89,7 @@
 									name="theme.config.{{ configGroup.name }}.{{ field.name }}"
 								>
 									{{#each field.editor.options.fonts as |option|}}
-									<option value="{{ option.value }}"{{#if (eq option.value (lookup (lookup ../../../content.site.theme.config configGroup.name) field.name)) }} selected{{/if}}>{{ option.name }}</option>
+									<option value="{{ option.value }}" data-content="&lt;span style=&quot;font-family: {{ option.value }}&quot;&gt;{{ option.name }}&lt;/span&gt;"{{#if (eq option.value (lookup (lookup ../../../content.site.theme.config configGroup.name) field.name)) }} selected{{/if}}>{{ option.name }}</option>
 									{{/each}}
 								</select>
 								{{/if}}

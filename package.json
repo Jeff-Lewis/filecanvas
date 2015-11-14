@@ -41,6 +41,7 @@
     "html-pdf": "^1.4.0",
     "htmlbars": "^0.14.6",
     "is-path-inside": "^1.0.0",
+    "is-url": "^1.2.1",
     "istextorbinary": "^1.0.2",
     "jimp": "^0.2.14",
     "js-string-escape": "^1.0.0",

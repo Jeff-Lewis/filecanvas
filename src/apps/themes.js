@@ -3,6 +3,7 @@
 var path = require('path');
 var merge = require('lodash.merge');
 var express = require('express');
+var isUrl = require('is-url');
 
 var constants = require('../constants');
 
@@ -187,6 +188,7 @@ module.exports = function(options) {
 
 			new Promise(function(resolve, reject) {
 				var theme = themeService.getTheme(themeId);
+				var themeAssetsRoot = themeAssetsUrl + themeId + '/';
 				var siteModel = {
 					private: false,
 					theme: {
@@ -206,7 +208,7 @@ module.exports = function(options) {
 						'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
 						adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 						adminAssetsUrl + 'js/shunt-editor.js',
-						'/' + siteModel.theme.id + '/template/index.js'
+						'/' + themeId + '/template/index.js'
 					],
 					fullPage: true,
 					navigation: false,
@@ -217,8 +219,8 @@ module.exports = function(options) {
 						adapter: null,
 						preview: {
 							metadata: {
-								siteRoot: '/' + siteModel.theme.id + '/preview',
-								themeRoot: themeAssetsUrl + siteModel.theme.id + '/',
+								siteRoot: '/' + themeId + '/preview',
+								themeRoot: themeAssetsRoot,
 								theme: siteModel.theme,
 								preview: true,
 								admin: false
@@ -227,6 +229,10 @@ module.exports = function(options) {
 						}
 					}
 				};
+				if (theme.fonts) {
+					var fontsStylesheetUrl = isUrl(theme.fonts) ? theme.fonts : themeAssetsRoot + theme.fonts;
+					templateData.stylesheets.push(fontsStylesheetUrl);
+				}
 				res.locals.urls = {
 					assets: adminAssetsUrl,
 					createSite: createSiteUrl
