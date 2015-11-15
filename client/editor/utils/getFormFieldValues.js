@@ -7,31 +7,36 @@ module.exports = function($formElement) {
 
 
 	function getFormFieldValues($formElement) {
-		var fieldElements = $formElement.find('input,select').get();
-		return fieldElements.filter(function(element) {
-			return !getIsInputDeselected(element);
-		}).map(function(element) {
-			var elementName = element.name;
-			var elementValue = element.value;
-			return {
-				'key': elementName,
-				'value': elementValue
-			};
+		var fields = getActiveFields($formElement);
+		return fields.filter(function(field) {
+			var fieldName = field.name;
+			var isHiddenField = (fieldName.charAt(0) === '_');
+			return !isHiddenField;
 		})
-		.filter(function(property) {
-			var key = property.key;
-			return (key && (key.charAt(0) !== '_'));
-		})
-		.reduce(function(values, property) {
-			var key = property.key;
-			var value = property.value;
-			values[key] = value;
+		.reduce(function(values, field) {
+			var fieldName = field.name;
+			var element = field.element;
+			var fieldValue = element.value;
+			values[fieldName] = fieldValue;
 			return values;
 		}, {});
-	}
 
-	function getIsInputDeselected(element) {
-		return (element.type === 'checkbox') && (element.checked === false);
+
+		function getActiveFields($formElement) {
+			return $formElement.find('input,select,textarea').get().filter(function(element) {
+				return !getIsInputDeselected(element);
+			}).map(function(element) {
+				return {
+					'name': element.name,
+					'element': element
+				};
+			});
+
+
+			function getIsInputDeselected(element) {
+				return (element.tagName === 'INPUT') && (element.type === 'checkbox') && (element.checked === false);
+			}
+		}
 	}
 
 	function parseNestedPropertyValues(values) {

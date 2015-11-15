@@ -2,7 +2,6 @@
 
 var path = require('path');
 var junk = require('junk');
-var objectAssign = require('object-assign');
 var template = require('lodash.template');
 var merge = require('lodash.merge');
 var isEqual = require('lodash.isequal');
@@ -16,6 +15,7 @@ var loadJson = require('./utils/loadJson');
 var parseJson = require('./utils/parseJson');
 var serializeQueryParams = require('./utils/serializeQueryParams');
 var getFormFieldValues = require('./utils/getFormFieldValues');
+var setFormFieldValues = require('./utils/setFormFieldValues');
 var debounce = require('./utils/debounce');
 
 var HistoryStack = require('./lib/HistoryStack');
@@ -165,6 +165,7 @@ function initLivePreview() {
 			var throttle = options.throttle || null;
 			var formUndoHistory = new HistoryStack();
 			var previousState = null;
+			var isUpdating = false;
 			formUndoHistory.add(initialFormValues);
 			$formElement.on('input', throttle ? debounce(onFormFieldChanged, options.throttle) : onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
@@ -174,42 +175,9 @@ function initLivePreview() {
 			Mousetrap.bind('mod+shift+z', onCtrlShiftZPressed);
 
 
-			function setFormFieldValues($formElement, fieldValues) {
-				var flattenedFieldValues = getFlattenedPropertyValues(fieldValues);
-				updateFormValues($formElement, flattenedFieldValues);
-
-
-				function getFlattenedPropertyValues(nestedValues) {
-					return flattenObjectKeys(nestedValues, '');
-
-					function flattenObjectKeys(object, keyPrefix) {
-						return Object.keys(object).reduce(function(flattenedValues, key) {
-							var propertyValue = object[key];
-							var isNestedObject = propertyValue && (typeof propertyValue === 'object');
-							if (isNestedObject) {
-								var childKeyPrefix = keyPrefix + key + '.';
-								objectAssign(flattenedValues, flattenObjectKeys(propertyValue, childKeyPrefix));
-							} else {
-								flattenedValues[keyPrefix + key] = propertyValue;
-							}
-							return flattenedValues;
-						}, {});
-					}
-				}
-
-				function updateFormValues($formElement, fieldValues) {
-					var fieldElements = Array.prototype.slice.call($formElement.prop('elements'));
-					fieldElements.forEach(function(element) {
-						var elementName = element.name;
-						if (elementName in fieldValues) {
-							var fieldValue = fieldValues[elementName];
-							element.value = fieldValue;
-						}
-					});
-				}
-			}
 
 			function onFormFieldChanged(event) {
+				if (isUpdating) { return; }
 				var $formElement = $(event.currentTarget);
 				var formValues = getFormFieldValues($formElement);
 				var hasChanged = !isEqual(formValues, previousState);
@@ -251,7 +219,9 @@ function initLivePreview() {
 				formUndoHistory.previous();
 				updateUndoRedoButtonState();
 				var formValues = formUndoHistory.getState();
+				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
+				isUpdating = false;
 				updateCallback(formValues);
 			}
 
@@ -259,7 +229,9 @@ function initLivePreview() {
 				formUndoHistory.next();
 				updateUndoRedoButtonState();
 				var formValues = formUndoHistory.getState();
+				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
+				isUpdating = false;
 				updateCallback(formValues);
 			}
 
