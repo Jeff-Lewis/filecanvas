@@ -198,7 +198,7 @@ module.exports = function(options) {
 					root: {}
 				};
 				var templateData = {
-					title: 'Site editor',
+					title: 'Theme editor',
 					stylesheets: [
 						'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css',
 						adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
