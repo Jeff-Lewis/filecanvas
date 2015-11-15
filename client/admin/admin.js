@@ -63,6 +63,7 @@ $(function() {
 	initAccordionAnchors();
 	initActionPanels();
 	initPathControls();
+	initNavigationDropdowns();
 	initOffscreenSidebar();
 	initLogout();
 });
@@ -673,6 +674,24 @@ function initPathControls() {
 
 	$('.path-control').pathControl();
 }
+
+function initNavigationDropdowns() {
+	$('[data-navigation-dropdown]').on('change', function(event) {
+		var $element = $(this);
+		var url = getSelectedUrl($element);
+		if (url) { document.location.href = url; }
+
+
+		function getSelectedUrl($selectElement) {
+			var selectedIndex = $selectElement.prop('selectedIndex');
+			if (selectedIndex === -1) { return -1; }
+			var optionElement = $selectElement.prop('options')[selectedIndex];
+			var $selectedOption = $(optionElement);
+			return $selectedOption.data('href') || null;
+		}
+	});
+}
+
 function initActionPanels() {
 	(function($) {
 
