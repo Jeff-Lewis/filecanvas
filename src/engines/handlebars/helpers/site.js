@@ -1,6 +1,7 @@
 'use strict';
 
 var path = require('path');
+var isUrl = require('is-url');
 var bytes = require('bytes');
 
 module.exports['loginUrl'] = function(rootModel) {
@@ -10,7 +11,7 @@ module.exports['logoutUrl'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'logout';
 };
 module.exports['assetUrl'] = function(rootModel, filePath) {
-	return rootModel.metadata.themeRoot + filePath;
+	return isUrl(filePath) ? filePath : rootModel.metadata.themeRoot + filePath;
 };
 module.exports['downloadUrl'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
