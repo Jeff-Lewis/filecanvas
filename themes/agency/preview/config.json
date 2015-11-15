@@ -18,6 +18,28 @@
 		"navItemRolloverColor": "#ffcccc",
 		"navItemSelectedColor": "#000000"
 	},
+	"fonts": {
+		"pageHeader": {
+			"font-family": "'Montserrat'",
+			"font-weight": "normal",
+			"text-transform": "uppercase"
+		},
+		"pageSubtitle": {
+			"font-family": "'Montserrat'",
+			"font-weight": "normal",
+			"text-transform": "uppercase"
+		},
+		"sectionHeader": {
+			"font-family": "'Montserrat'",
+			"font-weight": "normal",
+			"text-transform": "uppercase"
+		},
+		"body": {
+			"font-family": "'Open Sans'",
+			"font-weight": "normal",
+			"text-transform": "none"
+		}
+	},
 	"images": {
 		"navLogo": null,
 		"headerLogo": null

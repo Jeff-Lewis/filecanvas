@@ -1,6 +1,7 @@
 {
 	"name": "Agency",
 	"thumbnail": "thumbnail.png",
+	"fonts": "css/fonts.css",
 	"templates": {
 		"index": {
 			"engine": "htmlbars",
@@ -78,7 +79,14 @@
 							"rows": 3
 						}
 					}
-				},
+				}
+			]
+		},
+		{
+			"name": "footer",
+			"label": "Footer",
+			"icon": "th-list",
+			"fields": [
 				{
 					"name": "footerTitle",
 					"type": "string",
@@ -237,6 +245,321 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": null
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "fonts",
+			"label": "Fonts",
+			"icon": "font",
+			"fields": [
+				{
+					"name": "pageHeader",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"label": "Page header",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System font",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "pageSubtitle",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"label": "Page subtitle",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System font",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "sectionHeader",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"label": "Section headings",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System font",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "body",
+					"type": "string",
+					"default": {
+						"font-family": "'Open Sans'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"label": "Body text",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System font",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
 						}
 					}
 				}

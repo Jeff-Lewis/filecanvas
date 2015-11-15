@@ -6,7 +6,7 @@
 <meta name="author" content=""/>
 <link rel="shortcut icon" href="{{ assetUrl @root 'favicon.ico' }}"/>
 <title>{{ title }}</title>
-<link href="//fonts.googleapis.com/css?family=Montserrat:400,700|Open+Sans:400,300,700" rel="stylesheet" type="text/css">
+<link href="{{ assetUrl @root 'css/fonts.css' }}" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"/>
 <!--[if lt IE 10]><link href="css/ie.css" rel="stylesheet" media="all"/><![endif]-->
 <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -57,6 +57,40 @@
 	}
 	nav #fluid-nav li.current a {
 		color: {{ metadata.theme.config.colors.navItemSelectedColor }};
+	}
+
+	body,
+	#slidecaption .sub-caption {
+		font-family: {{ metadata.theme.config.fonts.body.font-family }};
+		font-weight: {{ metadata.theme.config.fonts.body.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.body.text-transform }};
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	#slidecaption,
+	nav ul,
+	.project-wrp,
+	.option-set li {
+		font-family: {{ metadata.theme.config.fonts.pageHeader.font-family }};
+		font-weight: {{ metadata.theme.config.fonts.pageHeader.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.pageHeader.text-transform }};
+	}
+
+	#slidecaption h2 {
+		font-family: {{ metadata.theme.config.fonts.pageSubtitle.font-family }};
+		font-weight: {{ metadata.theme.config.fonts.pageSubtitle.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.pageSubtitle.text-transform }};
+	}
+
+	.title {
+		font-family: {{ metadata.theme.config.fonts.sectionHeader.font-family }};
+		font-weight: {{ metadata.theme.config.fonts.sectionHeader.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.sectionHeader.text-transform }};
 	}
 
 	{{#if metadata.theme.config.images.headerLogo}}
