@@ -207,3 +207,47 @@
 	font-size: 12px;
 	tab-size: 4;
 }
+
+.fa-uppercase {
+	transform: translateY(1px);
+}
+.fa-uppercase::before {
+	content: 'a';
+	font-family: Georgia, serif;
+	font-weight: bold;
+	font-size: 12px;
+	margin-left: -4px;
+}
+.fa-uppercase::after {
+	content: 'A';
+	font-family: Georgia, serif;
+	font-weight: bold;
+	font-size: 15px;
+	margin-right: -4px;
+}
+
+.editor-font-control .bootstrap-select.form-control {
+	float: left;
+}
+.bootstrap-select .dropdown-menu > li > a {
+	padding-right: 50px;
+}
+.bootstrap-select .editor-font-control-preview {
+	display: block;
+}
+[data-toggle="buttons"] .btn-default:hover::before {
+    -moz-opacity: 0.5;
+    -khtml-opacity: 0.5;
+    -webkit-opacity: 0.5;
+    opacity: 0.5;
+    -ms-filter: alpha(opacity=0.5 * 100);
+    filter: alpha(opacity=0.5 * 100);
+}
+[data-toggle="buttons"] .btn-default.active:hover::before {
+    -moz-opacity: 1;
+    -khtml-opacity: 1;
+    -webkit-opacity: 1;
+    opacity: 1;
+    -ms-filter: alpha(opacity=1 * 100);
+    filter: alpha(opacity=1 * 100);
+}

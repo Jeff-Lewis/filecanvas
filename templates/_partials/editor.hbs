@@ -85,13 +85,73 @@
 								</div>
 								{{/if}}
 								{{#if (eq field.editor.name 'font')}}
-								<select class="form-control selectpicker" data-container="body"
-									name="theme.config.{{ configGroup.name }}.{{ field.name }}"
-								>
-									{{#each field.editor.options.fonts as |option|}}
-									<option value="{{ option.value }}" data-content="&lt;span style=&quot;font-family: {{ option.value }}&quot;&gt;{{ option.name }}&lt;/span&gt;"{{#if (eq option.value (lookup (lookup ../../../content.site.theme.config configGroup.name) field.name)) }} selected{{/if}}>{{ option.name }}</option>
-									{{/each}}
-								</select>
+								<div class="btn-group editor-font-control">
+									<select class="form-control selectpicker" data-width="auto" data-container="body"
+										name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-family"
+									>
+										{{#each field.editor.options.fonts as |option|}}
+										<option value="{{ option.value }}" data-content="&lt;span class=&quot;editor-font-control-preview&quot; style=&quot;font-family: {{ option.value }}&quot;&gt;{{ option.name }}&lt;/span&gt;"{{#if (eq option.value (lookup (lookup (lookup ../../../content.site.theme.config configGroup.name) field.name) 'font-family')) }} selected{{/if}}>{{ option.name }}</option>
+										{{/each}}
+									</select>
+									<div class="btn-group pull-left" data-toggle="buttons">
+										{{#if field.editor.options.bold}}
+										<input type="hidden"
+											name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-weight"
+											value="normal"
+										/>
+										<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'font-weight') 'bold')}} active{{/if}}" title="Bold">
+											<input type="checkbox"
+												name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-weight"
+												value="bold"
+												{{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'font-weight') 'bold')}}checked="checked"{{/if}}
+											/>
+											<i class="fa fa-bold"></i>
+										</label>
+										{{/if}}
+										{{#if field.editor.options.italic}}
+										<input type="hidden"
+											name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-style"
+											value="normal"
+										/>
+										<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'font-style') 'italic')}} active{{/if}}" title="Italic">
+											<input type="checkbox"
+												name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-style"
+												value="italic"
+												{{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'font-style') 'italic')}}checked="checked"{{/if}}
+											/>
+											<i class="fa fa-italic"></i>
+										</label>
+										{{/if}}
+										{{#if field.editor.options.underline}}
+										<input type="hidden"
+											name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-decoration"
+											value="none"
+										/>
+										<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'text-decoration') 'underline')}} active{{/if}}" title="Underline">
+											<input type="checkbox"
+												name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-decoration"
+												value="underline"
+												{{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'text-decoration') 'underline')}}checked="checked"{{/if}}
+											/>
+											<i class="fa fa-underline"></i>
+										</label>
+										{{/if}}
+										{{#if field.editor.options.uppercase}}
+										<input type="hidden"
+											name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-transform"
+											value="none"
+										/>
+										<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'text-transform') 'uppercase')}} active{{/if}}" title="Uppercase">
+											<input type="checkbox"
+												name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-transform"
+												value="uppercase"
+												{{#if (eq (lookup (lookup (lookup ../../content.site.theme.config configGroup.name) field.name) 'text-transform') 'uppercase')}}checked="checked"{{/if}}
+											/>
+											<i class="fa fa-uppercase"></i>
+										</label>
+										{{/if}}
+									</div>
+								</div>
 								{{/if}}
 							</div>
 							{{/each}}
