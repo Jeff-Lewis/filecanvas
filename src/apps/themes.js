@@ -135,11 +135,13 @@ module.exports = function(options) {
 			var themeId = req.params.theme;
 
 			new Promise(function(resolve, reject) {
+				var themes = themeService.getThemes();
 				var theme = themeService.getTheme(themeId);
 				var previousTheme = themeService.getPreviousTheme(themeId);
 				var nextTheme = themeService.getNextTheme(themeId);
 				var templateData = {
 					content: {
+						themes: themes,
 						theme: theme,
 						previousTheme: previousTheme,
 						nextTheme: nextTheme
