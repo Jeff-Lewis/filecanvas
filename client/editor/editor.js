@@ -25,11 +25,21 @@ var engines = require('./engines');
 var NUM_UPLOAD_RETRIES = 2;
 
 $(function() {
+	initToggleButtons();
 	initColorpickers();
 	initSidepanel();
 	initLivePreview();
 });
 
+
+function initToggleButtons() {
+	$('[data-toggle="buttons"] label input')
+		.on('change', function(event) {
+			var $element = $(event.currentTarget);
+			var isChecked = $element.prop('checked');
+			$element.closest('label').toggleClass('active', isChecked);
+		});
+}
 
 function initColorpickers() {
 	$('[data-colorpicker]').colorpicker()
