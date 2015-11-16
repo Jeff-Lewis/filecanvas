@@ -140,6 +140,7 @@ module.exports = function(options) {
 				var previousTheme = themeService.getPreviousTheme(themeId);
 				var nextTheme = themeService.getNextTheme(themeId);
 				var templateData = {
+					title: 'Theme gallery',
 					content: {
 						themes: themes,
 						theme: theme,
