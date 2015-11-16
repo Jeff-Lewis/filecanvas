@@ -27,7 +27,7 @@ module.exports['extension'] = function(file, options) {
 };
 module.exports['filesize'] = function(file, options) {
 	if (!file || !file.size) { return null; }
-	return bytes.format(file.size, { precision: 1 });
+	return bytes.format(file.size, { decimalPlaces: 1 });
 };
 module.exports['files'] = function(file, options) {
 	if (!file || !file.contents) { return null; }
