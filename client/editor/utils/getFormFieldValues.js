@@ -10,7 +10,7 @@ module.exports = function($formElement) {
 		var fields = getActiveFields($formElement);
 		return fields.filter(function(field) {
 			var fieldName = field.name;
-			var isHiddenField = (fieldName.charAt(0) === '_');
+			var isHiddenField = !fieldName || (fieldName.charAt(0) === '_');
 			return !isHiddenField;
 		})
 		.reduce(function(values, field) {
