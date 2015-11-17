@@ -509,6 +509,9 @@ body.full-page .title-bar {
 	float: left;
 	margin-left: 5px;
 }
+.title-bar-controls .btn:first-child {
+	margin-left: 0;
+}
 .title-bar-close {
 	padding: 7px;
     color: #b2b6be;
@@ -523,7 +526,13 @@ body.full-page .title-bar {
 .title-bar-toolbar {
 	float: left;
 }
-.title-bar-toolbar .btn {
+.title-bar-toolbar select {
+	height: 34px;
+}
+.title-bar-toolbar .btn-toolbar {
+	margin-left: 0;
+}
+.btn-toolbar {
 	font-weight: bold;
 	background-color: rgba(255, 255, 255, 0.1);
 	color: rgba(255, 255, 255, 0.8);
@@ -531,6 +540,10 @@ body.full-page .title-bar {
 	-moz-transition: none;
 	-o-transition: none;
 	transition: none;
+}
+.btn-toolbar:hover,
+.btn-toolbar:focus {
+	color: white;
 }
 .title-bar-toolbar::after {
 	content: '';
@@ -540,7 +553,10 @@ body.full-page .title-bar {
     margin-top: -3px;
     border-left: 2px solid rgba(255, 255, 255, 0.1);
 	margin-left: 10px;
-	margin-right: 5px;
+	margin-right: 10px;
+}
+.title-bar-toolbar.pull-right::after {
+	float: right;
 }
 .title-bar-dropdown {
 	display: inline-block;
