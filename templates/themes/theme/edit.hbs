@@ -1,7 +1,6 @@
 {{#> index}}
 	{{#*inline 'content'}}
 		<form class="editor" role="form" method="GET" action="{{ session.urls.createSite }}" autocomplete="off" data-editor-form>
-			<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
 			<div class="title-bar">
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
@@ -18,6 +17,16 @@
 				<div class="title-bar-toolbar pull-right">
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
+				</div>
+				<div class="title-bar-title">
+					Current theme:
+					<select class="title-bar-dropdown form-control"
+						name="theme.id"
+					>
+						{{#each content.themes as |theme|}}
+						<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}}>{{ theme.name }}</option>
+						{{/each}}
+					</select>
 				</div>
 			</div>
 			{{> editor}}

@@ -69,6 +69,7 @@ module.exports = function(database, config) {
 
 	var adminUrl = config.assets.admin || adminSubdomainUrl;
 	var createSiteUrl = adminUrl + 'sites/create-site';
+	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'admin/';
 	var themeAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'themes/';
 	var themeGalleryUrl = config.themes.root || themesSubdomainUrl;
@@ -98,6 +99,7 @@ module.exports = function(database, config) {
 			thumbnailHeight: config.themes.thumbnail.height,
 			thumbnailFormat: config.themes.thumbnail.format,
 			adminAssetsUrl: adminAssetsUrl,
+			adminTemplatesUrl: adminTemplatesUrl,
 			createSiteUrl: createSiteUrl
 		}),
 		'my': adminApp(database, {

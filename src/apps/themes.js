@@ -12,6 +12,8 @@ var thumbnailer = require('../middleware/thumbnailer');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
+var stripTrailingSlash = require('../utils/stripTrailingSlash');
+
 var handlebarsEngine = require('../engines/handlebars');
 
 var AdminPageService = require('../services/AdminPageService');
@@ -33,6 +35,7 @@ module.exports = function(options) {
 	var thumbnailHeight = options.thumbnailHeight;
 	var thumbnailFormat = options.thumbnailFormat;
 	var adminAssetsUrl = options.adminAssetsUrl;
+	var adminTemplatesUrl = options.adminTemplatesUrl;
 	var createSiteUrl = options.createSiteUrl;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
@@ -42,6 +45,7 @@ module.exports = function(options) {
 	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
 	if (!thumbnailHeight) { throw new Error('Missing thumbnail height'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
+	if (!adminTemplatesUrl) { throw new Error('Missing admin templates URL'); }
 	if (!createSiteUrl) { throw new Error('Missing create site URL'); }
 
 	var themeService = new ThemeService({
@@ -221,6 +225,7 @@ module.exports = function(options) {
 						'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
 						adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 						adminAssetsUrl + 'js/shunt-editor.js',
+						adminTemplatesUrl + 'theme-options.js',
 						'/' + themeId + '/template/index.js'
 					],
 					fullPage: true,
@@ -252,7 +257,9 @@ module.exports = function(options) {
 				res.locals.urls = {
 					assets: adminAssetsUrl,
 					createSite: createSiteUrl,
-					preview: '/' + themeId + '/preview'
+					preview: '/' + themeId + '/preview',
+					themes: '',
+					themeAssets: stripTrailingSlash(themeAssetsUrl)
 				};
 				return adminPageService.render(req, res, {
 					template: 'theme/edit',
