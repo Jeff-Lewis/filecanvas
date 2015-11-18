@@ -267,7 +267,8 @@ module.exports = function(database, options) {
 						terms: '/terms',
 						privacy: '/privacy',
 						assets: adminAssetsUrl,
-						themes: stripTrailingSlash(themeGalleryUrl)
+						themes: stripTrailingSlash(themeGalleryUrl),
+						themeAssets: stripTrailingSlash(themeAssetsUrl)
 					};
 
 

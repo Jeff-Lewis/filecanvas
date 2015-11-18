@@ -79,6 +79,7 @@ function initLivePreview() {
 	var $adapterConfigElement = $('[data-editor-adapter-config]');
 	var $themeMetadataUrlElement = $('[data-editor-theme-metadata-url]');
 	var $themeTemplateUrlElement = $('[data-editor-theme-template-url]');
+	var $themeRootUrlElement = $('[data-editor-theme-root-url]');
 	var $previewElement = $('[data-editor-preview]');
 	var $previewDataElement = $('[data-editor-preview-data]');
 	var $themeOptionsPanelElement = $('#theme-options');
@@ -96,6 +97,7 @@ function initLivePreview() {
 	var adapterConfig = parseAdapterConfig($adapterConfigElement);
 	var themeMetadataUrlPattern = $themeMetadataUrlElement.val();
 	var themeTemplateUrlPattern = $themeTemplateUrlElement.val();
+	var themeRootUrlPattern = $themeRootUrlElement.val();
 	var currentSiteModel = parseSiteModel($previewDataElement);
 	var currentThemeOverrides = getFormFieldValues($formElement).theme;
 	var rerenderPreview = null;
@@ -191,6 +193,10 @@ function initLivePreview() {
 		return themeTemplateUrlPattern.replace(':theme', themeId);
 	}
 
+	function getThemeRootUrl(themeId) {
+		return themeRootUrlPattern.replace(':theme', themeId);
+	}
+
 	function initPreview(siteModel, themeOverrides, previewUrl, templateEngine, templateId, callback) {
 		getSiteModel(siteModel, themeOverrides, previewUrl)
 			.then(function(customizedSiteModel) {
@@ -242,6 +248,7 @@ function initLivePreview() {
 		var themeId = themeOverrides.id;
 		var themeMetadataUrl = getThemeMetadataUrl(themeId);
 		var themeTemplateUrl = getThemeTemplateUrl(themeId);
+		var themeRootUrl = getThemeRootUrl(themeId);
 		loadJson(themeMetadataUrl)
 			.then(function(theme) {
 				var themeConfigSchema = theme.config;
@@ -252,6 +259,7 @@ function initLivePreview() {
 					}
 				});
 				var themeConfig = (themeOverrides.config ? merge({}, defaultThemeConfig, themeOverrides.config) : defaultThemeConfig);
+				siteModel.metadata.themeRoot = themeRootUrl;
 				siteModel.metadata.theme = {
 					id: themeId,
 					config: themeConfig
