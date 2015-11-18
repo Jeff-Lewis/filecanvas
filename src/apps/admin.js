@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 var isUrl = require('is-url');
@@ -420,6 +421,12 @@ module.exports = function(database, options) {
 
 			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
+			app.use('/templates', composeMiddleware([
+				ensureAuth,
+				initAdminSession,
+				createTemplatesApp()
+			]));
+
 			app.use('/preview', composeMiddleware([
 				ensureAuth,
 				initAdminSession,
@@ -804,8 +811,9 @@ module.exports = function(database, options) {
 
 					var theme = themeService.getTheme(themeId);
 					var defaultThemeConfig = expandConfigPlaceholders(theme.defaults, {
-						site: siteModel,
-						user: req.user
+						site: {
+							label: siteModel.label
+						}
 					});
 					siteModel.theme.config = merge({}, defaultThemeConfig, themeConfig);
 
@@ -1122,6 +1130,7 @@ module.exports = function(database, options) {
 									'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
 									adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 									adminAssetsUrl + 'js/shunt-editor.js',
+									'/templates/theme-options.js',
 									themeGalleryUrl + themeId + '/template/index.js'
 								],
 								fullPage: true,
@@ -1244,6 +1253,37 @@ module.exports = function(database, options) {
 				function addUsernamePathPrefix(req, res, next) {
 					req.url = '/' + req.user.username + req.url;
 					next();
+				}
+			}
+
+			function createTemplatesApp() {
+				var app = express();
+
+				app.get('/theme-options.js', retrieveThemeOptionsTemplateRoute);
+
+				return app;
+
+				function retrieveThemeOptionsTemplateRoute(req, res, next) {
+					new Promise(function(resolve, reject) {
+						var templatePath = path.join(templatesPath, '../_partials/theme-options.hbs');
+						var templateName = 'theme-options';
+						var templateOptions = {};
+						resolve(
+							handlebarsEngine.serialize(templatePath, templateName, templateOptions)
+								.then(function(serializedTemplate) {
+									sendPrecompiledTemplate(res, serializedTemplate);
+								})
+						);
+					})
+					.catch(function(error) {
+						return next(error);
+					});
+				}
+
+
+				function sendPrecompiledTemplate(res, template) {
+					res.set('Content-Type', 'text/javscript');
+					res.send(template);
 				}
 			}
 		}
