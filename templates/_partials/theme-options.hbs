@@ -1,0 +1,148 @@
+{{#each (lookup theme 'config') as |configGroup|}}
+<div class="panel panel-default">
+	<a class="panel-heading{{#unless (eq @index 0)}} collapsed{{/unless}}" role="tab" data-toggle="collapse" data-parent="#theme-options" href="#theme-options-{{ configGroup.name }}" aria-controls="theme-options-{{ configGroup.name }}" aria-expanded="{{eq @index 0 }}">
+		<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+		<h5 class="text-uppercase mt2 mb0">
+			{{#if configGroup.icon}}<i class="fa fa-{{ configGroup.icon }} mr10"></i>{{/if}}
+			{{ configGroup.label }}
+		</h5>
+	</a>
+	<div id="theme-options-{{ configGroup.name }}" class="panel-collapse collapse{{#if (eq @index 0)}} in{{/if}}" role="tabpanel">
+		<fieldset class="panel-body">
+			{{#each configGroup.fields as |field|}}
+			{{#if field.label}}<label class="control-label">{{ field.label }}</label>{{/if}}
+			<div class="mb15">
+				{{#if (eq field.editor.name 'input')}}
+				<input type="{{ field.editor.options.type }}" class="form-control"
+					name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+					placeholder="{{ field.editor.options.placeholder }}"
+					maxlength="{{ field.editor.options.maxLength }}"
+					value="{{ lookup (lookup ../../config configGroup.name) field.name }}"
+				/>
+				{{/if}}
+				{{#if (eq field.editor.name 'checkbox')}}
+				<div class="checkbox">
+					<label>
+						<input type="hidden"
+							name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+							value="false"
+						/>
+						<input type="checkbox"
+							name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+							value="true"
+						   {{#if (lookup (lookup ../../config configGroup.name) field.name)}}checked{{/if}}
+						/>
+						{{ field.editor.options.label }}
+					</label>
+				</div>
+				{{/if}}
+				{{#if (eq field.editor.name 'textarea')}}
+				<textarea class="form-control"
+					name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+					placeholder="{{ field.editor.options.placeholder }}"
+					maxlength="{{ field.editor.options.maxLength }}"
+					rows="{{ field.editor.options.rows }}"
+				>{{ escapeNewlines (lookup (lookup ../../config configGroup.name) field.name) }}</textarea>
+				{{/if}}
+				{{#if (eq field.editor.name 'code')}}
+				<textarea class="form-control code-editor"
+					name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+					placeholder="{{ field.editor.options.placeholder }}"
+					maxlength="{{ field.editor.options.maxLength }}"
+					rows="{{ field.editor.options.rows }}"
+					data-language="{{ field.editor.options.language }}"
+				>{{ escapeNewlines (lookup (lookup ../../config configGroup.name) field.name) }}</textarea>
+				{{/if}}
+				{{#if (eq field.editor.name 'colorpicker')}}
+				<div class="input-group" data-colorpicker
+					{{#if field.editor.options.format }}
+					data-format="{{ field.editor.options.format }}"
+					{{/if}}
+					{{#if field.editor.options.presets }}
+					data-color-selectors="{{ json field.editor.options.presets }}"
+					{{/if}}
+				>
+					<input class="form-control"
+						name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+						placeholder="{{ field.editor.options.placeholder }}"
+						value="{{ lookup (lookup ../../config configGroup.name) field.name }}"
+					/><span class="input-group-addon no-bg">
+						<i></i>
+					</span>
+				</div>
+				{{/if}}
+				{{#if (eq field.editor.name 'font')}}
+				<div class="btn-group editor-font-control">
+					<select class="form-control selectpicker" data-width="auto" data-container="body"
+						name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-family"
+					>
+						{{#each field.editor.options.fonts as |option|}}
+						<option value="{{ option.value }}" data-content="&lt;span class=&quot;editor-font-control-preview&quot; style=&quot;font-family: {{ option.value }}&quot;&gt;{{ option.name }}&lt;/span&gt;"{{#if (eq option.value (lookup (lookup (lookup ../../../config configGroup.name) field.name) 'font-family')) }} selected{{/if}}>{{ option.name }}</option>
+						{{/each}}
+					</select>
+					<div class="btn-group pull-left" data-toggle="buttons">
+						{{#if field.editor.options.bold}}
+						<input type="hidden"
+							name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-weight"
+							value="normal"
+						/>
+						<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'font-weight') 'bold')}} active{{/if}}" title="Bold">
+							<input type="checkbox"
+								name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-weight"
+								value="bold"
+								{{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'font-weight') 'bold')}}checked="checked"{{/if}}
+							/>
+							<i class="fa fa-bold"></i>
+						</label>
+						{{/if}}
+						{{#if field.editor.options.italic}}
+						<input type="hidden"
+							name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-style"
+							value="normal"
+						/>
+						<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'font-style') 'italic')}} active{{/if}}" title="Italic">
+							<input type="checkbox"
+								name="theme.config.{{ configGroup.name }}.{{ field.name }}.font-style"
+								value="italic"
+								{{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'font-style') 'italic')}}checked="checked"{{/if}}
+							/>
+							<i class="fa fa-italic"></i>
+						</label>
+						{{/if}}
+						{{#if field.editor.options.underline}}
+						<input type="hidden"
+							name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-decoration"
+							value="none"
+						/>
+						<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'text-decoration') 'underline')}} active{{/if}}" title="Underline">
+							<input type="checkbox"
+								name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-decoration"
+								value="underline"
+								{{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'text-decoration') 'underline')}}checked="checked"{{/if}}
+							/>
+							<i class="fa fa-underline"></i>
+						</label>
+						{{/if}}
+						{{#if field.editor.options.uppercase}}
+						<input type="hidden"
+							name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-transform"
+							value="none"
+						/>
+						<label class="btn btn-default {{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'text-transform') 'uppercase')}} active{{/if}}" title="Uppercase">
+							<input type="checkbox"
+								name="theme.config.{{ configGroup.name }}.{{ field.name }}.text-transform"
+								value="uppercase"
+								{{#if (eq (lookup (lookup (lookup ../../config configGroup.name) field.name) 'text-transform') 'uppercase')}}checked="checked"{{/if}}
+							/>
+							<i class="fa fa-uppercase"></i>
+						</label>
+						{{/if}}
+					</div>
+				</div>
+				{{/if}}
+			</div>
+			{{/each}}
+		</fieldset>
+	</div>
+</div>
+{{/each}}
