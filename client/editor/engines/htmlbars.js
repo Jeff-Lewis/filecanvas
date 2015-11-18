@@ -10,9 +10,10 @@ var getIframeDomElement = require('../utils/getIframeDomElement');
 var helpers = require('../../../src/engines/htmlbars/helpers/index');
 var hooks = require('../../../src/engines/htmlbars/hooks/index');
 
-window.Htmlbars = Htmlbars;
-window.Htmlbars.templates = {};
-window.Htmlbars.partials = {};
+window.Htmlbars = merge(Htmlbars, window.Htmlbars, {
+	templates: {},
+	partials: {}
+});
 
 module.exports = {
 	throttle: false,

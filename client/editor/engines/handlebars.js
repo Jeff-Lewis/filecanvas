@@ -1,5 +1,6 @@
 'use strict';
 
+var merge = require('lodash.merge');
 var vdom = require('virtual-dom');
 var virtualize = require('vdom-virtualize');
 var Handlebars = require('handlebars/runtime');
@@ -8,9 +9,10 @@ var onIframeDomReady = require('../utils/onIframeDomReady');
 
 var helpers = require('../../../src/engines/handlebars/helpers/index');
 
-window.Handlebars = Handlebars;
-window.Handlebars.templates = {};
-window.Handlebars.partials = {};
+window.Handlebars = merge(Handlebars, window.Handlebars, {
+	templates: {},
+	partials: {}
+});
 
 module.exports = {
 	throttle: 250,

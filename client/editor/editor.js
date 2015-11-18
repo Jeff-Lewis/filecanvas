@@ -25,6 +25,11 @@ var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
 
 var HistoryStack = require('./lib/HistoryStack');
 
+window.Handlebars = merge(Handlebars, window.Handlebars, {
+	templates: {},
+	partials: {}
+});
+
 var engines = require('./engines');
 
 var TEMPLATE_ID_INDEX = 'index';
@@ -199,7 +204,7 @@ function initLivePreview() {
 	}
 
 	function initPreview(siteModel, themeOverrides, previewUrl, templateEngine, templateId, callback) {
-		getSiteModel(siteModel, themeOverrides, previewUrl)
+		retrieveSiteModel(siteModel, themeOverrides, previewUrl)
 			.then(function(customizedSiteModel) {
 				currentSiteModel = customizedSiteModel;
 				var themeId = customizedSiteModel.metadata.theme.id;
@@ -210,7 +215,7 @@ function initLivePreview() {
 			});
 
 
-		function getSiteModel(siteModel, themeOverrides, previewUrl) {
+		function retrieveSiteModel(siteModel, themeOverrides, previewUrl) {
 			var themeHasChanged = siteModel && themeOverrides && themeOverrides.id && (themeOverrides.id !== siteModel.metadata.theme.id);
 			if (siteModel && !themeHasChanged) {
 				var customizedSiteModel = getCustomizedSiteModel(siteModel, themeOverrides);
