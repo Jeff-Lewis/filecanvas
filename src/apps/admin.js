@@ -20,6 +20,7 @@ var handlebarsEngine = require('../engines/handlebars');
 
 var loadAdapters = require('../utils/loadAdapters');
 var readDirContentsSync = require('../utils/readDirContentsSync');
+var stripTrailingSlash = require('../utils/stripTrailingSlash');
 var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
 var HttpError = require('../errors/HttpError');
 
@@ -270,12 +271,6 @@ module.exports = function(database, options) {
 						themes: stripTrailingSlash(themeGalleryUrl),
 						themeAssets: stripTrailingSlash(themeAssetsUrl)
 					};
-
-
-					function stripTrailingSlash(string) {
-						var REGEXP_TRAILING_SLASH = /\/+$/;
-						return string.replace(REGEXP_TRAILING_SLASH, '');
-					}
 				}
 			}
 		}
