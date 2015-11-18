@@ -17,9 +17,17 @@ module.exports = {
 	render: render
 };
 
-function render(templateName, context, previewIframeElement, callback) {
+function render(themeId, templateId, context, previewIframeElement, callback) {
+	var templateName = themeId + ':' + templateId;
 	var precompiledTemplate = Handlebars.templates[templateName];
-	var precompiledPartials = Handlebars.partials;
+	var precompiledPartials = Object.keys(Handlebars.partials).filter(function(partialName) {
+		var partialThemeId = partialName.split(':').slice(0, 2).join(':');
+		return partialThemeId === themeId + ':' + templateId;
+	}).reduce(function(partials, namespacedPartialName) {
+		var partialName = namespacedPartialName.split(':')[2];
+		partials[partialName] = Handlebars.partials[namespacedPartialName];
+		return partials;
+	}, {});
 	var templateFunction = createHandlebarsTemplateFunction(precompiledTemplate, {
 		helpers: helpers,
 		partials: precompiledPartials

@@ -20,9 +20,17 @@ module.exports = {
 };
 
 
-function render(templateName, context, previewIframeElement, callback) {
+function render(themeId, templateId, context, previewIframeElement, callback) {
+	var templateName = themeId + ':' + templateId;
 	var precompiledTemplate = Htmlbars.templates[templateName];
-	var precompiledPartials = Htmlbars.partials;
+	var precompiledPartials = Object.keys(Htmlbars.partials).filter(function(partialName) {
+		var partialThemeId = partialName.split(':').slice(0, 2).join(':');
+		return partialThemeId === themeId + ':' + templateId;
+	}).reduce(function(partials, namespacedPartialName) {
+		var partialName = namespacedPartialName.split(':')[2];
+		partials[partialName] = Htmlbars.partials[namespacedPartialName];
+		return partials;
+	}, {});
 	var templateFunction = createHtmlbarsTemplateFunction(precompiledTemplate, {
 		helpers: helpers,
 		partials: precompiledPartials

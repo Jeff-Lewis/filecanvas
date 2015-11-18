@@ -136,7 +136,8 @@ function initLivePreview() {
 				var iframeDocumentElement = getIframeDomElement(previewIframeElement);
 				removeAllChildren(iframeDocumentElement);
 				var context = getCustomizedSiteModel(currentSiteModel, currentThemeConfigOverrides);
-				engine.render(templateName, context, previewIframeElement, callback);
+				var themeId = currentSiteModel.metadata.theme.id;
+				engine.render(themeId, templateName, context, previewIframeElement, callback);
 			});
 
 

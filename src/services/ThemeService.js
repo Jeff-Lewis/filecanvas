@@ -179,11 +179,12 @@ ThemeService.prototype.serializeThemeTemplate = function(themeId, templateId) {
 	return new Promise(function(resolve, reject) {
 		var template = self.getThemeTemplate(themeId, templateId);
 		var templatePath = template.path;
+		var templateName = themeId + ':' + templateId;
 		var templateEngine = template.engine;
 		var templateOptions = template.options;
 		var engine = engines[templateEngine];
 		resolve(
-			engine.serialize(templatePath, templateId, templateOptions)
+			engine.serialize(templatePath, templateName, templateOptions)
 		);
 	});
 };

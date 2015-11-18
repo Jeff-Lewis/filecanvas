@@ -45,8 +45,8 @@ engine.render = function(templatePath, context, templateOptions) {
 		});
 };
 
-engine.serialize = function(templatePath, templateId, templateOptions) {
-	return serializeTemplateBundle(templatePath, templateId, templateOptions);
+engine.serialize = function(templatePath, templateName, templateOptions) {
+	return serializeTemplateBundle(templatePath, templateName, templateOptions);
 };
 
 var compile = memoize(function(templatePath) {
@@ -65,25 +65,25 @@ var compilePartial = memoize(function(templatePath) {
 	return compile(templatePath);
 });
 
-var serializeTemplate = memoize(function(templatePath, templateId) {
+var serializeTemplate = memoize(function(templatePath, templateName) {
 	return precompile(templatePath)
 		.then(function(precompiledTemplate) {
 			return wrapHandlebarsTemplate(precompiledTemplate, {
 				namespace: templatesNamespace,
-				id: templateId
+				name: templateName
 			});
 		});
-});
+}, function(templatePath, templateName) { return templatePath + ':' + templateName; });
 
-var serializePartial = memoize(function(partialPath, partialId) {
+var serializePartial = memoize(function(partialPath, partialName) {
 	return precompile(partialPath)
 		.then(function(precompiledPartial) {
 			return wrapHandlebarsTemplate(precompiledPartial, {
 				namespace: partialsNamespace,
-				id: partialId
+				name: partialName
 			});
 		});
-});
+}, function(partialPath, partialName) { return partialPath + ':' + partialName; });
 
 function compileTemplateBundle(templatePath, templateOptions) {
 	templateOptions = merge({}, defaultTemplateOptions, templateOptions);
@@ -123,12 +123,12 @@ function compileTemplateBundle(templatePath, templateOptions) {
 		}
 }
 
-function serializeTemplateBundle(templatePath, templateId, templateOptions) {
+function serializeTemplateBundle(templatePath, templateName, templateOptions) {
 	templateOptions = merge({}, defaultTemplateOptions, templateOptions);
 	var partials = templateOptions.partials;
 	return Promise.all([
-		serializeTemplate(templatePath, templateId),
-		serializePartials(partials)
+		serializeTemplate(templatePath, templateName),
+		serializePartials(partials, templateName)
 	])
 		.then(function(values) {
 			var serializedTemplate = values[0];
@@ -139,7 +139,7 @@ function serializeTemplateBundle(templatePath, templateId, templateOptions) {
 		});
 
 
-	function serializePartials(partials) {
+	function serializePartials(partials, templateName) {
 		if (!partials) { return Promise.resolve({}); }
 		var partialIds = Object.keys(partials);
 		var partialPaths = partialIds.map(
@@ -148,7 +148,8 @@ function serializeTemplateBundle(templatePath, templateId, templateOptions) {
 		return Promise.all(
 			partialPaths.map(function(partialPath, index) {
 				var partialId = partialIds[index];
-				return serializePartial(partialPath, partialId);
+				var partialName = templateName + ':' + partialId;
+				return serializePartial(partialPath, partialName);
 			})
 		).then(function(compiledPartials) {
 			return compiledPartials.reduce(function(compiledPartialsHash, compiledPartial, index) {
@@ -163,8 +164,8 @@ function serializeTemplateBundle(templatePath, templateId, templateOptions) {
 function wrapHandlebarsTemplate(template, options) {
 	options = options || {};
 	var namespace = options.namespace;
-	var templateId = options.id;
-	return '(' + namespace + '=' + namespace + '||{})["' + templateId + '"]=' + template + ';';
+	var templateName = options.name;
+	return '(' + namespace + '=' + namespace + '||{})["' + templateName + '"]=' + template + ';';
 }
 
 function objectValues(object) {
