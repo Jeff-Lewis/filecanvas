@@ -13,7 +13,7 @@ window.Handlebars.templates = {};
 window.Handlebars.partials = {};
 
 module.exports = {
-	throttle: 500,
+	throttle: 250,
 	render: render
 };
 
