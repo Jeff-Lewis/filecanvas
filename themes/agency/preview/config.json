@@ -43,14 +43,14 @@
 		}
 	},
 	"images": {
-		"navLogo": null,
-		"headerLogo": null
+		"navLogo": "",
+		"headerLogo": ""
 	},
 	"browser": {
-		"title": "Test"
+		"title": ""
 	},
 	"scripts": {
-		"css": null
+		"css": ""
 	}
 }
 
