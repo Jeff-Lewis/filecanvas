@@ -396,6 +396,7 @@ function initLivePreview() {
 				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
 				isUpdating = false;
+				previousState = formValues;
 				updateCallback(formValues, { userInitiated: false });
 			}
 
@@ -406,6 +407,7 @@ function initLivePreview() {
 				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
 				isUpdating = false;
+				previousState = formValues;
 				updateCallback(formValues, { userInitiated: false });
 			}
 
