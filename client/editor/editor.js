@@ -119,9 +119,11 @@ function initLivePreview() {
 				undoHistory.replace(formValues);
 			}
 			$themeOptionsPanelElement.empty();
+			currentThemeOverrides = null;
 			showLoadingIndicator($themeOptionsPanelElement);
 			showLoadingIndicator($previewElement);
 			updateTheme(currentSiteModel, themeOverrides, function(siteModel) {
+				currentThemeOverrides = siteModel.metadata.theme.config;
 				if (isUserInitiatedAction) {
 					undoHistory.replace({
 						theme: {
