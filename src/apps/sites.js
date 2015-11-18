@@ -10,6 +10,8 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
 var loadAdapters = require('../utils/loadAdapters');
+var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
+
 var HttpError = require('../errors/HttpError');
 
 var UserService = require('../services/UserService');
@@ -383,8 +385,9 @@ module.exports = function(database, options) {
 			function loginRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var themeIdOverride = (isPreview && req.query.theme && req.query.theme.id || null);
 				var themeConfigOverrides = null;
-				if (req.query.theme && req.query.theme.config) {
+				if (isPreview && req.query.theme && req.query.theme.config) {
 					try {
 						themeConfigOverrides = JSON.parse(req.query['theme.config']);
 					} catch (error) {
@@ -410,16 +413,13 @@ module.exports = function(database, options) {
 									cacheDuration: (useCached ? Infinity : null)
 								})
 									.then(function(siteModel) {
-										var themeId = siteModel.theme.id;
-										var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
+										var siteTheme = getCustomizedSiteTheme(siteModel, themeIdOverride, themeConfigOverrides);
+										var themeId = siteTheme.id;
 										var templateData = {
 											metadata: {
-												siteRoot: getSiteRootUrl(req, '/login'),
+												siteRoot: getSiteRootUrl(req),
 												themeRoot: themeAssetsUrl + themeId + '/',
-												theme: {
-													id: themeId,
-													config: themeConfig
-												}
+												theme: siteTheme
 											},
 											resource: {
 												private: siteModel.private
@@ -444,8 +444,9 @@ module.exports = function(database, options) {
 				var username = req.params.user;
 				var siteName = req.params.site;
 				var useCached = (req.query.cached === 'true');
+				var themeIdOverride = (isPreview && req.query.theme && req.query.theme.id || null);
 				var themeConfigOverrides = null;
-				if (req.query.theme && req.query.theme.config) {
+				if (isPreview && req.query.theme && req.query.theme.config) {
 					try {
 						themeConfigOverrides = JSON.parse(req.query['theme.config']);
 					} catch (error) {
@@ -470,16 +471,13 @@ module.exports = function(database, options) {
 									cacheDuration: (useCached ? Infinity : null)
 								})
 									.then(function(siteModel) {
-										var themeId = siteModel.theme.id;
-										var themeConfig = merge({}, siteModel.theme.config, themeConfigOverrides);
+										var siteTheme = getCustomizedSiteTheme(siteModel, themeIdOverride, themeConfigOverrides);
+										var themeId = siteTheme.id;
 										var templateData = {
 											metadata: {
 												siteRoot: getSiteRootUrl(req),
 												themeRoot: themeAssetsUrl + themeId + '/',
-												theme: {
-													id: themeId,
-													config: themeConfig
-												}
+												theme: siteTheme
 											},
 											resource: {
 												private: siteModel.private,
@@ -569,6 +567,30 @@ module.exports = function(database, options) {
 					resolve();
 				});
 			});
+		}
+
+		function getCustomizedSiteTheme(siteModel, themeIdOverride, themeConfigOverrides) {
+			var siteTheme = siteModel.theme;
+			if (!themeIdOverride && !themeConfigOverrides) { return siteTheme; }
+			var themeId = themeIdOverride || siteTheme.id;
+			var themeHasChanged = themeId && (themeId !== siteTheme.id);
+			var themeConfigBase = (themeHasChanged ? loadThemeDefaults(themeId, siteModel) : siteTheme.config);
+			var themeConfig = merge({}, themeConfigBase, themeConfigOverrides);
+			return {
+				id: themeId,
+				config: themeConfig
+			};
+
+
+			function loadThemeDefaults(themeId, siteModel) {
+				var theme = themeService.getTheme(themeId);
+				var defaultThemeConfig = expandConfigPlaceholders(theme.defaults, {
+					site: {
+						label: siteModel.label
+					}
+				});
+				return defaultThemeConfig;
+			}
 		}
 	}
 };
