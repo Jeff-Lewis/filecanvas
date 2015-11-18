@@ -417,11 +417,7 @@ module.exports = function(database, options) {
 
 			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
-			app.use('/templates', composeMiddleware([
-				ensureAuth,
-				initAdminSession,
-				createTemplatesApp()
-			]));
+			app.use('/templates', createTemplatesApp());
 
 			app.use('/preview', composeMiddleware([
 				ensureAuth,
@@ -1258,6 +1254,7 @@ module.exports = function(database, options) {
 				app.get('/theme-options.js', retrieveThemeOptionsTemplateRoute);
 
 				return app;
+
 
 				function retrieveThemeOptionsTemplateRoute(req, res, next) {
 					new Promise(function(resolve, reject) {
