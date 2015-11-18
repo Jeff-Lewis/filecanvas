@@ -9,6 +9,7 @@ var constants = require('../constants');
 var engines = require('../engines');
 
 var loadFileMetadata = require('../utils/loadFileMetadata');
+var parseThemeConfigDefaults = require('../utils/parseThemeConfigDefaults');
 var resolvePartials = require('../utils/resolvePartials');
 
 var HttpError = require('../errors/HttpError');
@@ -63,22 +64,6 @@ ThemeService.prototype.loadTheme = function(themeId) {
 
 	function parseThemeThumbnail(thumbnailPath) {
 		return thumbnailPath || THEME_THUMBNAIL_DEFAULT;
-	}
-
-	function parseThemeConfigDefaults(configSchema) {
-		return configSchema.reduce(function(defaults, configGroup) {
-			var configGroupDefaults = parseConfigGroupDefaults(configGroup);
-			defaults[configGroup.name] = configGroupDefaults;
-			return defaults;
-		}, {});
-
-		function parseConfigGroupDefaults(configGroup) {
-			var configGroupFields = configGroup.fields;
-			return configGroupFields.reduce(function(defaults, field) {
-				defaults[field.name] = field.default;
-				return defaults;
-			}, {});
-		}
 	}
 
 	function loadThemeTemplates(templates, themePath) {
