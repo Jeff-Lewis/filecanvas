@@ -573,7 +573,7 @@
 				{
 					"name": "navLogo",
 					"type": "string",
-					"default": null,
+					"default": "",
 					"label": "Navigation bar logo",
 					"editor": {
 						"name": "input",
@@ -587,7 +587,7 @@
 				{
 					"name": "headerLogo",
 					"type": "string",
-					"default": null,
+					"default": "",
 					"label": "Header logo",
 					"editor": {
 						"name": "input",
@@ -629,7 +629,7 @@
 				{
 					"name": "css",
 					"type": "css",
-					"default": null,
+					"default": "",
 					"label": "Custom CSS rules",
 					"editor": {
 						"name": "code",
