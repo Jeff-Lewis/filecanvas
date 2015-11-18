@@ -306,7 +306,7 @@ function initLivePreview() {
 
 
 		function initLiveEditorState(initialFormValues, updateCallback) {
-			var previousState = null;
+			var previousState = initialFormValues;
 			var isUpdating = false;
 			var throttleTimeout = null;
 			undoHistory.add(initialFormValues);
