@@ -11,22 +11,24 @@
 					<h3 class="title-bar-header-subtitle">Theme editor</h3>
 				</div>
 				<div class="title-bar-controls">
-					<button type="reset" class="btn btn-default">Reset changes</button>
 					<button type="submit" class="btn btn-success bold">Next: Add files</button>
 				</div>
 				<div class="title-bar-toolbar pull-right">
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
+					<button type="reset" class="btn btn-toolbar" disabled="disabled"><i class="fa fa-refresh mr5"></i> Reset changes</button>
 				</div>
-				<div class="title-bar-title">
-					Current theme:
-					<select class="title-bar-dropdown form-control"
-						name="theme.id"
-					>
-						{{#each content.themes as |theme|}}
-						<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}}>{{ theme.name }}</option>
-						{{/each}}
-					</select>
+				<div class="title-bar-toolbar text-center">
+					<label>
+						<span class="control-label">Current theme:</span>
+						<select class="btn btn-toolbar form-control"
+							name="theme.id"
+						>
+							{{#each content.themes as |theme|}}
+							<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}}>{{ theme.name }}</option>
+							{{/each}}
+						</select>
+					</label>
 				</div>
 			</div>
 			{{> editor}}
