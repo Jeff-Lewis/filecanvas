@@ -3,6 +3,7 @@
 var path = require('path');
 var merge = require('lodash.merge');
 var express = require('express');
+var cors = require('cors');
 var isUrl = require('is-url');
 
 var constants = require('../constants');
@@ -21,6 +22,7 @@ var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 
 module.exports = function(options) {
 	options = options || {};
+	var host = options.host;
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
 	var themesPath = options.themesPath;
@@ -51,6 +53,10 @@ module.exports = function(options) {
 	});
 
 	var app = express();
+
+	app.use(cors({
+		origin: new RegExp('^https?://\\w+\\.' + host + '(?::\\d+)?$')
+	}));
 
 	initViewEngine(app, {
 		templatesPath: templatesPath
@@ -113,6 +119,7 @@ module.exports = function(options) {
 		}));
 		app.get('/:theme/download/*', rewritePreviewDownloadRequest, staticServer);
 		app.get('/:theme/metadata', rewriteManifestRequest, staticServer);
+		app.get('/:theme/metadata/defaults', retrieveThemeDefaultsRoute);
 		app.get('/:theme/metadata/thumbnail', rewriteThumbnailRequest, staticServer);
 		app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
 
@@ -248,6 +255,16 @@ module.exports = function(options) {
 			.catch(function(error) {
 				next(error);
 			});
+		}
+
+		function retrieveThemeDefaultsRoute(req, res, next) {
+			var themeId = req.params.theme;
+			try {
+				var theme = themeService.getTheme(themeId);
+				res.json(theme.defaults);
+			} catch (error) {
+				next(error);
+			}
 		}
 
 		function rewritePreviewThumbnailRequest(req, res, next) {
