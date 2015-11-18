@@ -200,12 +200,15 @@ module.exports = function(options) {
 				var theme = themeService.getTheme(themeId);
 				var themeAssetsRoot = themeAssetsUrl + themeId + '/';
 				var siteModel = {
-					private: false,
+					name: null,
+					label: null,
 					theme: {
 						id: themeId,
 						config: merge({}, theme.preview.config)
 					},
-					root: {}
+					root: null,
+					private: false,
+					published: false
 				};
 				var templateData = {
 					title: 'Theme editor',
@@ -229,13 +232,16 @@ module.exports = function(options) {
 						adapter: null,
 						preview: {
 							metadata: {
-								siteRoot: '/' + themeId + '/preview',
+								siteRoot: '/' + themeId + '/',
 								themeRoot: themeAssetsRoot,
 								theme: siteModel.theme,
 								preview: true,
 								admin: false
 							},
-							resource: siteModel
+							resource: {
+								private: false,
+								root: theme.preview.files
+							}
 						}
 					}
 				};
@@ -245,7 +251,8 @@ module.exports = function(options) {
 				}
 				res.locals.urls = {
 					assets: adminAssetsUrl,
-					createSite: createSiteUrl
+					createSite: createSiteUrl,
+					preview: '/' + themeId + '/preview'
 				};
 				return adminPageService.render(req, res, {
 					template: 'theme/edit',

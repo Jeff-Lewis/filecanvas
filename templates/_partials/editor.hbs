@@ -24,8 +24,10 @@
 	{{/if}}
 	<iframe class="editor-preview loading" frameborder="0"
 		data-editor-preview="{{ lookup (lookup (lookup (lookup content.themes content.site.theme.id) 'templates') 'index') 'engine' }}"
-		{{#if content.site.root}}
+		{{#if content.site.name}}
 		data-src="{{ session.urls.preview }}/{{ content.site.name }}"
+		{{else}}
+		data-src="{{ session.urls.preview }}"
 		{{/if}}
 	></iframe>
 	<div class="editor-loading form-centered center-block mb25">
