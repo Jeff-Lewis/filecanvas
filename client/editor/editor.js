@@ -127,6 +127,7 @@ function initLivePreview() {
 			updateTheme(currentSiteModel, themeOverrides, function(siteModel) {
 				currentThemeOverrides = siteModel.metadata.theme.config;
 				if (isUserInitiatedAction) {
+					formValues.theme.config = siteModel.metadata.theme.config;
 					undoHistory.replace({
 						theme: {
 							id: siteModel.metadata.theme.id,
