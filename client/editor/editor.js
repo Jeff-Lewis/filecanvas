@@ -310,6 +310,7 @@ function initLivePreview() {
 			var isUpdating = false;
 			var throttleTimeout = null;
 			undoHistory.add(initialFormValues);
+			$formElement.on('reset', onFormReset);
 			$formElement.on('input', onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
 			$undoButtonElement.on('click', onUndoButtonClicked);
@@ -318,6 +319,20 @@ function initLivePreview() {
 			Mousetrap.bind('mod+shift+z', onCtrlShiftZPressed);
 
 
+			function onFormReset(event) {
+				isUpdating = true;
+				setTimeout(function() {
+					isUpdating = false;
+					var $formElement = $(event.currentTarget);
+					var formValues = getFormFieldValues($formElement);
+					var hasChanged = !isEqual(formValues, previousState);
+					if (!hasChanged) { return; }
+					undoHistory.add(formValues);
+					updateUndoRedoButtonState();
+					previousState = formValues;
+					updateCallback(formValues, { userInitiated: true });
+				});
+			}
 
 			function onFormFieldChanged(event, forceUpdate) {
 				if (isUpdating) { return; }
