@@ -90,6 +90,7 @@ function initLivePreview() {
 	var $themeOptionsPanelElement = $('#theme-options');
 	var $undoButtonElement = $('[data-editor-undo]');
 	var $redoButtonElement = $('[data-editor-redo]');
+	var $resetButtonElement = $('input[type="reset"],button[type="reset"]');
 	var $closeButtonElement = $('[data-editor-close]');
 	var $confirmCloseModalElement = $('[data-editor-confirm-close-modal]');
 	var $confirmCloseOkButtonElement = $('[data-editor-confirm-close-ok]');
@@ -323,6 +324,7 @@ function initLivePreview() {
 			$redoButtonElement.on('click', onRedoButtonClicked);
 			Mousetrap.bind('mod+z', onCtrlZPressed);
 			Mousetrap.bind('mod+shift+z', onCtrlShiftZPressed);
+			updateUndoRedoButtonState();
 
 
 			function onFormReset(event) {
@@ -333,9 +335,9 @@ function initLivePreview() {
 					var formValues = getFormFieldValues($formElement);
 					var hasChanged = !isEqual(formValues, previousState);
 					if (!hasChanged) { return; }
+					previousState = formValues;
 					undoHistory.add(formValues);
 					updateUndoRedoButtonState();
-					previousState = formValues;
 					updateCallback(formValues, { userInitiated: true });
 				});
 			}
@@ -359,13 +361,17 @@ function initLivePreview() {
 				}
 				var $formElement = $(event.currentTarget);
 				var formValues = getFormFieldValues($formElement);
-				if (event.type === 'change') {
-					undoHistory.add(formValues);
-					updateUndoRedoButtonState();
-				}
 				var hasChanged = !isEqual(formValues, previousState);
 				if (hasChanged) {
 					previousState = formValues;
+				}
+				if (event.type === 'change') {
+					undoHistory.add(formValues);
+					updateUndoRedoButtonState();
+				} else {
+					updateResetButtonState();
+				}
+				if (hasChanged) {
 					updateCallback(formValues, { userInitiated: true });
 				}
 			}
@@ -396,23 +402,23 @@ function initLivePreview() {
 
 			function undo() {
 				undoHistory.previous();
-				updateUndoRedoButtonState();
 				var formValues = undoHistory.getState();
 				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
 				isUpdating = false;
 				previousState = formValues;
+				updateUndoRedoButtonState();
 				updateCallback(formValues, { userInitiated: false });
 			}
 
 			function redo() {
 				undoHistory.next();
-				updateUndoRedoButtonState();
 				var formValues = undoHistory.getState();
 				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
 				isUpdating = false;
 				previousState = formValues;
+				updateUndoRedoButtonState();
 				updateCallback(formValues, { userInitiated: false });
 			}
 
@@ -421,6 +427,12 @@ function initLivePreview() {
 				var isRedoDisabled = !undoHistory.getHasNext();
 				$undoButtonElement.prop('disabled', isUndoDisabled);
 				$redoButtonElement.prop('disabled', isRedoDisabled);
+				updateResetButtonState();
+			}
+
+			function updateResetButtonState() {
+				var hasChanges = !isEqual(previousState, initialFormValues);
+				$resetButtonElement.prop('disabled', !hasChanges);
 			}
 		}
 
