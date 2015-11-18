@@ -87,6 +87,7 @@ module.exports = function(database, config) {
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'themes': themesApp({
+			host: config.host,
 			templatesPath: themesTemplatesPath,
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,

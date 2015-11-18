@@ -3,7 +3,10 @@
 		<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 			<input type="hidden" name="_method" value="PUT"/>
 			<input type="hidden" name="theme.id" value="{{ content.site.theme.id }}"/>
+			<input type="hidden" value="{{ content.site.label }}" data-editor-site-label/>
 			<input type="hidden" value="{{ json content.adapter }}" data-editor-adapter-config/>
+			<input type="hidden" value="{{ session.urls.themes }}/:theme/metadata" data-editor-theme-metadata-url/>
+			<input type="hidden" value="{{ session.urls.themes }}/:theme/template/index.js" data-editor-theme-template-url/>
 			<div class="title-bar">
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
@@ -21,6 +24,16 @@
 				<div class="title-bar-toolbar pull-right">
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
+				</div>
+				<div class="title-bar-title">
+					Current theme:
+					<select class="title-bar-dropdown form-control"
+						name="theme.id"
+					>
+						{{#each content.themes as |theme|}}
+						<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}}>{{ theme.name }}</option>
+						{{/each}}
+					</select>
 				</div>
 			</div>
 			{{> editor}}

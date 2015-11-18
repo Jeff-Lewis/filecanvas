@@ -7,21 +7,27 @@ var merge = require('lodash.merge');
 var isEqual = require('lodash.isequal');
 var mime = require('simple-mime')(null);
 var Mousetrap = require('mousetrap');
+var Handlebars = require('handlebars');
 
 var getIframeDomElement = require('./utils/getIframeDomElement');
 var onIframeDomReady = require('./utils/onIframeDomReady');
 var removeAllChildren = require('./utils/removeAllChildren');
+var appendScriptElement = require('./utils/appendScriptElement');
 var loadJson = require('./utils/loadJson');
 var parseJson = require('./utils/parseJson');
 var serializeQueryParams = require('./utils/serializeQueryParams');
 var getFormFieldValues = require('./utils/getFormFieldValues');
 var setFormFieldValues = require('./utils/setFormFieldValues');
-var debounce = require('./utils/debounce');
+
+var parseThemeConfigDefaults = require('../../src/utils/parseThemeConfigDefaults');
+var expandConfigPlaceholders = require('../../src/utils/expandConfigPlaceholders');
+var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
 
 var HistoryStack = require('./lib/HistoryStack');
 
 var engines = require('./engines');
 
+var TEMPLATE_ID_INDEX = 'index';
 var NUM_UPLOAD_RETRIES = 2;
 
 $(function() {
@@ -69,9 +75,13 @@ function initSidepanel() {
 
 function initLivePreview() {
 	var $formElement = $('[data-editor-form]');
+	var $siteLabelElement = $('[data-editor-site-label]');
 	var $adapterConfigElement = $('[data-editor-adapter-config]');
+	var $themeMetadataUrlElement = $('[data-editor-theme-metadata-url]');
+	var $themeTemplateUrlElement = $('[data-editor-theme-template-url]');
 	var $previewElement = $('[data-editor-preview]');
 	var $previewDataElement = $('[data-editor-preview-data]');
+	var $themeOptionsPanelElement = $('#theme-options');
 	var $undoButtonElement = $('[data-editor-undo]');
 	var $redoButtonElement = $('[data-editor-redo]');
 	var $closeButtonElement = $('[data-editor-close]');
@@ -79,36 +89,79 @@ function initLivePreview() {
 	var $confirmCloseOkButtonElement = $('[data-editor-confirm-close-ok]');
 	var iframeSrc = $previewElement.data('src');
 	var engineName = $previewElement.data('editor-preview');
-	var engine = engines[engineName];
-	var templateName = 'index';
+	var templateId = TEMPLATE_ID_INDEX;
+	var siteLabel = $siteLabelElement.val();
+	var themeOptionsTemplateFunction = createHandlebarsTemplateFunction('theme-options');
 
 	var adapterConfig = parseAdapterConfig($adapterConfigElement);
+	var themeMetadataUrlPattern = $themeMetadataUrlElement.val();
+	var themeTemplateUrlPattern = $themeTemplateUrlElement.val();
 	var currentSiteModel = parseSiteModel($previewDataElement);
-	var currentThemeConfigOverrides = null;
+	var currentThemeOverrides = getFormFieldValues($formElement).theme;
 	var rerenderPreview = null;
 	var previewUrl = getPreviewUrl(iframeSrc);
+	var undoHistory = new HistoryStack();
 
 	showLoadingIndicator($previewElement);
-	initPreview(currentSiteModel, previewUrl, engine, templateName, function(error, rerender) {
-		if (error) { throw error; }
-		rerenderPreview = rerender;
+	var engine = engines[engineName];
+	var throttle = engine.throttle;
+	initPreview(currentSiteModel, null, previewUrl, engine, templateId, function(error, rerender) {
+		onPreviewLoaded(error, rerender);
 		hideLoadingIndicator($previewElement);
-		initInlineUploads($previewElement, adapterConfig);
 	});
-	initLiveUpdates({ throttle: engine.throttle }, function(formValues) {
-		currentThemeConfigOverrides = formValues.theme.config;
-		setTimeout(function() {
-			updatePreview(currentSiteModel, currentThemeConfigOverrides);
-		});
+	initLiveUpdates(function(formValues, options) {
+		var isUserInitiatedAction = Boolean(options.userInitiated);
+		var themeOverrides = formValues.theme;
+		var themeHasChanged = (themeOverrides.id !== currentSiteModel.metadata.theme.id);
+		if (themeHasChanged) {
+			if (isUserInitiatedAction) {
+				formValues.theme.config = null;
+				undoHistory.replace(formValues);
+			}
+			$themeOptionsPanelElement.empty();
+			showLoadingIndicator($themeOptionsPanelElement);
+			showLoadingIndicator($previewElement);
+			updateTheme(currentSiteModel, themeOverrides, function(siteModel) {
+				if (isUserInitiatedAction) {
+					undoHistory.replace({
+						theme: {
+							id: siteModel.metadata.theme.id,
+							config: siteModel.metadata.theme.config
+						}
+					});
+				}
+				hideLoadingIndicator($themeOptionsPanelElement);
+				hideLoadingIndicator($previewElement);
+			});
+		} else {
+			setTimeout(function() {
+				updatePreview(currentSiteModel, themeOverrides);
+			});
+		}
 	});
 
 
-	function showLoadingIndicator($previewElement) {
-		$previewElement.addClass('loading');
+	function createHandlebarsTemplateFunction(templateName) {
+		var precompiledTemplate = Handlebars.templates[templateName];
+		if (!precompiledTemplate) { return null; }
+		var compiler = Handlebars.create();
+		compiler.registerHelper(handlebarsHelpers);
+		var templateFunction = compiler.template(precompiledTemplate);
+		return templateFunction;
 	}
 
-	function hideLoadingIndicator($previewElement) {
-		$previewElement.removeClass('loading');
+	function onPreviewLoaded(error, rerender) {
+		if (error) { throw error; }
+		rerenderPreview = rerender;
+		initInlineUploads($previewElement, adapterConfig);
+	}
+
+	function showLoadingIndicator($element) {
+		$element.addClass('loading');
+	}
+
+	function hideLoadingIndicator($element) {
+		$element.removeClass('loading');
 	}
 
 	function parseAdapterConfig($adapterConfigElement) {
@@ -128,57 +181,126 @@ function initLivePreview() {
 		return baseUrl + '?' + serializeQueryParams(params);
 	}
 
-	function initPreview(siteModel, previewUrl, templateEngine, templateName, callback) {
-		loadSiteModel(siteModel, previewUrl)
-			.then(function(siteModel) {
-				currentSiteModel = siteModel;
+	function getThemeMetadataUrl(themeId) {
+		return themeMetadataUrlPattern.replace(':theme', themeId);
+	}
+
+	function getThemeTemplateUrl(themeId) {
+		return themeTemplateUrlPattern.replace(':theme', themeId);
+	}
+
+	function initPreview(siteModel, themeOverrides, previewUrl, templateEngine, templateId, callback) {
+		getSiteModel(siteModel, themeOverrides, previewUrl)
+			.then(function(customizedSiteModel) {
+				currentSiteModel = customizedSiteModel;
+				var themeId = customizedSiteModel.metadata.theme.id;
 				var previewIframeElement = $previewElement[0];
 				var iframeDocumentElement = getIframeDomElement(previewIframeElement);
 				removeAllChildren(iframeDocumentElement);
-				var context = getCustomizedSiteModel(currentSiteModel, currentThemeConfigOverrides);
-				var themeId = currentSiteModel.metadata.theme.id;
-				engine.render(themeId, templateName, context, previewIframeElement, callback);
+				templateEngine.render(themeId, templateId, customizedSiteModel, previewIframeElement, callback);
 			});
 
 
-		function loadSiteModel(siteModel, previewUrl) {
-			if (siteModel) { return new $.Deferred().resolve(siteModel).promise(); }
-			return loadJson(previewUrl);
+		function getSiteModel(siteModel, themeOverrides, previewUrl) {
+			var themeHasChanged = siteModel && themeOverrides && themeOverrides.id && (themeOverrides.id !== siteModel.metadata.theme.id);
+			if (siteModel && !themeHasChanged) {
+				var customizedSiteModel = getCustomizedSiteModel(siteModel, themeOverrides);
+				return new $.Deferred().resolve(customizedSiteModel).promise();
+			} else {
+				return loadSiteModel(siteModel, themeOverrides, previewUrl);
+			}
 		}
 	}
 
-	function updatePreview(siteModel, themeConfig) {
-		var customizedSiteModel = getCustomizedSiteModel(siteModel, themeConfig);
+	function loadSiteModel(siteModel, themeOverrides, previewUrl) {
+		var customizedPreviewUrl = (themeOverrides ? getPreviewUrl(previewUrl, {
+			'theme.id': themeOverrides.id,
+			'theme.config': themeOverrides.config
+		}) : previewUrl);
+		return loadJson(customizedPreviewUrl);
+	}
+
+	function updatePreview(siteModel, themeOverrides) {
+		currentSiteModel = siteModel;
+		currentThemeOverrides = themeOverrides;
+		var customizedSiteModel = getCustomizedSiteModel(siteModel, themeOverrides);
 		if (rerenderPreview) { rerenderPreview(customizedSiteModel); }
 	}
 
-	function getCustomizedSiteModel(siteModel, themeConfig) {
-		if (!themeConfig) { return siteModel; }
+	function getCustomizedSiteModel(siteModel, themeOverrides) {
+		if (!themeOverrides) { return siteModel; }
 		return merge({}, siteModel, {
 			metadata: {
-				theme: {
-					config: themeConfig
-				}
+				theme: themeOverrides
 			}
 		});
 	}
 
-	function initLiveUpdates(options, updateCallback) {
-		options = options || {};
-		var throttle = options.throttle || null;
+	function updateTheme(siteModel, themeOverrides, callback) {
+		var themeId = themeOverrides.id;
+		var themeMetadataUrl = getThemeMetadataUrl(themeId);
+		var themeTemplateUrl = getThemeTemplateUrl(themeId);
+		loadJson(themeMetadataUrl)
+			.then(function(theme) {
+				var themeConfigSchema = theme.config;
+				var themeConfigDefaults = parseThemeConfigDefaults(themeConfigSchema);
+				var defaultThemeConfig = expandConfigPlaceholders(themeConfigDefaults, {
+					site: {
+						label: siteLabel
+					}
+				});
+				var themeConfig = (themeOverrides.config ? merge({}, defaultThemeConfig, themeOverrides.config) : defaultThemeConfig);
+				siteModel.metadata.theme = {
+					id: themeId,
+					config: themeConfig
+				};
+				var themeEngine = theme.templates.index.engine;
+				var engine = engines[themeEngine];
+				redrawThemeOptions(theme, siteModel, $themeOptionsPanelElement);
+				loadThemeTemplate(themeTemplateUrl)
+					.then(function() {
+						var themeOverrides = { id: themeId };
+						initPreview(currentSiteModel, themeOverrides, previewUrl, engine, templateId, function(error, rerender) {
+							onPreviewLoaded(error, rerender);
+							throttle = engine.throttle;
+							callback(siteModel);
+						});
+					});
+			});
+
+			function redrawThemeOptions(theme, siteModel, $parentElement) {
+				var themeOptionsHtml = themeOptionsTemplateFunction({
+					theme: theme,
+					config: siteModel.metadata.theme.config
+				});
+				$parentElement.empty().append(themeOptionsHtml);
+				initColorpickers();
+				initAccordions($parentElement);
+			}
+
+			function loadThemeTemplate(themeTemplateUrl) {
+				return appendScriptElement(themeTemplateUrl, document.body);
+			}
+
+			function initAccordions($parentElement) {
+				$parentElement.collapse({ parent: true, toggle: true });
+				$('[data-fixed-accordion]').fixedAccordion();
+			}
+	}
+
+
+	function initLiveUpdates(updateCallback) {
 		var initialFormValues = getFormFieldValues($formElement);
-		initLiveEditorState(initialFormValues, { throttle: throttle }, updateCallback);
+		initLiveEditorState(initialFormValues, updateCallback);
 		initUnsavedChangesWarning(initialFormValues);
 
 
-		function initLiveEditorState(initialFormValues, options, updateCallback) {
-			options = options || {};
-			var throttle = options.throttle || null;
-			var formUndoHistory = new HistoryStack();
+		function initLiveEditorState(initialFormValues, updateCallback) {
 			var previousState = null;
 			var isUpdating = false;
-			formUndoHistory.add(initialFormValues);
-			$formElement.on('input', throttle ? debounce(onFormFieldChanged, options.throttle) : onFormFieldChanged);
+			var throttleTimeout = null;
+			undoHistory.add(initialFormValues);
+			$formElement.on('input', onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
 			$undoButtonElement.on('click', onUndoButtonClicked);
 			$redoButtonElement.on('click', onRedoButtonClicked);
@@ -187,18 +309,33 @@ function initLivePreview() {
 
 
 
-			function onFormFieldChanged(event) {
+			function onFormFieldChanged(event, forceUpdate) {
 				if (isUpdating) { return; }
+				if ((event.target.tagName === 'SELECT') && (event.type === 'input')) { return; }
+				if (throttle) {
+					if (throttleTimeout) {
+						clearTimeout(throttleTimeout);
+						throttleTimeout = null;
+					}
+					var isThrottled = (event.type === 'input');
+					if (isThrottled && !forceUpdate) {
+						throttleTimeout = setTimeout(function() {
+							throttleTimeout = null;
+							onFormFieldChanged(event, true);
+						}, throttle);
+						return;
+					}
+				}
 				var $formElement = $(event.currentTarget);
 				var formValues = getFormFieldValues($formElement);
+				if (event.type === 'change') {
+					undoHistory.add(formValues);
+					updateUndoRedoButtonState();
+				}
 				var hasChanged = !isEqual(formValues, previousState);
 				if (hasChanged) {
 					previousState = formValues;
-					updateCallback(formValues);
-				}
-				if (event.type === 'change') {
-					formUndoHistory.add(formValues);
-					updateUndoRedoButtonState();
+					updateCallback(formValues, { userInitiated: true });
 				}
 			}
 
@@ -213,7 +350,7 @@ function initLivePreview() {
 			function onCtrlZPressed(event) {
 				event.stopImmediatePropagation();
 				event.preventDefault();
-				var isUndoDisabled = !formUndoHistory.getHasPrevious();
+				var isUndoDisabled = !undoHistory.getHasPrevious();
 				if (isUndoDisabled) { return; }
 				undo();
 			}
@@ -221,34 +358,34 @@ function initLivePreview() {
 			function onCtrlShiftZPressed(event) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
-				var isRedoDisabled = !formUndoHistory.getHasNext();
+				var isRedoDisabled = !undoHistory.getHasNext();
 				if (isRedoDisabled) { return; }
 				redo();
 			}
 
 			function undo() {
-				formUndoHistory.previous();
+				undoHistory.previous();
 				updateUndoRedoButtonState();
-				var formValues = formUndoHistory.getState();
+				var formValues = undoHistory.getState();
 				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
 				isUpdating = false;
-				updateCallback(formValues);
+				updateCallback(formValues, { userInitiated: false });
 			}
 
 			function redo() {
-				formUndoHistory.next();
+				undoHistory.next();
 				updateUndoRedoButtonState();
-				var formValues = formUndoHistory.getState();
+				var formValues = undoHistory.getState();
 				isUpdating = true;
 				setFormFieldValues($formElement, formValues);
 				isUpdating = false;
-				updateCallback(formValues);
+				updateCallback(formValues, { userInitiated: false });
 			}
 
 			function updateUndoRedoButtonState() {
-				var isUndoDisabled = !formUndoHistory.getHasPrevious();
-				var isRedoDisabled = !formUndoHistory.getHasNext();
+				var isUndoDisabled = !undoHistory.getHasPrevious();
+				var isRedoDisabled = !undoHistory.getHasNext();
 				$undoButtonElement.prop('disabled', isUndoDisabled);
 				$redoButtonElement.prop('disabled', isRedoDisabled);
 			}
@@ -316,7 +453,7 @@ function initLivePreview() {
 		var activeUpload = null;
 		var showUploadStatus = initUploadStatusModal($uploadStatusModalElement);
 		initUploadHotspots($previewElement, onFilesSelected);
-		$progressCancelButtonElement.on('click', onUploadCancelRequested);
+		$progressCancelButtonElement.off('click').on('click', onUploadCancelRequested);
 
 
 		function initUploadStatusModal($element) {
@@ -526,14 +663,14 @@ function initLivePreview() {
 						if (uploadBatch.numLoaded !== numLoaded) {
 							numLoaded = uploadBatch.numLoaded;
 							mergeFiles(uploadBatch.completedItems, currentSiteModel.resource.root);
-							updatePreview(currentSiteModel, currentThemeConfigOverrides);
+							updatePreview(currentSiteModel, currentThemeOverrides);
 						}
 					})
 					.then(function(uploadBatch) {
 						if (uploadBatch.numLoaded !== numLoaded) {
 							numLoaded = uploadBatch.numLoaded;
 							mergeFiles(uploadBatch.completedItems, currentSiteModel.resource.root);
-							updatePreview(currentSiteModel, currentThemeConfigOverrides);
+							updatePreview(currentSiteModel, currentThemeOverrides);
 						}
 						var hasErrors = uploadBatch.numFailed > 0;
 						if (hasErrors) {
@@ -551,10 +688,11 @@ function initLivePreview() {
 					})
 					.always(function() {
 						hideUploadProgressIndicator();
-						loadJson(previewUrl)
+						var siteModel = null;
+						var themeOverrides = { id: currentThemeOverrides.id };
+						loadSiteModel(siteModel, themeOverrides, previewUrl)
 							.then(function(siteModel) {
-								currentSiteModel = siteModel;
-								updatePreview(currentSiteModel, currentThemeConfigOverrides);
+								updatePreview(siteModel, currentThemeOverrides);
 							})
 							.always(function() {
 								hideUploadProgressIndicator();
