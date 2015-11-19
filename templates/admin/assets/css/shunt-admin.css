@@ -868,8 +868,10 @@ footer.content-footer {
 	font-weight: bold;
 }
 
-a.panel-heading {
+a.panel-heading,
+button.panel-heading {
 	display: block;
+	width: 100%;
 	text-decoration: none;
 }
 

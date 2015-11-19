@@ -582,19 +582,41 @@ function initFixedAccordions() {
 					var updatedHeight = $element.height();
 					if (updatedHeight === currentHeight) { return; }
 					currentHeight = updatedHeight;
-					updateAccordionHeight(currentHeight);
+					updateAccordionHeight($element, currentHeight);
 				}
 
-				function updateAccordionHeight(height) {
-					var $panelElements = $element.children();
+				function updateAccordionHeight($accordionElement, height) {
+					var $panelElements = $accordionElement.children();
 					var $headerElements = $panelElements.children('[role="tab"]');
-					var $bodyElements = $panelElements.children('[role="tabpanel"]').children();
-					var headersHeight = $headerElements.map(
+					var $tabElements = $panelElements.children('[role="tabpanel"]');
+					var $bodyElements = $tabElements.children();
+					var headerHeights = $headerElements.map(
 						function() { return $(this).outerHeight(); }
-					).get().reduce(function(totalHeight, headerHeight) {
+					).get();
+					var headersHeight = headerHeights.reduce(function(totalHeight, headerHeight) {
 						return totalHeight + headerHeight;
 					}, 0);
-					$bodyElements.css('max-height', height - headersHeight);
+					if (headersHeight < height) {
+						$bodyElements.css('max-height', height - headersHeight);
+					} else {
+						var scrollOffsets = headerHeights.reduce(function(scrollOffsets, headerHeight, index) {
+							var lastScrollOffset = scrollOffsets[index - 1] || 0;
+							var lastHeaderHeight = headerHeights[index - 1] || 0;
+							return scrollOffsets.concat(lastScrollOffset + lastHeaderHeight);
+						}, []);
+						$bodyElements.each(function(index, element) {
+							var headerHeight = headerHeights[index];
+							var nextHeaderHeight = headerHeights[index + 1] | 0;
+							var margin = -(nextHeaderHeight / 2);
+							$(element).css('max-height', height - headerHeight + margin);
+						});
+						$tabElements.each(function(index, element) {
+							$(element).on('show.bs.collapse', function() {
+								var scrollOffset = scrollOffsets[index];
+								$accordionElement.animate({ 'scrollTop': scrollOffset }, 350);
+							});
+						});
+					}
 				}
 			});
 		};

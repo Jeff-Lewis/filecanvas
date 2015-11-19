@@ -1,12 +1,12 @@
 {{#each (lookup theme 'config') as |configGroup|}}
 <div class="panel panel-default">
-	<a class="panel-heading{{#unless (eq @index 0)}} collapsed{{/unless}}" role="tab" data-toggle="collapse" data-parent="#theme-options" href="#theme-options-{{ configGroup.name }}" aria-controls="theme-options-{{ configGroup.name }}" aria-expanded="{{eq @index 0 }}">
+	<button type="button" class="btn btn-reset no-border block panel-heading{{#unless (eq @index 0)}} collapsed{{/unless}}" role="tab" data-toggle="collapse" data-parent="#theme-options" data-target="#theme-options-{{ configGroup.name }}" aria-controls="theme-options-{{ configGroup.name }}" aria-expanded="{{eq @index 0 }}">
 		<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
 		<h5 class="text-uppercase mt2 mb0">
 			{{#if configGroup.icon}}<i class="fa fa-{{ configGroup.icon }} mr10"></i>{{/if}}
 			{{ configGroup.label }}
 		</h5>
-	</a>
+	</button>
 	<div id="theme-options-{{ configGroup.name }}" class="panel-collapse collapse{{#if (eq @index 0)}} in{{/if}}" role="tabpanel">
 		<fieldset class="panel-body">
 			{{#each configGroup.fields as |field|}}
