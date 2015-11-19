@@ -50,7 +50,7 @@ $(function() {
 			return /^(?!:\/\/)([a-z0-9]+\.)?[a-z0-9][a-z0-9-]+\.[a-z]{2,6}?$/.test(value);
 		},
 		'slug': function(value) {
-			return /^[a-z0-9\-]+$/.test(value);
+			return (value === bindingFilters['slug'](value));
 		},
 		'path': function(value) {
 			return (value === '') || (value === path.normalize(value));
