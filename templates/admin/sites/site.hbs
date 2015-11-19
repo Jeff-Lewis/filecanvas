@@ -14,7 +14,7 @@
 								<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
 							</h5>
 							<ul>
-								<li>Use the <strong> Site editor</strong> to upload files and to change how the site looks. Any changes you make will be applied to the live site.</li>
+								<li>Use the <strong> Site editor</strong> to change how the site looks, and to upload files. Any changes you make will be applied to the live site.</li>
 								<li>To take the site offline, click the <strong>Unpublish site</strong> button</li>
 							</ul>
 						</div>
@@ -25,8 +25,8 @@
 						<div>
 							<h5>This site is not published.</h5>
 							<ul>
-								<li>Use the <strong> Site editor</strong> to upload files and to choose how the site will look</li>
-								<li>Once you're ready to take the site live, click the <strong>Publish site</strong> button. This will publish the site to <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
+								<li>Use the <strong> Site editor</strong> to choose how the site will look, and to upload files</li>
+								<li>Once you're ready to take the site live, click the <strong>Publish site</strong> button</li>
 							</ul>
 						</div>
 					</div>
@@ -104,23 +104,6 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label">Site address</label>
-											<div class="col-sm-10">
-												<div class="web-address-control input-group">
-													<span class="input-group-addon">{{ session.urls.webroot }}</span>
-													<input type="text" class="form-control"
-														name="name"
-														value="{{ content.site.name }}"
-														data-bind-id="site-name"
-														data-parser="slug"
-														data-validate="slug"
-														data-trigger="focus"
-													/>
-													<span class="form-control-feedback fa" aria-hidden="true"></span>
-												</div>
-											</div>
-										</div>
-										<div class="form-group">
 											<label class="col-sm-2 control-label">Site folder</label>
 											<div class="col-sm-10">
 												<input type="hidden" name="root.adapter"
@@ -141,6 +124,23 @@
 														<span class="shunt-check-folder-exists-valid text-success"><i class="fa fa-check"></i></span>
 														<span class="shunt-check-folder-exists-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
 													</p>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">{{#if content.site.published}}Site address{{else}}Admin URL{{/if}}</label>
+											<div class="col-sm-10">
+												<div class="web-address-control input-group">
+													<span class="input-group-addon">{{#if content.site.published}}{{ session.urls.webroot }}{{else}}{{ session.urls.root }}/sites/{{/if}}</span>
+													<input type="text" class="form-control"
+														name="name"
+														value="{{ content.site.name }}"
+														data-bind-id="site-name"
+														data-parser="slug"
+														data-validate="slug"
+														data-trigger="focus"
+													/>
+													<span class="form-control-feedback fa" aria-hidden="true"></span>
 												</div>
 											</div>
 										</div>

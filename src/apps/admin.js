@@ -252,6 +252,7 @@ module.exports = function(database, options) {
 
 				function getAdminUrls(urlService, userModel, adapters) {
 					return {
+						root: urlService.location.protocol + '://' + urlService.location.host,
 						webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 						domain: urlService.getSubdomainUrl('$0'),
 						admin: '/',
