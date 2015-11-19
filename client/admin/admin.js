@@ -670,8 +670,8 @@ function initPathControls() {
 		$.fn.pathControl = function() {
 			return this.each(function() {
 				var $element = $(this);
-				var $inputElement = $element.find('input');
-				var $segmentsElement = $element.find('.path-control-segments');
+				var $inputElement = $element.children('input');
+				var $segmentsElement = $element.children('.path-control-segments');
 				var rootLabel = $element.data('path-control-root') || null;
 
 				var currentValue = null;
