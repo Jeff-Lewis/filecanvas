@@ -3,6 +3,8 @@
 var path = require('path');
 var slug = require('slug');
 
+var DEFAULT_VALIDATION_TRIGGERS = 'input change blur';
+
 $(function() {
 
 	var bindingFilters = {
@@ -224,7 +226,9 @@ function initInputValidators(validators) {
 		}
 
 		function addParserListeners($inputElement, validator) {
-			$inputElement.on('input change blur', onInputUpdated);
+			var validationTriggerAttributeName = 'data-validate-trigger';
+			var triggerEvent = $inputElement.attr(validationTriggerAttributeName) || DEFAULT_VALIDATION_TRIGGERS;
+			$inputElement.on(triggerEvent, onInputUpdated);
 			$inputElement.on('reset', onInputReset);
 
 
