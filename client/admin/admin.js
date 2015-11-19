@@ -54,6 +54,9 @@ $(function() {
 		},
 		'path': function(value) {
 			return (value === '') || (value === path.normalize(value));
+		},
+		'filename': function(value) {
+			return (value === bindingFilters['filename'](value));
 		}
 	};
 
