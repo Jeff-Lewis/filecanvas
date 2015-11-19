@@ -77,6 +77,9 @@ function initSidepanel() {
 		$targetElement.toggleClass('collapsed');
 		$(window).trigger('resize');
 	});
+
+	var shouldStartCollapsed = (window.innerWidth < 768);
+	$('#editor-sidepanel').toggleClass('collapsed', shouldStartCollapsed).removeClass('loading');
 }
 
 function initLivePreview() {

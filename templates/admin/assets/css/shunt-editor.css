@@ -82,7 +82,8 @@
 	bottom: auto;
 	height: 50px;
 }
-.editor-sidepanel.collapsed > .panel > .panel-body {
+.editor-sidepanel.collapsed > .panel > .panel-body,
+.editor-sidepanel.loading > .panel > .panel-body {
 	visibility: hidden;
 }
 
