@@ -417,7 +417,7 @@ module.exports = function(database, options) {
 										var themeId = siteTheme.id;
 										var templateData = {
 											metadata: {
-												siteRoot: getSiteRootUrl(req),
+												siteRoot: getSiteRootUrl(req, '/login'),
 												themeRoot: themeAssetsUrl + themeId + '/',
 												theme: siteTheme
 											},
