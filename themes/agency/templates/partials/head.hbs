@@ -69,13 +69,7 @@
 	h1,
 	h2,
 	h3,
-	h4,
-	h5,
-	h6,
-	#slidecaption,
-	nav ul,
-	.project-wrp,
-	.option-set li {
+	#slidecaption {
 		font-family: {{ metadata.theme.config.fonts.pageHeader.font-family }};
 		font-weight: {{ metadata.theme.config.fonts.pageHeader.font-weight }};
 		text-transform: {{ metadata.theme.config.fonts.pageHeader.text-transform }};
@@ -85,6 +79,17 @@
 		font-family: {{ metadata.theme.config.fonts.pageSubtitle.font-family }};
 		font-weight: {{ metadata.theme.config.fonts.pageSubtitle.font-weight }};
 		text-transform: {{ metadata.theme.config.fonts.pageSubtitle.text-transform }};
+	}
+
+	h4,
+	h5,
+	h6,
+	nav ul,
+	.project-wrp,
+	.option-set li {
+		font-family: {{ metadata.theme.config.fonts.subHeader.font-family }};
+		font-weight: {{ metadata.theme.config.fonts.subHeader.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.subHeader.text-transform }};
 	}
 
 	.title {

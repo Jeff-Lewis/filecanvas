@@ -31,6 +31,11 @@
 			"font-weight": "normal",
 			"text-transform": "uppercase"
 		},
+		"subHeader": {
+			"font-family": "'Montserrat'",
+			"font-weight": "normal",
+			"text-transform": "uppercase"
+		},
 		"sectionHeader": {
 			"font-family": "'Montserrat'",
 			"font-weight": "normal",

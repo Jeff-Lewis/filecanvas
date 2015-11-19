@@ -410,6 +410,83 @@
 					}
 				},
 				{
+					"name": "subHeader",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"label": "Sub-headings",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System font",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
 					"name": "sectionHeader",
 					"type": "string",
 					"default": {
