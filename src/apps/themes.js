@@ -152,6 +152,7 @@ module.exports = function(options) {
 				var nextTheme = themeService.getNextTheme(themeId);
 				var templateData = {
 					title: 'Theme gallery',
+					fullPage: true,
 					content: {
 						themes: themes,
 						theme: theme,
