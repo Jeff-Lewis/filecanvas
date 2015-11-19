@@ -1,7 +1,7 @@
 'use strict';
 
 var objectAssign = require('object-assign');
-var Htmlbars = require('../htmlbars-runtime');
+var Htmlbars = require('htmlbars/dist/cjs/htmlbars-runtime');
 var templateUtils = require('htmlbars/dist/cjs/htmlbars-util/template-utils');
 
 var partialKeyword = require('@timkendrick/ember-htmlbars-helpers').keywords.partial;

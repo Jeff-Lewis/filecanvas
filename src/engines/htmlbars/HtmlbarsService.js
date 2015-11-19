@@ -4,7 +4,7 @@ var fs = require('fs');
 var merge = require('lodash.merge');
 var SimpleDom = require('simple-dom');
 var DOMHelper = require('htmlbars/dist/cjs/dom-helper');
-var HtmlbarsRuntime = require('./htmlbars-runtime');
+var HtmlbarsRuntime = require('htmlbars/dist/cjs/htmlbars-runtime');
 var HtmlbarsCompiler = require('htmlbars/dist/cjs/htmlbars-compiler');
 
 // HACK: Fix safe string output in Simple DOM

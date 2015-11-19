@@ -1,7 +1,5 @@
 'use strict';
 
-var path = require('path');
-
 module.exports = {
 	entry: './editor.js',
 	output: {
@@ -15,7 +13,6 @@ module.exports = {
 	resolve: {
 		alias: {
 			'handlebars': 'handlebars/runtime',
-			'htmlbars/dist/cjs/htmlbars-runtime$': path.resolve(__dirname, '../../src/engines/htmlbars/htmlbars-runtime'),
 			'slug': 'slug/slug-browser'
 		}
 	}

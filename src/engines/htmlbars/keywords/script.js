@@ -1,6 +1,6 @@
 'use strict';
 
-var Htmlbars = require('../htmlbars-runtime');
+var Htmlbars = require('htmlbars/dist/cjs/htmlbars-runtime');
 
 module.exports = function(morph, env, scope, params, hash, template, inverse, visitor) {
 	if (template) {
