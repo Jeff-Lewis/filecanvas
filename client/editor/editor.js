@@ -75,6 +75,7 @@ function initSidepanel() {
 		var targetSelector = $(this).data('target');
 		var $targetElement = $(targetSelector);
 		$targetElement.toggleClass('collapsed');
+		$(window).trigger('resize');
 	});
 }
 
