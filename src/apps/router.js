@@ -67,7 +67,7 @@ module.exports = function(database, config) {
 		port: config.https.port || config.http.port
 	});
 
-	var adminUrl = config.assets.admin || adminSubdomainUrl;
+	var adminUrl = config.admin.root || adminSubdomainUrl;
 	var createSiteUrl = adminUrl + 'sites/create-site';
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'admin/';
