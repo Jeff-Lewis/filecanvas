@@ -596,7 +596,8 @@ function initFixedAccordions() {
 					var headersHeight = headerHeights.reduce(function(totalHeight, headerHeight) {
 						return totalHeight + headerHeight;
 					}, 0);
-					if (headersHeight < height) {
+					var minPanelHeight = 100;
+					if (height > headersHeight + minPanelHeight) {
 						$bodyElements.css('max-height', height - headersHeight);
 					} else {
 						var scrollOffsets = headerHeights.reduce(function(scrollOffsets, headerHeight, index) {
