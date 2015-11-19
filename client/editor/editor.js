@@ -109,6 +109,7 @@ function initLivePreview() {
 	var rerenderPreview = null;
 	var previewUrl = getPreviewUrl(iframeSrc);
 	var undoHistory = new HistoryStack();
+	var currentAction = null;
 
 	showLoadingIndicator($previewElement);
 	var engine = engines[engineName];
@@ -118,39 +119,16 @@ function initLivePreview() {
 		hideLoadingIndicator($previewElement);
 	});
 	initLiveUpdates(function(formValues, options) {
-		var isUserInitiatedAction = Boolean(options.userInitiated);
-		var themeOverrides = formValues.theme;
-		var themeHasChanged = (themeOverrides.id !== currentSiteModel.metadata.theme.id);
-		if (themeHasChanged) {
-			if (isUserInitiatedAction) {
-				formValues.theme.config = null;
-				undoHistory.replace(formValues);
-			}
-			$themeOptionsPanelElement.empty();
-			currentThemeOverrides = null;
-			showLoadingIndicator($themeOptionsPanelElement);
-			showLoadingIndicator($previewElement);
-			updateTheme(currentSiteModel, themeOverrides, function(siteModel) {
-				currentThemeOverrides = siteModel.metadata.theme.config;
-				if (isUserInitiatedAction) {
-					formValues.theme.config = siteModel.metadata.theme.config;
-					undoHistory.replace({
-						theme: {
-							id: siteModel.metadata.theme.id,
-							config: siteModel.metadata.theme.config
-						}
-					});
-				}
-				hideLoadingIndicator($themeOptionsPanelElement);
-				hideLoadingIndicator($previewElement);
-			});
-		} else {
-			setTimeout(function() {
-				updatePreview(currentSiteModel, themeOverrides);
-			});
+		currentAction = waitForAction(currentAction).then(function() {
+			return applyUpdates(formValues, options);
+		});
+
+
+		function waitForAction(action) {
+			if (!action) { return new $.Deferred().resolve().promise(); }
+			return action;
 		}
 	});
-
 
 	function createHandlebarsTemplateFunction(templateName) {
 		var precompiledTemplate = Handlebars.templates[templateName];
@@ -234,6 +212,45 @@ function initLivePreview() {
 		}) : previewUrl);
 		return loadJson(customizedPreviewUrl);
 	}
+
+	function applyUpdates(formValues, options) {
+		var deferred = new $.Deferred();
+		var isUserInitiatedAction = Boolean(options.userInitiated);
+		var themeOverrides = formValues.theme;
+		var themeHasChanged = (themeOverrides.id !== currentSiteModel.metadata.theme.id);
+		if (themeHasChanged) {
+			if (isUserInitiatedAction) {
+				formValues.theme.config = null;
+				undoHistory.replace(formValues);
+			}
+			$themeOptionsPanelElement.empty();
+			currentThemeOverrides = null;
+			showLoadingIndicator($themeOptionsPanelElement);
+			showLoadingIndicator($previewElement);
+			updateTheme(currentSiteModel, themeOverrides, function(siteModel) {
+				currentThemeOverrides = siteModel.metadata.theme.config;
+				if (isUserInitiatedAction) {
+					formValues.theme.config = siteModel.metadata.theme.config;
+					undoHistory.replace({
+						theme: {
+							id: siteModel.metadata.theme.id,
+							config: siteModel.metadata.theme.config
+						}
+					});
+				}
+				hideLoadingIndicator($themeOptionsPanelElement);
+				hideLoadingIndicator($previewElement);
+				deferred.resolve();
+			});
+		} else {
+			setTimeout(function() {
+				updatePreview(currentSiteModel, themeOverrides);
+				deferred.resolve();
+			});
+		}
+		return deferred.promise();
+	}
+
 
 	function updatePreview(siteModel, themeOverrides) {
 		currentSiteModel = siteModel;
