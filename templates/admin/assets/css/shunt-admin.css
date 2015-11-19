@@ -769,6 +769,7 @@ footer.content-footer {
 	.theme-gallery-main {
 		top: 109px;
 		bottom: 54px;
+		overflow: auto;
 	}
 }
 .theme-gallery-preview {
