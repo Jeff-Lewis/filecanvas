@@ -67,7 +67,7 @@
 						</div>
 						<div class="panel">
 							<div class="panel-heading">
-								<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Site settings</h4>
+								<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Create site</h4>
 							</div>
 							<div id="create-form-fields" class="panel-collapse collapse{{#if content.site.theme.id}} in{{/if}}">
 								<div class="panel-body form-horizontal bordered-group">
@@ -77,49 +77,43 @@
 												<div class="form-group">
 													<label class="col-sm-2 control-label">Site name</label>
 													<div class="col-sm-10">
-														<input type="text" class="form-control" autofocus="autofocus"
-															name="label"
-															value="{{ content.site.label }}"
-															data-bind-id="site-label"
-															data-validate="notEmpty"
-														/>
-														<span class="form-control-feedback fa" aria-hidden="true"></span>
-														<p class="help-block">The site name is used to identify the site in the Shunt admin area</p>
-													</div>
-												</div>
-												<div class="form-group">
-													<label class="col-sm-2 control-label">Site address</label>
-													<div class="col-sm-10">
-														<div class="web-address-control input-group">
-															<span class="input-group-addon">{{ session.urls.webroot }}</span>
-															<input type="text" class="form-control"
-																name="name"
-																value="{{ content.site.name }}"
-																data-bind-value="site-label|slug"
-																data-bind-id="site-name"
-																data-parser="slug"
-																data-validate="slug"
-															/>
-															<span class="form-control-feedback fa" aria-hidden="true"></span>
-														</div>
-														<p class="help-block">Once the site has been published, it will be viewable at this web address.<br/>You'll have the chance to preview your site before you publish it.</p>
-													</div>
-												</div>
-												<div class="form-group">
-													<label class="col-sm-2 control-label">Site folder</label>
-													<div class="col-sm-10">
-														<input type="hidden" name="root.adapter"
+														<input type="hidden"
+															name="root.adapter"
 															value="{{ content.site.root.adapter }}"
 														/>
-														<div class="path-control" data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}">
+														<input type="hidden"
+															name="name"
+															value="{{ content.site.name }}"
+															data-bind-value="site-label|slug"
+														/>
+														<input type="hidden"
+															name="root.path"
+															value="{{ content.site.root.path }}"
+															readonly="readonly"
+															data-bind-value="site-label|filename|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
+															data-validate="path,notEmpty"
+														/>
+														<div class="path-control has-extra"
+															data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}"
+														>
 															<input type="text" class="form-control"
-																name="root.path"
-																value="{{ content.site.root.path }}"
 																readonly="readonly"
-																data-bind-value="site-label|filename|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
-																data-validate="path,notEmpty,startsWith:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}',notEqualTo:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}'"
+																value="{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}"
 															/>
-															<ul class="path-control-segments"></ul>
+															<ul class="path-control-segments">
+															</ul><div class="path-control-extra">
+																<div class="input-group input-group-sm">
+																	<span class="input-group-addon"><i class="fa fa-folder-o"></i></span>
+																	<input type="text" class="form-control" autofocus="autofocus"
+																		name="label"
+																		value="{{ content.site.label }}"
+																		placeholder="Type a site name"
+																		data-bind-id="site-label"
+																		data-validate="notEmpty,filename"
+																		data-validate-trigger="change blur"
+																	/>
+																</div>
+															</div>
 															<span class="form-control-feedback fa" aria-hidden="true"></span>
 														</div>
 														<span class="form-control-feedback fa" aria-hidden="true"></span>
