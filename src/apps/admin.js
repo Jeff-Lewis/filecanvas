@@ -277,8 +277,8 @@ module.exports = function(database, options) {
 
 		function initPublicRoutes(app, passport, adapters) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
-			app.get('/register', redirectIfLoggedIn, redirectIfNoPendingUser, initAdminSession, retrieveRegisterRoute);
-			app.post('/register', redirectIfLoggedIn, redirectIfNoPendingUser, initAdminSession, processRegisterRoute);
+			app.get('/register', redirectIfLoggedIn, initAdminSession, retrieveRegisterRoute);
+			app.post('/register', redirectIfLoggedIn, initAdminSession, processRegisterRoute);
 
 
 			function redirectIfLoggedIn(req, res, next) {
@@ -286,15 +286,6 @@ module.exports = function(database, options) {
 					return res.redirect('/');
 				}
 				next();
-			}
-
-			function redirectIfNoPendingUser(req, res, next) {
-				var registrationService = new RegistrationService(req);
-				var hasPendingUser = registrationService.hasPendingUser();
-				if (!hasPendingUser) {
-					return res.redirect('/');
-				}
-				return next();
 			}
 
 			function retrieveLoginRoute(req, res, next) {
@@ -326,7 +317,11 @@ module.exports = function(database, options) {
 			function retrieveRegisterRoute(req, res, next) {
 				new Promise(function(resolve, reject) {
 					var registrationService = new RegistrationService(req);
-					var pendingUser = registrationService.getPendingUser();
+					var pendingUser = registrationService.getPendingUser() || {
+						user: {
+							username: null
+						}
+					};
 					var userDetails = pendingUser.user;
 					var username = userDetails.username;
 					return resolve(
