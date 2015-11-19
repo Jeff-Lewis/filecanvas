@@ -232,6 +232,11 @@
 .theme-options-accordion > .panel > .panel-collapse > .panel-body {
 	overflow: auto;
 }
+@media screen and (min-width: 768px) {
+	.theme-options-accordion {
+		overflow: hidden;
+	}
+}
 
 .colorpicker-element .input-group-addon i,
 .colorpicker-selectors i {
