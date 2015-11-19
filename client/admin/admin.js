@@ -1,12 +1,13 @@
 'use strict';
 
 var path = require('path');
+var slug = require('slug');
 
 $(function() {
 
 	var bindingFilters = {
 		'slug': function(value) {
-			return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
+			return slug(value, { lower: true });
 		},
 		'format': function(value, formatString, emptyString) {
 			if (!value && (arguments.length >= 3)) { return emptyString; }
@@ -16,7 +17,7 @@ $(function() {
 
 	var parsers = {
 		'slug': function(value) {
-			return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
+			return slug(value, { lower: true });
 		}
 	};
 
