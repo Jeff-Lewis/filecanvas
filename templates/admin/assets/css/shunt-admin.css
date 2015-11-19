@@ -1,3 +1,9 @@
+@media (max-width: 767px) {
+    * {
+        -webkit-overflow-scrolling: auto;
+    }
+}
+
 body {
 	background-color: #f0f0f0;
 	min-width: 320px;
@@ -613,7 +619,9 @@ select.btn-toolbar {
 		margin: 0 -10px;
 		width: 100%;
 		bottom: 0;
+		background-color: #495469;
 		text-align: center;
+		z-index: 1;
 	}
 	.title-bar-controls .btn {
 		float: none;
@@ -622,6 +630,9 @@ select.btn-toolbar {
 		width: 100%;
 	}
 	.title-bar-toolbar {
+		background-color: #495469;
+		position: relative;
+		z-index: 1;
 		margin: 45px -10px 0;
 		padding: 10px;
 	}
@@ -762,7 +773,7 @@ footer.content-footer {
 }
 @media screen and (max-width: 767px) {
 	.theme-gallery-main {
-		top: 108px;
+		top: 109px;
 		bottom: 54px;
 	}
 }
