@@ -12,11 +12,11 @@
 					</div>
 					<h3 class="title-bar-header-subtitle">Theme gallery</h3>
 				</div>
+				<a class="title-bar-close" href="{{ session.urls.sitesCreate }}" title="Back to site creator"><i class="fa fa-times"></i></a>
 				<div class="title-bar-controls">
 					<button type="submit" class="btn btn-success bold">Use this theme</button>
-					<a class="title-bar-close" href="{{ session.urls.sitesCreate }}" title="Back to site creator"><i class="fa fa-times"></i></a>
 				</div>
-				<div class="title-bar-toolbar pull-right">
+				<div class="title-bar-toolbar pull-right hidden-xs hidden-sm">
 					<a class="btn btn-toolbar" href="{{ session.urls.sitesCreateThemes }}/{{ content.previousTheme.id }}">Previous theme</a>
 					<a class="btn btn-toolbar" href="{{ session.urls.sitesCreateThemes }}/{{ content.nextTheme.id }}">Next theme</a>
 				</div>

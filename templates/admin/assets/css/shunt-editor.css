@@ -16,10 +16,10 @@
 
 .editor-sidepanel {
 	position: absolute;
-	top: 55px;
+    width: 100%;;
+    top: 55px;
+    bottom: 55px;
 	left: 0;
-	width: 300px;
-	bottom: 0;
 	overflow: hidden;
 }
 .editor-sidepanel-title {
@@ -28,15 +28,7 @@
 	line-height: 20px;
 }
 .editor-sidepanel-collapsed-title {
-	position: absolute;
-	top: 50px;
-	left: 100%;
-	margin-left: -43px;
-	margin-top: 0;
-	margin-bottom: 0;
-	white-space: nowrap;
-	transform-origin: 0 10px;
-	transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
+	display: none;
 }
 .editor-sidepanel > .panel {
 	height: 100%;
@@ -84,39 +76,28 @@
 	top: 50px;
 	left: 0;
 	width: 100%;
-	bottom: 0;
-}
-.editor-sidepanel,
-.editor-sidepanel-title,
-.editor-sidepanel-collapsed-title,
-.editor-sidepanel-body,
-.editor-sidepanel + .editor-main {
-	transition: all 0.3s ease;
+	height: 100%;
 }
 .editor-sidepanel.collapsed {
-	width: 43px;
+	bottom: auto;
+	height: 50px;
 }
-.editor-sidepanel.collapsed + .editor-main {
-	left: 43px;
-}
-.editor-sidepanel-collapsed-title,
-.editor-sidepanel.collapsed .editor-sidepanel-title,
-.editor-sidepanel.collapsed .editor-sidepanel-body {
-	opacity: 0;
-}
-.editor-sidepanel.collapsed .editor-sidepanel-collapsed-title {
-	opacity: 1;
-	transform: translate(20px, 0) rotate(90deg);
+.editor-sidepanel.collapsed > .panel > .panel-body {
+	visibility: hidden;
 }
 
 .editor-main {
+	display: none;
 	position: absolute;
-	top: 55px;
-	left: 300px;
-	bottom: 0;
+	top: 105px;
+	left: 0;
+	bottom: 55px;
 	right: 0;
 	overflow: hidden;
 	background-color: #f0f0f0;
+}
+.editor-sidepanel.collapsed + .editor-main {
+	display: block;
 }
 .editor-main::before {
 	content: '';
@@ -168,6 +149,56 @@
 	display: block;
 }
 
+@media screen and (min-width: 768px) {
+	.editor-sidepanel {
+		width: 300px;
+		bottom: 0;
+	}
+	.editor-sidepanel.collapsed {
+		height: auto;
+		bottom: 0;
+	}
+	.editor-sidepanel-collapsed-title {
+		display: block;
+		position: absolute;
+		top: 50px;
+		left: 100%;
+		margin-left: -43px;
+		margin-top: 0;
+		margin-bottom: 0;
+		white-space: nowrap;
+		transform-origin: 0 10px;
+		transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
+	}
+	.editor-sidepanel,
+	.editor-sidepanel-title,
+	.editor-sidepanel-collapsed-title,
+	.editor-sidepanel-body,
+	.editor-sidepanel + .editor-main {
+		transition: all 0.3s ease;
+	}
+	.editor-sidepanel.collapsed {
+		width: 43px;
+	}
+	.editor-sidepanel.collapsed + .editor-main {
+		left: 43px;
+	}
+	.editor-sidepanel-collapsed-title,
+	.editor-sidepanel.collapsed .editor-sidepanel-title,
+	.editor-sidepanel.collapsed .editor-sidepanel-body {
+		opacity: 0;
+	}
+	.editor-sidepanel.collapsed .editor-sidepanel-collapsed-title {
+		opacity: 1;
+		transform: translate(20px, 0) rotate(90deg);
+	}
+	.editor-main {
+		display: block;
+		top: 55px;
+		bottom: 0;
+		left: 300px;
+	}
+}
 
 .theme-options-accordion {
 	height: 100%;

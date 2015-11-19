@@ -1,5 +1,6 @@
 body {
 	background-color: #f0f0f0;
+	min-width: 320px;
 }
 
 body.navigation-hidden,
@@ -270,14 +271,17 @@ button.bg-bluegrey:hover :not(:disabled) {
     -o-transform: scale(1);
     transform: scale(1)
 }
-.form-centered {
+.form-centered,
+.info-message {
+	margin-top: 60px;
 	color: #b2b6be;
 }
-.form-centered-icon {
+.info-message-icon {
 	font-size: 64px;
 	margin-bottom: 10px;
 }
 .register-panel {
+	margin-top: 20px;
 }
 .register-panel .checkbox label {
 	cursor: default;
@@ -287,6 +291,7 @@ button.bg-bluegrey:hover :not(:disabled) {
 	.register-panel {
 		margin-top: 100px;
 	}
+
 	.form-centered {
 		margin-top: 130px;
 		margin-left: auto;
@@ -512,6 +517,10 @@ body.full-page .title-bar {
 .title-bar-controls .btn:first-child {
 	margin-left: 0;
 }
+.title-bar .title-bar-close {
+	float: right;
+	margin-left: 10px;
+}
 .title-bar-close {
 	padding: 7px;
     color: #b2b6be;
@@ -594,6 +603,28 @@ select.btn-toolbar {
 }
 .title-bar-dropdown:focus {
 	border-color: white;
+}
+
+@media screen and (max-width: 767px) {
+	.title-bar-controls {
+		position: fixed;
+		float: none;
+		padding: 10px;
+		margin: 0 -10px;
+		width: 100%;
+		bottom: 0;
+		text-align: center;
+	}
+	.title-bar-controls .btn {
+		float: none;
+	}
+	.title-bar-controls .btn:first-child:last-child {
+		width: 100%;
+	}
+	.title-bar-toolbar {
+		margin: 45px -10px 0;
+		padding: 10px;
+	}
 }
 
 footer.content-footer {
@@ -728,6 +759,12 @@ footer.content-footer {
 	left: 0;
 	right: 0;
 	bottom: 0;
+}
+@media screen and (max-width: 767px) {
+	.theme-gallery-main {
+		top: 108px;
+		bottom: 54px;
+	}
 }
 .theme-gallery-preview {
 	width: 100%;
