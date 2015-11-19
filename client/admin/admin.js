@@ -17,7 +17,7 @@ $(function() {
 		},
 		'filename': function(value) {
 			// See https://www.dropbox.com/en/help/145
-			return value.replace(/[\/<>:"|?*]/g, '').replace(/[ .]+$/, '');
+			return value.replace(/[\/<>:"|?*]/g, '');
 		}
 	};
 
