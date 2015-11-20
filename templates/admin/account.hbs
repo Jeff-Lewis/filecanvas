@@ -51,7 +51,7 @@
 											>
 												<option value="">No home site</option>
 												{{#each session.sites as |site|}}
-												<option value="{{ site.name }}"{{#if (eq site.name ../content.user.defaultSite)}} selected="selected"{{/if}}>{{ site.label }}</option>
+												<option value="{{ site.name }}"{{#if (eq site.name ../content.user.defaultSite)}} selected="selected"{{/if}}{{#unless site.published}} disabled="disabled"{{/unless}}>{{ site.label }}{{#unless site.published}} (not published){{/unless}}</option>
 												{{/each}}
 											</select>
 											<p class="help-block">This is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
