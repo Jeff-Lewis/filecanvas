@@ -154,6 +154,112 @@
 		{{/if}}
 		<div class="row">
 			<div class="col-md-12 col-lg-10">
+				<div class="panel panel-info mb5">
+					<a class="panel-heading collapsed" data-toggle="collapse" href="#password-protection" aria-expanded="{{eq session.state.activeRegion 'password-protection'}}" aria-controls="password-protection" role="tab">
+						<div class="pull-left"><i class="fa fa-lock mr10"></i>Password protection</div>
+						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+					</a>
+					<div id="password-protection" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'password-protection')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
+						<div class="panel-body">
+							<div class="row no-margin">
+								<div class="col-lg-12">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+										<input type="hidden" name="_method" value="PUT"/>
+										<input type="hidden" name="_state.activeRegion" value="password-protection"/>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Site access</label>
+											<div class="col-sm-10">
+												<div class="checkbox">
+													<label>
+														<input type="hidden"
+															name="private"
+															value="false"
+														/>
+														<input type="checkbox"
+															name="private"
+															value="true"
+															{{#if content.site.private}}checked="checked"{{/if}}
+														/>
+														Password protect this site
+													</label>
+												</div>
+											</div>
+										</div>
+										{{#if content.site.private}}
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Users</label>
+											<div class="col-sm-10">
+												<p class="form-control-static">
+													{{#if content.site.users}}
+													{{#if (eq content.site.users.length 1)}}
+													1 registered user
+													{{else}}
+													{{content.site.users.length}} registered users
+													{{/if}}
+													{{else}}
+													<span class="text-danger"><i class="fa fa-exclamation-circle"></i> Nobody is allowed to access this site</span>
+													{{/if}}
+													(<a href="{{ session.urls.sites }}/{{ content.site.name }}/users">edit</a>)
+												</p>
+											</div>
+										</div>
+										{{/if}}
+										<div class="form-group">
+											<div class="col-sm-offset-2 col-sm-10">
+												<button type="submit" class="btn btn-success">Save changes</button>
+												<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-info mb5">
+					<a class="panel-heading collapsed" data-toggle="collapse" href="#home-site" aria-expanded="{{eq session.state.activeRegion 'home-site'}}" aria-controls="home-site" role="tab">
+						<div class="pull-left"><i class="fa fa-home mr10"></i>Home site</div>
+						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+					</a>
+					<div id="home-site" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'home-site')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
+						<div class="panel-body">
+							<div class="row no-margin">
+								<div class="col-lg-12">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+										<input type="hidden" name="_method" value="PUT"/>
+										<input type="hidden" name="_state.activeRegion" value="home-site"/>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Home site</label>
+											<div class="col-sm-10">
+												<div class="checkbox">
+													<label>
+														<input type="hidden"
+															name="home"
+															value="false"
+														/>
+														<input type="checkbox"
+															name="home"
+															value="true"
+															{{#if content.site.home}}checked="checked"{{/if}}
+														/>
+														Use this as my home site
+													</label>
+												</div>
+												<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-offset-2 col-sm-10">
+												<button type="submit" class="btn btn-success">Save changes</button>
+												<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 				{{#if content.site.published}}
 				<div class="panel panel-info mb5">
 					<a class="panel-heading collapsed" data-toggle="collapse" href="#site-address" aria-expanded="{{eq session.state.activeRegion 'site-address'}}" aria-controls="site-address" role="tab">
@@ -274,112 +380,6 @@
 											</div>
 										</div>
 										{{/unless}}
-										<div class="form-group">
-											<div class="col-sm-offset-2 col-sm-10">
-												<button type="submit" class="btn btn-success">Save changes</button>
-												<button type="reset" class="btn btn-default pull-right">Reset changes</button>
-											</div>
-										</div>
-									</form>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="panel panel-info mb5">
-					<a class="panel-heading collapsed" data-toggle="collapse" href="#password-protection" aria-expanded="{{eq session.state.activeRegion 'password-protection'}}" aria-controls="password-protection" role="tab">
-						<div class="pull-left"><i class="fa fa-lock mr10"></i>Password protection</div>
-						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
-					</a>
-					<div id="password-protection" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'password-protection')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
-						<div class="panel-body">
-							<div class="row no-margin">
-								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-										<input type="hidden" name="_method" value="PUT"/>
-										<input type="hidden" name="_state.activeRegion" value="password-protection"/>
-										<div class="form-group">
-											<label class="col-sm-2 control-label">Site access</label>
-											<div class="col-sm-10">
-												<div class="checkbox">
-													<label>
-														<input type="hidden"
-															name="private"
-															value="false"
-														/>
-														<input type="checkbox"
-															name="private"
-															value="true"
-															{{#if content.site.private}}checked="checked"{{/if}}
-														/>
-														Password protect this site
-													</label>
-												</div>
-											</div>
-										</div>
-										{{#if content.site.private}}
-										<div class="form-group">
-											<label class="col-sm-2 control-label">Users</label>
-											<div class="col-sm-10">
-												<p class="form-control-static">
-													{{#if content.site.users}}
-													{{#if (eq content.site.users.length 1)}}
-													1 registered user
-													{{else}}
-													{{content.site.users.length}} registered users
-													{{/if}}
-													{{else}}
-													<span class="text-danger"><i class="fa fa-exclamation-circle"></i> Nobody is allowed to access this site</span>
-													{{/if}}
-													(<a href="{{ session.urls.sites }}/{{ content.site.name }}/users">edit</a>)
-												</p>
-											</div>
-										</div>
-										{{/if}}
-										<div class="form-group">
-											<div class="col-sm-offset-2 col-sm-10">
-												<button type="submit" class="btn btn-success">Save changes</button>
-												<button type="reset" class="btn btn-default pull-right">Reset changes</button>
-											</div>
-										</div>
-									</form>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="panel panel-info mb5">
-					<a class="panel-heading collapsed" data-toggle="collapse" href="#home-site" aria-expanded="{{eq session.state.activeRegion 'home-site'}}" aria-controls="home-site" role="tab">
-						<div class="pull-left"><i class="fa fa-home mr10"></i>Home site</div>
-						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
-					</a>
-					<div id="home-site" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'home-site')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
-						<div class="panel-body">
-							<div class="row no-margin">
-								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-										<input type="hidden" name="_method" value="PUT"/>
-										<input type="hidden" name="_state.activeRegion" value="home-site"/>
-										<div class="form-group">
-											<label class="col-sm-2 control-label">Home site</label>
-											<div class="col-sm-10">
-												<div class="checkbox">
-													<label>
-														<input type="hidden"
-															name="home"
-															value="false"
-														/>
-														<input type="checkbox"
-															name="home"
-															value="true"
-															{{#if content.site.home}}checked="checked"{{/if}}
-														/>
-														Use this as my home site
-													</label>
-												</div>
-												<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
-											</div>
-										</div>
 										<div class="form-group">
 											<div class="col-sm-offset-2 col-sm-10">
 												<button type="submit" class="btn btn-success">Save changes</button>
