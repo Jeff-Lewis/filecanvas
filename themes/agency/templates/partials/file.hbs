@@ -1,9 +1,9 @@
 <div class="post item span4 isotope-item filter-{{ slug (basename subfolder.path) }}" data-file-modified="{{ timestamp file.modified }}">
-	<a href="{{ downloadUrl @root file }}" target="_blank" class="project-wrp">
+	<a href="{{ download @root file }}" target="_blank" class="project-wrp">
 		<div class="profile-photo{{ if file.thumbnail ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
 			{{#if file.thumbnail}}
 			<div class="profile-thumbnail">
-				<img src="{{ thumbnailUrl @root file }}"/>
+				<img src="{{ thumbnail @root file }}"/>
 			</div>
 			{{else}}
 			<svg class="file-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69px" height="112px" viewBox="0 0 69 112">

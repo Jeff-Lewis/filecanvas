@@ -4,20 +4,20 @@ var path = require('path');
 var isUrl = require('is-url');
 var bytes = require('bytes');
 
-module.exports['loginUrl'] = function(rootModel) {
+module.exports['login'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'login';
 };
-module.exports['logoutUrl'] = function(rootModel) {
+module.exports['logout'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'logout';
 };
-module.exports['assetUrl'] = function(rootModel, filePath) {
+module.exports['asset'] = function(rootModel, filePath) {
 	return isUrl(filePath) ? filePath : rootModel.metadata.themeRoot + filePath;
 };
-module.exports['downloadUrl'] = function(rootModel, file) {
+module.exports['download'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
 	return rootModel.metadata.siteRoot + 'download' + file.path;
 };
-module.exports['thumbnailUrl'] = function(rootModel, file) {
+module.exports['thumbnail'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
 	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;
 };
