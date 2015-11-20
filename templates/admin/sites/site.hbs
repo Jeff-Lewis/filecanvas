@@ -38,17 +38,92 @@
 								<h4> Site editor</h4>
 							</a>
 						</div>
-						<form class="col-md-6" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
-							<input type="hidden" name="_method" value="PUT"/>
-							<input type="hidden"
-								name="published"
-								value="{{#if content.site.published}}false{{else}}true{{/if}}"
-							/>
-							<button type="submit" class="widget mb0 btn btn-reset bg-{{#if content.site.published}}danger{{else}}success{{/if}}">
+						{{#if content.site.published}}
+						<div class="col-md-6">
+							<button class="widget btn btn-reset bg-danger mb0" data-toggle="collapse" data-target="#unpublish-site" aria-expanded="false" aria-controls="unpublish-site">
 								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
-								<h4>{{#if content.site.published}}Unpublish site{{else}}Publish site{{/if}}</h4>
+								<h4>Unpublish site</h4>
 							</button>
-						</form>
+							<div class="widget bg-danger mb0">
+								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
+								<h4>Unpublish site</h4>
+							</div>
+						</div>
+						<div class="col-md-12 collapse" id="unpublish-site">
+							<div class="panel-body bg-white">
+								<div class="col-lg-12">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+										<input type="hidden" name="_method" value="PUT"/>
+										<input type="hidden"
+											name="published"
+											value="false"
+										/>
+										<div class="alert alert-danger">
+											<i class="pull-left fa fa-exclamation-circle"></i>
+											<div>
+												<h5 class="mb20">You are about to take this site offline. Any links to {{ session.urls.webroot }}{{ content.site.name }} will no longer work.</h5>
+												<button type="submit" class="btn btn-danger mr5">Unpublish site</button>
+												<button type="button" class="btn btn-default" data-toggle="collapse" data-target="#unpublish-site" aria-expanded="false" aria-controls="unpublish-site">Cancel</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+						{{else}}
+						<div class="col-md-6">
+							<button class="widget btn btn-reset bg-success mb0" data-toggle="collapse" data-target="#publish-site" aria-expanded="false" aria-controls="publish-site">
+								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
+								<h4>Publish site</h4>
+							</button>
+							<div class="widget bg-success mb0">
+								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
+								<h4>Publish site</h4>
+							</div>
+						</div>
+						<div class="col-md-12 collapse" id="publish-site">
+							<div class="panel-body bg-white">
+								<div class="col-lg-12">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+										<input type="hidden" name="_method" value="PUT"/>
+										<input type="hidden"
+											name="published"
+											value="true"
+										/>
+										<div class="alert alert-info">
+											<i class="pull-left fa fa-exclamation-circle"></i>
+											<div>
+												<h5>You are about to publish this site to the internet</h5>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Web address</label>
+											<div class="col-sm-10">
+												<div class="web-address-control input-group">
+													<span class="input-group-addon">{{ session.urls.webroot }}</span>
+													<input type="text" class="form-control"
+														name="name"
+														value="{{ content.site.name }}"
+														data-bind-id="site-name"
+														data-parser="slug"
+														data-validate="slug"
+														data-trigger="focus"
+													/>
+													<span class="form-control-feedback fa" aria-hidden="true"></span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-10 col-sm-offset-2">
+												<button type="submit" class="btn btn-success">Publish site</button>
+												<button type="reset" class="btn btn-default pull-right" data-toggle="collapse" data-target="#publish-site" aria-expanded="false" aria-controls="publish-site">Cancel</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+						{{/if}}
 					</div>
 				</div>
 			</div>
@@ -79,6 +154,59 @@
 		{{/if}}
 		<div class="row">
 			<div class="col-md-12 col-lg-10">
+				{{#if content.site.published}}
+				<div class="panel panel-info mb5">
+					<a class="panel-heading collapsed" data-toggle="collapse" href="#site-address" aria-expanded="{{eq session.state.activeRegion 'site-address'}}" aria-controls="site-address" role="tab">
+						<div class="pull-left"><i class="fa fa-desktop mr10"></i>Change address</div>
+						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
+					</a>
+					<div id="site-address" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'site-address')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
+						<div class="panel-body">
+							<div class="row no-margin">
+								<div class="col-lg-12">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+										<input type="hidden" name="_method" value="PUT"/>
+										<input type="hidden" name="_state.activeRegion" value="site-address"/>
+										<div class="alert alert-block alert-warning">
+											<i class="pull-left fa fa-exclamation-triangle mt10"></i>
+											<div>
+												<h5>Before changing this site's web address, bear the following points in mind:</h5>
+												<ul>
+													<li>After changing the site's address, any links to <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong> will <strong>no longer work.</strong></li>
+													<li>If you have set up a custom domain name for this site, you will need to update your DNS settings to reflect the new web address.</li>
+												</ul>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Web address</label>
+											<div class="col-sm-10">
+												<div class="web-address-control input-group">
+													<span class="input-group-addon">{{ session.urls.webroot }}</span>
+													<input type="text" class="form-control"
+														name="name"
+														value="{{ content.site.name }}"
+														data-bind-id="site-name"
+														data-parser="slug"
+														data-validate="slug"
+														data-trigger="focus"
+													/>
+													<span class="form-control-feedback fa" aria-hidden="true"></span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-offset-2 col-sm-10">
+												<button type="submit" class="btn btn-success">Save changes</button>
+												<button type="reset" class="btn btn-default pull-right">Reset changes</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				{{/if}}
 				<div class="panel panel-info mb5">
 					<a class="panel-heading collapsed" data-toggle="collapse" href="#site-settings" aria-expanded="{{eq session.state.activeRegion 'site-settings'}}" aria-controls="site-settings" role="tab">
 						<div class="pull-left"><i class="fa fa-cog mr10"></i>Site settings</div>
@@ -127,11 +255,12 @@
 												</div>
 											</div>
 										</div>
+										{{#unless content.site.published}}
 										<div class="form-group">
-											<label class="col-sm-2 control-label">{{#if content.site.published}}Site address{{else}}Admin URL{{/if}}</label>
+											<label class="col-sm-2 control-label">Admin URL</label>
 											<div class="col-sm-10">
 												<div class="web-address-control input-group">
-													<span class="input-group-addon">{{#if content.site.published}}{{ session.urls.webroot }}{{else}}{{ session.urls.root }}/sites/{{/if}}</span>
+													<span class="input-group-addon">{{ session.urls.root }}/sites/</span>
 													<input type="text" class="form-control"
 														name="name"
 														value="{{ content.site.name }}"
@@ -144,6 +273,7 @@
 												</div>
 											</div>
 										</div>
+										{{/unless}}
 										<div class="form-group">
 											<div class="col-sm-offset-2 col-sm-10">
 												<button type="submit" class="btn btn-success">Save changes</button>
