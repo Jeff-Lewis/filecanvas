@@ -649,11 +649,13 @@ footer.content-footer {
 .alert {
 	overflow: hidden;
 }
-
 .alert > .fa {
 	margin-left: 10px;
-	margin-top: 10px;
+	margin-top: 3px;
 	font-size: 32px;
+}
+.alert-block > .fa {
+	margin-top: 10px;
 }
 .alert > .fa + * {
 	margin-left: 62px;

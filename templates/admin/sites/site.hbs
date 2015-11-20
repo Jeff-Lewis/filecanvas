@@ -7,7 +7,7 @@
 			<div class="col-md-12 col-lg-10">
 				<div class="mb25">
 					{{#if content.site.published}}
-					<div class="alert alert-success mb10">
+					<div class="alert alert-block alert-success mb10">
 						<i class="pull-left fa fa-arrow-right"></i>
 						<div>
 							<h5>This site is published at
@@ -20,7 +20,7 @@
 						</div>
 					</div>
 					{{else}}
-					<div class="alert alert-info mb10">
+					<div class="alert alert-block alert-info">
 						<i class="pull-left fa fa-wrench"></i>
 						<div>
 							<h5>This site is not published.</h5>
@@ -274,8 +274,8 @@
 									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="DELETE"/>
 										<input type="hidden" name="_state.activeRegion" value="delete-site"/>
-										<div class="alert alert-danger">
-											<i class="pull-left fa fa-exclamation-circle"></i>
+										<div class="alert alert-block alert-danger">
+											<i class="pull-left fa fa-exclamation-circle mt10"></i>
 											<div>
 												<h5>Before deleting this site, bear the following points in mind:</h5>
 												<ul>

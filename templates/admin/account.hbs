@@ -84,8 +84,8 @@
 									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="change-username"/>
-										<div class="alert alert-warning">
-											<i class="pull-left fa fa-exclamation-triangle"></i>
+										<div class="alert alert-block alert-warning">
+											<i class="pull-left fa fa-exclamation-triangle mt10"></i>
 											<div>
 												<h5>Before changing your username, bear the following points in mind:</h5>
 												<ul>
@@ -134,7 +134,7 @@
 									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
 										<input type="hidden" name="_method" value="DELETE"/>
 										<input type="hidden" name="_state.activeRegion" value="delete-account"/>
-										<div class="alert alert-danger">
+										<div class="alert alert-block alert-danger">
 											<i class="pull-left fa fa-exclamation-circle"></i>
 											<div>
 												<h5>Before deleting your account, bear the following points in mind:</h5>
