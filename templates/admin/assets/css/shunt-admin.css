@@ -76,6 +76,11 @@ a.widget:visited,
 	text-decoration: none;
 }
 
+.btn.widget {
+	border: none;
+	border-radius: 0;
+}
+
 .form-control.input-sm { font-size: 12px; }
 .form-control.input-lg { font-size: 18px; }
 
