@@ -43,7 +43,18 @@ body.full-page .main-content {
 body.no-footer .main-content {
     margin-bottom: 0;
 }
-body.no-border .main-content {
+
+html.no-border,
+html.no-border body {
+	height: auto;
+}
+html.no-border body {
+	min-width: auto;
+}
+html.no-border .app {
+	min-height: auto;
+}
+html.no-border .main-content {
     padding: 0;
 }
 
