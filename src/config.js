@@ -52,7 +52,7 @@ if (process.env.LOCAL === 'true') {
 if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox = {};
 	config.adapters.dropbox.metadata = {};
-	config.adapters.dropbox.metadata.path = '/shunt/';
+	config.adapters.dropbox.metadata.path = '/Shunt/';
 	config.adapters.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
 	config.adapters.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
 	config.adapters.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
