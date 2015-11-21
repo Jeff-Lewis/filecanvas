@@ -271,6 +271,38 @@ button.bg-bluegrey:hover :not(:disabled) {
 .text-center {
 	text-align: center !important;
 }
+.modal-content {
+	border-color: #09c;
+	border-radius: 0;
+}
+.modal-header {
+    position: relative;
+    padding: 15px;
+    background-color: #09c;
+	border-color: #09c;
+    color: white;
+}
+.modal-header .close {
+	color: white;
+	opacity: 0.8;
+}
+.modal-header .close:hover {
+	opacity: 1;
+}
+.modal-header .close .fa {
+	font-size: 16px;
+	vertical-align: top;
+}
+.modal-footer {
+	border-top: none;
+}
+.modal-footer .btn {
+	min-width: 80px;
+}
+.modal-title {
+	line-height: 1.1;
+    text-transform: uppercase;
+}
 .modal.fade .modal-dialog {
     -webkit-transition: -webkit-transform .15s ease-out;
     -o-transition: -o-transform .15s ease-out;
