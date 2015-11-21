@@ -8,6 +8,11 @@ body.navigation-hidden .app,
 body.navigation-hidden .main-panel {
 	background-color: #495469;
 }
+body.bg-white,
+body.bg-white .app,
+body.bg-white .main-panel {
+	background-color: white;
+}
 body.navigation-hidden button.bg-white {
 	background-color: #e3e5e8;
 }
@@ -34,6 +39,12 @@ body.full-page .main-content {
 body.full-page .main-content {
 	margin: 0;
 	padding: 0;
+}
+body.no-footer .main-content {
+    margin-bottom: 0;
+}
+body.no-border .main-content {
+    padding: 0;
 }
 
 a:not(:link) {
