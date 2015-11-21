@@ -47,6 +47,13 @@ body.no-border .main-content {
     padding: 0;
 }
 
+.col-centered {
+	display: block;
+    margin-right: auto;
+    margin-left: auto;
+	float: none;
+}
+
 a:not(:link) {
 	cursor: default;
 }
