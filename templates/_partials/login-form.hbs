@@ -1,13 +1,13 @@
 {{#if adapters.dropbox}}
 <form method="POST" action="{{ loginUrl }}/dropbox">
-	<button type="submit" class="btn btn-reset widget bg-white mb5">
+	<button type="submit" class="btn btn-reset widget bg-{{ buttonColor }} mb5">
 		<i class="widget-icon pull-left fa fa-dropbox"></i>
 		<h4>Sign in with Dropbox</h4>
 	</button>
 </form>
 {{/if}}
 {{#if adapters.local}}
-<button type="button" class="btn btn-reset widget bg-white mb5" data-toggle="collapse" data-target="#login" aria-expanded="false" aria-controls="login">
+<button type="button" class="btn btn-reset widget bg-{{ buttonColor }} mb5" data-toggle="collapse" data-target="#login" aria-expanded="false" aria-controls="login">
 	<i class="widget-icon bg-primary pull-left fa fa-user"></i>
 	<h4>Admin login</h4>
 </button>
