@@ -304,6 +304,9 @@ button.bg-bluegrey:hover :not(:disabled) {
 	font-size: 16px;
 	vertical-align: top;
 }
+.modal-body > iframe[name="modal"] {
+	width: 100%;
+}
 .modal-footer {
 	border-top: none;
 	text-align: center;

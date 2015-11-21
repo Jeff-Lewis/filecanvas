@@ -75,6 +75,7 @@ $(function() {
 	initPathControls();
 	initNavigationDropdowns();
 	initOffscreenSidebar();
+	initModalForms();
 	initLogout();
 });
 
@@ -841,6 +842,35 @@ function initOffscreenSidebar() {
 		if (isOffscreenOpen && target !== offscreenToggleBtn) {
 			toggleMenu();
 		}
+	});
+}
+
+function initModalForms() {
+	$('form[target="modal"]').on('submit', function(event) {
+		var $formElement = $(event.currentTarget);
+		var targetIframeName = $formElement.attr('target');
+		var $targetIframe = $('[name="' + targetIframeName + '"]');
+		var $modalElement = $targetIframe.closest('.modal');
+		var $submitElements = $formElement.find('input[type="submit"],button');
+		$modalElement.modal('show').on('hide.bs.modal', function() {
+			$submitElements.prop('disabled', false);
+		});
+	});
+	$('iframe[name="modal"]').load(function() {
+		var iframeElement = this;
+		iframeElement.style.height = '0';
+		setTimeout(function() {
+			setTimeout(function() {
+				try {
+					var documentElement = iframeElement.contentWindow.document;
+					var contentHeight = $(documentElement).height();
+					iframeElement.style.height = contentHeight + 'px';
+				} catch (error) {
+					iframeElement.style.height = '';
+					if (!(error instanceof DOMException)) { throw error; }
+				}
+			});
+		});
 	});
 }
 
