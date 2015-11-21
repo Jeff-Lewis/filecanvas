@@ -235,8 +235,29 @@ module.exports = function(database, options) {
 					.then(function(sortedSiteModels) {
 						var urlService = new UrlService(req);
 						return {
-							urls: getAdminUrls(urlService, userModel, adapters),
 							location: urlService.location,
+							urls: {
+								root: urlService.location.protocol + '://' + urlService.location.host,
+								webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
+								domain: urlService.getSubdomainUrl('$0'),
+								admin: '/',
+								faq: '/faq',
+								support: '/support',
+								account: '/account',
+								login: '/login',
+								register: '/register',
+								createLogin: '/create/login',
+								logout: '/logout',
+								sites: '/sites',
+								sitesCreate: '/sites/create-site',
+								sitesCreateThemes: '/sites/create-site/themes',
+								preview: '/preview',
+								terms: '/terms',
+								privacy: '/privacy',
+								assets: adminAssetsUrl,
+								themes: stripTrailingSlash(themeGalleryUrl),
+								themeAssets: stripTrailingSlash(themeAssetsUrl)
+							},
 							sites: sortedSiteModels
 						};
 					});
@@ -248,30 +269,6 @@ module.exports = function(database, options) {
 						if (item2.name === defaultSiteName) { return 1; }
 						return (item1.label < item2.label ? -1 : 1);
 					});
-				}
-
-				function getAdminUrls(urlService, userModel, adapters) {
-					return {
-						root: urlService.location.protocol + '://' + urlService.location.host,
-						webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
-						domain: urlService.getSubdomainUrl('$0'),
-						admin: '/',
-						faq: '/faq',
-						support: '/support',
-						account: '/account',
-						login: '/login',
-						register: '/register',
-						logout: '/logout',
-						sites: '/sites',
-						sitesCreate: '/sites/create-site',
-						sitesCreateThemes: '/sites/create-site/themes',
-						preview: '/preview',
-						terms: '/terms',
-						privacy: '/privacy',
-						assets: adminAssetsUrl,
-						themes: stripTrailingSlash(themeGalleryUrl),
-						themeAssets: stripTrailingSlash(themeAssetsUrl)
-					};
 				}
 			}
 		}
