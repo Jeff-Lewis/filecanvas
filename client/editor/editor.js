@@ -15,12 +15,12 @@ var removeAllChildren = require('./utils/removeAllChildren');
 var appendScriptElement = require('./utils/appendScriptElement');
 var loadJson = require('./utils/loadJson');
 var parseJson = require('./utils/parseJson');
-var serializeQueryParams = require('./utils/serializeQueryParams');
 var getFormFieldValues = require('./utils/getFormFieldValues');
 var setFormFieldValues = require('./utils/setFormFieldValues');
 
 var parseThemeConfigDefaults = require('../../src/utils/parseThemeConfigDefaults');
 var expandConfigPlaceholders = require('../../src/utils/expandConfigPlaceholders');
+var serializeQueryParams = require('../../src/utils/serializeQueryParams');
 var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
 
 var HistoryStack = require('./lib/HistoryStack');
