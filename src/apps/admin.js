@@ -908,9 +908,7 @@ module.exports = function(database, options) {
 				var defaultSiteName = userModel.defaultSite;
 				var siteName = req.params.site;
 
-				var updates = {
-					'owner': username
-				};
+				var updates = {};
 				if (req.body.name) { updates.name = req.body.name; }
 				if (req.body.label) { updates.label = req.body.label; }
 				if (req.body.theme) { updates.theme = req.body.theme; }
