@@ -1,0 +1,14 @@
+{{#> index}}
+	{{#*inline 'content'}}
+		<h5 class="mb15 bold">Congratulations! You've just published your first site.</h5>
+		<div class="ml5">
+			<p class="mb15"><i class="fa fa-arrow-right mr5"></i> See it in action at <strong><a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a></strong>.</p>
+			<p>You can edit your site at any time in the <a href="{{ session.urls.sites }}" target="_top">Shunt admin area</a>.</p>
+			<p>Enjoy using Shunt!</p>
+			<p> &nbsp;– The Shunt Team</p>
+			<div class="mt30 text-center">
+				<a href="{{ session.urls.webroot }}{{ content.site.name }}" class="btn btn-primary" target="_top">Visit site</a>
+			</div>
+		</div>
+	{{/inline}}
+{{/index}}

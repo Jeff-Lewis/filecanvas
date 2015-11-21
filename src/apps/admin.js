@@ -276,6 +276,7 @@ module.exports = function(database, options) {
 			app.get('/login', redirectIfLoggedIn(), initAdminSession, retrieveLoginRoute);
 			app.get('/register', redirectIfLoggedIn(), initAdminSession, retrieveRegisterRoute);
 			app.post('/register', redirectIfLoggedIn(), initAdminSession, processRegisterRoute);
+			app.get('/create/login', redirectIfLoggedIn('/create'), initAdminSession, retrieveSignupLoginRoute);
 
 
 			function redirectIfLoggedIn(redirectPath) {
@@ -306,6 +307,35 @@ module.exports = function(database, options) {
 					return resolve(
 						adminPageService.render(req, res, {
 							template: 'login',
+							context: templateData
+						})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
+			}
+
+			function retrieveSignupLoginRoute(req, res, next) {
+				new Promise(function(resolve, reject) {
+					var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
+						adaptersHash[key] = true;
+						return adaptersHash;
+					}, {});
+					var templateData = {
+						title: 'Link account',
+						blank: true,
+						borderless: true,
+						navigation: false,
+						footer: false,
+						content: {
+							redirect: req.query.redirect || '/create',
+							adapters: adaptersHash
+						}
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'create/login',
 							context: templateData
 						})
 					);
@@ -408,6 +438,10 @@ module.exports = function(database, options) {
 			app.delete('/sites/:site/users/:username', ensureAuth, initAdminSession, deleteSiteUserRoute);
 
 			app.get('/sites/:site/edit', ensureAuth, initAdminSession, retrieveSiteEditRoute);
+			app.get('/sites/:site/create', ensureAuth, initAdminSession, retrieveSignupSiteEditRoute);
+
+			app.get('/create', ensureSignupAuth, initAdminSession, retrieveCreateSignupSiteRoute);
+			app.post('/create', ensureSignupAuth, initAdminSession, createSignupSiteRoute);
 
 			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
@@ -434,6 +468,14 @@ module.exports = function(database, options) {
 					next();
 				} else {
 					authRedirect(req, res, '/login');
+				}
+			}
+
+			function ensureSignupAuth(req, res, next) {
+				if (req.isAuthenticated()) {
+					next();
+				} else {
+					authRedirect(req, res, '/create/login');
 				}
 			}
 
@@ -657,6 +699,7 @@ module.exports = function(database, options) {
 			function retrieveCreateSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
 				var theme = req.query.theme || req.body.theme || null;
+
 				new Promise(function(resolve, reject) {
 					var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
 						return adapterName !== 'default';
@@ -777,6 +820,7 @@ module.exports = function(database, options) {
 			function createSiteRoute(req, res, next) {
 				var userModel = req.user;
 				var username = userModel.username;
+				var redirectUrl = req.params.redirect || ('/sites/' + req.body.name);
 
 				var isDefaultSite = (req.body.home === 'true');
 				var isPrivate = (req.body.private === 'true');
@@ -826,7 +870,7 @@ module.exports = function(database, options) {
 									});
 							})
 							.then(function(siteModel) {
-								res.redirect(303, '/sites/' + siteModel.name);
+								res.redirect(303, redirectUrl);
 							})
 					);
 				})
@@ -904,6 +948,7 @@ module.exports = function(database, options) {
 				if (isPurgeRequest) {
 					return purgeSiteRoute(req, res, next);
 				}
+				var isPublishSuccess = (req.body._action === 'publish');
 				var userModel = req.user;
 				var username = userModel.username;
 				var defaultSiteName = userModel.defaultSite;
@@ -929,7 +974,27 @@ module.exports = function(database, options) {
 								return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
 							})
 							.then(function() {
-								res.redirect(303, '/sites/' + updatedSiteName);
+								if (isPublishSuccess) {
+									var templateData = {
+										title: 'Site published',
+										blank: true,
+										borderless: true,
+										navigation: false,
+										footer: false,
+										breadcrumb: null,
+										content: {
+											site: {
+												name: updatedSiteName
+											}
+										}
+									};
+									return adminPageService.render(req, res, {
+										template: 'sites/site/publish-success',
+										context: templateData
+									});
+								} else {
+									res.redirect(303, '/sites/' + updatedSiteName);
+								}
 							})
 					);
 				})
@@ -1092,6 +1157,7 @@ module.exports = function(database, options) {
 			}
 
 			function retrieveSiteEditRoute(req, res, next) {
+				var isSignupSite = Boolean(req.params.create);
 				var userModel = req.user;
 				var username = userModel.username;
 				var userAdapters = req.user.adapters;
@@ -1147,10 +1213,11 @@ module.exports = function(database, options) {
 									{
 										link: '/sites/' + siteName + '/theme',
 										icon: 'paint-brush',
-										label: 'Theme editor'
+										label: 'Site editor'
 									}
 								],
 								content: {
+									signup: isSignupSite,
 									site: siteModel,
 									themes: themeService.getThemes(),
 									adapter: adapterConfig
@@ -1170,6 +1237,67 @@ module.exports = function(database, options) {
 				.catch(function(error) {
 					next(error);
 				});
+			}
+
+			function retrieveCreateSignupSiteRoute(req, res, next) {
+				var userAdapters = req.user.adapters;
+				var theme = req.query.theme || req.body.theme || null;
+
+				new Promise(function(resolve, reject) {
+					var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
+						return adapterName !== 'default';
+					}).reduce(function(adaptersMetadata, adapterName) {
+						var adapter = adapters[adapterName];
+						var adapterConfig = userAdapters[adapterName];
+						adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+						return adaptersMetadata;
+					}, {});
+					var defaultAdapterName = userAdapters.default;
+					var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
+					var siteModel = {
+						name: '',
+						label: '',
+						root: {
+							adapter: defaultAdapterName,
+							path: defaultAdapterPath
+						},
+						private: false,
+						published: false,
+						home: false,
+						theme: theme
+					};
+					var templateData = {
+						title: 'Create site folder',
+						blank: true,
+						borderless: true,
+						navigation: false,
+						footer: false,
+						breadcrumb: null,
+						content: {
+							site: siteModel,
+							adapters: adaptersMetadata
+						}
+					};
+					return resolve(
+						adminPageService.render(req, res, {
+							template: 'create',
+							context: templateData
+						})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
+			}
+
+			function createSignupSiteRoute(req, res, next) {
+				req.params.redirect = '/sites/' + req.body.name + '/create';
+				createSiteRoute(req, res, next);
+			}
+
+			function retrieveSignupSiteEditRoute(req, res, next) {
+				req.params.create = true;
+				retrieveSiteEditRoute(req, res, next);
 			}
 
 			function retrieveFileMetadataRoute(req, res, next) {

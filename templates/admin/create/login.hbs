@@ -1,0 +1,15 @@
+{{#>index}}
+	{{#*inline 'content'}}
+		<div class="row no-margin">
+			<div class="col-lg-12 text-center mb25">
+				<h5>Connect to an online storage provider to add files to this site:</h5>
+			</div>
+			<div class="col-sm-9 col-md-7 col-lg-6 col-centered">
+				{{>login-form loginUrl=session.urls.login redirect=content.redirect adapters=content.adapters buttonColor='default' stacked=false}}
+			</div>
+			<div class="text-center mt15">
+				<p>By signing in to a provider, you agree to Shunt's <a href="{{ session.urls.terms }}" target="_blank">Terms and Conditions</a>.</p>
+			</div>
+		</div>
+	{{/inline}}
+{{/index}}
