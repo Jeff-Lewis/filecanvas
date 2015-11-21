@@ -1,53 +1,57 @@
-{{#if adapters.dropbox}}
-<form method="POST" action="{{ loginUrl }}/dropbox">
-	<input type="hidden" name="redirect" value="{{ redirect }}">
-	<button type="submit" class="btn btn-reset widget bg-{{ buttonColor }} mb5">
-		<i class="widget-icon pull-left fa fa-dropbox"></i>
-		<h4>Sign in with Dropbox</h4>
-	</button>
-</form>
-{{/if}}
-{{#if adapters.local}}
-<button type="button" class="btn btn-reset widget bg-{{ buttonColor }} mb5" data-toggle="collapse" data-target="#login" aria-expanded="false" aria-controls="login">
-	<i class="widget-icon bg-primary pull-left fa fa-user"></i>
-	<h4>Admin login</h4>
-</button>
-<div class="widget bg-primary mb0">
-	<i class="widget-icon bg-white pull-left fa fa-user"></i>
-	<h4>Admin login</h4>
-</div>
-<div id="login" class="collapse">
-	<div class="panel-body bg-white mb5">
-		<div class="col-sm-12">
-			<form class="form-horizontal" method="POST" action="{{ loginUrl }}/local">
-				<input type="hidden" name="redirect" value="{{ redirect }}">
-				<div class="row">
-					<div class="col-sm-8 col-sm-offset-2">
-						<div class="form-group">
-							<input type="text" class="form-control" autofocus="autofocus"
-								name="username"
-								placeholder="Username"
-								data-validate="notEmpty"
-							/>
+<div class="login-form row{{#if stacked}} stacked{{/if}}">
+	{{#if adapters.dropbox}}
+	<form class="col-sm-12" method="POST" action="{{ loginUrl }}/dropbox">
+		<input type="hidden" name="redirect" value="{{ redirect }}">
+		<button type="submit" class="btn btn-reset widget bg-{{ buttonColor }} mb5">
+			<i class="widget-icon pull-left fa fa-dropbox"></i>
+			<h4>Sign in with Dropbox</h4>
+		</button>
+	</form>
+	{{/if}}
+	{{#if adapters.local}}
+	<div class="col-sm-12">
+		<button type="button" class="btn btn-reset widget bg-{{ buttonColor }} mb5" data-toggle="collapse" data-target="#login" aria-expanded="false" aria-controls="login">
+			<i class="widget-icon bg-primary pull-left fa fa-user"></i>
+			<h4>Admin login</h4>
+		</button>
+		<div class="widget bg-primary mb0">
+			<i class="widget-icon bg-white pull-left fa fa-user"></i>
+			<h4>Admin login</h4>
+		</div>
+		<div id="login" class="collapse">
+			<div class="panel-body bg-white mb5">
+				<div class="col-sm-12">
+					<form class="form-horizontal" method="POST" action="{{ loginUrl }}/local">
+						<input type="hidden" name="redirect" value="{{ redirect }}">
+						<div class="row">
+							<div class="col-sm-8 col-sm-offset-2">
+								<div class="form-group">
+									<input type="text" class="form-control" autofocus="autofocus"
+										name="username"
+										placeholder="Username"
+										data-validate="notEmpty"
+									/>
+								</div>
+							</div>
 						</div>
-					</div>
+						<div class="row">
+							<div class="col-sm-8 col-sm-offset-2">
+								<div class="form-group">
+									<input type="password" class="form-control"
+										name="password"
+										placeholder=""
+										data-validate="notEmpty"
+									/>
+								</div>
+								<div class="text-center">
+									<button type="submit" class="btn btn-primary mb10">Log in</button>
+								</div>
+							</div>
+						</div>
+					</form>
 				</div>
-				<div class="row">
-					<div class="col-sm-8 col-sm-offset-2">
-						<div class="form-group">
-							<input type="password" class="form-control"
-								name="password"
-								placeholder=""
-								data-validate="notEmpty"
-							/>
-						</div>
-						<div class="text-center">
-							<button type="submit" class="btn btn-primary mb10">Log in</button>
-						</div>
-					</div>
-				</div>
-			</form>
+			</div>
 		</div>
 	</div>
+	{{/if}}
 </div>
-{{/if}}

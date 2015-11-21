@@ -350,6 +350,19 @@ button.bg-bluegrey:hover :not(:disabled) {
 	cursor: default;
 }
 
+@media screen and (min-width:480px) {
+	.login-form > .col-sm-12 {
+		width: 50%;
+		float: left;
+	}
+	.login-form.stacked > .col-sm-12 {
+		width: 100%;
+		float: none;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
 @media screen and (min-width:768px) {
 	.register-panel {
 		margin-top: 100px;
