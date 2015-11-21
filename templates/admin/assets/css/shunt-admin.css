@@ -306,6 +306,7 @@ button.bg-bluegrey:hover :not(:disabled) {
 }
 .modal-footer {
 	border-top: none;
+	text-align: center;
 }
 .modal-footer .btn {
 	min-width: 80px;
