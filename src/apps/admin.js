@@ -233,6 +233,7 @@ module.exports = function(database, options) {
 					.then(function(sortedSiteModels) {
 						var urlService = new UrlService(req);
 						return {
+							host: host,
 							location: urlService.location,
 							urls: {
 								root: urlService.location.protocol + '://' + urlService.location.host,
