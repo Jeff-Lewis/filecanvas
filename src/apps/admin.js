@@ -206,8 +206,8 @@ module.exports = function(database, options) {
 		var adapters = options.adapters;
 		var adaptersConfig = options.adaptersConfig;
 
-		initPublicRoutes(app, passport, adapters);
-		initPrivateRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
+		initAuthRoutes(app, passport, adapters);
+		initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -276,10 +276,10 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPublicRoutes(app, passport, adapters) {
 			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
 			app.get('/register', redirectIfLoggedIn, initAdminSession, retrieveRegisterRoute);
 			app.post('/register', redirectIfLoggedIn, initAdminSession, processRegisterRoute);
+		function initAuthRoutes(app, passport, adapters) {
 
 
 			function redirectIfLoggedIn(req, res, next) {
@@ -383,7 +383,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initPrivateRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
+		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
 			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
