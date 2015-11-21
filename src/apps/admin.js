@@ -22,6 +22,7 @@ var loadAdapters = require('../utils/loadAdapters');
 var readDirContentsSync = require('../utils/readDirContentsSync');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
 var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
+var serializeQueryParams = require('../utils/serializeQueryParams');
 var HttpError = require('../errors/HttpError');
 
 var SiteService = require('../services/SiteService');
@@ -152,24 +153,21 @@ module.exports = function(database, options) {
 			Object.keys(adapters).forEach(function(key) {
 				var adapterName = key;
 				var adapter = adapters[key];
-				var loginCallback = createLoginCallback(adapterName);
-				var loginMiddleware = adapter.loginMiddleware(passport, { failureRedirect: '/register' }, loginCallback);
+				app.post('/login/' + adapterName, function(req, res, next) {
+					delete req.session.loginRedirect;
+					if (req.body.redirect) {
+						req.session.loginRedirect = req.body.redirect;
+					}
+					next();
+				});
+				var loginMiddleware = adapter.loginMiddleware(passport, { failureRedirect: '/register' }, function(req, res) {
+					req.session.adapter = adapterName;
+					var redirectUrl = req.session.loginRedirect;
+					delete req.session.loginRedirect;
+					res.redirect(redirectUrl || '/');
+				});
 				app.use('/login/' + adapterName, loginMiddleware);
 			});
-
-
-			function createLoginCallback(adapterName) {
-				return function(req, res) {
-					req.session.adapter = adapterName;
-					if (req.session.loginRedirect) {
-						var redirectUrl = req.session.loginRedirect;
-						delete req.session.loginRedirect;
-						res.redirect(redirectUrl);
-					} else {
-						res.redirect('/');
-					}
-				};
-			}
 		}
 	}
 
@@ -283,7 +281,7 @@ module.exports = function(database, options) {
 				redirectPath = redirectPath || '/';
 				return function(req, res, next) {
 					if (req.isAuthenticated()) {
-						return res.redirect(redirectPath);
+						return res.redirect(req.query.redirect || redirectPath);
 					}
 					next();
 				};
@@ -300,6 +298,7 @@ module.exports = function(database, options) {
 						navigation: false,
 						footer: true,
 						content: {
+							redirect: req.query.redirect || null,
 							adapters: adaptersHash
 						}
 					};
@@ -433,14 +432,21 @@ module.exports = function(database, options) {
 				if (req.isAuthenticated()) {
 					next();
 				} else {
-					loginRedirect(req, res, '/login');
+					authRedirect(req, res, '/login');
 				}
 			}
 
-			function loginRedirect(req, res, authRoute) {
+			function authRedirect(req, res, authRoute) {
 				var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
-				if (redirectUrl) { req.session.loginRedirect = redirectUrl; }
-				res.redirect(authRoute);
+				var url = (redirectUrl ? addQueryParams(authRoute, { redirect: redirectUrl }) : authRoute);
+				res.redirect(url);
+
+
+				function addQueryParams(url, params) {
+					var queryString = serializeQueryParams(params);
+					var urlHasParams = (url.indexOf('?') !== -1);
+					return url + (urlHasParams ? '&' : '?') + queryString;
+				}
 			}
 
 			function updatePassportUsername(req, userModel, username) {
