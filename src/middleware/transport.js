@@ -26,15 +26,23 @@ module.exports = function() {
 			app.use(disableArrayFields);
 
 			function disableArrayFields(req, res, next) {
-				Object.keys(req.body).forEach(function(key) {
-					var value = req.body[key];
-					var isArrayField = Array.isArray(value);
-					if (isArrayField) {
-						var lastArrayItem = value[value.length - 1];
-						req.body[key] = lastArrayItem;
-					}
-				});
+				req.body = flattenArrayFields(req.body);
+				req.query = flattenArrayFields(req.query);
 				next();
+
+				function flattenArrayFields(values) {
+					return Object.keys(values).reduce(function(flattenedValues, key) {
+						var value = values[key];
+						var isArrayField = Array.isArray(value);
+						if (isArrayField) {
+							var lastArrayItem = value[value.length - 1];
+							flattenedValues[key] = lastArrayItem;
+						} else {
+							flattenedValues[key] = value;
+						}
+						return flattenedValues;
+					}, {});
+				}
 			}
 		}
 
