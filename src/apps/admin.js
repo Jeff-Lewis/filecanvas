@@ -273,17 +273,20 @@ module.exports = function(database, options) {
 			}
 		}
 
-			app.get('/login', redirectIfLoggedIn, initAdminSession, retrieveLoginRoute);
-			app.get('/register', redirectIfLoggedIn, initAdminSession, retrieveRegisterRoute);
-			app.post('/register', redirectIfLoggedIn, initAdminSession, processRegisterRoute);
 		function initAuthRoutes(app, passport, adapters) {
+			app.get('/login', redirectIfLoggedIn(), initAdminSession, retrieveLoginRoute);
+			app.get('/register', redirectIfLoggedIn(), initAdminSession, retrieveRegisterRoute);
+			app.post('/register', redirectIfLoggedIn(), initAdminSession, processRegisterRoute);
 
 
-			function redirectIfLoggedIn(req, res, next) {
-				if (req.isAuthenticated()) {
-					return res.redirect('/');
-				}
-				next();
+			function redirectIfLoggedIn(redirectPath) {
+				redirectPath = redirectPath || '/';
+				return function(req, res, next) {
+					if (req.isAuthenticated()) {
+						return res.redirect(redirectPath);
+					}
+					next();
+				};
 			}
 
 			function retrieveLoginRoute(req, res, next) {
@@ -427,13 +430,17 @@ module.exports = function(database, options) {
 
 
 			function ensureAuth(req, res, next) {
-				if (!req.isAuthenticated()) {
-					var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
-					if (redirectUrl) { req.session.loginRedirect = redirectUrl; }
-					res.redirect('/login');
-					return;
+				if (req.isAuthenticated()) {
+					next();
+				} else {
+					loginRedirect(req, res, '/login');
 				}
-				next();
+			}
+
+			function loginRedirect(req, res, authRoute) {
+				var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
+				if (redirectUrl) { req.session.loginRedirect = redirectUrl; }
+				res.redirect(authRoute);
 			}
 
 			function updatePassportUsername(req, userModel, username) {
