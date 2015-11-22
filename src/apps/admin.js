@@ -95,6 +95,9 @@ module.exports = function(database, options) {
 		adapters: adapters,
 		sessionMiddleware: initAdminSession
 	});
+	initHome(app, {
+		redirect: '/sites'
+	});
 	initLegal(app, {
 		templatesPath: legalTemplatesPath
 	});
@@ -135,6 +138,13 @@ module.exports = function(database, options) {
 
 	return app;
 
+
+	function initHome(app, options) {
+		options = options || {};
+		var redirectUrl = options.redirect;
+
+		app.get('/', ensureAuth, redirect(redirectUrl));
+	}
 
 	function initLegal(app, options) {
 		options = options || {};
@@ -378,8 +388,6 @@ module.exports = function(database, options) {
 
 
 		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
-			app.get('/', ensureAuth, redirect('/sites'));
-
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 			app.get('/sites/create-site', ensureAuth, initAdminSession, retrieveCreateSiteRoute);
