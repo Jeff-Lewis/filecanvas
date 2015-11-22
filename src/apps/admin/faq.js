@@ -20,6 +20,7 @@ module.exports = function(options) {
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!faqPath) { throw new Error('Missing FAQ data path'); }
+	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
 
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,

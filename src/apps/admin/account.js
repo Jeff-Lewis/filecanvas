@@ -16,6 +16,7 @@ module.exports = function(database, options) {
 	if (!database) { throw new Error('Missing database'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
+	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
 
 	var userService = new UserService(database);
 	var adminPageService = new AdminPageService({
