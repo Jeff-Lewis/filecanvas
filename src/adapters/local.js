@@ -63,6 +63,7 @@ LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, cal
 	var database = this.database;
 	var authConfig = this.authConfig;
 	var userService = new UserService(database);
+	var registrationService = new RegistrationService();
 
 	var app = express();
 
@@ -71,7 +72,6 @@ LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, cal
 	passport.use('admin/local', new LocalStrategy({ passReqToCallback: true },
 		function(req, username, password, callback) {
 			var authenticationService = new AuthenticationService();
-			var registrationService = new RegistrationService(req);
 			userService.retrieveUser(username)
 				.catch(function(error) {
 					if (error.status === 404) {
@@ -85,7 +85,7 @@ LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, cal
 									strategy: authConfig.strategy,
 									password: authUser.password
 								};
-								registrationService.setPendingUser(userDetails, 'local', adapterConfig);
+								registrationService.setPendingUser(req, userDetails, 'local', adapterConfig);
 								throw new HttpError(401);
 							});
 					}

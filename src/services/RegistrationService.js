@@ -1,27 +1,26 @@
 'use strict';
 
-function RegistrationService(req) {
-	this.req = req;
+function RegistrationService() {
 }
 
-RegistrationService.prototype.hasPendingUser = function() {
-	return Boolean(this.req.session.registration);
+RegistrationService.prototype.hasPendingUser = function(req) {
+	return Boolean(req.session.registration);
 };
 
-RegistrationService.prototype.getPendingUser = function() {
-	return this.req.session.registration || null;
+RegistrationService.prototype.getPendingUser = function(req) {
+	return req.session.registration || null;
 };
 
-RegistrationService.prototype.setPendingUser = function(userDetails, adapter, adapterConfig) {
-	this.req.session.registration = {
+RegistrationService.prototype.setPendingUser = function(req, userDetails, adapter, adapterConfig) {
+	req.session.registration = {
 		user: userDetails,
 		adapter: adapter,
 		adapterConfig: adapterConfig
 	};
 };
 
-RegistrationService.prototype.clearPendingUser = function() {
-	delete this.req.session.registration;
+RegistrationService.prototype.clearPendingUser = function(req) {
+	delete req.session.registration;
 };
 
 module.exports = RegistrationService;

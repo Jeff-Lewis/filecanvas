@@ -57,6 +57,8 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 	var appSecret = this.appSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
 
+	var registrationService = new RegistrationService();
+
 	var app = express();
 
 	app.post('/', passport.authenticate('admin/dropbox'));
@@ -96,8 +98,7 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 					token: accessToken
 				}, userDetails);
 				var userService = new UserService(database);
-				var registrationService = new RegistrationService(req);
-				registrationService.clearPendingUser();
+				registrationService.clearPendingUser(req);
 				return userService.retrieveAdapterUser('dropbox', { 'uid': uid })
 					.catch(function(error) {
 						if (error.status === 404) {
@@ -116,7 +117,7 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 								lastName: lastName,
 								email: email
 							};
-							registrationService.setPendingUser(userDetails, 'dropbox', adapterConfig);
+							registrationService.setPendingUser(req, userDetails, 'dropbox', adapterConfig);
 							throw new HttpError(401);
 						}
 						throw error;

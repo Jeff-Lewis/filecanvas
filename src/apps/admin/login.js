@@ -23,6 +23,7 @@ module.exports = function(database, options) {
 	if (!sessionMiddleware) { throw new Error('Missing admin session middleware'); }
 
 	var userService = new UserService(database);
+	var registrationService = new RegistrationService();
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath
@@ -122,8 +123,7 @@ module.exports = function(database, options) {
 
 		function retrieveRegisterRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
-				var RegistrationService = new RegistrationService(req);
-				var pendingUser = registrationService.getPendingUser() || {
+				var pendingUser = registrationService.getPendingUser(req) || {
 					user: {
 						username: null
 					}
@@ -161,8 +161,7 @@ module.exports = function(database, options) {
 
 		function processRegisterRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
-				var RegistrationService = new RegistrationService(req);
-				var pendingUser = registrationService.getPendingUser();
+				var pendingUser = registrationService.getPendingUser(req);
 				var adapter = pendingUser.adapter;
 				var adapterConfig = pendingUser.adapterConfig;
 				var userDetails = {
@@ -174,7 +173,7 @@ module.exports = function(database, options) {
 				return resolve(
 					userService.createUser(userDetails, adapter, adapterConfig)
 						.then(function(userModel) {
-							registrationService.clearPendingUser();
+							registrationService.clearPendingUser(req);
 							req.login(userModel, function(error) {
 								if (error) { return next(error); }
 								res.redirect('/');
