@@ -102,7 +102,8 @@ function initLivePreview() {
 	var engineName = $previewElement.data('editor-preview');
 	var templateId = TEMPLATE_ID_INDEX;
 	var siteLabel = $siteLabelElement.val();
-	var themeOptionsTemplateFunction = createHandlebarsTemplateFunction('theme-options');
+	var precompiledThemeOptionsTemplate = Handlebars.templates['theme-options'];
+	var themeOptionsTemplateFunction = createHandlebarsTemplateFunction(precompiledThemeOptionsTemplate);
 
 	var adapterConfig = parseAdapterConfig($adapterConfigElement);
 	var themeMetadataUrlPattern = $themeMetadataUrlElement.val();
@@ -134,8 +135,7 @@ function initLivePreview() {
 		}
 	});
 
-	function createHandlebarsTemplateFunction(templateName) {
-		var precompiledTemplate = Handlebars.templates[templateName];
+	function createHandlebarsTemplateFunction(precompiledTemplate) {
 		if (!precompiledTemplate) { return null; }
 		var compiler = Handlebars.create();
 		compiler.registerHelper(handlebarsHelpers);
