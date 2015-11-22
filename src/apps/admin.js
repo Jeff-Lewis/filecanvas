@@ -10,6 +10,7 @@ var supportApp = require('./admin/support');
 var accountApp = require('./admin/account');
 var previewApp = require('./admin/preview');
 var sitesApp = require('./admin/sites');
+var adaptersApp = require('./admin/adapters');
 var templatesApp = require('./admin/templates');
 var loginApp = require('./admin/login');
 
@@ -25,7 +26,6 @@ var loadAdapters = require('../utils/loadAdapters');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
 var serializeQueryParams = require('../utils/serializeQueryParams');
 
-var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
 var AdminPageService = require('../services/AdminPageService');
@@ -64,10 +64,6 @@ module.exports = function(database, options) {
 	var adapters = loadAdapters(adaptersConfig, database);
 
 	var userService = new UserService(database);
-	var siteService = new SiteService(database, {
-		host: host,
-		adapters: adapters
-	});
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath
@@ -132,6 +128,11 @@ module.exports = function(database, options) {
 	initTemplates(app, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath
+	});
+	initAdapters(app, database, {
+		host: host,
+		adapters: adapters,
+		sessionMiddleware: initAdminSession
 	});
 	initErrorHandler(app, {
 		templatesPath: errorTemplatesPath,
@@ -270,6 +271,22 @@ module.exports = function(database, options) {
 				themeAssetsUrl: themeAssetsUrl,
 				adaptersConfig: adaptersConfig,
 				sessionMiddleware: initAdminSession
+			})
+		]));
+	}
+
+	function initAdapters(app, database, options) {
+		options = options || {};
+		var host = options.host;
+		var adapters = options.adapters;
+		var sessionMiddleware = options.sessionMiddleware;
+
+		app.use('/adapters', composeMiddleware([
+			ensureAuth,
+			adaptersApp(database, {
+				host: host,
+				adapters: adapters,
+				sessionMiddleware: sessionMiddleware
 			})
 		]));
 	}
@@ -452,7 +469,6 @@ module.exports = function(database, options) {
 			app.get('/create', ensureSignupAuth, initAdminSession, retrieveCreateSignupSiteRoute);
 			app.post('/create', ensureSignupAuth, initAdminSession, createSignupSiteRoute);
 
-			app.get('/adapters/:adapter/metadata/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
 
 			function ensureSignupAuth(req, res, next) {
@@ -462,6 +478,7 @@ module.exports = function(database, options) {
 					authRedirect(req, res, '/create/login');
 				}
 			}
+
 			function retrieveCreateSignupSiteRoute(req, res, next) {
 				var userAdapters = req.user.adapters;
 				var theme = req.query.theme || req.body.theme || null;
@@ -518,33 +535,6 @@ module.exports = function(database, options) {
 				req.url = '/sites';
 				next();
 			}
-
-			function retrieveFileMetadataRoute(req, res, next) {
-				var userModel = req.user;
-				var username = userModel.username;
-				var adapter = req.params.adapter;
-				var filePath = req.params[0];
-
-				new Promise(function(resolve, reject) {
-					return resolve(
-						siteService.retrieveFileMetadata(username, adapter, filePath)
-							.then(function(metadata) {
-								res.json(metadata);
-							})
-							.catch(function(error) {
-								if (error.status === 404) {
-									res.json(null);
-								} else {
-									throw error;
-								}
-							})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-
 		}
 	}
 };
