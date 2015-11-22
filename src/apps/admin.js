@@ -37,6 +37,7 @@ module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
 	var templatesPath = options.templatesPath;
+	var partialsPath = options.partialsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
 	var legalTemplatesPath = options.legalTemplatesPath;
@@ -47,7 +48,6 @@ module.exports = function(database, options) {
 	var themeGalleryUrl = options.themeGalleryUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
-	var partialsPath = options.partialsPath;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }

@@ -27,8 +27,8 @@ module.exports = function(options) {
 	var host = options.host;
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
-	var themesPath = options.themesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
+	var themesPath = options.themesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
 	var thumbnailsPath = options.thumbnailsPath;
 	var thumbnailWidth = options.thumbnailWidth;
@@ -38,8 +38,11 @@ module.exports = function(options) {
 	var adminTemplatesUrl = options.adminTemplatesUrl;
 	var createSiteUrl = options.createSiteUrl;
 
+	if (!host) { throw new Error('Missing host name'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
+	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
+	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
 	if (!thumbnailsPath) { throw new Error('Missing thumbnails path'); }
 	if (!thumbnailWidth) { throw new Error('Missing thumbnail width'); }
