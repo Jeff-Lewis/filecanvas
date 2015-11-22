@@ -1,6 +1,5 @@
 'use strict';
 
-var path = require('path');
 var merge = require('lodash.merge');
 var isUrl = require('is-url');
 var express = require('express');
@@ -12,6 +11,7 @@ var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
 var supportApp = require('./admin/support');
 var accountApp = require('./admin/account');
+var templatesApp = require('./admin/templates');
 var loginApp = require('./admin/login');
 
 var transport = require('../middleware/transport');
@@ -117,6 +117,10 @@ module.exports = function(database, options) {
 		partialsPath: partialsPath,
 		sessionMiddleware: initAdminSession
 	});
+	initTemplates(app, {
+		templatesPath: templatesPath,
+		partialsPath: partialsPath
+	});
 	initRoutes(app, passport, database, {
 		themesPath: themesPath,
 		errorTemplatesPath: errorTemplatesPath,
@@ -203,6 +207,17 @@ module.exports = function(database, options) {
 				sessionMiddleware: sessionMiddleware
 			})
 		]));
+	}
+
+	function initTemplates(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+		var partialsPath = options.partialsPath;
+
+		app.use('/templates', templatesApp({
+			templatesPath: templatesPath,
+			partialsPath: partialsPath
+		}));
 	}
 
 	function initLogin(app, options) {
@@ -410,8 +425,6 @@ module.exports = function(database, options) {
 
 			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
-
-			app.use('/templates', createTemplatesApp());
 
 			app.use('/preview', composeMiddleware([
 				ensureAuth,
@@ -1121,38 +1134,6 @@ module.exports = function(database, options) {
 				function addUsernamePathPrefix(req, res, next) {
 					req.url = '/' + req.user.username + req.url;
 					next();
-				}
-			}
-
-			function createTemplatesApp() {
-				var app = express();
-
-				app.get('/theme-options.js', retrieveThemeOptionsTemplateRoute);
-
-				return app;
-
-
-				function retrieveThemeOptionsTemplateRoute(req, res, next) {
-					new Promise(function(resolve, reject) {
-						var templatePath = path.join(templatesPath, '../_partials/theme-options.hbs');
-						var templateName = 'theme-options';
-						var templateOptions = {};
-						resolve(
-							handlebarsEngine.serialize(templatePath, templateName, templateOptions)
-								.then(function(serializedTemplate) {
-									sendPrecompiledTemplate(res, serializedTemplate);
-								})
-						);
-					})
-					.catch(function(error) {
-						return next(error);
-					});
-				}
-
-
-				function sendPrecompiledTemplate(res, template) {
-					res.set('Content-Type', 'text/javscript');
-					res.send(template);
 				}
 			}
 		}
