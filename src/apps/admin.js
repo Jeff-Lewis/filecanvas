@@ -89,7 +89,7 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	initAuth(app, passport, database, adapters);
-	initLogin(app, {
+	initLogin(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
 		adapters: adapters,
@@ -112,7 +112,7 @@ module.exports = function(database, options) {
 		partialsPath: partialsPath,
 		sessionMiddleware: initAdminSession
 	});
-	initAccount(app, {
+	initAccount(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
 		sessionMiddleware: initAdminSession
@@ -193,7 +193,7 @@ module.exports = function(database, options) {
 		]));
 	}
 
-	function initAccount(app, options) {
+	function initAccount(app, database, options) {
 		options = options || {};
 		var templatesPath = options.templatesPath;
 		var partialsPath = options.partialsPath;
@@ -220,7 +220,7 @@ module.exports = function(database, options) {
 		}));
 	}
 
-	function initLogin(app, options) {
+	function initLogin(app, database, options) {
 		options = options || {};
 		var templatesPath = options.templatesPath;
 		var partialsPath = options.partialsPath;
