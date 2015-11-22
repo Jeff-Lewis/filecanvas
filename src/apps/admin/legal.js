@@ -26,7 +26,6 @@ module.exports = function(options) {
 		var staticMiddleware = express.static(templatesPath, { redirect: false });
 		app.use(function(req, res, next) {
 			var isLegalRoute = (req.url in routes);
-			console.log('Legal? ' + isLegalRoute);
 			if (!isLegalRoute) {
 				next();
 				return;
