@@ -384,7 +384,6 @@ module.exports = function(database, options) {
 
 			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
-			app.get('/logout', redirectIfLoggedOut, initAdminSession, retrieveLogoutRoute);
 
 			app.use('/templates', createTemplatesApp());
 
@@ -418,13 +417,6 @@ module.exports = function(database, options) {
 						resolve();
 					});
 				});
-			}
-
-			function redirectIfLoggedOut(req, res, next) {
-				if (req.isAuthenticated()) {
-					return next();
-				}
-				res.redirect('/');
 			}
 
 			function retrieveUserAccountRoute(req, res, next) {
@@ -1163,32 +1155,6 @@ module.exports = function(database, options) {
 				})
 				.catch(function(error) {
 					next(error);
-				});
-			}
-
-			function retrieveLogoutRoute(req, res, next) {
-				var adapterName = req.session.adapter;
-				req.logout();
-				req.session.regenerate(function(error) {
-					if (error) { return next(error); }
-					if (!adapterName || (adapterName === 'local')) {
-						return res.redirect('/');
-					}
-					var templateData = {
-						title: 'Logout',
-						navigation: true,
-						footer: true,
-						content: {
-							adapter: adapterName
-						}
-					};
-					adminPageService.render(req, res, {
-						template: 'logout',
-						context: templateData
-					})
-						.catch(function(error) {
-							next(error);
-						});
 				});
 			}
 

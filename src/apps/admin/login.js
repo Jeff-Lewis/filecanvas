@@ -53,12 +53,23 @@ module.exports = function(database, options) {
 		app.get('/register', redirectIfLoggedIn('/'), sessionMiddleware, retrieveRegisterRoute);
 		app.post('/register', redirectIfLoggedIn('/'), sessionMiddleware, processRegisterRoute);
 		app.get('/create/login', redirectIfLoggedIn('/create'), sessionMiddleware, retrieveSignupLoginRoute);
+		app.get('/logout', redirectIfLoggedOut('/'), sessionMiddleware, retrieveLogoutRoute);
 
 
 		function redirectIfLoggedIn(redirectPath) {
 			redirectPath = redirectPath || '/';
 			return function(req, res, next) {
 				if (req.isAuthenticated()) {
+					return res.redirect(req.query.redirect || redirectPath);
+				}
+				next();
+			};
+		}
+
+		function redirectIfLoggedOut(redirectPath) {
+			redirectPath = redirectPath || '/';
+			return function(req, res, next) {
+				if (!req.isAuthenticated()) {
 					return res.redirect(req.query.redirect || redirectPath);
 				}
 				next();
@@ -183,6 +194,32 @@ module.exports = function(database, options) {
 			})
 			.catch(function(error) {
 				next(error);
+			});
+		}
+
+		function retrieveLogoutRoute(req, res, next) {
+			var adapterName = req.session.adapter;
+			req.logout();
+			req.session.regenerate(function(error) {
+				if (error) { return next(error); }
+				if (!adapterName || (adapterName === 'local')) {
+					return res.redirect('/');
+				}
+				var templateData = {
+					title: 'Logout',
+					navigation: true,
+					footer: true,
+					content: {
+						adapter: adapterName
+					}
+				};
+				adminPageService.render(req, res, {
+					template: 'logout',
+					context: templateData
+				})
+					.catch(function(error) {
+						next(error);
+					});
 			});
 		}
 	}
