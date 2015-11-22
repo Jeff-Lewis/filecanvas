@@ -10,6 +10,7 @@ var composeMiddleware = require('compose-middleware').compose;
 var Passport = require('passport').Passport;
 
 var sitesApp = require('./sites');
+var legalApp = require('./admin/legal');
 
 var transport = require('../middleware/transport');
 var nestedFormValues = require('../middleware/nestedFormValues');
@@ -38,8 +39,7 @@ module.exports = function(database, options) {
 	var templatesPath = options.templatesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
-	var termsPath = options.termsPath;
-	var privacyPath = options.privacyPath;
+	var legalTemplatesPath = options.legalTemplatesPath;
 	var faqPath = options.faqPath;
 	var siteTemplatePath = options.siteTemplatePath;
 	var adminAssetsUrl = options.adminAssetsUrl;
@@ -54,9 +54,8 @@ module.exports = function(database, options) {
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
+	if (!legalTemplatesPath) { throw new Error('Missing legal templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!termsPath) { throw new Error('Missing terms and conditions path'); }
-	if (!privacyPath) { throw new Error('Missing privacy policy path'); }
 	if (!faqPath) { throw new Error('Missing FAQ path'); }
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
@@ -88,9 +87,8 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	initAuth(app, passport, database, adapters);
-	initStaticPages(app, {
-		'/terms': fs.readFileSync(termsPath, { encoding: 'utf8' }),
-		'/privacy': fs.readFileSync(privacyPath, { encoding: 'utf8' })
+	initLegal(app, {
+		templatesPath: legalTemplatesPath
 	});
 	initRoutes(app, passport, database, {
 		themesPath: themesPath,
@@ -115,13 +113,13 @@ module.exports = function(database, options) {
 	return app;
 
 
-	function initStaticPages(app, pages) {
-		Object.keys(pages).forEach(function(path) {
-			var file = pages[path];
-			app.get(path, function(req, res) {
-				res.send(file);
-			});
-		});
+	function initLegal(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+
+		app.use('/', legalApp({
+			templatesPath: templatesPath
+		}));
 	}
 
 	function initAuth(app, passport, database, adapters) {

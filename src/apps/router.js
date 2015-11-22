@@ -41,8 +41,6 @@ module.exports = function(database, config) {
 	var adminTemplatesPath = path.join(templatesPath, 'admin');
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
 	var legalTemplatesPath = path.join(templatesPath, 'legal');
-	var termsPath = path.join(legalTemplatesPath, 'terms/terms.html');
-	var privacyPath = path.join(legalTemplatesPath, 'privacy/privacy.html');
 	var faqPath = path.join(adminTemplatesPath, 'faq.json');
 	var themesTemplatesPath = path.join(templatesPath, 'themes');
 	var errorTemplatesPath = path.join(templatesPath, 'error');
@@ -107,9 +105,8 @@ module.exports = function(database, config) {
 			templatesPath: adminTemplatesPath,
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
+			legalTemplatesPath: legalTemplatesPath,
 			themesPath: themesPath,
-			termsPath: termsPath,
-			privacyPath: privacyPath,
 			faqPath: faqPath,
 			siteTemplatePath: siteTemplatePath,
 			adminAssetsUrl: adminAssetsUrl,
