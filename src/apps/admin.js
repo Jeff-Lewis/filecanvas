@@ -10,6 +10,7 @@ var Passport = require('passport').Passport;
 var sitesApp = require('./sites');
 var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
+var supportApp = require('./admin/support');
 var loginApp = require('./admin/login');
 
 var transport = require('../middleware/transport');
@@ -102,6 +103,11 @@ module.exports = function(database, options) {
 		faqPath: faqPath,
 		sessionMiddleware: initAdminSession
 	});
+	initSupport(app, {
+		templatesPath: templatesPath,
+		partialsPath: partialsPath,
+		sessionMiddleware: initAdminSession
+	});
 	initRoutes(app, passport, database, {
 		themesPath: themesPath,
 		errorTemplatesPath: errorTemplatesPath,
@@ -146,6 +152,22 @@ module.exports = function(database, options) {
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
 				faqPath: faqPath,
+				sessionMiddleware: sessionMiddleware
+			})
+		]));
+	}
+
+	function initSupport(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+		var partialsPath = options.partialsPath;
+		var sessionMiddleware = options.sessionMiddleware;
+
+		app.use('/support', composeMiddleware([
+			ensureAuth,
+			supportApp({
+				templatesPath: templatesPath,
+				partialsPath: partialsPath,
 				sessionMiddleware: sessionMiddleware
 			})
 		]));
@@ -336,8 +358,6 @@ module.exports = function(database, options) {
 		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, redirect('/sites'));
 
-			app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
-
 			app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
 			app.put('/account', ensureAuth, initAdminSession, updateUserAccountRoute);
 			app.delete('/account', ensureAuth, initAdminSession, deleteUserAccountRoute);
@@ -405,33 +425,6 @@ module.exports = function(database, options) {
 					return next();
 				}
 				res.redirect('/');
-			}
-
-			function retrieveSupportRoute(req, res, next) {
-				new Promise(function(resolve, reject) {
-					var templateData = {
-						title: 'Support',
-						navigation: true,
-						footer: true,
-						breadcrumb: [
-							{
-								link: '/support',
-								icon: 'question-circle',
-								label: 'Support'
-							}
-						],
-						content: null
-					};
-					return resolve(
-						adminPageService.render(req, res, {
-							template: 'support',
-							context: templateData
-						})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
 			}
 
 			function retrieveUserAccountRoute(req, res, next) {
