@@ -13,6 +13,7 @@ var faqApp = require('./admin/faq');
 var loginApp = require('./admin/login');
 
 var transport = require('../middleware/transport');
+var redirect = require('../middleware/redirect');
 var nestedFormValues = require('../middleware/nestedFormValues');
 var sessionState = require('../middleware/sessionState');
 var invalidRoute = require('../middleware/invalidRoute');
@@ -333,7 +334,7 @@ module.exports = function(database, options) {
 
 
 		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
-			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
+			app.get('/', ensureAuth, redirect('/sites'));
 
 			app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
 
@@ -404,10 +405,6 @@ module.exports = function(database, options) {
 					return next();
 				}
 				res.redirect('/');
-			}
-
-			function retrieveHomeRoute(req, res, next) {
-				res.redirect('/sites');
 			}
 
 			function retrieveSupportRoute(req, res, next) {
