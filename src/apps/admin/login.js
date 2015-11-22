@@ -52,7 +52,7 @@ module.exports = function(database, options) {
 		app.get('/login', redirectIfLoggedIn('/'), sessionMiddleware, retrieveLoginRoute);
 		app.get('/register', redirectIfLoggedIn('/'), sessionMiddleware, retrieveRegisterRoute);
 		app.post('/register', redirectIfLoggedIn('/'), sessionMiddleware, processRegisterRoute);
-		app.get('/create/login', redirectIfLoggedIn('/create'), sessionMiddleware, retrieveSignupLoginRoute);
+		app.get('/signup/login', redirectIfLoggedIn('/sites/create-site/signup'), sessionMiddleware, retrieveSignupLoginRoute);
 		app.get('/logout', redirectIfLoggedOut('/'), sessionMiddleware, retrieveLogoutRoute);
 
 

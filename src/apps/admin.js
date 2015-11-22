@@ -234,7 +234,7 @@ module.exports = function(database, options) {
 			ensureAuth(function(req) {
 				var isSignupSite = req.path.split('/').slice(0, 3).join('/') === '/create-site/signup';
 				if (isSignupSite) {
-					return '/create/login';
+					return '/signup/login';
 				} else {
 					return '/login';
 				}
