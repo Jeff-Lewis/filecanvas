@@ -1,7 +1,6 @@
 'use strict';
 
 var path = require('path');
-var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 var isUrl = require('is-url');
 var express = require('express');
@@ -11,6 +10,7 @@ var Passport = require('passport').Passport;
 var sitesApp = require('./sites');
 var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
+var loginApp = require('./admin/login');
 
 var transport = require('../middleware/transport');
 var nestedFormValues = require('../middleware/nestedFormValues');
@@ -29,7 +29,6 @@ var HttpError = require('../errors/HttpError');
 var SiteService = require('../services/SiteService');
 var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
-var RegistrationService = require('../services/RegistrationService');
 var AdminPageService = require('../services/AdminPageService');
 var ThemeService = require('../services/ThemeService');
 
@@ -87,6 +86,12 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	initAuth(app, passport, database, adapters);
+	initLogin(app, {
+		templatesPath: templatesPath,
+		partialsPath: partialsPath,
+		adapters: adapters,
+		sessionMiddleware: initAdminSession
+	});
 	initLegal(app, {
 		templatesPath: legalTemplatesPath
 	});
@@ -143,6 +148,21 @@ module.exports = function(database, options) {
 				sessionMiddleware: sessionMiddleware
 			})
 		]));
+	}
+
+	function initLogin(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+		var partialsPath = options.partialsPath;
+		var adapters = options.adapters;
+		var sessionMiddleware = options.sessionMiddleware;
+
+		app.use('/', loginApp(database, {
+			templatesPath: templatesPath,
+			partialsPath: partialsPath,
+			adapters: adapters,
+			sessionMiddleware: sessionMiddleware
+		}));
 	}
 
 	function initAuth(app, passport, database, adapters) {
@@ -308,151 +328,9 @@ module.exports = function(database, options) {
 		var adapters = options.adapters;
 		var adaptersConfig = options.adaptersConfig;
 
-		initAuthRoutes(app, passport, adapters);
 		initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
-
-		function initAuthRoutes(app, passport, adapters) {
-			app.get('/login', redirectIfLoggedIn(), initAdminSession, retrieveLoginRoute);
-			app.get('/register', redirectIfLoggedIn(), initAdminSession, retrieveRegisterRoute);
-			app.post('/register', redirectIfLoggedIn(), initAdminSession, processRegisterRoute);
-			app.get('/create/login', redirectIfLoggedIn('/create'), initAdminSession, retrieveSignupLoginRoute);
-
-
-			function redirectIfLoggedIn(redirectPath) {
-				redirectPath = redirectPath || '/';
-				return function(req, res, next) {
-					if (req.isAuthenticated()) {
-						return res.redirect(req.query.redirect || redirectPath);
-					}
-					next();
-				};
-			}
-
-			function retrieveLoginRoute(req, res, next) {
-				new Promise(function(resolve, reject) {
-					var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
-						adaptersHash[key] = true;
-						return adaptersHash;
-					}, {});
-					var templateData = {
-						title: 'Login',
-						navigation: false,
-						footer: true,
-						content: {
-							redirect: req.query.redirect || null,
-							adapters: adaptersHash
-						}
-					};
-					return resolve(
-						adminPageService.render(req, res, {
-							template: 'login',
-							context: templateData
-						})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-
-			function retrieveSignupLoginRoute(req, res, next) {
-				new Promise(function(resolve, reject) {
-					var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
-						adaptersHash[key] = true;
-						return adaptersHash;
-					}, {});
-					var templateData = {
-						title: 'Link account',
-						blank: true,
-						borderless: true,
-						navigation: false,
-						footer: false,
-						content: {
-							redirect: req.query.redirect || '/create',
-							adapters: adaptersHash
-						}
-					};
-					return resolve(
-						adminPageService.render(req, res, {
-							template: 'create/login',
-							context: templateData
-						})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-
-			function retrieveRegisterRoute(req, res, next) {
-				new Promise(function(resolve, reject) {
-					var registrationService = new RegistrationService(req);
-					var pendingUser = registrationService.getPendingUser() || {
-						user: {
-							username: null
-						}
-					};
-					var userDetails = pendingUser.user;
-					var username = userDetails.username;
-					return resolve(
-						userService.generateUsername(username)
-							.then(function(username) {
-								userDetails = objectAssign(userDetails, {
-									username: username
-								});
-								var templateData = {
-									title: 'Your profile',
-									navigation: false,
-									header: {
-										title: 'Create account'
-									},
-									footer: true,
-									content: {
-										user: pendingUser.user
-									}
-								};
-								return adminPageService.render(req, res, {
-									template: 'register',
-									context: templateData
-								});
-							})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-
-			function processRegisterRoute(req, res, next) {
-				new Promise(function(resolve, reject) {
-					var registrationService = new RegistrationService(req);
-					var pendingUser = registrationService.getPendingUser();
-					var adapter = pendingUser.adapter;
-					var adapterConfig = pendingUser.adapterConfig;
-					var userDetails = {
-						username: req.body.username,
-						firstName: req.body.firstName,
-						lastName: req.body.lastName,
-						email: req.body.email
-					};
-					return resolve(
-						userService.createUser(userDetails, adapter, adapterConfig)
-							.then(function(userModel) {
-								registrationService.clearPendingUser();
-								req.login(userModel, function(error) {
-									if (error) { return next(error); }
-									res.redirect('/');
-								});
-							})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-		}
 
 		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
