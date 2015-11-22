@@ -21,7 +21,7 @@ module.exports = function(options) {
 
 
 	function initRoutes(app, templatesPath, partialsPath) {
-		app.get('/theme-options.js', retrieveThemeOptionsPartialRoute);
+		app.get('/partials/theme-options.js', retrieveThemeOptionsPartialRoute);
 
 
 		function retrieveThemeOptionsPartialRoute(req, res, next) {

@@ -230,7 +230,7 @@ module.exports = function(options) {
 						'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
 						adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 						adminAssetsUrl + 'js/shunt-editor.js',
-						adminTemplatesUrl + 'theme-options.js',
+						adminTemplatesUrl + 'partials/theme-options.js',
 						'/' + themeId + '/template/index.js'
 					],
 					fullPage: true,

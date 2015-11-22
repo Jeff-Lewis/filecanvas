@@ -975,7 +975,7 @@ module.exports = function(database, options) {
 									'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
 									adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 									adminAssetsUrl + 'js/shunt-editor.js',
-									'/templates/theme-options.js',
+									'/templates/partials/theme-options.js',
 									themeGalleryUrl + themeId + '/template/index.js'
 								],
 								fullPage: true,
