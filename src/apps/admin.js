@@ -11,6 +11,7 @@ var sitesApp = require('./sites');
 var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
 var supportApp = require('./admin/support');
+var accountApp = require('./admin/account');
 var loginApp = require('./admin/login');
 
 var transport = require('../middleware/transport');
@@ -108,6 +109,11 @@ module.exports = function(database, options) {
 		partialsPath: partialsPath,
 		sessionMiddleware: initAdminSession
 	});
+	initAccount(app, {
+		templatesPath: templatesPath,
+		partialsPath: partialsPath,
+		sessionMiddleware: initAdminSession
+	});
 	initRoutes(app, passport, database, {
 		themesPath: themesPath,
 		errorTemplatesPath: errorTemplatesPath,
@@ -166,6 +172,22 @@ module.exports = function(database, options) {
 		app.use('/support', composeMiddleware([
 			ensureAuth,
 			supportApp({
+				templatesPath: templatesPath,
+				partialsPath: partialsPath,
+				sessionMiddleware: sessionMiddleware
+			})
+		]));
+	}
+
+	function initAccount(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+		var partialsPath = options.partialsPath;
+		var sessionMiddleware = options.sessionMiddleware;
+
+		app.use('/account', composeMiddleware([
+			ensureAuth,
+			accountApp(database, {
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
 				sessionMiddleware: sessionMiddleware
@@ -358,10 +380,6 @@ module.exports = function(database, options) {
 		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, redirect('/sites'));
 
-			app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
-			app.put('/account', ensureAuth, initAdminSession, updateUserAccountRoute);
-			app.delete('/account', ensureAuth, initAdminSession, deleteUserAccountRoute);
-
 			app.get('/sites', ensureAuth, initAdminSession, retrieveSitesRoute);
 			app.post('/sites', ensureAuth, initAdminSession, createSiteRoute);
 			app.get('/sites/create-site', ensureAuth, initAdminSession, retrieveCreateSiteRoute);
@@ -407,95 +425,6 @@ module.exports = function(database, options) {
 				} else {
 					authRedirect(req, res, '/create/login');
 				}
-			}
-
-			function updatePassportUsername(req, userModel, username) {
-				return new Promise(function(resolve, reject) {
-					userModel.username = username;
-					req.login(userModel, function(error) {
-						if (error) { return reject(error); }
-						resolve();
-					});
-				});
-			}
-
-			function retrieveUserAccountRoute(req, res, next) {
-				var userModel = req.user;
-
-				new Promise(function(resolve, reject) {
-					var templateData = {
-						title: 'Your account',
-						navigation: true,
-						footer: true,
-						breadcrumb: [
-							{
-								link: '/account',
-								icon: 'user',
-								label: 'Your account'
-							}
-						],
-						content: {
-							user: userModel
-						}
-					};
-					return resolve(
-						adminPageService.render(req, res, {
-							template: 'account',
-							context: templateData
-						})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-
-			function updateUserAccountRoute(req, res, next) {
-				var userModel = req.user;
-				var username = userModel.username;
-				var updates = {};
-				if ('username' in req.body) { updates.username = req.body.username; }
-				if ('firstName' in req.body) { updates.firstName = req.body.firstName; }
-				if ('lastName' in req.body) { updates.lastName = req.body.lastName; }
-				if ('email' in req.body) { updates.email = req.body.email; }
-				if ('defaultSite' in req.body) { updates.defaultSite = req.body.defaultSite || null; }
-
-				new Promise(function(resolve, reject) {
-					return resolve(
-						userService.updateUser(username, updates)
-							.then(function() {
-								var hasUpdatedUsername = ('username' in updates) && (updates.username !== userModel.username);
-								if (!hasUpdatedUsername) { return; }
-								return updatePassportUsername(req, userModel, updates.username);
-							})
-							.then(function(userModel) {
-								res.redirect(303, '/account');
-							})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-
-			function deleteUserAccountRoute(req, res, next) {
-				var userModel = req.user;
-				var username = userModel.username;
-				new Promise(function(resolve, reject) {
-					return resolve(
-						userService.deleteUser(username)
-							.then(function() {
-								req.logout();
-								req.session.regenerate(function(error) {
-									if (error) { return next(error); }
-									res.redirect(303, '/');
-								});
-							})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
 			}
 
 			function retrieveSitesRoute(req, res, next) {
