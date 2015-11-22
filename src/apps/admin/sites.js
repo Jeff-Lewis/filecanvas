@@ -81,6 +81,8 @@ module.exports = function(database, options) {
 		app.get('/', sessionMiddleware, retrieveSitesRoute);
 		app.post('/', sessionMiddleware, createSiteRoute);
 		app.get('/create-site', sessionMiddleware, retrieveCreateSiteRoute);
+		app.get('/create-site/signup', sessionMiddleware, retrieveCreateSignupSiteRoute);
+		app.post('/create-site/signup', sessionMiddleware, createSignupSiteRoute);
 		app.get('/create-site/themes', sessionMiddleware, retrieveCreateSiteThemesRoute);
 		app.get('/create-site/themes/:theme', sessionMiddleware, retrieveCreateSiteThemeRoute);
 		app.get('/:site', sessionMiddleware, retrieveSiteRoute);
@@ -187,6 +189,63 @@ module.exports = function(database, options) {
 			});
 		}
 
+		function retrieveCreateSignupSiteRoute(req, res, next) {
+			var userAdapters = req.user.adapters;
+			var theme = req.query.theme || req.body.theme || null;
+
+			new Promise(function(resolve, reject) {
+				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
+					return adapterName !== 'default';
+				}).reduce(function(adaptersMetadata, adapterName) {
+					var adapter = adapters[adapterName];
+					var adapterConfig = userAdapters[adapterName];
+					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+					return adaptersMetadata;
+				}, {});
+				var defaultAdapterName = userAdapters.default;
+				var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
+				var siteModel = {
+					name: '',
+					label: '',
+					root: {
+						adapter: defaultAdapterName,
+						path: defaultAdapterPath
+					},
+					private: false,
+					published: false,
+					home: false,
+					theme: theme
+				};
+				var templateData = {
+					title: 'Create site folder',
+					blank: true,
+					borderless: true,
+					navigation: false,
+					footer: false,
+					breadcrumb: null,
+					content: {
+						site: siteModel,
+						adapters: adaptersMetadata
+					}
+				};
+				return resolve(
+					adminPageService.render(req, res, {
+						template: 'create',
+						context: templateData
+					})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+		}
+
+		function createSignupSiteRoute(req, res, next) {
+			var redirectUrl = '/sites/' + req.body.name + '/create';
+			req.body['_redirect'] = redirectUrl;
+			createSiteRoute(req, res, next);
+		}
+
 		function retrieveCreateSiteThemesRoute(req, res, next) {
 			var themes = themeService.getThemes();
 			var themeIds = Object.keys(themes);
@@ -250,7 +309,7 @@ module.exports = function(database, options) {
 		function createSiteRoute(req, res, next) {
 			var userModel = req.user;
 			var username = userModel.username;
-			var redirectUrl = req.params.redirect || ('/sites/' + req.body.name);
+			var redirectUrl = req.body['_redirect'] || ('/sites/' + req.body.name);
 
 			var isDefaultSite = (req.body.home === 'true');
 			var isPrivate = (req.body.private === 'true');

@@ -8,8 +8,8 @@ var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
 var supportApp = require('./admin/support');
 var accountApp = require('./admin/account');
-var previewApp = require('./admin/preview');
 var sitesApp = require('./admin/sites');
+var previewApp = require('./admin/preview');
 var adaptersApp = require('./admin/adapters');
 var templatesApp = require('./admin/templates');
 var loginApp = require('./admin/login');
@@ -28,7 +28,6 @@ var serializeQueryParams = require('../utils/serializeQueryParams');
 
 var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
-var AdminPageService = require('../services/AdminPageService');
 
 module.exports = function(database, options) {
 	options = options || {};
@@ -64,10 +63,6 @@ module.exports = function(database, options) {
 	var adapters = loadAdapters(adaptersConfig, database);
 
 	var userService = new UserService(database);
-	var adminPageService = new AdminPageService({
-		templatesPath: templatesPath,
-		partialsPath: partialsPath
-	});
 
 	var app = express();
 	app.use(transport());
@@ -76,7 +71,6 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	initAuth(app, passport, database, adapters);
-	initRoutes(app, database);
 	initLogin(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
@@ -237,7 +231,13 @@ module.exports = function(database, options) {
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/sites', composeMiddleware([
-			ensureAuth,
+			function(req, res, next) {
+				if (req.path.split('/').slice(0, 3).join('/') === '/create-site/signup') {
+					return ensureSignupAuth(req, res, next);
+				} else {
+					return ensureAuth(req, res, next);
+				}
+			},
 			sitesApp(database, {
 				host: host,
 				templatesPath: templatesPath,
@@ -382,6 +382,14 @@ module.exports = function(database, options) {
 		}
 	}
 
+	function ensureSignupAuth(req, res, next) {
+		if (req.isAuthenticated()) {
+			next();
+		} else {
+			authRedirect(req, res, '/create/login');
+		}
+	}
+
 	function authRedirect(req, res, authRoute) {
 		var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
 		var url = (redirectUrl ? addQueryParams(authRoute, { redirect: redirectUrl }) : authRoute);
@@ -454,86 +462,6 @@ module.exports = function(database, options) {
 					if (item2.name === defaultSiteName) { return 1; }
 					return (item1.label < item2.label ? -1 : 1);
 				});
-			}
-		}
-	}
-
-	function initRoutes(app, database, options) {
-		options = options || {};
-
-		initAdminRoutes(app);
-
-
-		function initAdminRoutes(app) {
-
-			app.get('/create', ensureSignupAuth, initAdminSession, retrieveCreateSignupSiteRoute);
-			app.post('/create', ensureSignupAuth, initAdminSession, createSignupSiteRoute);
-
-
-
-			function ensureSignupAuth(req, res, next) {
-				if (req.isAuthenticated()) {
-					next();
-				} else {
-					authRedirect(req, res, '/create/login');
-				}
-			}
-
-			function retrieveCreateSignupSiteRoute(req, res, next) {
-				var userAdapters = req.user.adapters;
-				var theme = req.query.theme || req.body.theme || null;
-
-				new Promise(function(resolve, reject) {
-					var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
-						return adapterName !== 'default';
-					}).reduce(function(adaptersMetadata, adapterName) {
-						var adapter = adapters[adapterName];
-						var adapterConfig = userAdapters[adapterName];
-						adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
-						return adaptersMetadata;
-					}, {});
-					var defaultAdapterName = userAdapters.default;
-					var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
-					var siteModel = {
-						name: '',
-						label: '',
-						root: {
-							adapter: defaultAdapterName,
-							path: defaultAdapterPath
-						},
-						private: false,
-						published: false,
-						home: false,
-						theme: theme
-					};
-					var templateData = {
-						title: 'Create site folder',
-						blank: true,
-						borderless: true,
-						navigation: false,
-						footer: false,
-						breadcrumb: null,
-						content: {
-							site: siteModel,
-							adapters: adaptersMetadata
-						}
-					};
-					return resolve(
-						adminPageService.render(req, res, {
-							template: 'create',
-							context: templateData
-						})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-			}
-
-			function createSignupSiteRoute(req, res, next) {
-				req.params.redirect = '/sites/' + req.body.name + '/create';
-				req.url = '/sites';
-				next();
 			}
 		}
 	}

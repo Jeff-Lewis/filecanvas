@@ -66,7 +66,7 @@ module.exports = function(database, config) {
 	});
 
 	var adminUrl = config.admin.root || adminSubdomainUrl;
-	var createSiteUrl = adminUrl + 'create';
+	var createSiteUrl = adminUrl + 'sites/create-site/signup';
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'admin/';
 	var themeAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'themes/';
