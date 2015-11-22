@@ -22,7 +22,6 @@ var ThemeService = require('../services/ThemeService');
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
-	var templatesPath = options.templatesPath;
 	var themesPath = options.themesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
@@ -31,7 +30,6 @@ module.exports = function(database, options) {
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
-	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }

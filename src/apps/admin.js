@@ -431,7 +431,6 @@ module.exports = function(database, options) {
 				initAdminSession,
 				createPreviewApp(database, {
 					host: host,
-					templatesPath: themesPath,
 					errorTemplatesPath: errorTemplatesPath,
 					themesPath: themesPath,
 					themeAssetsUrl: themeAssetsUrl,
@@ -1111,7 +1110,6 @@ module.exports = function(database, options) {
 			function createPreviewApp(database, options) {
 				options = options || {};
 				var host = options.host;
-				var templatesPath = options.templatesPath;
 				var errorTemplatesPath = options.errorTemplatesPath;
 				var themesPath = options.themesPath;
 				var themeAssetsUrl = options.themeAssetsUrl;
@@ -1122,7 +1120,6 @@ module.exports = function(database, options) {
 				app.use(sitesApp(database, {
 					preview: true,
 					host: host,
-					templatesPath: templatesPath,
 					errorTemplatesPath: errorTemplatesPath,
 					themesPath: themesPath,
 					themeAssetsUrl: themeAssetsUrl,

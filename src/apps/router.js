@@ -117,7 +117,6 @@ module.exports = function(database, config) {
 		}),
 		'sites': sitesApp(database, {
 			host: config.host,
-			templatesPath: themesPath,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
 			themeAssetsUrl: themeAssetsUrl,
