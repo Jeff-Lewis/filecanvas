@@ -189,6 +189,90 @@ module.exports = function(database, options) {
 		}));
 	}
 
+	function ensureAuth(req, res, next) {
+		if (req.isAuthenticated()) {
+			next();
+		} else {
+			authRedirect(req, res, '/login');
+		}
+	}
+
+	function authRedirect(req, res, authRoute) {
+		var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
+		var url = (redirectUrl ? addQueryParams(authRoute, { redirect: redirectUrl }) : authRoute);
+		res.redirect(url);
+
+
+		function addQueryParams(url, params) {
+			var queryString = serializeQueryParams(params);
+			var urlHasParams = (url.indexOf('?') !== -1);
+			return url + (urlHasParams ? '&' : '?') + queryString;
+		}
+	}
+
+	function initAdminSession(req, res, next) {
+		loadSessionData(req)
+			.then(function(sessionData) {
+				Object.keys(sessionData).forEach(function(key) {
+					res.locals[key] = sessionData[key];
+				});
+				next();
+			})
+			.catch(function(error) {
+				next(error);
+			});
+
+
+		function loadSessionData(req) {
+			var userModel = req.user || null;
+			return Promise.resolve(userModel ? userService.retrieveUserSites(userModel.username) : null)
+				.then(function(siteModels) {
+					if (!siteModels) { return null; }
+					var defaultSiteName = userModel.defaultSite;
+					return getSortedSiteModels(siteModels, defaultSiteName);
+				})
+				.then(function(sortedSiteModels) {
+					var urlService = new UrlService(req);
+					return {
+						host: host,
+						location: urlService.location,
+						urls: {
+							root: urlService.location.protocol + '://' + urlService.location.host,
+							webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
+							domain: urlService.getSubdomainUrl('$0'),
+							admin: '/',
+							faq: '/faq',
+							support: '/support',
+							account: '/account',
+							login: '/login',
+							register: '/register',
+							createLogin: '/create/login',
+							logout: '/logout',
+							sites: '/sites',
+							sitesCreate: '/sites/create-site',
+							sitesCreateThemes: '/sites/create-site/themes',
+							preview: '/preview',
+							terms: '/terms',
+							privacy: '/privacy',
+							assets: adminAssetsUrl,
+							themes: stripTrailingSlash(themeGalleryUrl),
+							themeAssets: stripTrailingSlash(themeAssetsUrl)
+						},
+						sites: sortedSiteModels
+					};
+				});
+
+
+			function getSortedSiteModels(siteModels, defaultSiteName) {
+				return siteModels.slice().sort(function(item1, item2) {
+					if (item1.name === defaultSiteName) { return -1; }
+					if (item2.name === defaultSiteName) { return 1; }
+					return (item1.label < item2.label ? -1 : 1);
+				});
+			}
+		}
+	}
+
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
 		var themesPath = options.themesPath;
@@ -206,69 +290,6 @@ module.exports = function(database, options) {
 		initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
-
-		function initAdminSession(req, res, next) {
-			loadSessionData(req)
-				.then(function(sessionData) {
-					Object.keys(sessionData).forEach(function(key) {
-						res.locals[key] = sessionData[key];
-					});
-					next();
-				})
-				.catch(function(error) {
-					next(error);
-				});
-
-
-			function loadSessionData(req) {
-				var userModel = req.user || null;
-				return Promise.resolve(userModel ? userService.retrieveUserSites(userModel.username) : null)
-					.then(function(siteModels) {
-						if (!siteModels) { return null; }
-						var defaultSiteName = userModel.defaultSite;
-						return getSortedSiteModels(siteModels, defaultSiteName);
-					})
-					.then(function(sortedSiteModels) {
-						var urlService = new UrlService(req);
-						return {
-							host: host,
-							location: urlService.location,
-							urls: {
-								root: urlService.location.protocol + '://' + urlService.location.host,
-								webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
-								domain: urlService.getSubdomainUrl('$0'),
-								admin: '/',
-								faq: '/faq',
-								support: '/support',
-								account: '/account',
-								login: '/login',
-								register: '/register',
-								createLogin: '/create/login',
-								logout: '/logout',
-								sites: '/sites',
-								sitesCreate: '/sites/create-site',
-								sitesCreateThemes: '/sites/create-site/themes',
-								preview: '/preview',
-								terms: '/terms',
-								privacy: '/privacy',
-								assets: adminAssetsUrl,
-								themes: stripTrailingSlash(themeGalleryUrl),
-								themeAssets: stripTrailingSlash(themeAssetsUrl)
-							},
-							sites: sortedSiteModels
-						};
-					});
-
-
-				function getSortedSiteModels(siteModels, defaultSiteName) {
-					return siteModels.slice().sort(function(item1, item2) {
-						if (item1.name === defaultSiteName) { return -1; }
-						if (item2.name === defaultSiteName) { return 1; }
-						return (item1.label < item2.label ? -1 : 1);
-					});
-				}
-			}
-		}
 
 		function initAuthRoutes(app, passport, adapters) {
 			app.get('/login', redirectIfLoggedIn(), initAdminSession, retrieveLoginRoute);
@@ -461,32 +482,11 @@ module.exports = function(database, options) {
 			]));
 
 
-			function ensureAuth(req, res, next) {
-				if (req.isAuthenticated()) {
-					next();
-				} else {
-					authRedirect(req, res, '/login');
-				}
-			}
-
 			function ensureSignupAuth(req, res, next) {
 				if (req.isAuthenticated()) {
 					next();
 				} else {
 					authRedirect(req, res, '/create/login');
-				}
-			}
-
-			function authRedirect(req, res, authRoute) {
-				var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
-				var url = (redirectUrl ? addQueryParams(authRoute, { redirect: redirectUrl }) : authRoute);
-				res.redirect(url);
-
-
-				function addQueryParams(url, params) {
-					var queryString = serializeQueryParams(params);
-					var urlHasParams = (url.indexOf('?') !== -1);
-					return url + (urlHasParams ? '&' : '?') + queryString;
 				}
 			}
 
