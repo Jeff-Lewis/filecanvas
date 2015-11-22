@@ -6,11 +6,11 @@ var express = require('express');
 var composeMiddleware = require('compose-middleware').compose;
 var Passport = require('passport').Passport;
 
-var sitesApp = require('./sites');
 var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
 var supportApp = require('./admin/support');
 var accountApp = require('./admin/account');
+var previewApp = require('./admin/preview');
 var templatesApp = require('./admin/templates');
 var loginApp = require('./admin/login');
 
@@ -117,6 +117,13 @@ module.exports = function(database, options) {
 		partialsPath: partialsPath,
 		sessionMiddleware: initAdminSession
 	});
+	initPreview(app, database, {
+		host: host,
+		errorTemplatesPath: errorTemplatesPath,
+		themesPath: themesPath,
+		themeAssetsUrl: themeAssetsUrl,
+		adaptersConfig: adaptersConfig
+	});
 	initTemplates(app, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath
@@ -218,6 +225,27 @@ module.exports = function(database, options) {
 			templatesPath: templatesPath,
 			partialsPath: partialsPath
 		}));
+	}
+
+	function initPreview(app, database, options) {
+		options = options || {};
+		var host = options.host;
+		var errorTemplatesPath = options.errorTemplatesPath;
+		var themesPath = options.themesPath;
+		var themeAssetsUrl = options.themeAssetsUrl;
+		var adaptersConfig = options.adaptersConfig;
+
+		app.use('/preview', composeMiddleware([
+			ensureAuth,
+			previewApp(database, {
+				host: host,
+				errorTemplatesPath: errorTemplatesPath,
+				themesPath: themesPath,
+				themeAssetsUrl: themeAssetsUrl,
+				adaptersConfig: adaptersConfig,
+				sessionMiddleware: initAdminSession
+			})
+		]));
 	}
 
 	function initLogin(app, database, options) {
@@ -424,19 +452,6 @@ module.exports = function(database, options) {
 			app.post('/create', ensureSignupAuth, initAdminSession, createSignupSiteRoute);
 
 			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
-
-
-			app.use('/preview', composeMiddleware([
-				ensureAuth,
-				initAdminSession,
-				createPreviewApp(database, {
-					host: host,
-					errorTemplatesPath: errorTemplatesPath,
-					themesPath: themesPath,
-					themeAssetsUrl: themeAssetsUrl,
-					adaptersConfig: adaptersConfig
-				})
-			]));
 
 
 			function ensureSignupAuth(req, res, next) {
@@ -1107,32 +1122,6 @@ module.exports = function(database, options) {
 				});
 			}
 
-			function createPreviewApp(database, options) {
-				options = options || {};
-				var host = options.host;
-				var errorTemplatesPath = options.errorTemplatesPath;
-				var themesPath = options.themesPath;
-				var themeAssetsUrl = options.themeAssetsUrl;
-				var adaptersConfig = options.adaptersConfig;
-
-				var app = express();
-				app.use(addUsernamePathPrefix);
-				app.use(sitesApp(database, {
-					preview: true,
-					host: host,
-					errorTemplatesPath: errorTemplatesPath,
-					themesPath: themesPath,
-					themeAssetsUrl: themeAssetsUrl,
-					adapters: adaptersConfig
-				}));
-				return app;
-
-
-				function addUsernamePathPrefix(req, res, next) {
-					req.url = '/' + req.user.username + req.url;
-					next();
-				}
-			}
 		}
 	}
 };
