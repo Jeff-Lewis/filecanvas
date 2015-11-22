@@ -15,6 +15,7 @@ module.exports = function(options) {
 	var templatesPath = options.templatesPath || null;
 	var partialsPath = options.partialsPath || null;
 	var faqPath = options.faqPath || null;
+	var sessionMiddleware = options.sessionMiddleware || null;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
@@ -29,7 +30,7 @@ module.exports = function(options) {
 
 	var app = express();
 
-	initRoutes(app, faqData);
+	initRoutes(app, faqData, sessionMiddleware);
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -46,8 +47,8 @@ module.exports = function(options) {
 		app.set('view engine', 'hbs');
 	}
 
-	function initRoutes(app, faqData) {
-		app.get('/', retrieveFaqRoute);
+	function initRoutes(app, faqData, sessionMiddleware) {
+		app.get('/', sessionMiddleware, retrieveFaqRoute);
 
 
 		function retrieveFaqRoute(req, res, next) {

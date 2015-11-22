@@ -93,7 +93,8 @@ module.exports = function(database, options) {
 	initFaq(app, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
-		faqPath: faqPath
+		faqPath: faqPath,
+		sessionMiddleware: initAdminSession
 	});
 	initRoutes(app, passport, database, {
 		themesPath: themesPath,
@@ -131,14 +132,15 @@ module.exports = function(database, options) {
 		var templatesPath = options.templatesPath;
 		var partialsPath = options.partialsPath;
 		var faqPath = options.faqPath;
+		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/faq', composeMiddleware([
 			ensureAuth,
-			initAdminSession,
 			faqApp({
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
-				faqPath: faqPath
+				faqPath: faqPath,
+				sessionMiddleware: sessionMiddleware
 			})
 		]));
 	}
