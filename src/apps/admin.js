@@ -143,7 +143,7 @@ module.exports = function(database, options) {
 		options = options || {};
 		var redirectUrl = options.redirect;
 
-		app.get('/', ensureAuth, redirect(redirectUrl));
+		app.get('/', ensureAuth('/login'), redirect(redirectUrl));
 	}
 
 	function initLegal(app, options) {
@@ -163,7 +163,7 @@ module.exports = function(database, options) {
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/faq', composeMiddleware([
-			ensureAuth,
+			ensureAuth('/login'),
 			faqApp({
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
@@ -180,7 +180,7 @@ module.exports = function(database, options) {
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/support', composeMiddleware([
-			ensureAuth,
+			ensureAuth('/login'),
 			supportApp({
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
@@ -196,7 +196,7 @@ module.exports = function(database, options) {
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/account', composeMiddleware([
-			ensureAuth,
+			ensureAuth('/login'),
 			accountApp(database, {
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
@@ -231,13 +231,14 @@ module.exports = function(database, options) {
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/sites', composeMiddleware([
-			function(req, res, next) {
-				if (req.path.split('/').slice(0, 3).join('/') === '/create-site/signup') {
-					return ensureSignupAuth(req, res, next);
+			ensureAuth(function(req) {
+				var isSignupSite = req.path.split('/').slice(0, 3).join('/') === '/create-site/signup';
+				if (isSignupSite) {
+					return '/create/login';
 				} else {
-					return ensureAuth(req, res, next);
+					return '/login';
 				}
-			},
+			}),
 			sitesApp(database, {
 				host: host,
 				templatesPath: templatesPath,
@@ -263,7 +264,7 @@ module.exports = function(database, options) {
 		var adaptersConfig = options.adaptersConfig;
 
 		app.use('/preview', composeMiddleware([
-			ensureAuth,
+			ensureAuth('/login'),
 			previewApp(database, {
 				host: host,
 				errorTemplatesPath: errorTemplatesPath,
@@ -282,7 +283,7 @@ module.exports = function(database, options) {
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/adapters', composeMiddleware([
-			ensureAuth,
+			ensureAuth('/login'),
 			adaptersApp(database, {
 				host: host,
 				adapters: adapters,
@@ -374,20 +375,20 @@ module.exports = function(database, options) {
 		}));
 	}
 
-	function ensureAuth(req, res, next) {
-		if (req.isAuthenticated()) {
-			next();
-		} else {
-			authRedirect(req, res, '/login');
-		}
-	}
-
-	function ensureSignupAuth(req, res, next) {
-		if (req.isAuthenticated()) {
-			next();
-		} else {
-			authRedirect(req, res, '/create/login');
-		}
+	function ensureAuth(redirectUrl) {
+		return function(req, res, next) {
+			if (req.isAuthenticated()) {
+				next();
+			} else {
+				var url;
+				if (typeof redirectUrl === 'function') {
+					url = redirectUrl(req);
+				} else {
+					url = redirectUrl;
+				}
+				authRedirect(req, res, url);
+			}
+		};
 	}
 
 	function authRedirect(req, res, authRoute) {
