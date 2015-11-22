@@ -452,7 +452,7 @@ module.exports = function(database, options) {
 			app.get('/create', ensureSignupAuth, initAdminSession, retrieveCreateSignupSiteRoute);
 			app.post('/create', ensureSignupAuth, initAdminSession, createSignupSiteRoute);
 
-			app.get('/metadata/:adapter/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
+			app.get('/adapters/:adapter/metadata/*', ensureAuth, initAdminSession, retrieveFileMetadataRoute);
 
 
 			function ensureSignupAuth(req, res, next) {

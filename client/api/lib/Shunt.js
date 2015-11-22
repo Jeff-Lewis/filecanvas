@@ -35,7 +35,7 @@ Shunt.prototype.validateFolder = function(adapter, path) {
 	if (!path || (path.charAt(0) !== '/')) {
 		return new $.Deferred().resolve(false).promise();
 	}
-	var url = '/metadata/' + adapter + path;
+	var url = '/adapters/' + adapter + '/metadata' + path;
 	var settings = {
 		type: 'GET',
 		dataType: 'json'
