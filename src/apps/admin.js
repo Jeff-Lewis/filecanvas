@@ -1,6 +1,5 @@
 'use strict';
 
-var fs = require('fs');
 var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
@@ -11,6 +10,7 @@ var Passport = require('passport').Passport;
 
 var sitesApp = require('./sites');
 var legalApp = require('./admin/legal');
+var faqApp = require('./admin/faq');
 
 var transport = require('../middleware/transport');
 var nestedFormValues = require('../middleware/nestedFormValues');
@@ -90,13 +90,17 @@ module.exports = function(database, options) {
 	initLegal(app, {
 		templatesPath: legalTemplatesPath
 	});
+	initFaq(app, {
+		templatesPath: templatesPath,
+		partialsPath: partialsPath,
+		faqPath: faqPath
+	});
 	initRoutes(app, passport, database, {
 		themesPath: themesPath,
 		errorTemplatesPath: errorTemplatesPath,
 		adminAssetsUrl: adminAssetsUrl,
 		themeAssetsUrl: themeAssetsUrl,
 		themeGalleryUrl: themeGalleryUrl,
-		faqData: JSON.parse(fs.readFileSync(faqPath, { encoding: 'utf8' })),
 		adapters: adapters,
 		adaptersConfig: adaptersConfig,
 		siteTemplate: siteTemplateFiles,
@@ -120,6 +124,23 @@ module.exports = function(database, options) {
 		app.use('/', legalApp({
 			templatesPath: templatesPath
 		}));
+	}
+
+	function initFaq(app, options) {
+		options = options || {};
+		var templatesPath = options.templatesPath;
+		var partialsPath = options.partialsPath;
+		var faqPath = options.faqPath;
+
+		app.use('/faq', composeMiddleware([
+			ensureAuth,
+			initAdminSession,
+			faqApp({
+				templatesPath: templatesPath,
+				partialsPath: partialsPath,
+				faqPath: faqPath
+			})
+		]));
 	}
 
 	function initAuth(app, passport, database, adapters) {
@@ -280,14 +301,13 @@ module.exports = function(database, options) {
 		var adminAssetsUrl = options.adminAssetsUrl;
 		var themeAssetsUrl = options.themeAssetsUrl;
 		var themeGalleryUrl = options.themeGalleryUrl;
-		var faqData = options.faqData;
 		var siteTemplateFiles = options.siteTemplate;
 		var siteAuthOptions = options.siteAuth;
 		var adapters = options.adapters;
 		var adaptersConfig = options.adaptersConfig;
 
 		initAuthRoutes(app, passport, adapters);
-		initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
+		initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig);
 		app.use(invalidRoute());
 
 
@@ -432,10 +452,9 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, faqData, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
+		function initAdminRoutes(app, passport, themesPath, errorTemplatesPath, adminAssetsUrl, themeAssetsUrl, themeGalleryUrl, siteTemplateFiles, siteAuthOptions, adapters, adaptersConfig) {
 			app.get('/', ensureAuth, initAdminSession, retrieveHomeRoute);
 
-			app.get('/faq', ensureAuth, initAdminSession, retrieveFaqRoute);
 			app.get('/support', ensureAuth, initAdminSession, retrieveSupportRoute);
 
 			app.get('/account', ensureAuth, initAdminSession, retrieveUserAccountRoute);
@@ -509,53 +528,6 @@ module.exports = function(database, options) {
 
 			function retrieveHomeRoute(req, res, next) {
 				res.redirect('/sites');
-			}
-
-			function retrieveFaqRoute(req, res, next) {
-				var username = req.user.username;
-				var siteModels = res.locals.sites;
-
-				new Promise(function(resolve, reject) {
-					var siteName = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].name : 'my-site');
-					var faqs = replaceFaqPlaceholders(faqData, {
-						username: username,
-						sitename: siteName
-					});
-					var templateData = {
-						title: 'FAQ',
-						navigation: true,
-						footer: true,
-						breadcrumb: [
-							{
-								link: '/faq',
-								icon: 'info-circle',
-								label: 'FAQ'
-							}
-						],
-						content: {
-							questions: faqs
-						}
-					};
-					return resolve(
-						adminPageService.render(req, res, {
-							template: 'faq',
-							context: templateData
-						})
-					);
-				})
-				.catch(function(error) {
-					next(error);
-				});
-
-
-				function replaceFaqPlaceholders(faqData, options) {
-					var username = options.username;
-					var sitename = options.sitename;
-					return JSON.parse(JSON.stringify(faqData)
-						.replace(/\$\{username\}/g, username)
-						.replace(/\$\{sitename\}/g, sitename)
-					);
-				}
 			}
 
 			function retrieveSupportRoute(req, res, next) {
