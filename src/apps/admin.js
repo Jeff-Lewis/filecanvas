@@ -431,7 +431,7 @@ module.exports = function(database, options) {
 						host: host,
 						location: urlService.location,
 						urls: {
-							root: urlService.location.protocol + '://' + urlService.location.host,
+							root: urlService.location.protocol + '//' + urlService.location.host,
 							webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 							domain: urlService.getSubdomainUrl('$0'),
 							admin: '/',

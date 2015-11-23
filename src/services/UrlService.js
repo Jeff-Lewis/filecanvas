@@ -1,26 +1,11 @@
 'use strict';
 
+var url = require('url');
+
 function UrlService(req) {
 	this.subdomains = req.subdomains;
 	this.subdomain = this.subdomains.join('.');
-
-	var protocol = req.protocol;
-	var hostIncludingPort = req.get('host');
-	var hostExcludingPort = req.host;
-	var port = hostIncludingPort.substr(hostExcludingPort.length + ':'.length) || null;
-	var path = req.path;
-	var queryString = req.originalUrl.substr(req.path.length);
-	var href = protocol + '://' + hostIncludingPort + req.originalUrl;
-
-	this.location = {
-		href: href,
-		protocol: protocol,
-		host: hostIncludingPort,
-		hostname: hostExcludingPort,
-		port: port,
-		pathname: path,
-		search: queryString
-	};
+	this.location = url.parse(req.protocol + '://' + req.get('host') + req.originalUrl);
 }
 
 UrlService.prototype.location = null;
@@ -30,7 +15,7 @@ UrlService.prototype.getSubdomainUrl = function(subdomain, path) {
 	var currentSubdomain = (this.subdomains ? this.subdomains.join('.') : null);
 	var subdomainLength = (currentSubdomain ? currentSubdomain.length + '.'.length : 0);
 	var baseUrl = this.location.host.substr(subdomainLength);
-	return this.location.protocol + '://' + (subdomain ? subdomain + '.' : '') + baseUrl + (path || '/');
+	return this.location.protocol + '//' + (subdomain ? subdomain + '.' : '') + baseUrl + (path || '/');
 };
 
 module.exports = UrlService;
