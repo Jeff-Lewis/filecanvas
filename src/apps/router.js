@@ -16,6 +16,7 @@ var redirectToSubdomain = require('../middleware/redirectToSubdomain');
 var stripTrailingSlash = require('../middleware/stripTrailingSlash');
 var forceSsl = require('../middleware/forceSsl');
 var useSubdomainAsPathPrefix = require('../middleware/useSubdomainAsPathPrefix');
+var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var uploader = require('../middleware/uploader');
 var thumbnailer = require('../middleware/thumbnailer');
@@ -236,6 +237,7 @@ module.exports = function(database, config) {
 		var template = options.template;
 		var templatesPath = options.templatesPath;
 
+		app.use(invalidRoute());
 		app.use(errorHandler({
 			templatesPath: templatesPath,
 			template: template

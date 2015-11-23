@@ -172,6 +172,7 @@ module.exports = function(database, options) {
 		var template = options.template;
 		var templatesPath = options.templatesPath;
 
+		app.use(invalidRoute());
 		app.use(errorHandler({
 			template: template,
 			templatesPath: templatesPath
@@ -186,7 +187,6 @@ module.exports = function(database, options) {
 		initDefaultSiteRedirectRoutes(app);
 		initAuthRoutes(app, passport, isPreview);
 		initSiteRoutes(app, themeAssetsUrl, isPreview);
-		app.use(invalidRoute());
 
 
 		function initDefaultSiteRedirectRoutes(app) {

@@ -99,6 +99,7 @@ module.exports = function(options) {
 		var template = options.template;
 		var templatesPath = options.templatesPath;
 
+		app.use(invalidRoute());
 		app.use(errorHandler({
 			templatesPath: templatesPath,
 			template: template
@@ -130,7 +131,6 @@ module.exports = function(options) {
 		app.get('/:theme/metadata/thumbnail', rewriteThumbnailRequest, staticServer);
 		app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
 
-		app.use(invalidRoute());
 
 		return app;
 
