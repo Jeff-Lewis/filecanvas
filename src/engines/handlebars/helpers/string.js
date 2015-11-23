@@ -35,6 +35,9 @@ module.exports['substr'] = function(value, start, length, options) {
 module.exports['startsWith'] = function(haystack, needle, options) {
 	return haystack.indexOf(needle) === 0;
 };
+module.exports['urlencode'] = function(value, options) {
+	return encodeURIComponent(value);
+};
 module.exports['escapeNewlines'] = function(value, options) {
 	var safeValue = Handlebars.Utils.escapeExpression(value);
 	var escapedValue = safeValue.replace(/\n/g, '&#10;').replace(/\r/g, '&#13;');
