@@ -2,7 +2,6 @@
 
 var express = require('express');
 var composeMiddleware = require('compose-middleware').compose;
-var Passport = require('passport').Passport;
 
 var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
@@ -13,6 +12,8 @@ var previewApp = require('./admin/preview');
 var adaptersApp = require('./admin/adapters');
 var templatesApp = require('./admin/templates');
 var loginApp = require('./admin/login');
+
+var adminAuth = require('./admin/middleware/adminAuth');
 
 var transport = require('../middleware/transport');
 var redirect = require('../middleware/redirect');
@@ -68,9 +69,10 @@ module.exports = function(database, options) {
 	app.use(transport());
 	app.use(nestedFormValues());
 	app.use(sessionState());
-	var passport = new Passport();
 
-	initAuth(app, passport, database, adapters);
+	initAuth(app, database, {
+		adapters: adapters
+	});
 	initLogin(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
@@ -292,6 +294,17 @@ module.exports = function(database, options) {
 		]));
 	}
 
+	function initAuth(app, database, options) {
+		options = options || {};
+		var adapters = options.adapters;
+
+		app.use('/', adminAuth(database, {
+			adapters: adapters,
+			login: '/login',
+			failure: '/register'
+		}));
+	}
+
 	function initLogin(app, database, options) {
 		options = options || {};
 		var templatesPath = options.templatesPath;
@@ -305,53 +318,6 @@ module.exports = function(database, options) {
 			adapters: adapters,
 			sessionMiddleware: sessionMiddleware
 		}));
-	}
-
-	function initAuth(app, passport, database, adapters) {
-		app.use(passport.initialize());
-		app.use(passport.session());
-
-		initAuthSerializers(passport);
-		initAdapterAuthentication(passport, database, adapters);
-
-
-		function initAuthSerializers(passport) {
-			passport.serializeUser(function(userModel, callback) {
-				var username = userModel.username;
-				return callback && callback(null, username);
-			});
-
-			passport.deserializeUser(function(username, callback) {
-				return userService.retrieveUser(username)
-					.then(function(userModel) {
-						return callback(null, userModel);
-					})
-					.catch(function(error) {
-						return callback(error);
-					});
-			});
-		}
-
-		function initAdapterAuthentication(passport, database, adapters) {
-			Object.keys(adapters).forEach(function(key) {
-				var adapterName = key;
-				var adapter = adapters[key];
-				app.post('/login/' + adapterName, function(req, res, next) {
-					delete req.session.loginRedirect;
-					if (req.body.redirect) {
-						req.session.loginRedirect = req.body.redirect;
-					}
-					next();
-				});
-				var loginMiddleware = adapter.loginMiddleware(passport, { failureRedirect: '/register' }, function(req, res) {
-					req.session.adapter = adapterName;
-					var redirectUrl = req.session.loginRedirect;
-					delete req.session.loginRedirect;
-					res.redirect(redirectUrl || '/');
-				});
-				app.use('/login/' + adapterName, loginMiddleware);
-			});
-		}
 	}
 
 	function initViewEngine(app, options) {
