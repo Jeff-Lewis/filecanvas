@@ -400,6 +400,9 @@ module.exports = function(database, options) {
 							root: urlService.location.protocol + '//' + urlService.location.host,
 							webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 							domain: urlService.getSubdomainUrl('$0'),
+							assets: adminAssetsUrl,
+							themeAssets: stripTrailingSlash(themeAssetsUrl),
+							themes: stripTrailingSlash(themesUrl),
 							admin: '/',
 							faq: '/faq',
 							support: '/support',
@@ -413,10 +416,7 @@ module.exports = function(database, options) {
 							sitesCreateThemes: '/sites/create-site/themes',
 							preview: '/preview',
 							terms: '/terms',
-							privacy: '/privacy',
-							assets: adminAssetsUrl,
-							themes: stripTrailingSlash(themeGalleryUrl),
-							themeAssets: stripTrailingSlash(themeAssetsUrl)
+							privacy: '/privacy'
 						},
 						sites: sortedSiteModels
 					};
