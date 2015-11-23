@@ -13,7 +13,6 @@
 		<link rel="stylesheet" href="{{ stylesheet }}"/>
 		{{/each}}
 		<title>{{#if title}}{{ title }} | {{/if}}Shunt</title>
-		<script>document.domain = '{{ session.host }}';</script>
 	</head>
 	<body class="{{#unless navigation}} navigation-hidden{{/unless}}{{#if fullPage}} full-page{{/if}}{{#unless footer}} no-footer{{/unless}}{{#if blank}} bg-white{{/if}}">
 		<div class="app{{#if navigation}} layout-fixed-header{{/if}}">

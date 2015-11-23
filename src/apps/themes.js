@@ -163,7 +163,6 @@ module.exports = function(options) {
 						nextTheme: nextTheme
 					}
 				};
-				res.locals.host = host;
 				res.locals.urls = {
 					assets: adminAssetsUrl
 				};
@@ -259,7 +258,6 @@ module.exports = function(options) {
 					var fontsStylesheetUrl = isUrl(theme.fonts) ? theme.fonts : themeAssetsRoot + theme.fonts;
 					templateData.stylesheets.push(fontsStylesheetUrl);
 				}
-				res.locals.host = host;
 				res.locals.urls = {
 					assets: adminAssetsUrl,
 					createSite: createSiteUrl,
