@@ -51,6 +51,12 @@ module.exports = function() {
 				if (req.body && req.body._method) {
 					var method = req.body._method;
 					delete req.body._method;
+					if (method === 'GET') {
+						Object.keys(req.body).forEach(function(key) {
+							req.query[key] = req.body[key];
+							delete req.body[key];
+						});
+					}
 					return method;
 				}
 			}));
