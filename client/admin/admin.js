@@ -75,6 +75,7 @@ $(function() {
 	initPathControls();
 	initNavigationDropdowns();
 	initOffscreenSidebar();
+	initModals();
 	initModalForms();
 	initLogout();
 });
@@ -843,6 +844,10 @@ function initOffscreenSidebar() {
 			toggleMenu();
 		}
 	});
+}
+
+function initModals() {
+	$('.modal[data-show="true"]').modal();
 }
 
 function initModalForms() {
