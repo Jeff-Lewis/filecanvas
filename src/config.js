@@ -56,7 +56,7 @@ if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox.appKey = process.env.DROPBOX_APP_KEY || null;
 	config.adapters.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
 	config.adapters.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
-	config.adapters.dropbox.registerCallbackUrl = process.env.DROPBOX_OAUTH2_REGISTER_CALLBACK || null;
+	config.adapters.dropbox.demoLoginCallbackUrl = process.env.DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK || null;
 }
 
 config.db = {};

@@ -1,6 +1,6 @@
 {{#> index}}
 	{{#*inline 'content'}}
-	<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}"{{#if content.signup}} target="modal"{{/if}}autocomplete="off" data-editor-form>
+		<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 			<input type="hidden" name="_method" value="PUT"/>
 			<div class="title-bar">
 				<div class="title-bar-header">
@@ -11,16 +11,10 @@
 					</div>
 					<h3 class="title-bar-header-subtitle">Site editor</h3>
 				</div>
-				{{#if content.signup}}
-				<div class="title-bar-controls">
-					<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#publish-modal">Publish site</button>
-				</div>
-				{{else}}
 				<a class="title-bar-close" href="{{ session.urls.sites }}/{{ content.site.name }}" title="Back to site settings" data-editor-close><i class="fa fa-times"></i></a>
 				<div class="title-bar-controls">
 					<button type="submit" class="btn btn-success bold">Save and Exit</button>
 				</div>
-				{{/if}}
 				<div class="title-bar-toolbar pull-right hidden-xs">
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
@@ -40,91 +34,6 @@
 				</div>
 			</div>
 			{{> editor}}
-			{{#if content.signup}}
-			<input type="hidden" name="_action" value="publish"/>
-			<input type="hidden" name="published" value="true"/>
-			<div id="publish-modal" class="modal fade" tabindex="-1" role="dialog">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h4 class="modal-title">Publish site</h4>
-						</div>
-						<div class="modal-body">
-							<div class="alert alert-info">
-								<i class="pull-left fa fa-globe"></i>
-								<div>
-									<h5>You are about to publish this site to the internet</h5>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-lg-12">
-									<div class="form-horizontal">
-										<div class="row no-margin">
-											<div class="col-lg-12">
-												<div id="row">
-													<div class="form-group">
-														<label class="col-sm-3 control-label">Web address</label>
-														<div class="col-sm-9">
-															<div class="web-address-control input-group">
-																<span class="input-group-addon">{{ session.urls.webroot }}</span>
-																<input type="text" class="form-control"
-																	name="name"
-																	value="{{ content.site.name }}"
-																	data-bind-id="site-name"
-																	data-parser="slug"
-																	data-validate="slug"
-																	data-trigger="focus"
-																/>
-																<span class="form-control-feedback fa" aria-hidden="true"></span>
-															</div>
-														</div>
-													</div>
-													<div class="form-group mb0">
-														<label class="col-sm-3 control-label">Home site</label>
-														<div class="col-sm-9">
-															<div class="checkbox">
-																<label>
-																	<input type="hidden"
-																		name="home"
-																		value="false"
-																	/>
-																	<input type="checkbox"
-																		name="home"
-																		value="true"
-																		checked="checked"
-																	/>
-																	Use this as my home site
-																</label>
-															</div>
-															<p class="help-block mb0">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="modal-footer">
-							<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#publish-modal">Publish site</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div data-target="success-modal" class="modal fade" tabindex="-1" role="dialog" data-keyboard="false">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h4 class="modal-title">Publish site</h4>
-						</div>
-						<div class="modal-body">
-							<iframe name="modal" frameborder="0"></iframe>
-						</div>
-					</div>
-				</div>
-			</div>
-			{{/if}}
 		</form>
 	{{/inline}}
 {{/index}}

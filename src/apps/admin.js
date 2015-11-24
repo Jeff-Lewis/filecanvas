@@ -16,16 +16,16 @@ var loginApp = require('./admin/login');
 var adminAuth = require('./admin/middleware/adminAuth');
 
 var transport = require('../middleware/transport');
-var redirect = require('../middleware/redirect');
 var nestedFormValues = require('../middleware/nestedFormValues');
 var sessionState = require('../middleware/sessionState');
+var redirect = require('../middleware/redirect');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
 var loadAdapters = require('../utils/loadAdapters');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
-var serializeQueryParams = require('../utils/serializeQueryParams');
+var appendQueryParams = require('../utils/appendQueryParams');
 
 var UrlService = require('../services/UrlService');
 var UserService = require('../services/UserService');
@@ -42,7 +42,7 @@ module.exports = function(database, options) {
 	var siteTemplatePath = options.siteTemplatePath;
 	var adminAssetsUrl = options.adminAssetsUrl;
 	var themeAssetsUrl = options.themeAssetsUrl;
-	var themeGalleryUrl = options.themeGalleryUrl;
+	var themesUrl = options.themesUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
 
@@ -57,7 +57,7 @@ module.exports = function(database, options) {
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
-	if (!themeGalleryUrl) { throw new Error('Missing theme gallery URL'); }
+	if (!themesUrl) { throw new Error('Missing themes URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 
@@ -110,7 +110,7 @@ module.exports = function(database, options) {
 		siteAuthOptions: siteAuthOptions,
 		themeAssetsUrl: themeAssetsUrl,
 		adminAssetsUrl: adminAssetsUrl,
-		themeGalleryUrl: themeGalleryUrl,
+		themesUrl: themesUrl,
 		adapters: adapters,
 		sessionMiddleware: initAdminSession
 	});
@@ -228,19 +228,12 @@ module.exports = function(database, options) {
 		var siteAuthOptions = options.siteAuthOptions;
 		var themeAssetsUrl = options.themeAssetsUrl;
 		var adminAssetsUrl = options.adminAssetsUrl;
-		var themeGalleryUrl = options.themeGalleryUrl;
+		var themesUrl = options.themesUrl;
 		var adapters = options.adapters;
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/sites', composeMiddleware([
-			ensureAuth(function(req) {
-				var isSignupSite = req.path.split('/').slice(0, 3).join('/') === '/create-site/signup';
-				if (isSignupSite) {
-					return '/signup/login';
-				} else {
-					return '/login';
-				}
-			}),
+			ensureAuth('/login'),
 			sitesApp(database, {
 				host: host,
 				templatesPath: templatesPath,
@@ -250,7 +243,7 @@ module.exports = function(database, options) {
 				siteAuthOptions: siteAuthOptions,
 				themeAssetsUrl: themeAssetsUrl,
 				adminAssetsUrl: adminAssetsUrl,
-				themeGalleryUrl: themeGalleryUrl,
+				themesUrl: themesUrl,
 				adapters: adapters,
 				sessionMiddleware: sessionMiddleware
 			})
@@ -341,33 +334,16 @@ module.exports = function(database, options) {
 		}));
 	}
 
-	function ensureAuth(redirectUrl) {
+	function ensureAuth(loginUrl) {
 		return function(req, res, next) {
 			if (req.isAuthenticated()) {
 				next();
 			} else {
-				var url;
-				if (typeof redirectUrl === 'function') {
-					url = redirectUrl(req);
-				} else {
-					url = redirectUrl;
-				}
-				authRedirect(req, res, url);
+				var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
+				var url = (redirectUrl ? appendQueryParams(loginUrl, { redirect: redirectUrl }) : loginUrl);
+				res.redirect(url);
 			}
 		};
-	}
-
-	function authRedirect(req, res, authRoute) {
-		var redirectUrl = (req.originalUrl === '/' ? null : req.originalUrl);
-		var url = (redirectUrl ? addQueryParams(authRoute, { redirect: redirectUrl }) : authRoute);
-		res.redirect(url);
-
-
-		function addQueryParams(url, params) {
-			var queryString = serializeQueryParams(params);
-			var urlHasParams = (url.indexOf('?') !== -1);
-			return url + (urlHasParams ? '&' : '?') + queryString;
-		}
 	}
 
 	function initAdminSession(req, res, next) {
@@ -408,7 +384,6 @@ module.exports = function(database, options) {
 							account: '/account',
 							login: '/login',
 							register: '/register',
-							createLogin: '/create/login',
 							logout: '/logout',
 							sites: '/sites',
 							sitesCreate: '/sites/create-site',

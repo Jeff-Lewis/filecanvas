@@ -6,6 +6,7 @@ var express = require('express');
 var pingApp = require('./ping');
 var assetsApp = require('./assets');
 var themesApp = require('./themes');
+var demoApp = require('./demo');
 var sitesApp = require('./sites');
 var adminApp = require('./admin');
 var wwwApp = require('./www');
@@ -40,10 +41,10 @@ module.exports = function(database, config) {
 	var partialsPath = path.resolve(templatesPath, '_partials');
 	var wwwTemplatesPath = path.join(templatesPath, 'www');
 	var adminTemplatesPath = path.join(templatesPath, 'admin');
+	var demoTemplatesPath = path.join(templatesPath, 'demo');
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
 	var legalTemplatesPath = path.join(templatesPath, 'legal');
 	var faqPath = path.join(adminTemplatesPath, 'faq.json');
-	var themesTemplatesPath = path.join(templatesPath, 'themes');
 	var errorTemplatesPath = path.join(templatesPath, 'error');
 	var siteTemplatePath = path.join(templatesPath, 'site');
 
@@ -67,11 +68,10 @@ module.exports = function(database, config) {
 	});
 
 	var adminUrl = config.admin.root || adminSubdomainUrl;
-	var createSiteUrl = adminUrl + 'sites/create-site/signup';
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'admin/';
 	var themeAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'themes/';
-	var themeGalleryUrl = config.themes.root || themesSubdomainUrl;
+	var themesUrl = config.themes.root || themesSubdomainUrl;
 
 	var subdomains = {
 		'ping': pingApp({
@@ -88,8 +88,6 @@ module.exports = function(database, config) {
 		}),
 		'themes': themesApp({
 			host: config.host,
-			templatesPath: themesTemplatesPath,
-			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
 			themeAssetsUrl: themeAssetsUrl,
@@ -97,9 +95,19 @@ module.exports = function(database, config) {
 			thumbnailWidth: config.themes.thumbnail.width,
 			thumbnailHeight: config.themes.thumbnail.height,
 			thumbnailFormat: config.themes.thumbnail.format,
+		}),
+		'try': demoApp(database, {
+			host: config.host,
+			templatesPath: demoTemplatesPath,
+			partialsPath: partialsPath,
+			errorTemplatesPath: errorTemplatesPath,
+			themesPath: themesPath,
+			themeAssetsUrl: themeAssetsUrl,
+			adminUrl: adminUrl,
 			adminAssetsUrl: adminAssetsUrl,
 			adminTemplatesUrl: adminTemplatesUrl,
-			createSiteUrl: createSiteUrl
+			themesUrl: themesUrl,
+			adapters: config.adapters
 		}),
 		'my': adminApp(database, {
 			host: config.host,
@@ -112,7 +120,7 @@ module.exports = function(database, config) {
 			siteTemplatePath: siteTemplatePath,
 			adminAssetsUrl: adminAssetsUrl,
 			themeAssetsUrl: themeAssetsUrl,
-			themeGalleryUrl: themeGalleryUrl,
+			themesUrl: themesUrl,
 			adapters: config.adapters,
 			siteAuth: config.auth.site
 		}),

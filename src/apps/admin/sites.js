@@ -26,7 +26,7 @@ module.exports = function(database, options) {
 	var siteAuthOptions = options.siteAuthOptions || null;
 	var themeAssetsUrl = options.themeAssetsUrl || null;
 	var adminAssetsUrl = options.adminAssetsUrl || null;
-	var themeGalleryUrl = options.themeGalleryUrl || null;
+	var themesUrl = options.themesUrl || null;
 	var adapters = options.adapters || null;
 	var sessionMiddleware = options.sessionMiddleware || null;
 
@@ -38,7 +38,7 @@ module.exports = function(database, options) {
 	if (!siteAuthOptions) { throw new Error('Missing site auth options'); }
 	if (!themeAssetsUrl) { throw new Error('Missing theme assets URL'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin assets URL'); }
-	if (!themeGalleryUrl) { throw new Error('Missing theme gallery URL'); }
+	if (!themesUrl) { throw new Error('Missing theme gallery URL'); }
 	if (!adapters) { throw new Error('Missing adapters'); }
 	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
 
@@ -81,8 +81,6 @@ module.exports = function(database, options) {
 		app.get('/', sessionMiddleware, retrieveSitesRoute);
 		app.post('/', sessionMiddleware, createSiteRoute);
 		app.get('/create-site', sessionMiddleware, retrieveCreateSiteRoute);
-		app.get('/create-site/signup', sessionMiddleware, retrieveCreateSignupSiteRoute);
-		app.post('/create-site/signup', sessionMiddleware, createSignupSiteRoute);
 		app.get('/create-site/themes', sessionMiddleware, retrieveCreateSiteThemesRoute);
 		app.get('/create-site/themes/:theme', sessionMiddleware, retrieveCreateSiteThemeRoute);
 		app.get('/:site', sessionMiddleware, retrieveSiteRoute);
@@ -95,7 +93,6 @@ module.exports = function(database, options) {
 		app.delete('/:site/users/:username', sessionMiddleware, deleteSiteUserRoute);
 
 		app.get('/:site/edit', sessionMiddleware, retrieveSiteEditRoute);
-		app.get('/:site/create', sessionMiddleware, retrieveSignupSiteEditRoute);
 
 
 		function retrieveSitesRoute(req, res, next) {
@@ -130,7 +127,7 @@ module.exports = function(database, options) {
 
 		function retrieveCreateSiteRoute(req, res, next) {
 			var userAdapters = req.user.adapters;
-			var theme = req.query.theme || req.body.theme || null;
+			var theme = req.query.theme || null;
 
 			new Promise(function(resolve, reject) {
 				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
@@ -187,63 +184,6 @@ module.exports = function(database, options) {
 			.catch(function(error) {
 				next(error);
 			});
-		}
-
-		function retrieveCreateSignupSiteRoute(req, res, next) {
-			var userAdapters = req.user.adapters;
-			var theme = req.query.theme || req.body.theme || null;
-
-			new Promise(function(resolve, reject) {
-				var adaptersMetadata = Object.keys(userAdapters).filter(function(adapterName) {
-					return adapterName !== 'default';
-				}).reduce(function(adaptersMetadata, adapterName) {
-					var adapter = adapters[adapterName];
-					var adapterConfig = userAdapters[adapterName];
-					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
-					return adaptersMetadata;
-				}, {});
-				var defaultAdapterName = userAdapters.default;
-				var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
-				var siteModel = {
-					name: '',
-					label: '',
-					root: {
-						adapter: defaultAdapterName,
-						path: defaultAdapterPath
-					},
-					private: false,
-					published: false,
-					home: false,
-					theme: theme
-				};
-				var templateData = {
-					title: 'Create site folder',
-					blank: true,
-					borderless: true,
-					navigation: false,
-					footer: false,
-					breadcrumb: null,
-					content: {
-						site: siteModel,
-						adapters: adaptersMetadata
-					}
-				};
-				return resolve(
-					adminPageService.render(req, res, {
-						template: 'create',
-						context: templateData
-					})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-		}
-
-		function createSignupSiteRoute(req, res, next) {
-			var redirectUrl = '/sites/' + req.body.name + '/create';
-			req.body['_redirect'] = redirectUrl;
-			createSiteRoute(req, res, next);
 		}
 
 		function retrieveCreateSiteThemesRoute(req, res, next) {
@@ -437,7 +377,6 @@ module.exports = function(database, options) {
 			if (isPurgeRequest) {
 				return purgeSiteRoute(req, res, next);
 			}
-			var isPublishSuccess = (req.body._action === 'publish');
 			var userModel = req.user;
 			var username = userModel.username;
 			var defaultSiteName = userModel.defaultSite;
@@ -463,27 +402,7 @@ module.exports = function(database, options) {
 							return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
 						})
 						.then(function() {
-							if (isPublishSuccess) {
-								var templateData = {
-									title: 'Site published',
-									blank: true,
-									borderless: true,
-									navigation: false,
-									footer: false,
-									breadcrumb: null,
-									content: {
-										site: {
-											name: updatedSiteName
-										}
-									}
-								};
-								return adminPageService.render(req, res, {
-									template: 'sites/site/publish-success',
-									context: templateData
-								});
-							} else {
-								res.redirect(303, '/sites/' + updatedSiteName);
-							}
+							res.redirect(303, '/sites/' + updatedSiteName);
 						})
 				);
 			})
@@ -646,7 +565,7 @@ module.exports = function(database, options) {
 		}
 
 		function retrieveSiteEditRoute(req, res, next) {
-			var isSignupSite = Boolean(req.params.create);
+			var isDemo = Boolean(req.query.demo);
 			var userModel = req.user;
 			var username = userModel.username;
 			var userAdapters = req.user.adapters;
@@ -683,7 +602,7 @@ module.exports = function(database, options) {
 								adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
 								adminAssetsUrl + 'js/shunt-editor.js',
 								'/templates/partials/theme-options.js',
-								themeGalleryUrl + themeId + '/template/index.js'
+								themesUrl + themeId + '/template/index.js'
 							],
 							fullPage: true,
 							navigation: false,
@@ -706,7 +625,7 @@ module.exports = function(database, options) {
 								}
 							],
 							content: {
-								signup: isSignupSite,
+								signup: isDemo,
 								site: siteModel,
 								themes: themeService.getThemes(),
 								adapter: adapterConfig
@@ -726,11 +645,6 @@ module.exports = function(database, options) {
 			.catch(function(error) {
 				next(error);
 			});
-		}
-
-		function retrieveSignupSiteEditRoute(req, res, next) {
-			req.params.create = true;
-			retrieveSiteEditRoute(req, res, next);
 		}
 	}
 };

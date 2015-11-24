@@ -52,7 +52,6 @@ module.exports = function(database, options) {
 		app.get('/login', redirectIfLoggedIn('/'), sessionMiddleware, retrieveLoginRoute);
 		app.get('/register', redirectIfLoggedIn('/'), sessionMiddleware, retrieveRegisterRoute);
 		app.post('/register', redirectIfLoggedIn('/'), sessionMiddleware, processRegisterRoute);
-		app.get('/signup/login', redirectIfLoggedIn('/sites/create-site/signup'), sessionMiddleware, retrieveSignupLoginRoute);
 		app.get('/logout', redirectIfLoggedOut('/'), sessionMiddleware, retrieveLogoutRoute);
 
 
@@ -94,35 +93,6 @@ module.exports = function(database, options) {
 				return resolve(
 					adminPageService.render(req, res, {
 						template: 'login',
-						context: templateData
-					})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-		}
-
-		function retrieveSignupLoginRoute(req, res, next) {
-			new Promise(function(resolve, reject) {
-				var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
-					adaptersHash[key] = true;
-					return adaptersHash;
-				}, {});
-				var templateData = {
-					title: 'Link account',
-					blank: true,
-					borderless: true,
-					navigation: false,
-					footer: false,
-					content: {
-						redirect: req.query.redirect || '/create',
-						adapters: adaptersHash
-					}
-				};
-				return resolve(
-					adminPageService.render(req, res, {
-						template: 'create/login',
 						context: templateData
 					})
 				);

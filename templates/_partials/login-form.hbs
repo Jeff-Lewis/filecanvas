@@ -1,6 +1,11 @@
 <div class="login-form row{{#if stacked}} stacked{{/if}}">
 	{{#if adapters.dropbox}}
 	<form class="col-sm-12" method="POST" action="{{ loginUrl }}/dropbox" target="_top">
+		{{#if state}}
+		{{#each state as |value key|}}
+		<input type="hidden" name="_state.{{ key }}" value="{{ value }}">
+		{{/each}}
+		{{/if}}
 		<input type="hidden" name="redirect" value="{{ redirect }}">
 		<button type="submit" class="btn btn-reset widget bg-{{ buttonColor }} mb5">
 			<i class="widget-icon pull-left fa fa-dropbox"></i>
@@ -22,6 +27,11 @@
 			<div class="panel-body bg-white mb5">
 				<div class="col-sm-12">
 					<form class="form-horizontal" method="POST" action="{{ loginUrl }}/local" target="_top">
+						{{#if state}}
+						{{#each state as |value key|}}
+						<input type="hidden" name="_state.{{ key }}" value="{{ value }}">
+						{{/each}}
+						{{/if}}
 						<input type="hidden" name="redirect" value="{{ redirect }}">
 						<div class="row">
 							<div class="col-sm-8 col-sm-offset-2">

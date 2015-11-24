@@ -51,7 +51,7 @@ SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
 				});
 		})
 		.then(function() {
-			if (!siteModel.root) { return; }
+			if (!siteModel.root || !siteTemplateFiles) { return; }
 			var username = siteModel.owner;
 			var userService = new UserService(database);
 			return userService.retrieveUser(username)
@@ -606,8 +606,8 @@ function validateSiteModel(siteModel, requireFullModel) {
 	return new Promise(function(resolve, reject) {
 		if (!siteModel) { throw new HttpError(400, 'No site model specified'); }
 		if ((requireFullModel || ('owner' in siteModel)) && !siteModel.owner) { throw new HttpError(400, 'No owner specified'); }
-		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site path specified'); }
-		if ((requireFullModel || ('label' in siteModel)) && !siteModel.label) { throw new HttpError(400, 'No site name specified'); }
+		if ((requireFullModel || ('name' in siteModel)) && !siteModel.name) { throw new HttpError(400, 'No site name specified'); }
+		if ((requireFullModel || ('label' in siteModel)) && !siteModel.label) { throw new HttpError(400, 'No site label specified'); }
 		if ((requireFullModel || ('theme' in siteModel)) && !siteModel.theme) { throw new HttpError(400, 'No site theme specified'); }
 
 		// TODO: Validate owner when validating site model

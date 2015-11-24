@@ -1,0 +1,38 @@
+{{#> index}}
+	{{#*inline 'content'}}
+		<div class="theme-gallery">
+			<div class="title-bar">
+				<div class="title-bar-header">
+					<div class="title-bar-header-title">
+						<div class="brand">
+							<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+						</div>
+					</div>
+					<h3 class="title-bar-header-subtitle">Theme gallery</h3>
+				</div>
+				<form class="title-bar-controls" method="POST" action="{{ session.urls.demo.editor }}" autocomplete="off">
+					<input type="hidden" name="_method" value="GET"/>
+					<input type="hidden" name="theme.id" value="{{ content.theme.id }}"/>
+					<button type="submit" class="btn btn-success bold" href="?theme.id={{ urlencode content.theme.id }}">Use this theme</button>
+				</form>
+				<div class="title-bar-toolbar pull-right hidden-xs hidden-sm">
+					<a class="btn btn-toolbar" href="{{ session.urls.demo.themes }}/{{ content.previousTheme.id }}">Previous theme</a>
+					<a class="btn btn-toolbar" href="{{ session.urls.demo.themes }}/{{ content.nextTheme.id }}">Next theme</a>
+				</div>
+				<div class="title-bar-toolbar text-center">
+					<label>
+						<span class="control-label">Current theme:</span>
+						<select class="btn btn-toolbar form-control" data-navigation-dropdown>
+							{{#each content.themes as |theme|}}
+							<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}} data-href="{{ ../session.urls.demo.themes }}/{{ theme.id }}">{{ theme.name }}</option>
+							{{/each}}
+						</select>
+					</label>
+				</div>
+			</div>
+			<div class="theme-gallery-main">
+				<iframe class="theme-gallery-preview" frameborder="0" src="{{ session.urls.themes }}/{{ content.theme.id }}/preview"></iframe>
+			</div>
+		</div>
+	{{/inline}}
+{{/index}}
