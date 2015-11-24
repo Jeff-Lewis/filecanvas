@@ -147,6 +147,41 @@ DropboxAdapter.prototype.loginMiddleware = function(passport, passportOptions, c
 	return app;
 };
 
+DropboxAdapter.prototype.createFolder = function(folderPath, options) {
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
+	var uid = options.uid;
+	var accessToken = options.token;
+	return new DropboxConnector().connect(appKey, appSecret, accessToken, uid)
+		.then(function(dropboxClient) {
+			return checkWhetherFileExists(dropboxClient, folderPath)
+				.then(function(folderExists) {
+					if (folderExists) { return; }
+					return createFolder(dropboxClient, folderPath);
+				});
+		});
+
+
+	function checkWhetherFileExists(dropboxClient, filePath) {
+		return dropboxClient.retrieveFileMetadata(filePath)
+			.then(function(stat) {
+				if (stat.isRemoved) { return false; }
+				return true;
+			})
+			.catch(function(error) {
+				if (error.status === 404) {
+					return false;
+				}
+				throw error;
+			});
+	}
+
+	function createFolder(dropboxClient, folderPath) {
+		return dropboxClient.createFolder(folderPath)
+			.then(function() {});
+	}
+};
+
 DropboxAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
@@ -458,6 +493,21 @@ DropboxClient.prototype.loadFolderContents = function(folderPath, folderCache) {
 				});
 			});
 		}
+	}
+};
+
+DropboxClient.prototype.createFolder = function(folderPath) {
+	var client = this.client;
+	return createFolder(client, folderPath);
+
+
+	function createFolder(client, folderPath) {
+		return new Promise(function(resolve, reject) {
+			client.mkdir(folderPath, function(error, stat) {
+				if (error) { return reject(error); }
+				resolve(stat);
+			});
+		});
 	}
 };
 

@@ -121,6 +121,40 @@ LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, cal
 	return app;
 };
 
+LocalAdapter.prototype.createFolder = function(folderPath, options) {
+	var sitesRoot = this.sitesRoot;
+	return checkWhetherFileExists(folderPath)
+		.then(function(folderExists) {
+			if (folderExists) { return; }
+			return createFolder(folderPath);
+		});
+
+
+	function checkWhetherFileExists(filePath) {
+		var fullPath = path.join(sitesRoot, filePath);
+		return new Promise(function(resolve, reject) {
+			fs.stat(fullPath, function(error, stat) {
+				if (error && (error.code === 'ENOENT')) {
+					return resolve(false);
+				}
+				if (error) { return reject(error); }
+				var fileExists = Boolean(stat);
+				return resolve(fileExists);
+			});
+		});
+	}
+
+	function createFolder(folderPath) {
+		var fullPath = path.join(sitesRoot, folderPath);
+		return new Promise(function(resolve, reject) {
+			mkdirp(fullPath, function(error) {
+				if (error) { return reject(error); }
+				resolve();
+			});
+		});
+	}
+};
+
 LocalAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 	var sitesRoot = this.sitesRoot;
 	return checkWhetherFileExists(sitePath)
