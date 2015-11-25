@@ -20,13 +20,13 @@
 	{{/inline}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name) icon='globe' label=content.site.label}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name '/edit') icon='paint-brush' label='Site editor'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name '/edit') icon='paint-brush' label='Site editor'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
-		<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
+		<form class="editor" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 			<input type="hidden" name="_method" value="PUT"/>
 			<div class="title-bar">
 				<div class="title-bar-header">
@@ -37,7 +37,7 @@
 					</div>
 					<h3 class="title-bar-header-subtitle">Site editor</h3>
 				</div>
-				<a class="title-bar-close" href="{{ session.urls.sites }}/{{ content.site.name }}" title="Back to site settings" data-editor-close><i class="fa fa-times"></i></a>
+				<a class="title-bar-close" href="{{ session.urls.admin.sites }}/{{ content.site.name }}" title="Back to site settings" data-editor-close><i class="fa fa-times"></i></a>
 				<div class="title-bar-controls">
 					<button type="submit" class="btn btn-success bold">Save and Exit</button>
 				</div>

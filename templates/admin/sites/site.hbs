@@ -1,8 +1,8 @@
 {{#>index title=(replace 'Site settings: $0' '$0' content.site.label) navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name) icon='globe' label=content.site.label}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -39,7 +39,7 @@
 					{{/if}}
 					<div class="row">
 						<div class="col-md-6">
-							<a class="widget md-mb0 bg-primary" href="{{ session.urls.sites }}/{{ content.site.name }}/edit">
+							<a class="widget md-mb0 bg-primary" href="{{ session.urls.admin.sites }}/{{ content.site.name }}/edit">
 								<i class="widget-icon bg-white pull-left fa fa-paint-brush"></i>
 								<h4> Site editor</h4>
 							</a>
@@ -58,7 +58,7 @@
 						<div class="col-md-12 collapse" id="unpublish-site">
 							<div class="panel-body bg-white">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden"
 											name="published"
@@ -94,7 +94,7 @@
 						<div class="col-md-12 collapse" id="publish-site">
 							<div class="panel-body bg-white">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden"
 											name="published"
@@ -193,7 +193,7 @@
 						<div class="panel-body">
 							<div class="row no-margin">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="password-protection"/>
 										<div class="form-group">
@@ -229,7 +229,7 @@
 													{{else}}
 													<span class="text-danger"><i class="fa fa-exclamation-circle"></i> Nobody is allowed to access this site</span>
 													{{/if}}
-													(<a href="{{ session.urls.sites }}/{{ content.site.name }}/users">edit</a>)
+													(<a href="{{ session.urls.admin.sites }}/{{ content.site.name }}/users">edit</a>)
 												</p>
 											</div>
 										</div>
@@ -256,7 +256,7 @@
 						<div class="panel-body">
 							<div class="row no-margin">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="site-address"/>
 										<div class="alert alert-block alert-warning">
@@ -309,7 +309,7 @@
 						<div class="panel-body">
 							<div class="row no-margin">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="home-site"/>
 										<div class="form-group">
@@ -354,7 +354,7 @@
 						<div class="panel-body">
 							<div class="row no-margin">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="site-settings"/>
 										<div class="form-group">
@@ -433,7 +433,7 @@
 						<div class="panel-body">
 							<div class="row no-margin">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off">
 										<input type="hidden" name="_method" value="DELETE"/>
 										<input type="hidden" name="_state.activeRegion" value="delete-site"/>
 										<div class="alert alert-block alert-danger">

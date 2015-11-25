@@ -21,22 +21,22 @@
 				</div>
 				<nav role="navigation">
 					<ul class="nav">
-						<li class="menu-accordion{{#if (and (startsWith session.location.pathname session.urls.sites) (not-eq session.location.pathname session.urls.sitesCreate))}} open{{/if}}">
-							<a href="{{ session.urls.sites }}"><i class="fa fa-dashboard"></i> <span>Site dashboard</span></a>
+						<li class="menu-accordion{{#if (and (startsWith session.location.pathname session.urls.admin.sites) (not-eq session.location.pathname session.urls.admin.sitesCreate))}} open{{/if}}">
+							<a href="{{ session.urls.admin.sites }}"><i class="fa fa-dashboard"></i> <span>Site dashboard</span></a>
 							{{#if session.sites}}
 							<ul class="sub-menu">
 								{{#each session.sites as |site|}}
-								<li{{#if (eq ../session.location.pathname (concat ../session.urls.sites '/' site.name))}} class="open"{{/if}}><a href="{{ ../session.urls.sites }}/{{ site.name }}"> <span>{{ site.label }}</span></a></li>
+								<li{{#if (eq ../session.location.pathname (concat ../session.urls.admin.sites '/' site.name))}} class="open"{{/if}}><a href="{{ ../session.urls.admin.sites }}/{{ site.name }}"> <span>{{ site.label }}</span></a></li>
 								{{/each}}
 							</ul>
 							{{/if}}
 						</li>
-						<li{{#if (eq session.location.pathname session.urls.sitesCreate)}} class="open"{{/if}}><a href="{{ session.urls.sitesCreate }}"><i class="fa fa-plus"></i> <span>Create a site</span></a></li>
-						<li{{#if (eq session.location.pathname session.urls.faq)}} class="open"{{/if}}><a href="{{ session.urls.faq }}"><i class="fa fa-info-circle"></i><span>FAQ</span></a></li>
-						<li{{#if (eq session.location.pathname session.urls.support)}} class="open"{{/if}}><a href="{{ session.urls.support }}"><i class="fa fa-question-circle"></i><span>Support</span></a></li>
+						<li{{#if (eq session.location.pathname session.urls.admin.sitesCreate)}} class="open"{{/if}}><a href="{{ session.urls.admin.sitesCreate }}"><i class="fa fa-plus"></i> <span>Create a site</span></a></li>
+						<li{{#if (eq session.location.pathname session.urls.admin.faq)}} class="open"{{/if}}><a href="{{ session.urls.admin.faq }}"><i class="fa fa-info-circle"></i><span>FAQ</span></a></li>
+						<li{{#if (eq session.location.pathname session.urls.admin.support)}} class="open"{{/if}}><a href="{{ session.urls.admin.support }}"><i class="fa fa-question-circle"></i><span>Support</span></a></li>
 						{{#if session.user}}
-						<li class="visible-xs {{#if (eq session.location.pathname session.urls.account)}} open{{/if}}"><a href="{{ session.urls.account }}"><i class="fa fa-user"></i><span>Your account</span></a></li>
-						<li class="visible-xs"><a href="{{ session.urls.logout }}"><i class="fa fa-sign-out"></i><span>Log out</span></a></li>
+						<li class="visible-xs {{#if (eq session.location.pathname session.urls.admin.account)}} open{{/if}}"><a href="{{ session.urls.admin.account }}"><i class="fa fa-user"></i><span>Your account</span></a></li>
+						<li class="visible-xs"><a href="{{ session.urls.admin.logout }}"><i class="fa fa-sign-out"></i><span>Log out</span></a></li>
 						{{/if}}
 					</ul>
 				</nav>
@@ -63,10 +63,10 @@
 							</a>
 							<ul class="dropdown-menu">
 								<li>
-									<a href="{{ session.urls.account }}">Account Settings</a>
+									<a href="{{ session.urls.admin.account }}">Account Settings</a>
 								</li>
 								<li>
-									<a href="{{ session.urls.logout }}">Log out</a>
+									<a href="{{ session.urls.admin.logout }}">Log out</a>
 								</li>
 							</ul>
 						</li>
@@ -102,8 +102,8 @@
 				<nav class="footer-left">
 					<ul class="nav">
 						<li><a>Copyright <i class="fa fa-copyright"></i> <span>Shunt</span> 2015</a></li>
-						<li><a href="{{ session.urls.terms }}">Terms &amp; Conditions</a></li>
-						<li><a href="{{ session.urls.privacy }}">Privacy Policy</a></li>
+						<li><a href="{{ session.urls.admin.terms }}">Terms &amp; Conditions</a></li>
+						<li><a href="{{ session.urls.admin.privacy }}">Privacy Policy</a></li>
 					</ul>
 				</nav>
 			</footer>

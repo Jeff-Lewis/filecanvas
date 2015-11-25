@@ -370,20 +370,21 @@ module.exports = function(database, options) {
 							assets: adminAssetsUrl,
 							themeAssets: stripTrailingSlash(themeAssetsUrl),
 							themes: stripTrailingSlash(themesUrl),
-							admin: '/',
-							faq: '/faq',
-							support: '/support',
-							account: '/account',
-							login: '/login',
-							register: '/register',
-							logout: '/logout',
-							sites: '/sites',
-							sitesCreate: '/sites/create-site',
-							sitesCreateThemes: '/sites/create-site/themes',
-							preview: '/preview',
-							terms: '/terms',
-							privacy: '/privacy',
-							templates: '/templates'
+							templates: '/templates',
+							admin: {
+								faq: '/faq',
+								support: '/support',
+								account: '/account',
+								login: '/login',
+								register: '/register',
+								logout: '/logout',
+								sites: '/sites',
+								sitesCreate: '/sites/create-site',
+								sitesCreateThemes: '/sites/create-site/themes',
+								preview: '/preview',
+								terms: '/terms',
+								privacy: '/privacy'
+							}
 						},
 						sites: sortedSiteModels
 					};

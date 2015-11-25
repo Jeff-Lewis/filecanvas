@@ -1,7 +1,7 @@
 {{#>index title='Your account' navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.account icon='user' label='Your account'}}
+		{{>breadcrumb-item link=session.urls.admin.account icon='user' label='Your account'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -14,7 +14,7 @@
 					<div class="panel-body">
 						<div class="row no-margin">
 							<div class="col-lg-12">
-								<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+								<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.account }}" autocomplete="off">
 									<input type="hidden" name="_method" value="PUT"/>
 									<div class="form-group">
 										<label class="col-sm-2 control-label">Name</label>
@@ -86,7 +86,7 @@
 						<div class="panel-body">
 							<div class="row no-margin">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.account }}" autocomplete="off">
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="change-username"/>
 										<div class="alert alert-block alert-warning">
@@ -136,7 +136,7 @@
 						<div class="panel-body">
 							<div class="row no-margin">
 								<div class="col-lg-12">
-									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.account }}" autocomplete="off">
+									<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.account }}" autocomplete="off">
 										<input type="hidden" name="_method" value="DELETE"/>
 										<input type="hidden" name="_state.activeRegion" value="delete-account"/>
 										<div class="alert alert-block alert-danger">

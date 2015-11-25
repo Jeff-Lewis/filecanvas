@@ -1,9 +1,9 @@
 {{#>index title=(replace 'Site users: $0' '$0' content.site.label) navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name) icon='globe' label=content.site.label}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name '/users') icon='users' label='Site users'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name '/users') icon='users' label='Site users'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -11,7 +11,7 @@
 			<div class="col-md-8 col-lg-6">
 				<div class="mb15">
 					<h4 class="no-margin text-uppercase">
-						<a class="pull-right" href="{{ session.urls.sites }}/{{ content.site.name }}">
+						<a class="pull-right" href="{{ session.urls.admin.sites }}/{{ content.site.name }}">
 							<i class="fa fa-times"></i>
 						</a>
 						Site users: {{ content.site.label }}
@@ -37,7 +37,7 @@
 							<div class="panel-body panel-body-edit">
 								<div class="row no-margin">
 									<div class="col-lg-12">
-										<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
+										<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.admin.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
 											<input type="hidden" name="_method" value="PUT"/>
 											<div class="form-group">
 												<label class="col-sm-3 control-label">Username</label>
@@ -70,7 +70,7 @@
 							<div class="panel-body panel-body-delete">
 								<div class="row no-margin">
 									<div class="col-lg-12">
-										<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
+										<form class="form-horizontal" role="form" method="POST" action="{{ ../session.urls.admin.sites }}/{{ ../content.site.name }}/users/{{ user.username }}" autocomplete="off">
 											<input type="hidden" name="_method" value="DELETE"/>
 											<div class="form-group">
 												<label class="col-sm-3 control-label">Are you sure?</label>
@@ -107,7 +107,7 @@
 					<div class="collapse" id="add-user" data-collapse-anchor>
 						<div class="panel-body bg-white">
 							<div class="col-lg-12">
-								<form class="form-horizontal" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}/users" autocomplete="off">
+								<form class="form-horizontal" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}/users" autocomplete="off">
 									<input type="hidden" name="_method" value="POST"/>
 									<div class="form-group">
 										<label class="col-sm-3 control-label">Username</label>

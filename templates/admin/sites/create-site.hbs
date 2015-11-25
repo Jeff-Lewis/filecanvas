@@ -1,8 +1,8 @@
 {{#>index title='Create a site' navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/create-site') icon='plus' label='Create a site'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site') icon='plus' label='Create a site'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -13,7 +13,7 @@
 						Create a site
 					</h4>
 				</div>
-				<form role="form" method="POST" action="{{ session.urls.sites }}" autocomplete="off">
+				<form role="form" method="POST" action="{{ session.urls.admin.sites }}" autocomplete="off">
 					<div id="create-form" class="panel-group">
 						<div class="panel mb25">
 							<input type="hidden" name="_method" value="POST"/>
@@ -49,7 +49,7 @@
 											<li class="theme-preview-control p15">
 												<div class="theme-preview-control-title h5 mt0 pb5"><strong>{{ theme.name }}</strong> </div>
 												<div class="widget bg-white no-padding mb0 text-center bordered">
-													<a class="theme-preview-control-thumbnail" href="{{ ../session.urls.sitesCreateThemes }}/{{ theme.id }}">
+													<a class="theme-preview-control-thumbnail" href="{{ ../session.urls.admin.sitesCreateThemes }}/{{ theme.id }}">
 														<img class="theme-preview-control-thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/metadata/thumbnail">
 														<div class="theme-preview-control-thumbnail-icon">
 															<i class="fa fa-search-plus"></i>

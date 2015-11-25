@@ -1,7 +1,7 @@
 {{#>index title='Site dashboard' navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -18,13 +18,13 @@
 				{{#if content.sites}}
 				<div class="mb10">
 					{{#each content.sites as |site|}}
-					<a class="widget mb0 bg-white" href="{{ ../session.urls.sites }}/{{ site.name }}">
+					<a class="widget mb0 bg-white" href="{{ ../session.urls.admin.sites }}/{{ site.name }}">
 						<i class="fa {{#if (eq site.name ../session.user.defaultSite)}}fa-home{{else}}{{#if site.published}}fa-arrow-right{{else}}fa-wrench{{/if}}{{/if}} {{#if site.published}}text-success{{else}}text-danger{{/if}} mr5"></i> {{ site.label }}</a>
 					</a>
 					{{/each}}
 				</div>
 				{{/if}}
-				<a class="widget bg-white mb15" href="{{ session.urls.sitesCreate }}">
+				<a class="widget bg-white mb15" href="{{ session.urls.admin.sitesCreate }}">
 					<i class="widget-icon bg-primary pull-left fa fa-plus"></i>
 					<h4>Create a site</h4>
 				</a>

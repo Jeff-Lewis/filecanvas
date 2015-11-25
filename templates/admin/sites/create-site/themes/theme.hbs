@@ -1,14 +1,14 @@
 {{#>index title='Theme gallery' fullPage=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/create-site') icon='plus' label='Create a site'}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/create-site/themes') icon='image' label='Theme gallery'}}
-		{{>breadcrumb-item link=(concat session.urls.sites '/create-site/themes/' content.theme.id) icon=null label=content.theme.name}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site') icon='plus' label='Create a site'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site/themes') icon='image' label='Theme gallery'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site/themes/' content.theme.id) icon=null label=content.theme.name}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
-		<form class="theme-gallery" role="form" method="POST" action="{{ session.urls.sitesCreate }}" autocomplete="off">
+		<form class="theme-gallery" role="form" method="POST" action="{{ session.urls.admin.sitesCreate }}" autocomplete="off">
 			<input type="hidden" name="_method" value="GET"/>
 			<input type="hidden" name="theme.id" value="{{ content.theme.id }}"/>
 			<div class="title-bar">
@@ -20,20 +20,20 @@
 					</div>
 					<h3 class="title-bar-header-subtitle">Theme gallery</h3>
 				</div>
-				<a class="title-bar-close" href="{{ session.urls.sitesCreate }}" title="Back to site creator"><i class="fa fa-times"></i></a>
+				<a class="title-bar-close" href="{{ session.urls.admin.sitesCreate }}" title="Back to site creator"><i class="fa fa-times"></i></a>
 				<div class="title-bar-controls">
 					<button type="submit" class="btn btn-success bold">Use this theme</button>
 				</div>
 				<div class="title-bar-toolbar pull-right hidden-xs hidden-sm">
-					<a class="btn btn-toolbar" href="{{ session.urls.sitesCreateThemes }}/{{ content.previousTheme.id }}">Previous theme</a>
-					<a class="btn btn-toolbar" href="{{ session.urls.sitesCreateThemes }}/{{ content.nextTheme.id }}">Next theme</a>
+					<a class="btn btn-toolbar" href="{{ session.urls.admin.sitesCreateThemes }}/{{ content.previousTheme.id }}">Previous theme</a>
+					<a class="btn btn-toolbar" href="{{ session.urls.admin.sitesCreateThemes }}/{{ content.nextTheme.id }}">Next theme</a>
 				</div>
 				<div class="title-bar-toolbar text-center">
 					<label>
 						<span class="control-label">Current theme:</span>
 						<select class="btn btn-toolbar form-control" data-navigation-dropdown>
 							{{#each content.themes as |theme|}}
-							<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}} data-href="{{ ../session.urls.sitesCreateThemes }}/{{ theme.id }}">{{ theme.name }}</option>
+							<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}} data-href="{{ ../session.urls.admin.sitesCreateThemes }}/{{ theme.id }}">{{ theme.name }}</option>
 							{{/each}}
 						</select>
 					</label>
