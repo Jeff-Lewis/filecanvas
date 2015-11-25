@@ -2,6 +2,7 @@
 	{{#*inline 'styles'}}
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css"/>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/css/bootstrap-colorpicker.min.css"/>
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css"/>
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-editor.css"/>
 		{{#if content.theme.fonts}}
 		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
@@ -14,6 +15,7 @@
 	{{#*inline 'scripts'}}
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/js/bootstrap-colorpicker.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js"></script>
 		<script type="text/javascript" src="{{ session.urls.assets }}js/shunt-editor.js"></script>
 		<script type="text/javascript" src="{{ session.urls.templates }}/partials/theme-options.js"></script>
 		<script type="text/javascript" src="{{ session.urls.themes }}/{{ content.site.theme.id }}/template/index.js"></script>
@@ -52,7 +54,7 @@
 					{{/unless}}
 					{{/unless}}
 				</div>
-				<div class="title-bar-toolbar pull-right hidden-xs">
+				<div id="title-bar-toolbar" class="title-bar-toolbar pull-right hidden-xs">
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 					<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
 					<button type="reset" class="btn btn-toolbar" disabled="disabled"><i class="fa fa-refresh mr5"></i> Reset changes</button>

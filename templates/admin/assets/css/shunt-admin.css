@@ -485,6 +485,12 @@ button.bg-bluegrey:hover :not(:disabled) {
 	transition: none;
 }
 
+.popover .popover-title {
+	background-color: #333;
+	color: white;
+	font-weight: bold;
+}
+
 .brand-logo {
 	font-weight: bold;
 }

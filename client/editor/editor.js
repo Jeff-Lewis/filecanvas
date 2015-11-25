@@ -38,7 +38,10 @@ $(function() {
 	initToggleButtons();
 	initColorpickers();
 	initSidepanel();
-	initLivePreview();
+	initLivePreview(function(error) {
+		if (error) { return; }
+		startTour();
+	});
 });
 
 
@@ -81,7 +84,7 @@ function initSidepanel() {
 	$('#editor-sidepanel').toggleClass('collapsed', shouldStartCollapsed).removeClass('loading');
 }
 
-function initLivePreview() {
+function initLivePreview(callback) {
 	var $formElement = $('[data-editor-form]');
 	var $adapterConfigElement = $('[data-editor-adapter-config]');
 	var $themeMetadataUrlElement = $('[data-editor-theme-metadata-url]');
@@ -119,6 +122,7 @@ function initLivePreview() {
 	initPreview(currentSiteModel, null, previewUrl, engine, templateId, function(error, rerender) {
 		onPreviewLoaded(error, rerender);
 		hideLoadingIndicator($previewElement);
+		callback(error);
 	});
 	initLiveUpdates(function(formValues, options) {
 		currentAction = waitForAction(currentAction).then(function() {
@@ -917,4 +921,50 @@ function initLivePreview() {
 			if (activeUpload) { activeUpload.abort(); }
 		}
 	}
+}
+
+function startTour() {
+	var tour = new window.Tour({
+		storage: false,
+		steps: [
+			{
+				element: '#editor-sidepanel',
+				placement: 'right',
+				backdrop: true,
+				title: 'Theme options',
+				content: 'Use the Theme Options panel to choose how your site looks'
+			},
+			{
+				element: '.editor-main',
+				container: '.editor-main',
+				placement: 'top',
+				backdrop: true,
+				title: 'Live preview',
+				content: '<p>This preview will automatically update as you edit the theme</p><p><strong>Pro tip:</strong> Drag files onto the preview area to upload them to your site</p>'
+			},
+			{
+				element: '.title-bar-controls',
+				placement: 'bottom',
+				backdrop: true,
+				title: 'Save changes',
+				content: 'Once you’re happy with how your site looks, click here to save your changes and leave the editor'
+			},
+			{
+				element: '#title-bar-toolbar',
+				placement: 'bottom',
+				backdrop: true,
+				title: 'Undo/redo',
+				content: 'Use the toolbar to undo any mistakes as you go along'
+			},
+			{
+				element: 'select[name="theme.id"]',
+				placement: 'bottom',
+				backdrop: true,
+				title: 'Theme selector',
+				content: 'You can choose a different site theme using the theme selector'
+			}
+		]
+	});
+	tour.init();
+	tour.start();
 }
