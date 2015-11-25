@@ -114,7 +114,7 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 					var sitePath = siteRoot.path;
 					var siteCache = siteModel.cache;
 					var adapter = adapters[siteAdapter];
-					var adapterOptions = objectAssign(userAdapters[siteAdapter], {
+					var adapterOptions = objectAssign({}, userAdapters[siteAdapter], {
 						cache: siteCache && siteCache.adapter || null
 					});
 					return adapter.loadFolderContents(sitePath, adapterOptions)
