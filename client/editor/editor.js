@@ -759,10 +759,14 @@ function initLivePreview() {
 						hideUploadProgressIndicator();
 						var siteModel = null;
 						var themeOverrides = { id: currentThemeOverrides.id };
-						loadSiteModel(siteModel, themeOverrides, previewUrl)
-							.then(function(siteModel) {
-								updatePreview(siteModel, currentThemeOverrides);
-							})
+						(previewUrl ?
+							loadSiteModel(siteModel, themeOverrides, previewUrl)
+								.then(function(siteModel) {
+									updatePreview(siteModel, currentThemeOverrides);
+								})
+							:
+							new $.Deferred().resolve().promise()
+						)
 							.always(function() {
 								hideUploadProgressIndicator();
 							});
