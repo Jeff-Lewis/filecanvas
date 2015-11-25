@@ -289,12 +289,12 @@ module.exports = function(database, options) {
 								navigation: false,
 								footer: false,
 								content: {
-									demo: true,
 									overlay: shouldShowOverlay,
 									site: siteModel,
 									themes: themeService.getThemes(),
 									adapter: adapterConfig,
 									adapters: adaptersMetadata,
+									previewUrl: null,
 									preview: {
 										metadata: {
 											siteRoot: stripTrailingSlash(themesUrl) + '/' + themeId + '/preview/',

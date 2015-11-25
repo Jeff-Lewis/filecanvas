@@ -29,9 +29,9 @@
 	{{/if}}
 	<iframe class="editor-preview loading" frameborder="0"
 		data-editor-preview="{{ lookup (lookup (lookup (lookup content.themes content.site.theme.id) 'templates') 'index') 'engine' }}"
-		{{#unless content.demo}}
-		data-src="{{ session.urls.preview }}/{{ content.site.name }}"
-		{{/unless}}
+		{{#if content.previewUrl}}
+		data-src="{{ content.previewUrl }}"
+		{{/if}}
 	></iframe>
 	<div class="editor-loading info-message center-block mb25">
 		<h4 class="text-center mt5 mb25">

@@ -565,7 +565,6 @@ module.exports = function(database, options) {
 		}
 
 		function retrieveSiteEditRoute(req, res, next) {
-			var isDemo = Boolean(req.query.demo);
 			var userModel = req.user;
 			var username = userModel.username;
 			var userAdapters = req.user.adapters;
@@ -625,7 +624,7 @@ module.exports = function(database, options) {
 								}
 							],
 							content: {
-								signup: isDemo,
+								previewUrl: '/preview/' + siteModel.name,
 								site: siteModel,
 								themes: themeService.getThemes(),
 								adapter: adapterConfig
