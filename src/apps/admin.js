@@ -361,12 +361,7 @@ module.exports = function(database, options) {
 
 		function loadSessionData(req) {
 			var userModel = req.user || null;
-			return Promise.resolve(userModel ? userService.retrieveUserSites(userModel.username) : null)
-				.then(function(siteModels) {
-					if (!siteModels) { return null; }
-					var defaultSiteName = userModel.defaultSite;
-					return getSortedSiteModels(siteModels, defaultSiteName);
-				})
+			return Promise.resolve(userModel ? retrieveSortedUserSites(userModel) : null)
 				.then(function(sortedSiteModels) {
 					var urlService = new UrlService(req);
 					return {
@@ -398,12 +393,21 @@ module.exports = function(database, options) {
 				});
 
 
-			function getSortedSiteModels(siteModels, defaultSiteName) {
-				return siteModels.slice().sort(function(item1, item2) {
-					if (item1.name === defaultSiteName) { return -1; }
-					if (item2.name === defaultSiteName) { return 1; }
-					return (item1.label < item2.label ? -1 : 1);
-				});
+			function retrieveSortedUserSites(userModel) {
+				return userService.retrieveUserSites(userModel.username)
+					.then(function(siteModels) {
+						var defaultSiteName = userModel.defaultSite;
+						return getSortedSiteModels(siteModels, defaultSiteName);
+					});
+
+
+				function getSortedSiteModels(siteModels, defaultSiteName) {
+					return siteModels.slice().sort(function(item1, item2) {
+						if (item1.name === defaultSiteName) { return -1; }
+						if (item2.name === defaultSiteName) { return 1; }
+						return (item1.label < item2.label ? -1 : 1);
+					});
+				}
 			}
 		}
 	}
