@@ -364,8 +364,11 @@ function initLivePreview() {
 			}
 
 			function onFormFieldChanged(event, forceUpdate) {
+				var inputElement = event.target;
+				var isThemeSettingsField = /^theme\./.test(inputElement.name);
+				if (!isThemeSettingsField) { return; }
 				if (isUpdating) { return; }
-				if ((event.target.tagName === 'SELECT') && (event.type === 'input')) { return; }
+				if ((inputElement.tagName === 'SELECT') && (event.type === 'input')) { return; }
 				if (throttle) {
 					if (throttleTimeout) {
 						clearTimeout(throttleTimeout);
