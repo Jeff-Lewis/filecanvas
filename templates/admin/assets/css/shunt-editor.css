@@ -2,7 +2,11 @@
 	opacity: 0.4;
 }
 
-.popover.tour-tour-0 {
+.popover {
+	min-width: 230px;
+}
+
+.popover#step-0 {
 	top: 100px !important;
 }
 .editor-main > .popover {
@@ -13,7 +17,7 @@
 	display: none;
 }
 
-.editor-main.tour-tour-element::after {
+.editor-main.tour-step-backdrop::after {
 	content: '';
 	display: block;
 	position: absolute;

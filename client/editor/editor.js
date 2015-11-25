@@ -924,47 +924,130 @@ function initLivePreview(callback) {
 }
 
 function startTour() {
+	var tourId = getTourId();
 	var tour = new window.Tour({
-		storage: window.sessionStorage,
-		steps: [
-			{
-				element: '#editor-sidepanel',
-				placement: 'right',
-				backdrop: true,
-				title: 'Theme options',
-				content: 'Use the Theme Options panel to choose how your site looks'
-			},
-			{
-				element: '.editor-main',
-				container: '.editor-main',
-				placement: 'top',
-				backdrop: true,
-				title: 'Live preview',
-				content: '<p>This preview will automatically update as you edit the theme</p><p><strong>Pro tip:</strong> Drag files onto the preview area to upload them to your site</p>'
-			},
-			{
-				element: '.title-bar-controls',
-				placement: 'bottom',
-				backdrop: true,
-				title: 'Save changes',
-				content: 'Once you’re happy with how your site looks, click here to save your changes and leave the editor'
-			},
-			{
-				element: '#title-bar-toolbar',
-				placement: 'bottom',
-				backdrop: true,
-				title: 'Undo/redo',
-				content: 'Use the toolbar to undo any mistakes as you go along'
-			},
-			{
-				element: 'select[name="theme.id"]',
-				placement: 'bottom',
-				backdrop: true,
-				title: 'Theme selector',
-				content: 'You can choose a different site theme using the theme selector'
-			}
-		]
+		name: tourId,
+		steps: getTourSteps(tourId),
+		storage: window.localStorage
 	});
 	tour.init();
 	tour.start();
+
+
+	function getTourId() {
+		switch (document.location.pathname) {
+			case '/editor':
+				return 'tour-demo-editor';
+			case '/editor/add-files':
+				return 'tour-demo-editor-add-files';
+			default:
+				return 'tour-site-editor';
+		}
+	}
+
+	function getTourSteps(tourId) {
+		switch (tourId) {
+			case 'tour-demo-editor':
+				return getDemoEditorTourSteps();
+			case 'tour-demo-editor-add-files':
+				return getDemoEditorAddFilesTourSteps();
+			case 'tour-site-editor':
+				return getSiteEditorTourSteps();
+		}
+
+		function getDefaultTourSteps() {
+			return [
+				{
+					element: '#editor-sidepanel',
+					placement: 'right',
+					backdrop: true,
+					title: 'Theme options',
+					content: '<p>Use the Theme Options panel to choose how your site looks</p>'
+				},
+				{
+					element: '.editor-main',
+					container: '.editor-main',
+					placement: 'top',
+					backdrop: true,
+					title: 'Live preview',
+					content: '<p>This preview will automatically update as you edit the theme</p>'
+				},
+				{
+					element: '.title-bar-controls',
+					placement: 'bottom',
+					backdrop: true,
+					title: null,
+					content: null
+				},
+				{
+					element: '#title-bar-toolbar',
+					placement: 'bottom',
+					backdrop: true,
+					title: 'Undo/redo',
+					content: 'Use the toolbar to undo any mistakes as you go along'
+				},
+				{
+					element: 'select[name="theme.id"]',
+					placement: 'bottom',
+					backdrop: true,
+					title: 'Theme selector',
+					content: 'You can choose a different site theme using the theme selector'
+				}
+			];
+		}
+
+		function getDemoEditorTourSteps() {
+			var steps = getDefaultTourSteps();
+
+			var saveButtonStep = steps.filter(function(step) {
+				return (step.element === '.title-bar-controls');
+			})[0];
+
+			saveButtonStep.title = 'Add files';
+			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to add some files</p>';
+
+			return steps;
+		}
+
+		function getDemoEditorAddFilesTourSteps() {
+			var steps = getDefaultTourSteps();
+
+			steps = steps.filter(function(step) {
+				return (step.element === '.editor-main') || (step.element === '.title-bar-controls');
+			});
+
+			var livePreviewStep = steps.filter(function(step) {
+				return (step.element === '.editor-main');
+			})[0];
+			var saveButtonStep = steps.filter(function(step) {
+				return (step.element === '.title-bar-controls');
+			})[0];
+
+			livePreviewStep.title = 'Upload files';
+			livePreviewStep.content = '<p>Drag files onto the preview area to upload them to your site</p>';
+
+			saveButtonStep.title = 'Save your site';
+			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to save it for later</p>';
+
+			return steps;
+		}
+
+		function getSiteEditorTourSteps() {
+			var steps = getDefaultTourSteps();
+
+			var livePreviewStep = steps.filter(function(step) {
+				return (step.element === '.editor-main');
+			})[0];
+			var saveButtonStep = steps.filter(function(step) {
+				return (step.element === '.title-bar-controls');
+			})[0];
+
+			livePreviewStep.content += '<p><strong>Pro tip:</strong> Drag files onto the preview area to upload them to your site</p>';
+
+			saveButtonStep.title = 'Save changes';
+			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to save your changes and leave the editor</p>';
+
+			return steps;
+		}
+	}
 }
