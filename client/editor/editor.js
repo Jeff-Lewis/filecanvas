@@ -1028,7 +1028,7 @@ function startTour() {
 			livePreviewStep.content = '<p>Drag files onto the preview area to upload them to your site</p>';
 
 			saveButtonStep.title = 'Save your site';
-			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to save it for later</p>';
+			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to save it for publishing later</p>';
 
 			return steps;
 		}
