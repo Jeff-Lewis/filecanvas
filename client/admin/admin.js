@@ -86,7 +86,7 @@ function initFormSubmitButtons() {
 
 	$formElements.on('submit', function(event) {
 		var $formElement = $(event.currentTarget);
-		var $submitElements = $formElement.find('input[type="submit"],button');
+		var $submitElements = $formElement.find('input[type="submit"],button[type="submit"]');
 		$submitElements.prop('disabled', true);
 	});
 }
@@ -856,7 +856,7 @@ function initModalForms() {
 		var targetIframeName = $formElement.attr('target');
 		var $targetIframe = $('[name="' + targetIframeName + '"]');
 		var $modalElement = $targetIframe.closest('.modal');
-		var $submitElements = $formElement.find('input[type="submit"],button');
+		var $submitElements = $formElement.find('input[type="submit"],button[type="submit"]');
 		$modalElement.modal('show').on('hide.bs.modal', function() {
 			$submitElements.prop('disabled', false);
 		});
