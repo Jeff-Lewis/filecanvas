@@ -94,7 +94,7 @@ module.exports = function(database, config) {
 			thumbnailsPath: path.join(thumbnailsPath, 'theme'),
 			thumbnailWidth: config.themes.thumbnail.width,
 			thumbnailHeight: config.themes.thumbnail.height,
-			thumbnailFormat: config.themes.thumbnail.format,
+			thumbnailFormat: config.themes.thumbnail.format
 		}),
 		'try': demoApp(database, {
 			host: config.host,
