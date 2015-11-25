@@ -341,6 +341,7 @@ function initLivePreview() {
 			$formElement.on('reset', onFormReset);
 			$formElement.on('input', onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
+			preventEnterKeyFormSubmission($formElement);
 			$undoButtonElement.on('click', onUndoButtonClicked);
 			$redoButtonElement.on('click', onRedoButtonClicked);
 			Mousetrap.bind('mod+z', onCtrlZPressed);
@@ -397,6 +398,21 @@ function initLivePreview() {
 				}
 				if (hasChanged) {
 					updateCallback(formValues, { userInitiated: true });
+				}
+			}
+
+			function preventEnterKeyFormSubmission($formElement) {
+				$formElement.on('keypress', onFormKeyPressed);
+
+
+				function onFormKeyPressed(event) {
+					var KEYCODE_ENTER = 13;
+					if (event.keyCode !== KEYCODE_ENTER) { return; }
+					var inputElement = event.target;
+					if (inputElement.tagName === 'TEXTAREA') { return; }
+					var isThemeSettingsField = /^theme\./.test(inputElement.name);
+					if (!isThemeSettingsField) { return; }
+					event.preventDefault();
 				}
 			}
 
