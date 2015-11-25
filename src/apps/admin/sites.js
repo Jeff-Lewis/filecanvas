@@ -6,7 +6,6 @@ var merge = require('lodash.merge');
 var handlebarsEngine = require('../../engines/handlebars');
 
 var readDirContentsSync = require('../../utils/readDirContentsSync');
-var expandConfigPlaceholders = require('../../utils/expandConfigPlaceholders');
 
 var HttpError = require('../../errors/HttpError');
 
@@ -231,12 +230,8 @@ module.exports = function(database, options) {
 				};
 
 				var theme = themeService.getTheme(themeId);
-				var defaultThemeConfig = expandConfigPlaceholders(theme.defaults, {
-					site: {
-						label: siteModel.label
-					}
-				});
-				siteModel.theme.config = merge({}, defaultThemeConfig, themeConfig);
+				var themeConfigDefaults = theme.defaults;
+				siteModel.theme.config = merge({}, themeConfigDefaults, themeConfig);
 
 				return resolve(
 					siteService.createSite(siteModel, siteTemplateFiles)

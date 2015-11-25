@@ -685,7 +685,7 @@
 				{
 					"name": "title",
 					"type": "string",
-					"default": "<%= site.label %>",
+					"default": "",
 					"label": "Tab title",
 					"editor": {
 						"name": "input",

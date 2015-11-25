@@ -19,7 +19,6 @@ var getFormFieldValues = require('./utils/getFormFieldValues');
 var setFormFieldValues = require('./utils/setFormFieldValues');
 
 var parseThemeConfigDefaults = require('../../src/utils/parseThemeConfigDefaults');
-var expandConfigPlaceholders = require('../../src/utils/expandConfigPlaceholders');
 var serializeQueryParams = require('../../src/utils/serializeQueryParams');
 var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
 
@@ -84,7 +83,6 @@ function initSidepanel() {
 
 function initLivePreview() {
 	var $formElement = $('[data-editor-form]');
-	var $siteLabelElement = $('[data-editor-site-label]');
 	var $adapterConfigElement = $('[data-editor-adapter-config]');
 	var $themeMetadataUrlElement = $('[data-editor-theme-metadata-url]');
 	var $themeTemplateUrlElement = $('[data-editor-theme-template-url]');
@@ -101,7 +99,6 @@ function initLivePreview() {
 	var iframeSrc = $previewElement.data('src');
 	var engineName = $previewElement.data('editor-preview');
 	var templateId = TEMPLATE_ID_INDEX;
-	var siteLabel = $siteLabelElement.val();
 	var precompiledThemeOptionsTemplate = Handlebars.templates['theme-options'];
 	var themeOptionsTemplateFunction = createHandlebarsTemplateFunction(precompiledThemeOptionsTemplate);
 
@@ -281,12 +278,7 @@ function initLivePreview() {
 			.then(function(theme) {
 				var themeConfigSchema = theme.config;
 				var themeConfigDefaults = parseThemeConfigDefaults(themeConfigSchema);
-				var defaultThemeConfig = expandConfigPlaceholders(themeConfigDefaults, {
-					site: {
-						label: siteLabel
-					}
-				});
-				var themeConfig = (themeOverrides.config ? merge({}, defaultThemeConfig, themeOverrides.config) : defaultThemeConfig);
+				var themeConfig = (themeOverrides.config ? merge({}, themeConfigDefaults, themeOverrides.config) : themeConfigDefaults);
 				siteModel.metadata.themeRoot = themeRootUrl;
 				siteModel.metadata.theme = {
 					id: themeId,

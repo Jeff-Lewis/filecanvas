@@ -10,7 +10,6 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
 var loadAdapters = require('../utils/loadAdapters');
-var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
 
 var HttpError = require('../errors/HttpError');
 
@@ -572,23 +571,13 @@ module.exports = function(database, options) {
 			if (!themeIdOverride && !themeConfigOverrides) { return siteTheme; }
 			var themeId = themeIdOverride || siteTheme.id;
 			var themeHasChanged = themeId && (themeId !== siteTheme.id);
-			var themeConfigBase = (themeHasChanged ? loadThemeDefaults(themeId, siteModel) : siteTheme.config);
+			var theme = themeService.getTheme(themeId);
+			var themeConfigBase = (themeHasChanged ? theme.defaults : siteTheme.config);
 			var themeConfig = merge({}, themeConfigBase, themeConfigOverrides);
 			return {
 				id: themeId,
 				config: themeConfig
 			};
-
-
-			function loadThemeDefaults(themeId, siteModel) {
-				var theme = themeService.getTheme(themeId);
-				var defaultThemeConfig = expandConfigPlaceholders(theme.defaults, {
-					site: {
-						label: siteModel.label
-					}
-				});
-				return defaultThemeConfig;
-			}
 		}
 	}
 };

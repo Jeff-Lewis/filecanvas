@@ -16,7 +16,6 @@ var adminAuth = require('../apps/admin/middleware/adminAuth');
 
 var loadAdapters = require('../utils/loadAdapters');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
-var expandConfigPlaceholders = require('../utils/expandConfigPlaceholders');
 
 var handlebarsEngine = require('../engines/handlebars');
 
@@ -442,12 +441,8 @@ module.exports = function(database, options) {
 
 			new Promise(function(resolve, reject) {
 				var theme = themeService.getTheme(themeId);
-				var defaultThemeConfig = expandConfigPlaceholders(theme.defaults, {
-					site: {
-						label: siteLabel
-					}
-				});
-				var themeConfig = merge({}, defaultThemeConfig, themeConfigOverrides);
+				var themeConfigDefaults = theme.defaults;
+				var themeConfig = merge({}, themeConfigDefaults, themeConfigOverrides);
 				var username = userModel.username;
 				var siteModel = {
 					'owner': username,
