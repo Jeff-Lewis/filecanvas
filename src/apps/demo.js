@@ -4,6 +4,8 @@ var merge = require('lodash.merge');
 var isUrl = require('is-url');
 var express = require('express');
 
+var previewApp = require('./demo/preview');
+
 var transport = require('../middleware/transport');
 var nestedFormValues = require('../middleware/nestedFormValues');
 var sessionState = require('../middleware/sessionState');
@@ -84,6 +86,9 @@ module.exports = function(database, options) {
 		adapters: adapters
 	});
 	initRoutes(app);
+	initSitePreview(app, database, {
+		adapters: adapters
+	});
 	initErrorHandler(app, {
 		templatesPath: errorTemplatesPath,
 		template: 'error'
@@ -126,6 +131,15 @@ module.exports = function(database, options) {
 
 		app.set('views', templatesPath);
 		app.set('view engine', 'hbs');
+	}
+
+	function initSitePreview(app, database, options) {
+		options = options || {};
+		var adapters = options.adapters;
+
+		app.use('/editor/preview', previewApp(database, {
+			adapters: adapters
+		}));
 	}
 
 	function initRoutes(app) {
@@ -271,6 +285,11 @@ module.exports = function(database, options) {
 					(useDummyFiles ? Promise.resolve(theme.preview.files) : loadFolderContents(siteRoot, adapters, userModel))
 						.then(function(siteContent) {
 							var adapterConfig = (useDummyFiles ? null : getSiteUploadConfig(siteRoot, adapters, userModel));
+							var sitePreviewUrl = (
+								useDummyFiles ?
+									stripTrailingSlash(themesUrl) + '/' + themeId + '/preview' :
+									'/editor/preview/' + encodeURIComponent(siteModel.root.adapter + ':' + siteModel.root.path)
+							);
 							var templateData = {
 								title: 'Theme editor',
 								stylesheets: [
@@ -297,7 +316,7 @@ module.exports = function(database, options) {
 									previewUrl: null,
 									preview: {
 										metadata: {
-											siteRoot: stripTrailingSlash(themesUrl) + '/' + themeId + '/preview/',
+											siteRoot: sitePreviewUrl + '/',
 											themeRoot: themeAssetsRoot,
 											theme: siteModel.theme,
 											preview: true,
