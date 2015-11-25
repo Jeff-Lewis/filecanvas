@@ -935,10 +935,11 @@ function startTour() {
 	var currentPath = document.location.pathname;
 	var tourId = getTourId(currentPath);
 	var tourSteps = getFilteredTourSteps(tourId);
+	var isDemoTour = (tourId === TOUR_ID_DEMO_EDITOR) || (tourId === TOUR_ID_DEMO_ADD_FILES);
 	var tour = new window.Tour({
 		name: tourId,
 		steps: tourSteps,
-		storage: window.localStorage
+		storage: (isDemoTour ? window.sessionStorage : window.localStorage)
 	});
 	tour.init();
 	tour.start();
