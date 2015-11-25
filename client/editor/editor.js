@@ -925,7 +925,7 @@ function initLivePreview(callback) {
 
 function startTour() {
 	var tour = new window.Tour({
-		storage: false,
+		storage: window.sessionStorage,
 		steps: [
 			{
 				element: '#editor-sidepanel',
