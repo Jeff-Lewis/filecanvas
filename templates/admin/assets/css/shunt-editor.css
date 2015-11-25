@@ -7,6 +7,7 @@
 }
 .editor-main > .popover {
 	top: 60px !important;
+	box-shadow: 0 0 64px rgba(0, 0, 0, 0.5);
 }
 .editor-main > .popover > .arrow {
 	display: none;
