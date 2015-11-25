@@ -924,131 +924,158 @@ function initLivePreview(callback) {
 }
 
 function startTour() {
-	var tourId = getTourId();
+	var DEMO_EDITOR_PATH = '/editor';
+	var DEMO_ADD_FILES_PATH = '/editor/add-files';
+	var SITE_EDITOR_PATH = /^\/sites\/[^\/]+\/edit$/;
+
+	var TOUR_ID_DEMO_EDITOR = 'demo-tour';
+	var TOUR_ID_DEMO_ADD_FILES = 'demo-add-files-tour';
+	var TOUR_ID_SITE_EDITOR = 'edit-tour';
+
+	var currentPath = document.location.pathname;
+	var tourId = getTourId(currentPath);
+	var tourSteps = getFilteredTourSteps(tourId);
 	var tour = new window.Tour({
 		name: tourId,
-		steps: getTourSteps(tourId),
+		steps: tourSteps,
 		storage: window.localStorage
 	});
 	tour.init();
 	tour.start();
 
 
-	function getTourId() {
-		switch (document.location.pathname) {
-			case '/editor':
-				return 'tour-demo-editor';
-			case '/editor/add-files':
-				return 'tour-demo-editor-add-files';
-			default:
-				return 'tour-site-editor';
+	function getTourId(pathname) {
+		if (getIsMatch(pathname, DEMO_EDITOR_PATH)) {
+			return TOUR_ID_DEMO_EDITOR;
+		} else if (getIsMatch(pathname, DEMO_ADD_FILES_PATH)) {
+			return TOUR_ID_DEMO_ADD_FILES;
+		} else if (getIsMatch(pathname, SITE_EDITOR_PATH)) {
+			return TOUR_ID_SITE_EDITOR;
+		} else {
+			return null;
+		}
+
+
+		function getIsMatch(value, filter) {
+			if (typeof filter === 'string') {
+				return value === filter;
+			} else if (filter instanceof RegExp) {
+				return filter.test(value);
+			} else if (typeof filter === 'function') {
+				return filter(value);
+			} else if (Array.isArray(filter)) {
+				return filter.some(function(filter) {
+					return getIsMatch(value, filter);
+				});
+			} else {
+				return false;
+			}
 		}
 	}
 
-	function getTourSteps(tourId) {
-		switch (tourId) {
-			case 'tour-demo-editor':
-				return getDemoEditorTourSteps();
-			case 'tour-demo-editor-add-files':
-				return getDemoEditorAddFilesTourSteps();
-			case 'tour-site-editor':
-				return getSiteEditorTourSteps();
-		}
+	function getFilteredTourSteps(tourId) {
+		var TOUR_STEPS = [
+			{
+				element: '#editor-sidepanel',
+				placement: 'right',
+				backdrop: true,
+				title: 'Theme options',
+				content: '<p>Use the Theme Options panel to choose how your site looks</p>',
+				filter: [
+					TOUR_ID_DEMO_EDITOR,
+					TOUR_ID_SITE_EDITOR
+				]
+			},
+			{
+				element: '.editor-main',
+				container: '.editor-main',
+				placement: 'top',
+				backdrop: true,
+				title: 'Live preview',
+				content: '<p>This preview will automatically update as you edit the theme</p>',
+				filter: [
+					TOUR_ID_DEMO_EDITOR
+				]
+			},
+			{
+				element: '.editor-main',
+				container: '.editor-main',
+				placement: 'top',
+				backdrop: true,
+				title: 'Upload files',
+				content: '<p>Drag files onto the preview area to upload them to your site</p>',
+				filter: [
+					TOUR_ID_DEMO_ADD_FILES
+				]
+			},
+			{
+				element: '.editor-main',
+				container: '.editor-main',
+				placement: 'top',
+				backdrop: true,
+				title: 'Live preview',
+				content: '<p>Drag files onto the preview area to upload them to your site</p><p><strong>Pro tip:</strong> Drag files onto the preview area to upload them to your site</p>',
+				filter: [
+					TOUR_ID_SITE_EDITOR
+				]
+			},
+			{
+				element: '.title-bar-controls',
+				placement: 'bottom',
+				backdrop: true,
+				title: 'Add files',
+				content: '<p>Once you’re happy with how your site looks, click here to add some files</p>',
+				filter: [
+					TOUR_ID_DEMO_EDITOR
+				]
+			},
+			{
+				element: '.title-bar-controls',
+				placement: 'bottom',
+				backdrop: true,
+				title: 'Save your site',
+				content: '<p>Once you’re happy with how your site looks, click here to save it for publishing later</p>',
+				filter: [
+					TOUR_ID_DEMO_ADD_FILES
+				]
+			},
+			{
+				element: '.title-bar-controls',
+				placement: 'bottom',
+				backdrop: true,
+				title: 'Save changes',
+				content: '<p>Once you’re happy with how your site looks, click here to save your changes and leave the editor</p>',
+				filter: [
+					TOUR_ID_SITE_EDITOR
+				]
+			},
+			{
+				element: '#title-bar-toolbar .title-bar-toolbar-container',
+				placement: 'bottom',
+				backdrop: true,
+				backdropPadding: 4,
+				title: 'Undo/redo',
+				content: 'Use the toolbar to undo any mistakes as you go along',
+				filter: [
+					TOUR_ID_DEMO_EDITOR,
+					TOUR_ID_SITE_EDITOR
+				]
+			},
+			{
+				element: 'select[name="theme.id"]',
+				placement: 'bottom',
+				backdrop: true,
+				title: 'Theme selector',
+				content: 'You can choose a different site theme using the theme selector',
+				filter: [
+					TOUR_ID_DEMO_EDITOR,
+					TOUR_ID_SITE_EDITOR
+				]
+			}
+		];
 
-		function getDefaultTourSteps() {
-			return [
-				{
-					element: '#editor-sidepanel',
-					placement: 'right',
-					backdrop: true,
-					title: 'Theme options',
-					content: '<p>Use the Theme Options panel to choose how your site looks</p>'
-				},
-				{
-					element: '.editor-main',
-					container: '.editor-main',
-					placement: 'top',
-					backdrop: true,
-					title: 'Live preview',
-					content: '<p>This preview will automatically update as you edit the theme</p>'
-				},
-				{
-					element: '.title-bar-controls',
-					placement: 'bottom',
-					backdrop: true,
-					title: null,
-					content: null
-				},
-				{
-					element: '#title-bar-toolbar .title-bar-toolbar-container',
-					placement: 'bottom',
-					backdrop: true,
-					backdropPadding: 4,
-					title: 'Undo/redo',
-					content: 'Use the toolbar to undo any mistakes as you go along'
-				},
-				{
-					element: 'select[name="theme.id"]',
-					placement: 'bottom',
-					backdrop: true,
-					title: 'Theme selector',
-					content: 'You can choose a different site theme using the theme selector'
-				}
-			];
-		}
-
-		function getDemoEditorTourSteps() {
-			var steps = getDefaultTourSteps();
-
-			var saveButtonStep = steps.filter(function(step) {
-				return (step.element === '.title-bar-controls');
-			})[0];
-
-			saveButtonStep.title = 'Add files';
-			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to add some files</p>';
-
-			return steps;
-		}
-
-		function getDemoEditorAddFilesTourSteps() {
-			var steps = getDefaultTourSteps();
-
-			steps = steps.filter(function(step) {
-				return (step.element === '.editor-main') || (step.element === '.title-bar-controls');
-			});
-
-			var livePreviewStep = steps.filter(function(step) {
-				return (step.element === '.editor-main');
-			})[0];
-			var saveButtonStep = steps.filter(function(step) {
-				return (step.element === '.title-bar-controls');
-			})[0];
-
-			livePreviewStep.title = 'Upload files';
-			livePreviewStep.content = '<p>Drag files onto the preview area to upload them to your site</p>';
-
-			saveButtonStep.title = 'Save your site';
-			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to save it for publishing later</p>';
-
-			return steps;
-		}
-
-		function getSiteEditorTourSteps() {
-			var steps = getDefaultTourSteps();
-
-			var livePreviewStep = steps.filter(function(step) {
-				return (step.element === '.editor-main');
-			})[0];
-			var saveButtonStep = steps.filter(function(step) {
-				return (step.element === '.title-bar-controls');
-			})[0];
-
-			livePreviewStep.content += '<p><strong>Pro tip:</strong> Drag files onto the preview area to upload them to your site</p>';
-
-			saveButtonStep.title = 'Save changes';
-			saveButtonStep.content = '<p>Once you’re happy with how your site looks, click here to save your changes and leave the editor</p>';
-
-			return steps;
-		}
+		return TOUR_STEPS.filter(function filter(step) {
+			return !step.filter || (step.filter.indexOf(tourId) !== -1);
+		});
 	}
 }
