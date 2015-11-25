@@ -2,6 +2,7 @@
 
 var path = require('path');
 var express = require('express');
+var escapeRegExp = require('escape-regexp');
 var objectAssign = require('object-assign');
 var isEqual = require('lodash.isequal');
 var slug = require('slug');
@@ -340,7 +341,7 @@ function parseStatModel(statModel, options) {
 
 	function createFileModel(statModel, rootPath) {
 		var fileMetadata = {
-			path: statModel.path.replace(rootPath, '') || '/',
+			path: stripRootPrefix(statModel.path, rootPath) || '/',
 			mimeType: statModel.mime_type || null,
 			size: statModel.bytes,
 			modified: new Date(statModel.modified).toISOString(),
@@ -355,6 +356,10 @@ function parseStatModel(statModel, options) {
 			}
 		}
 		return new FileModel(fileMetadata);
+	}
+
+	function stripRootPrefix(filePath, rootPath) {
+		return filePath.replace(new RegExp('^' + escapeRegExp(rootPath), 'i'), '');
 	}
 }
 
