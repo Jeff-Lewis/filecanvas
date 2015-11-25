@@ -495,7 +495,7 @@ function deleteSiteUser(database, username, siteName, siteUsername) {
 function generateSiteFiles(siteTemplateFiles, context) {
 	var flattenedTemplateFiles = flattenPathHierarchy(siteTemplateFiles);
 	var expandedTemplateFiles = expandPlaceholders(flattenedTemplateFiles, context);
-	return convertMarkdownFiles(expandedTemplateFiles, { pdf: false });
+	return convertMarkdownFiles(expandedTemplateFiles, { pdf: true });
 
 
 	function flattenPathHierarchy(tree, pathPrefix) {
