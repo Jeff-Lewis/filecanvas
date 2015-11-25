@@ -24,14 +24,15 @@ module.exports = function(options) {
 
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
-		partialsPath: partialsPath
+		partialsPath: partialsPath,
+		sessionMiddleware: sessionMiddleware
 	});
 
 	var faqData = JSON.parse(fs.readFileSync(faqPath, { encoding: 'utf8' }));
 
 	var app = express();
 
-	initRoutes(app, faqData, sessionMiddleware);
+	initRoutes(app);
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -48,8 +49,8 @@ module.exports = function(options) {
 		app.set('view engine', 'hbs');
 	}
 
-	function initRoutes(app, faqData, sessionMiddleware) {
-		app.get('/', sessionMiddleware, retrieveFaqRoute);
+	function initRoutes(app) {
+		app.get('/', retrieveFaqRoute);
 
 
 		function retrieveFaqRoute(req, res, next) {

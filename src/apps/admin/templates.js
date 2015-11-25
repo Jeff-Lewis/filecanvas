@@ -15,12 +15,12 @@ module.exports = function(options) {
 
 	var app = express();
 
-	initRoutes(app, templatesPath, partialsPath);
+	initRoutes(app);
 
 	return app;
 
 
-	function initRoutes(app, templatesPath, partialsPath) {
+	function initRoutes(app) {
 		app.get('/partials/theme-options.js', retrieveThemeOptionsPartialRoute);
 
 

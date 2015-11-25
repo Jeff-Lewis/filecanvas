@@ -10,8 +10,17 @@ function AdminPageService(options) {
 	options = options || {};
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
+	var sessionMiddleware = options.sessionMiddleware;
 	this.templatesPath = templatesPath;
 	this.partials = resolvePartials(partialsPath);
+	this.loadSessionData = function(req, res) {
+		return new Promise(function(resolve, reject) {
+			sessionMiddleware(req, res, function(error) {
+				if (error) { return reject(error); }
+				resolve();
+			});
+		});
+	};
 }
 
 AdminPageService.prototype.template = null;
@@ -26,14 +35,17 @@ AdminPageService.prototype.render = function(req, res, options) {
 	var context = options.context || null;
 	var templateOptions = merge({ partials: this.partials }, options.options);
 
-	var templateData = getTemplateData(req, res, context, templateOptions);
-	if (req.session && req.session.state) {
-		delete req.session.state;
-	}
-	return renderTemplate(pageTemplateName, templateData)
-		.then(function(data) {
-			res.send(data);
-			return data;
+	return this.loadSessionData(req, res)
+		.then(function() {
+			var templateData = getTemplateData(req, res, context, templateOptions);
+			if (req.session && req.session.state) {
+				delete req.session.state;
+			}
+			return renderTemplate(pageTemplateName, templateData)
+				.then(function(data) {
+					res.send(data);
+					return data;
+				});
 		});
 
 

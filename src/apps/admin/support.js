@@ -18,12 +18,13 @@ module.exports = function(options) {
 
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
-		partialsPath: partialsPath
+		partialsPath: partialsPath,
+		sessionMiddleware: sessionMiddleware
 	});
 
 	var app = express();
 
-	initRoutes(app, sessionMiddleware);
+	initRoutes(app);
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -40,8 +41,8 @@ module.exports = function(options) {
 		app.set('view engine', 'hbs');
 	}
 
-	function initRoutes(app, sessionMiddleware) {
-		app.get('/', sessionMiddleware, retrieveSupportRoute);
+	function initRoutes(app) {
+		app.get('/', retrieveSupportRoute);
 
 
 		function retrieveSupportRoute(req, res, next) {

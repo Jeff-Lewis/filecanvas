@@ -265,8 +265,7 @@ module.exports = function(database, options) {
 				errorTemplatesPath: errorTemplatesPath,
 				themesPath: themesPath,
 				themeAssetsUrl: themeAssetsUrl,
-				adaptersConfig: adaptersConfig,
-				sessionMiddleware: initAdminSession
+				adaptersConfig: adaptersConfig
 			})
 		]));
 	}
@@ -275,14 +274,12 @@ module.exports = function(database, options) {
 		options = options || {};
 		var host = options.host;
 		var adapters = options.adapters;
-		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/adapters', composeMiddleware([
 			ensureAuth('/login'),
 			adaptersApp(database, {
 				host: host,
-				adapters: adapters,
-				sessionMiddleware: sessionMiddleware
+				adapters: adapters
 			})
 		]));
 	}

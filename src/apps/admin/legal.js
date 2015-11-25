@@ -13,12 +13,12 @@ module.exports = function(options) {
 
 	var app = express();
 
-	initRoutes(app, templatesPath);
+	initRoutes(app);
 
 	return app;
 
 
-	function initRoutes(app, templatesPath) {
+	function initRoutes(app) {
 		var routes = {
 			'/terms': TERMS_TEMPLATE_PATH,
 			'/privacy': PRIVACY_TEMPLATE_PATH

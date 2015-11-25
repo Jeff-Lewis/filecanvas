@@ -53,12 +53,13 @@ module.exports = function(database, options) {
 	});
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
-		partialsPath: partialsPath
+		partialsPath: partialsPath,
+		sessionMiddleware: sessionMiddleware
 	});
 
 	var app = express();
 
-	initRoutes(app, sessionMiddleware);
+	initRoutes(app);
 
 	initViewEngine(app, {
 		templatesPath: templatesPath
@@ -76,22 +77,22 @@ module.exports = function(database, options) {
 		app.set('view engine', 'hbs');
 	}
 
-	function initRoutes(app, sessionMiddleware) {
-		app.get('/', sessionMiddleware, retrieveSitesRoute);
-		app.post('/', sessionMiddleware, createSiteRoute);
-		app.get('/create-site', sessionMiddleware, retrieveCreateSiteRoute);
-		app.get('/create-site/themes', sessionMiddleware, retrieveCreateSiteThemesRoute);
-		app.get('/create-site/themes/:theme', sessionMiddleware, retrieveCreateSiteThemeRoute);
-		app.get('/:site', sessionMiddleware, retrieveSiteRoute);
-		app.put('/:site', sessionMiddleware, updateSiteRoute);
-		app.delete('/:site', sessionMiddleware, deleteSiteRoute);
+	function initRoutes(app) {
+		app.get('/', retrieveSitesRoute);
+		app.post('/', createSiteRoute);
+		app.get('/create-site', retrieveCreateSiteRoute);
+		app.get('/create-site/themes', retrieveCreateSiteThemesRoute);
+		app.get('/create-site/themes/:theme', retrieveCreateSiteThemeRoute);
+		app.get('/:site', retrieveSiteRoute);
+		app.put('/:site', updateSiteRoute);
+		app.delete('/:site', deleteSiteRoute);
 
-		app.get('/:site/users', sessionMiddleware, retrieveSiteUsersRoute);
-		app.post('/:site/users', sessionMiddleware, createSiteUserRoute);
-		app.put('/:site/users/:username', sessionMiddleware, updateSiteUserRoute);
-		app.delete('/:site/users/:username', sessionMiddleware, deleteSiteUserRoute);
+		app.get('/:site/users', retrieveSiteUsersRoute);
+		app.post('/:site/users', createSiteUserRoute);
+		app.put('/:site/users/:username', updateSiteUserRoute);
+		app.delete('/:site/users/:username', deleteSiteUserRoute);
 
-		app.get('/:site/edit', sessionMiddleware, retrieveSiteEditRoute);
+		app.get('/:site/edit', retrieveSiteEditRoute);
 
 
 		function retrieveSitesRoute(req, res, next) {

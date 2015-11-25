@@ -26,12 +26,13 @@ module.exports = function(database, options) {
 	var registrationService = new RegistrationService();
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
-		partialsPath: partialsPath
+		partialsPath: partialsPath,
+		sessionMiddleware: sessionMiddleware
 	});
 
 	var app = express();
 
-	initRoutes(app, sessionMiddleware);
+	initRoutes(app);
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -48,11 +49,11 @@ module.exports = function(database, options) {
 		app.set('view engine', 'hbs');
 	}
 
-	function initRoutes(app, sessionMiddleware) {
-		app.get('/login', redirectIfLoggedIn('/'), sessionMiddleware, retrieveLoginRoute);
-		app.get('/register', redirectIfLoggedIn('/'), sessionMiddleware, retrieveRegisterRoute);
-		app.post('/register', redirectIfLoggedIn('/'), sessionMiddleware, processRegisterRoute);
-		app.get('/logout', redirectIfLoggedOut('/'), sessionMiddleware, retrieveLogoutRoute);
+	function initRoutes(app) {
+		app.get('/login', redirectIfLoggedIn('/'), retrieveLoginRoute);
+		app.get('/register', redirectIfLoggedIn('/'), retrieveRegisterRoute);
+		app.post('/register', redirectIfLoggedIn('/'), processRegisterRoute);
+		app.get('/logout', redirectIfLoggedOut('/'), retrieveLogoutRoute);
 
 
 		function redirectIfLoggedIn(redirectPath) {

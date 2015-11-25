@@ -8,11 +8,9 @@ module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host || null;
 	var adapters = options.adapters || null;
-	var sessionMiddleware = options.sessionMiddleware || null;
 
 	if (!host) { throw new Error('Missing host name'); }
 	if (!adapters) { throw new Error('Missing adapters'); }
-	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
 
 	var siteService = new SiteService(database, {
 		host: host,
@@ -21,13 +19,13 @@ module.exports = function(database, options) {
 
 	var app = express();
 
-	initRoutes(app, sessionMiddleware);
+	initRoutes(app);
 
 	return app;
 
 
-	function initRoutes(app, sessionMiddleware) {
-		app.get('/:adapter/metadata/*', sessionMiddleware, retrieveFileMetadataRoute);
+	function initRoutes(app) {
+		app.get('/:adapter/metadata/*', retrieveFileMetadataRoute);
 
 
 		function retrieveFileMetadataRoute(req, res, next) {

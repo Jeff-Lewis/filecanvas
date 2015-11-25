@@ -73,7 +73,8 @@ module.exports = function(database, options) {
 	});
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
-		partialsPath: partialsPath
+		partialsPath: partialsPath,
+		sessionMiddleware: initAdminSession
 	});
 
 	var app = express();
@@ -132,6 +133,41 @@ module.exports = function(database, options) {
 		app.set('view engine', 'hbs');
 	}
 
+	function initAdminSession(req, res, next) {
+		var sessionData = getSessionData(req);
+		Object.keys(sessionData).forEach(function(key) {
+			res.locals[key] = sessionData[key];
+		});
+		next();
+
+
+		function getSessionData(req) {
+			var userModel = req.user || null;
+			var urlService = new UrlService(req);
+			return {
+				location: urlService.location,
+				urls: {
+					root: urlService.location.protocol + '//' + urlService.location.host,
+					webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
+					domain: urlService.getSubdomainUrl('$0'),
+					assets: adminAssetsUrl,
+					themeAssets: stripTrailingSlash(themeAssetsUrl),
+					themes: stripTrailingSlash(themesUrl),
+					admin: stripTrailingSlash(adminUrl),
+					templates: stripTrailingSlash(adminTemplatesUrl),
+					demo: {
+						login: '/login',
+						themes: '/themes',
+						editor: '/editor',
+						linkSiteFolder: '/editor/add-files',
+						publish: '/editor/publish',
+						terms: stripTrailingSlash(adminUrl) + '/terms'
+					}
+				}
+			};
+		}
+	}
+
 	function initSitePreview(app, options) {
 		options = options || {};
 		var adapters = options.adapters;
@@ -144,11 +180,11 @@ module.exports = function(database, options) {
 	function initRoutes(app) {
 		app.get('/', redirect('/themes'));
 		app.get('/themes', retrieveThemesRoute);
-		app.get('/themes/:theme', initAdminSession, retrieveThemeRoute);
-		app.get('/editor', initAdminSession, retrieveThemeEditorRoute);
-		app.post('/login', initAdminSession, createThemeEditorLoginRoute);
-		app.post('/editor/add-files', ensureAuth('/editor'), initAdminSession, createSiteFolderRoute);
-		app.post('/editor/publish', ensureAuth('/editor'), initAdminSession, createSiteRoute);
+		app.get('/themes/:theme', retrieveThemeRoute);
+		app.get('/editor', retrieveThemeEditorRoute);
+		app.post('/login', createThemeEditorLoginRoute);
+		app.post('/editor/add-files', ensureAuth('/editor'), createSiteFolderRoute);
+		app.post('/editor/publish', ensureAuth('/editor'), createSiteRoute);
 
 
 		function ensureAuth(loginUrl) {
@@ -159,41 +195,6 @@ module.exports = function(database, options) {
 					res.redirect(loginUrl);
 				}
 			};
-		}
-
-		function initAdminSession(req, res, next) {
-			var sessionData = getSessionData(req);
-			Object.keys(sessionData).forEach(function(key) {
-				res.locals[key] = sessionData[key];
-			});
-			next();
-
-
-			function getSessionData(req) {
-				var userModel = req.user || null;
-				var urlService = new UrlService(req);
-				return {
-					location: urlService.location,
-					urls: {
-						root: urlService.location.protocol + '//' + urlService.location.host,
-						webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
-						domain: urlService.getSubdomainUrl('$0'),
-						assets: adminAssetsUrl,
-						themeAssets: stripTrailingSlash(themeAssetsUrl),
-						themes: stripTrailingSlash(themesUrl),
-						admin: stripTrailingSlash(adminUrl),
-						templates: stripTrailingSlash(adminTemplatesUrl),
-						demo: {
-							login: '/login',
-							themes: '/themes',
-							editor: '/editor',
-							linkSiteFolder: '/editor/add-files',
-							publish: '/editor/publish',
-							terms: stripTrailingSlash(adminUrl) + '/terms'
-						}
-					}
-				};
-			}
 		}
 
 		function retrieveThemesRoute(req, res, next) {

@@ -21,12 +21,13 @@ module.exports = function(database, options) {
 	var userService = new UserService(database);
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
-		partialsPath: partialsPath
+		partialsPath: partialsPath,
+		sessionMiddleware: sessionMiddleware
 	});
 
 	var app = express();
 
-	initRoutes(app, sessionMiddleware);
+	initRoutes(app);
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -43,10 +44,10 @@ module.exports = function(database, options) {
 		app.set('view engine', 'hbs');
 	}
 
-	function initRoutes(app, sessionMiddleware) {
-		app.get('/', sessionMiddleware, retrieveUserAccountRoute);
-		app.put('/', sessionMiddleware, updateUserAccountRoute);
-		app.delete('/', sessionMiddleware, deleteUserAccountRoute);
+	function initRoutes(app) {
+		app.get('/', retrieveUserAccountRoute);
+		app.put('/', updateUserAccountRoute);
+		app.delete('/', deleteUserAccountRoute);
 
 
 		function retrieveUserAccountRoute(req, res, next) {
