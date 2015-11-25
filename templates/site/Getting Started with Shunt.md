@@ -6,7 +6,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 
 ## Site details
 
-| Web address | Site folder within ${user.profileName}'s Dropbox |
+| Web address | Site folder within ${site.root.adapter === 'dropbox' ? user.adapters.dropbox.firstName + ' ' + user.adapters.dropbox.lastName + '’s Dropbox' : 'Shunt server'} |
 | ----------- | ------------------------------------------------ |
 | [http://${user.username}.${host}/${site.name}](http://${user.username}.${host}/${site.name}) | `${site.root.path}` |
 
