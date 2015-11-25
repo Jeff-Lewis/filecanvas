@@ -2,18 +2,13 @@
 
 var express = require('express');
 
-var UserService = require('../../services/UserService');
-
 var HttpError = require('../../errors/HttpError');
 
-module.exports = function(database, options) {
+module.exports = function(options) {
 	options = options || {};
 	var adapters = options.adapters || null;
 
-	if (!database) { throw new Error('Missing database'); }
 	if (!adapters) { throw new Error('Missing adapters'); }
-
-	var userService = new UserService(database);
 
 	var app = express();
 
@@ -41,22 +36,19 @@ module.exports = function(database, options) {
 
 		function retrieveDownloadRoute(req, res, next) {
 			var userModel = req.user;
-			var username = userModel.username;
+			var userAdapters = userModel.adapters;
 			var urlEncodedSiteRoot = req.params.root;
 			var filePath = req.params[0];
 
 			new Promise(function(resolve, reject) {
 				var siteRoot = parseSiteRoot(urlEncodedSiteRoot);
+				var siteAdapter = siteRoot.adapter;
+				var sitePath = siteRoot.path;
+				var fullPath = sitePath + '/' + filePath;
+				var adapter = adapters[siteAdapter];
+				var adapterOptions = userAdapters[siteAdapter];
 				resolve(
-					userService.retrieveUserAdapters(username)
-						.then(function(userAdapters) {
-							var siteAdapter = siteRoot.adapter;
-							var sitePath = siteRoot.path;
-							var fullPath = sitePath + '/' + filePath;
-							var adapter = adapters[siteAdapter];
-							var adapterOptions = userAdapters[siteAdapter];
-							return adapter.retrieveDownloadLink(fullPath, adapterOptions);
-						})
+					adapter.retrieveDownloadLink(fullPath, adapterOptions)
 						.then(function(downloadUrl) {
 							res.redirect(downloadUrl);
 						})
@@ -69,22 +61,19 @@ module.exports = function(database, options) {
 
 		function retrieveThumbnailRoute(req, res, next) {
 			var userModel = req.user;
-			var username = userModel.username;
+			var userAdapters = userModel.adapters;
 			var urlEncodedSiteRoot = req.params.root;
 			var filePath = req.params[0];
 
 			new Promise(function(resolve, reject) {
 				var siteRoot = parseSiteRoot(urlEncodedSiteRoot);
+				var siteAdapter = siteRoot.adapter;
+				var sitePath = siteRoot.path;
+				var fullPath = sitePath + '/' + filePath;
+				var adapter = adapters[siteAdapter];
+				var adapterOptions = userAdapters[siteAdapter];
 				resolve(
-					userService.retrieveUserAdapters(username)
-						.then(function(userAdapters) {
-							var siteAdapter = siteRoot.adapter;
-							var sitePath = siteRoot.path;
-							var fullPath = sitePath + '/' + filePath;
-							var adapter = adapters[siteAdapter];
-							var adapterOptions = userAdapters[siteAdapter];
-							return adapter.retrieveDownloadLink(fullPath, adapterOptions);
-						})
+					adapter.retrieveDownloadLink(fullPath, adapterOptions)
 						.then(function(downloadUrl) {
 							res.redirect(downloadUrl);
 						})

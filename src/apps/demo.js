@@ -86,7 +86,7 @@ module.exports = function(database, options) {
 		adapters: adapters
 	});
 	initRoutes(app);
-	initSitePreview(app, database, {
+	initSitePreview(app, {
 		adapters: adapters
 	});
 	initErrorHandler(app, {
@@ -133,11 +133,11 @@ module.exports = function(database, options) {
 		app.set('view engine', 'hbs');
 	}
 
-	function initSitePreview(app, database, options) {
+	function initSitePreview(app, options) {
 		options = options || {};
 		var adapters = options.adapters;
 
-		app.use('/editor/preview', previewApp(database, {
+		app.use('/editor/preview', previewApp({
 			adapters: adapters
 		}));
 	}
