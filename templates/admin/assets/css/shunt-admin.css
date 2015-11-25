@@ -633,6 +633,10 @@ body.full-page .title-bar {
     font-weight: bold;
     margin-right: 5px;
 }
+.title-bar-toolbar-container {
+	display: inline-block;
+	height: 100%;
+}
 .btn-toolbar,
 a.btn-toolbar,
 a.btn-toolbar:link,

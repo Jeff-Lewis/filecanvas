@@ -980,9 +980,10 @@ function startTour() {
 					content: null
 				},
 				{
-					element: '#title-bar-toolbar',
+					element: '#title-bar-toolbar .title-bar-toolbar-container',
 					placement: 'bottom',
 					backdrop: true,
+					backdropPadding: 4,
 					title: 'Undo/redo',
 					content: 'Use the toolbar to undo any mistakes as you go along'
 				},
