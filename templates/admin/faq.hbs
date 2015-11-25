@@ -1,4 +1,9 @@
-{{#> index}}
+{{#>index title='FAQ' navigation=true footer=true}}
+	{{#*inline 'navbar'}}
+		{{#>breadcrumb}}
+		{{>breadcrumb-item link=session.urls.faq icon='info-circle' label='FAQ'}}
+		{{/breadcrumb}}
+	{{/inline}}
 	{{#*inline 'content'}}
 		<div class="row">
 			<div class="col-md-12 col-lg-10 mb20">

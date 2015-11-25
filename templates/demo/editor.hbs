@@ -1,4 +1,23 @@
-{{#> index}}
+{{#>index title='Theme editor' fullPage=true}}
+	{{#*inline 'styles'}}
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css"/>
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/css/bootstrap-colorpicker.min.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-editor.css"/>
+		{{#if content.theme.fonts}}
+		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
+		<link rel="stylesheet" href="{{ content.theme.fonts }}"/>
+		{{else}}
+		<link rel="stylesheet" href="{{ session.urls.themeAssets }}/{{ content.theme.id }}/{{ content.theme.fonts }}"/>
+		{{/if}}
+		{{/if}}
+	{{/inline}}
+	{{#*inline 'scripts'}}
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/js/bootstrap-colorpicker.js"></script>
+		<script type="text/javascript" src="{{ session.urls.assets }}js/shunt-editor.js"></script>
+		<script type="text/javascript" src="{{ session.urls.templates }}/partials/theme-options.js"></script>
+		<script type="text/javascript" src="{{ session.urls.themes }}/{{ content.site.theme.id }}/template/index.js"></script>
+	{{/inline}}
 	{{#*inline 'content'}}
 		<form class="editor" role="form" method="POST"
 			{{#unless session.user}}
@@ -29,7 +48,7 @@
 					{{#unless content.site.name}}
 					<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#add-files-modal">Next: Add files</button>
 					{{else}}
-					<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#publish-modal">Publish site</button>
+					<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#publish-modal">Save this canvas</button>
 					{{/unless}}
 					{{/unless}}
 				</div>

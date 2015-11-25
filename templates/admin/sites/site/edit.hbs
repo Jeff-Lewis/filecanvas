@@ -1,4 +1,30 @@
-{{#> index}}
+{{#>index title='Site editor' fullPage=true}}
+	{{#*inline 'styles'}}
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css"/>
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/css/bootstrap-colorpicker.min.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-editor.css"/>
+		{{#if content.theme.fonts}}
+		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
+		<link rel="stylesheet" href="{{ content.theme.fonts }}"/>
+		{{else}}
+		<link rel="stylesheet" href="{{ session.urls.themeAssets }}/{{ content.theme.id }}/{{ content.theme.fonts }}"/>
+		{{/if}}
+		{{/if}}
+	{{/inline}}
+	{{#*inline 'scripts'}}
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js"></script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/js/bootstrap-colorpicker.js"></script>
+		<script type="text/javascript" src="{{ session.urls.assets }}js/shunt-editor.js"></script>
+		<script type="text/javascript" src="{{ session.urls.templates }}/partials/theme-options.js"></script>
+		<script type="text/javascript" src="{{ session.urls.themes }}/{{ content.site.theme.id }}/template/index.js"></script>
+	{{/inline}}
+	{{#*inline 'navbar'}}
+		{{#>breadcrumb}}
+		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name) icon='globe' label=content.site.label}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name '/edit') icon='paint-brush' label='Site editor'}}
+		{{/breadcrumb}}
+	{{/inline}}
 	{{#*inline 'content'}}
 		<form class="editor" role="form" method="POST" action="{{ session.urls.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
 			<input type="hidden" name="_method" value="PUT"/>
@@ -27,7 +53,7 @@
 							name="theme.id"
 						>
 							{{#each content.themes as |theme|}}
-							<option value="{{ theme.id }}"{{#if (eq theme.id ../content.theme.id)}} selected="selected"{{/if}}>{{ theme.name }}</option>
+							<option value="{{ theme.id }}"{{#if (eq theme.id ../content.site.theme.id)}} selected="selected"{{/if}}>{{ theme.name }}</option>
 							{{/each}}
 						</select>
 					</label>

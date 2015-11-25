@@ -63,16 +63,6 @@ module.exports = function(options) {
 					sitename: siteName
 				});
 				var templateData = {
-					title: 'FAQ',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/faq',
-							icon: 'info-circle',
-							label: 'FAQ'
-						}
-					],
 					content: {
 						questions: faqs
 					}

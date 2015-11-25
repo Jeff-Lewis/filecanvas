@@ -1,4 +1,9 @@
-{{#> index}}
+{{#>index title='Your account' navigation=true footer=true}}
+	{{#*inline 'navbar'}}
+		{{#>breadcrumb}}
+		{{>breadcrumb-item link=session.urls.account icon='user' label='Your account'}}
+		{{/breadcrumb}}
+	{{/inline}}
 	{{#*inline 'content'}}
 		<div class="row">
 			<div class="col-md-12 col-lg-10">

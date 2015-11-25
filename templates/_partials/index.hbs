@@ -9,9 +9,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/app.min.css"/>
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-admin.css"/>
-		{{#each stylesheets as |stylesheet|}}
-		<link rel="stylesheet" href="{{ stylesheet }}"/>
-		{{/each}}
+		{{#>styles}}{{/styles}}
 		<title>{{#if title}}{{ title }} | {{/if}}Shunt</title>
 	</head>
 	<body class="{{#unless navigation}} navigation-hidden{{/unless}}{{#if fullPage}} full-page{{/if}}{{#unless footer}} no-footer{{/unless}}{{#if blank}} bg-white{{/if}}">
@@ -55,17 +53,7 @@
 						</div>
 						<h3 class="brand-logo"><a href="/">Shunt</a></h3>
 					</div>
-					{{#if breadcrumb}}
-					<ol class="breadcrumb pull-left hidden-xs">
-					{{#each breadcrumb as |item|}}
-						<li>
-							<a href="{{ item.link }}">
-								{{#if item.icon}}<i class="fa fa-{{ item.icon }} mr5"></i>{{/if}}{{ item.label }}
-							</a>
-						</li>
-					{{/each}}
-					</ol>
-					{{/if}}
+					{{#>navbar}}{{/navbar}}
 					<ul class="nav navbar-nav navbar-right hidden-xs">
 						{{#if session.user}}
 						<li>
@@ -95,13 +83,13 @@
 									<h3 class="brand-logo"><a href="/">Shunt</a></h3>
 								</div>
 							</div>
-							{{#if header.title}}
-							<h3 class="title-bar-header-subtitle">{{ header.title }}</h3>
+							{{#if headerTitle}}
+							<h3 class="title-bar-header-subtitle">{{ headerTitle }}</h3>
 							{{/if}}
 						</div>
 					</div>
 					{{/if}}
-					{{> content}}
+					{{#>content}}{{/content}}
 				</section>
 			</div>
 			{{#if footer}}
@@ -127,8 +115,6 @@
 		<script>window.jQuery.fn.modal || document.write('<script src="{{ session.urls.assets }}js/bootstrap-3.3.5.min.js"><\/script>');</script>
 		<script src="{{ session.urls.assets }}js/shunt-api.js"></script>
 		<script src="{{ session.urls.assets }}js/shunt-admin.js"></script>
-		{{#each scripts as |script|}}
-		<script src="{{ script }}"></script>
-		{{/each}}
+		{{#>scripts}}{{/scripts}}
 	</body>
 </html>

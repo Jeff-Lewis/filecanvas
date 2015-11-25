@@ -54,16 +54,6 @@ module.exports = function(database, options) {
 
 			new Promise(function(resolve, reject) {
 				var templateData = {
-					title: 'Your account',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/account',
-							icon: 'user',
-							label: 'Your account'
-						}
-					],
 					content: {
 						user: userModel
 					}

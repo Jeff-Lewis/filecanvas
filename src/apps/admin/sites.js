@@ -2,7 +2,6 @@
 
 var express = require('express');
 var merge = require('lodash.merge');
-var isUrl = require('is-url');
 
 var handlebarsEngine = require('../../engines/handlebars');
 
@@ -98,16 +97,6 @@ module.exports = function(database, options) {
 		function retrieveSitesRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
 				var templateData = {
-					title: 'Site dashboard',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/sites',
-							icon: 'dashboard',
-							label: 'Site dashboard'
-						}
-					],
 					content: {
 						sites: res.locals.sites,
 						themes: themeService.getThemes()
@@ -153,21 +142,6 @@ module.exports = function(database, options) {
 					theme: theme
 				};
 				var templateData = {
-					title: 'Site dashboard',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/sites',
-							icon: 'dashboard',
-							label: 'Site dashboard'
-						},
-						{
-							link: '/sites/create-site',
-							icon: 'plus',
-							label: 'Create a site'
-						}
-					],
 					content: {
 						site: siteModel,
 						themes: themeService.getThemes(),
@@ -201,32 +175,6 @@ module.exports = function(database, options) {
 				var previousTheme = themeService.getPreviousTheme(themeId);
 				var nextTheme = themeService.getNextTheme(themeId);
 				var templateData = {
-					title: 'Theme gallery',
-					fullPage: true,
-					navigation: false,
-					footer: false,
-					breadcrumb: [
-						{
-							link: '/sites',
-							icon: 'dashboard',
-							label: 'Site dashboard'
-						},
-						{
-							link: '/sites/create-site',
-							icon: 'plus',
-							label: 'Create a site'
-						},
-						{
-							link: '/sites/create-site/themes',
-							icon: 'image',
-							label: 'Theme gallery'
-						},
-						{
-							link: '/sites/create-site/themes/' + theme.id,
-							icon: null,
-							label: theme.name
-						}
-					],
 					content: {
 						themes: themes,
 						theme: theme,
@@ -340,21 +288,6 @@ module.exports = function(database, options) {
 						})
 						.then(function(siteModel) {
 							var templateData = {
-								title: 'Site settings: ' + siteModel.label,
-								navigation: true,
-								footer: true,
-								breadcrumb: [
-									{
-										link: '/sites',
-										icon: 'dashboard',
-										label: 'Site dashboard'
-									},
-									{
-										link: '/sites/' + siteName,
-										icon: 'globe',
-										label: siteModel.label
-									}
-								],
 								content: {
 									site: siteModel,
 									adapters: adaptersMetadata
@@ -465,26 +398,6 @@ module.exports = function(database, options) {
 					})
 					.then(function(siteModel) {
 						var templateData = {
-							title: 'Edit site users: ' + siteModel.label,
-							navigation: true,
-							footer: true,
-							breadcrumb: [
-								{
-									link: '/sites',
-									icon: 'dashboard',
-									label: 'Site dashboard'
-								},
-								{
-									link: '/sites/' + siteName,
-									icon: 'globe',
-									label: siteModel.label
-								},
-								{
-									link: '/sites/' + siteName + '/users',
-									icon: 'users',
-									label: 'Site users'
-								}
-							],
 							content: {
 								site: siteModel
 							}
@@ -588,52 +501,15 @@ module.exports = function(database, options) {
 						var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
 						var themeId = siteModel.theme.id;
 						var theme = themeService.getTheme(themeId);
-						var themeAssetsRoot = themeAssetsUrl + themeId + '/';
 						var templateData = {
-							title: 'Site editor',
-							stylesheets: [
-								'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css',
-								adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
-								adminAssetsUrl + 'css/shunt-editor.css'
-							],
-							scripts: [
-								'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
-								adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
-								adminAssetsUrl + 'js/shunt-editor.js',
-								'/templates/partials/theme-options.js',
-								themesUrl + themeId + '/template/index.js'
-							],
-							fullPage: true,
-							navigation: false,
-							footer: false,
-							breadcrumb: [
-								{
-									link: '/sites',
-									icon: 'dashboard',
-									label: 'Site dashboard'
-								},
-								{
-									link: '/sites/' + siteName,
-									icon: 'globe',
-									label: siteModel.label
-								},
-								{
-									link: '/sites/' + siteName + '/theme',
-									icon: 'paint-brush',
-									label: 'Site editor'
-								}
-							],
 							content: {
 								previewUrl: '/preview/' + siteModel.name,
 								site: siteModel,
 								themes: themeService.getThemes(),
+								theme: theme,
 								adapter: adapterConfig
 							}
 						};
-						if (theme.fonts) {
-							var fontsStylesheetUrl = isUrl(theme.fonts) ? theme.fonts : themeAssetsRoot + theme.fonts;
-							templateData.stylesheets.push(fontsStylesheetUrl);
-						}
 						return adminPageService.render(req, res, {
 							template: 'sites/site/edit',
 							context: templateData

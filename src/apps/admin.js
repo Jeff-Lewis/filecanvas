@@ -390,7 +390,8 @@ module.exports = function(database, options) {
 							sitesCreateThemes: '/sites/create-site/themes',
 							preview: '/preview',
 							terms: '/terms',
-							privacy: '/privacy'
+							privacy: '/privacy',
+							templates: '/templates'
 						},
 						sites: sortedSiteModels
 					};

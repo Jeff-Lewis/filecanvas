@@ -1,7 +1,6 @@
 'use strict';
 
 var merge = require('lodash.merge');
-var isUrl = require('is-url');
 var express = require('express');
 
 var previewApp = require('./demo/preview');
@@ -183,6 +182,7 @@ module.exports = function(database, options) {
 						themeAssets: stripTrailingSlash(themeAssetsUrl),
 						themes: stripTrailingSlash(themesUrl),
 						admin: stripTrailingSlash(adminUrl),
+						templates: stripTrailingSlash(adminTemplatesUrl),
 						demo: {
 							login: '/login',
 							themes: '/themes',
@@ -215,8 +215,6 @@ module.exports = function(database, options) {
 				var previousTheme = themeService.getPreviousTheme(themeId);
 				var nextTheme = themeService.getNextTheme(themeId);
 				var templateData = {
-					title: 'Theme gallery',
-					fullPage: true,
 					content: {
 						themes: themes,
 						theme: theme,
@@ -291,26 +289,11 @@ module.exports = function(database, options) {
 									'/editor/preview/' + encodeURIComponent(siteModel.root.adapter + ':' + siteModel.root.path)
 							);
 							var templateData = {
-								title: 'Theme editor',
-								stylesheets: [
-									'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css',
-									adminAssetsUrl + 'css/bootstrap-colorpicker.min.css',
-									adminAssetsUrl + 'css/shunt-editor.css'
-								],
-								scripts: [
-									'//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js',
-									adminAssetsUrl + 'js/bootstrap-colorpicker.min.js',
-									adminAssetsUrl + 'js/shunt-editor.js',
-									adminTemplatesUrl + 'partials/theme-options.js',
-									themesUrl + themeId + '/template/index.js'
-								],
-								fullPage: true,
-								navigation: false,
-								footer: false,
 								content: {
 									overlay: shouldShowOverlay,
 									site: siteModel,
 									themes: themeService.getThemes(),
+									theme: themeService.getTheme(siteModel.theme.id),
 									adapter: adapterConfig,
 									adapters: adaptersMetadata,
 									previewUrl: null,
@@ -329,10 +312,6 @@ module.exports = function(database, options) {
 									}
 								}
 							};
-							if (theme.fonts) {
-								var fontsStylesheetUrl = isUrl(theme.fonts) ? theme.fonts : themeAssetsRoot + theme.fonts;
-								templateData.stylesheets.push(fontsStylesheetUrl);
-							}
 							return adminPageService.render(req, res, {
 								template: 'editor',
 								context: templateData
@@ -389,11 +368,6 @@ module.exports = function(database, options) {
 					return adaptersHash;
 				}, {});
 				var templateData = {
-					title: 'Link account',
-					blank: true,
-					borderless: true,
-					navigation: false,
-					footer: false,
 					content: {
 						redirect: redirectUrl || '/editor',
 						adapters: adaptersHash,
@@ -499,12 +473,6 @@ module.exports = function(database, options) {
 						})
 						.then(function(siteModel) {
 							var templateData = {
-								title: 'Site published',
-								blank: true,
-								borderless: true,
-								navigation: false,
-								footer: false,
-								breadcrumb: null,
 								content: {
 									site: siteModel
 								}

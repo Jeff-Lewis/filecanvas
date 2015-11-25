@@ -82,9 +82,6 @@ module.exports = function(database, options) {
 					return adaptersHash;
 				}, {});
 				var templateData = {
-					title: 'Login',
-					navigation: false,
-					footer: true,
 					content: {
 						redirect: req.query.redirect || null,
 						adapters: adaptersHash
@@ -118,12 +115,6 @@ module.exports = function(database, options) {
 								username: username
 							});
 							var templateData = {
-								title: 'Your profile',
-								navigation: false,
-								header: {
-									title: 'Create account'
-								},
-								footer: true,
 								content: {
 									user: pendingUser.user
 								}
@@ -176,9 +167,6 @@ module.exports = function(database, options) {
 					return res.redirect('/');
 				}
 				var templateData = {
-					title: 'Logout',
-					navigation: true,
-					footer: true,
 					content: {
 						adapter: adapterName
 					}

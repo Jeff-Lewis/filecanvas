@@ -1,4 +1,10 @@
-{{#> index}}
+{{#>index title=(replace 'Site settings: $0' '$0' content.site.label) navigation=true footer=true}}
+	{{#*inline 'navbar'}}
+		{{#>breadcrumb}}
+		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name) icon='globe' label=content.site.label}}
+		{{/breadcrumb}}
+	{{/inline}}
 	{{#*inline 'content'}}
 		<div class="mb15">
 			<h4 class="no-margin text-uppercase">Site settings: {{ content.site.label }}</h4>

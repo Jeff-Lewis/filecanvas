@@ -47,16 +47,6 @@ module.exports = function(options) {
 		function retrieveSupportRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
 				var templateData = {
-					title: 'Support',
-					navigation: true,
-					footer: true,
-					breadcrumb: [
-						{
-							link: '/support',
-							icon: 'question-circle',
-							label: 'Support'
-						}
-					],
 					content: null
 				};
 				return resolve(

@@ -1,4 +1,10 @@
-{{#> index}}
+{{#>index title='Create a site' navigation=true footer=true}}
+	{{#*inline 'navbar'}}
+		{{#>breadcrumb}}
+		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/create-site') icon='plus' label='Create a site'}}
+		{{/breadcrumb}}
+	{{/inline}}
 	{{#*inline 'content'}}
 		<div class="row">
 			<div class="col-md-12 col-lg-10">

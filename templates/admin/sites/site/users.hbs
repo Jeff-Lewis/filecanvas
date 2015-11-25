@@ -1,4 +1,11 @@
-{{#> index}}
+{{#>index title=(replace 'Site users: $0' '$0' content.site.label) navigation=true footer=true}}
+	{{#*inline 'navbar'}}
+		{{#>breadcrumb}}
+		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name) icon='globe' label=content.site.label}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/' content.site.name '/users') icon='users' label='Site users'}}
+		{{/breadcrumb}}
+	{{/inline}}
 	{{#*inline 'content'}}
 		<div class="row">
 			<div class="col-md-8 col-lg-6">
@@ -7,7 +14,7 @@
 						<a class="pull-right" href="{{ session.urls.sites }}/{{ content.site.name }}">
 							<i class="fa fa-times"></i>
 						</a>
-						Site users: {{ content.site.name }}
+						Site users: {{ content.site.label }}
 					</h4>
 				</div>
 				{{#unless content.site.users}}

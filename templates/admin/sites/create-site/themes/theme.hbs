@@ -1,4 +1,12 @@
-{{#> index}}
+{{#>index title='Theme gallery' fullPage=true}}
+	{{#*inline 'navbar'}}
+		{{#>breadcrumb}}
+		{{>breadcrumb-item link=session.urls.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/create-site') icon='plus' label='Create a site'}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/create-site/themes') icon='image' label='Theme gallery'}}
+		{{>breadcrumb-item link=(concat session.urls.sites '/create-site/themes/' content.theme.id) icon=null label=content.theme.name}}
+		{{/breadcrumb}}
+	{{/inline}}
 	{{#*inline 'content'}}
 		<form class="theme-gallery" role="form" method="POST" action="{{ session.urls.sitesCreate }}" autocomplete="off">
 			<input type="hidden" name="_method" value="GET"/>
