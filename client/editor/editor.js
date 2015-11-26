@@ -85,7 +85,7 @@ function initSidepanel() {
 }
 
 function initLivePreview(callback) {
-	var $formElement = $('[data-editor-form]');
+	var $formElement = $('[data-editor]');
 	var $adapterConfigElement = $('[data-editor-adapter-config]');
 	var $themeMetadataUrlElement = $('[data-editor-theme-metadata-url]');
 	var $themeTemplateUrlElement = $('[data-editor-theme-template-url]');
@@ -116,12 +116,14 @@ function initLivePreview(callback) {
 	var undoHistory = new HistoryStack();
 	var currentAction = null;
 
+	showLoadingIndicator($formElement);
 	showLoadingIndicator($previewElement);
 	var engine = engines[engineName];
 	var throttle = engine.throttle;
 	initPreview(currentSiteModel, null, previewUrl, engine, templateId, function(error, rerender) {
 		onPreviewLoaded(error, rerender);
 		hideLoadingIndicator($previewElement);
+		hideLoadingIndicator($formElement);
 		callback(error);
 	});
 	initLiveUpdates(function(formValues, options) {
@@ -230,6 +232,7 @@ function initLivePreview(callback) {
 			}
 			$themeOptionsPanelElement.empty();
 			currentThemeOverrides = null;
+			showLoadingIndicator($formElement);
 			showLoadingIndicator($themeOptionsPanelElement);
 			showLoadingIndicator($previewElement);
 			updateTheme(currentSiteModel, themeOverrides, function(siteModel) {
@@ -245,6 +248,7 @@ function initLivePreview(callback) {
 				}
 				hideLoadingIndicator($themeOptionsPanelElement);
 				hideLoadingIndicator($previewElement);
+				hideLoadingIndicator($formElement);
 				deferred.resolve();
 			});
 		} else {

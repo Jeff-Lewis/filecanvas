@@ -28,7 +28,7 @@
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
-		<form class="editor" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off" data-editor-form>
+		<form class="editor loading" role="form" method="POST" action="{{ session.urls.admin.sites }}/{{ content.site.name }}" autocomplete="off" data-editor>
 			<input type="hidden" name="_method" value="PUT"/>
 			<div class="title-bar">
 				<div class="title-bar-header">

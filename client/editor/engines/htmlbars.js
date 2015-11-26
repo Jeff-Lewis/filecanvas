@@ -54,7 +54,7 @@ function render(themeId, templateId, context, previewIframeElement, callback) {
 
 	previewIframeElement.style.visibility = 'hidden';
 	appendDocumentFragment(documentElement, outputFragment, function() {
-		previewIframeElement.style.visibility = 'visible';
+		previewIframeElement.style.visibility = '';
 		callback(null, rerender);
 	});
 
