@@ -266,6 +266,4 @@ LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	};
 };
 
-
-
 module.exports = LocalAdapter;
