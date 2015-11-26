@@ -28,6 +28,14 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local.auth = {};
 	config.adapters.local.auth.strategy = 'bcrypt';
 	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };
+	config.adapters.local.upload = {};
+	config.adapters.local.upload.subdomain = 'upload';
+	config.adapters.local.upload.url = getSubdomainUrl({
+		subdomain: config.adapters.local.upload.subdomain,
+		host: config.host,
+		protocol: config.https.port ? 'https' : 'http',
+		port: config.https.port || config.http.port
+	});
 	config.adapters.local.download = {};
 	config.adapters.local.download.subdomain = 'download';
 	config.adapters.local.download.url = getSubdomainUrl({
