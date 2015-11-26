@@ -10,14 +10,14 @@
 				<div class="mb15">
 					<h4 class="no-margin text-uppercase">Your sites</h4>
 				</div>
-				{{#unless content.sites}}
+				{{#unless session.sites}}
 				<div class="alert alert-info mb10">
 					<h5>There are no sites registered to this account.</h5>
 				</div>
 				{{/unless}}
-				{{#if content.sites}}
+				{{#if session.sites}}
 				<div class="mb10">
-					{{#each content.sites as |site|}}
+					{{#each session.sites as |site|}}
 					<a class="widget mb0 bg-white" href="{{ ../session.urls.admin.sites }}/{{ site.name }}">
 						<i class="fa {{#if (eq site.name ../session.user.defaultSite)}}fa-home{{else}}{{#if site.published}}fa-arrow-right{{else}}fa-wrench{{/if}}{{/if}} {{#if site.published}}text-success{{else}}text-danger{{/if}} mr5"></i> {{ site.label }}</a>
 					</a>

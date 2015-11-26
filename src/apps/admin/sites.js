@@ -98,7 +98,6 @@ module.exports = function(database, options) {
 			new Promise(function(resolve, reject) {
 				var templateData = {
 					content: {
-						sites: res.locals.sites,
 						themes: themeService.getThemes()
 					}
 				};
