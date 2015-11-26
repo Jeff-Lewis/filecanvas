@@ -635,7 +635,6 @@ body.full-page .title-bar {
 }
 .title-bar-toolbar-container {
 	display: inline-block;
-	height: 100%;
 }
 .btn-toolbar,
 a.btn-toolbar,
@@ -700,7 +699,7 @@ select.btn-toolbar {
 
 @media screen and (max-width: 767px) {
 	.title-bar-controls {
-		position: fixed;
+		position: absolute;
 		float: none;
 		padding: 10px;
 		margin: 0 -10px;
@@ -708,7 +707,6 @@ select.btn-toolbar {
 		bottom: 0;
 		background-color: #495469;
 		text-align: center;
-		z-index: 1;
 	}
 	.title-bar-controls .btn {
 		float: none;

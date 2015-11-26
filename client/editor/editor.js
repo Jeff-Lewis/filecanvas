@@ -978,7 +978,10 @@ function startTour() {
 		var TOUR_STEPS = [
 			{
 				element: '#editor-sidepanel',
-				placement: 'right',
+				placement: {
+					mobile: 'bottom',
+					desktop: 'right'
+				},
 				backdrop: true,
 				title: 'Theme options',
 				content: '<p>Use the Theme Options panel to choose how your site looks</p>',
@@ -1021,8 +1024,11 @@ function startTour() {
 				]
 			},
 			{
-				element: '.title-bar-controls',
-				placement: 'bottom',
+				element: '.title-bar-controls .title-bar-controls-container',
+				placement: {
+					mobile: 'top',
+					desktop: 'bottom'
+				},
 				backdrop: true,
 				title: 'Add files',
 				content: '<p>Once you’re happy with how your site looks, click here to add some files</p>',
@@ -1031,8 +1037,11 @@ function startTour() {
 				]
 			},
 			{
-				element: '.title-bar-controls',
-				placement: 'bottom',
+				element: '.title-bar-controls .title-bar-controls-container',
+				placement: {
+					mobile: 'top',
+					desktop: 'bottom'
+				},
 				backdrop: true,
 				title: 'Save your site',
 				content: '<p>Once you’re happy with how your site looks, click here to save it for publishing later</p>',
@@ -1041,8 +1050,11 @@ function startTour() {
 				]
 			},
 			{
-				element: '.title-bar-controls',
-				placement: 'bottom',
+				element: '.title-bar-controls .title-bar-controls-container',
+				placement: {
+					mobile: 'top',
+					desktop: 'bottom'
+				},
 				backdrop: true,
 				title: 'Save changes',
 				content: '<p>Once you’re happy with how your site looks, click here to save your changes and leave the editor</p>',
@@ -1052,7 +1064,10 @@ function startTour() {
 			},
 			{
 				element: '#title-bar-toolbar .title-bar-toolbar-container',
-				placement: 'bottom',
+				placement: {
+					mobile: null,
+					desktop: 'bottom'
+				},
 				backdrop: true,
 				backdropPadding: 4,
 				title: 'Undo/redo',
@@ -1064,7 +1079,10 @@ function startTour() {
 			},
 			{
 				element: 'select[name="theme.id"]',
-				placement: 'bottom',
+				placement: {
+					mobile: null,
+					desktop: 'bottom'
+				},
 				backdrop: true,
 				title: 'Theme selector',
 				content: 'You can choose a different site theme using the theme selector',
@@ -1077,6 +1095,15 @@ function startTour() {
 
 		return TOUR_STEPS.filter(function filter(step) {
 			return !step.filter || (step.filter.indexOf(tourId) !== -1);
+		}).map(function(step) {
+			if (typeof step.placement === 'object') {
+				var placement = step.placement;
+				step.placement = function() {
+					var viewportWidth = $(window).width();
+					return (viewportWidth >= 768 ? placement.desktop : placement.mobile);
+				};
+			}
+			return step;
 		});
 	}
 }
