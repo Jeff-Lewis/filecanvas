@@ -34,11 +34,11 @@ module.exports = function(database, options) {
 	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 
+	var adapters = loadAdapters(adaptersConfig, database);
+
 	var themeService = new ThemeService({
 		themesPath: themesPath
 	});
-	var adapters = loadAdapters(adaptersConfig, database);
-
 	var siteService = new SiteService(database, {
 		host: host,
 		adapters: adapters
