@@ -6,7 +6,7 @@ prompt = no
 [req_distinguished_name]
 C = US
 O = Shunt
-CN = shunt.dev
+CN = filecanvas.dev
 
 [v3_req]
 subjectKeyIdentifier = hash
@@ -15,6 +15,5 @@ basicConstraints = CA:TRUE
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = shunt.dev
-DNS.2 = *.shunt.dev
-DNS.3 = *.*.shunt.dev
+DNS.1 = filecanvas.dev
+DNS.2 = *.filecanvas.dev
