@@ -4,6 +4,3 @@
 /db/data/
 /db/backup/
 /sites
-
-/keys/cert.pem
-/keys/key.pem
