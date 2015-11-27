@@ -999,31 +999,10 @@ function startTour() {
 				container: '.editor-main',
 				placement: 'top',
 				backdrop: true,
-				title: 'Live preview',
-				content: '<p>This preview will automatically update as you edit the theme</p>',
-				filter: [
-					TOUR_ID_DEMO_EDITOR
-				]
-			},
-			{
-				element: '.editor-main',
-				container: '.editor-main',
-				placement: 'top',
-				backdrop: true,
 				title: 'Upload files',
 				content: '<p>Drag files onto the preview area to upload them to your site</p>',
 				filter: [
-					TOUR_ID_DEMO_ADD_FILES
-				]
-			},
-			{
-				element: '.editor-main',
-				container: '.editor-main',
-				placement: 'top',
-				backdrop: true,
-				title: 'Live preview',
-				content: '<p>Drag files onto the preview area to upload them to your site</p><p><strong>Pro tip:</strong> Drag files onto the preview area to upload them to your site</p>',
-				filter: [
+					TOUR_ID_DEMO_ADD_FILES,
 					TOUR_ID_SITE_EDITOR
 				]
 			},
@@ -1076,20 +1055,6 @@ function startTour() {
 				backdropPadding: 4,
 				title: 'Undo/redo',
 				content: 'Use the toolbar to undo any mistakes as you go along',
-				filter: [
-					TOUR_ID_DEMO_EDITOR,
-					TOUR_ID_SITE_EDITOR
-				]
-			},
-			{
-				element: 'select[name="theme.id"]',
-				placement: {
-					mobile: null,
-					desktop: 'bottom'
-				},
-				backdrop: true,
-				title: 'Theme selector',
-				content: 'You can choose a different site theme using the theme selector',
 				filter: [
 					TOUR_ID_DEMO_EDITOR,
 					TOUR_ID_SITE_EDITOR
