@@ -33,6 +33,7 @@ var UserService = require('../services/UserService');
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
+	var cookieSecret = options.cookieSecret;
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
@@ -48,6 +49,7 @@ module.exports = function(database, options) {
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
+	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
@@ -66,7 +68,9 @@ module.exports = function(database, options) {
 	var userService = new UserService(database);
 
 	var app = express();
-	app.use(transport());
+	app.use(transport({
+		cookieSecret: cookieSecret
+	}));
 	app.use(nestedFormValues());
 	app.use(sessionState());
 

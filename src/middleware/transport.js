@@ -1,10 +1,14 @@
 'use strict';
 
-var crypto = require('crypto');
 var express = require('express');
 var methodOverride = require('method-override');
 
-module.exports = function() {
+module.exports = function(options) {
+	options = options || {};
+	var cookieSecret = options.cookieSecret || null;
+
+	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
+
 	var app = express();
 	initSessions(app);
 	initForms(app);
@@ -13,7 +17,7 @@ module.exports = function() {
 
 	function initSessions(app) {
 		app.use(express.cookieParser());
-		app.use(express.session({ secret: generateRandomBase64String(128) }));
+		app.use(express.session({ secret: cookieSecret }));
 	}
 
 	function initForms(app) {
@@ -62,10 +66,5 @@ module.exports = function() {
 			}));
 			app.use(methodOverride('X-HTTP-Method-Override'));
 		}
-	}
-
-
-	function generateRandomBase64String(numBytes) {
-		return crypto.randomBytes(numBytes).toString('base64');
 	}
 };

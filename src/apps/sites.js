@@ -21,6 +21,7 @@ var ThemeService = require('../services/ThemeService');
 module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
+	var cookieSecret = options.cookieSecret;
 	var themesPath = options.themesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
@@ -33,6 +34,7 @@ module.exports = function(database, options) {
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
+	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
 
 	var adapters = loadAdapters(adaptersConfig, database);
 
@@ -49,7 +51,7 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	if (!isPreview) {
-		initAuth(app, passport, database);
+		initAuth(app, passport, database, cookieSecret);
 	}
 	initRoutes(app, passport, database, {
 		themeAssetsUrl: themeAssetsUrl,
@@ -63,8 +65,10 @@ module.exports = function(database, options) {
 	return app;
 
 
-	function initAuth(app, passport, database) {
-		app.use(transport());
+	function initAuth(app, passport, database, cookieSecret) {
+		app.use(transport({
+			cookieSecret: cookieSecret
+		}));
 		app.use(passport.initialize());
 		app.use(passport.session());
 
