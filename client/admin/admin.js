@@ -2,6 +2,7 @@
 
 var path = require('path');
 var slug = require('slug');
+var xhr = require('../utils/xhr');
 
 var DEFAULT_VALIDATION_TRIGGERS = 'input change blur';
 
@@ -73,6 +74,7 @@ $(function() {
 	initAccordionAnchors();
 	initActionPanels();
 	initPathControls();
+	initUploadControls();
 	initNavigationDropdowns();
 	initOffscreenSidebar();
 	initModals();
@@ -719,6 +721,150 @@ function initPathControls() {
 
 	$('.path-control').pathControl();
 }
+
+function initUploadControls() {
+	(function($) {
+
+		$.fn.uploadControl = function() {
+			return this.each(function() {
+				var $element = $(this);
+				var $inputElement = $element.find('input[type="hidden"]');
+				var $labelElement = $element.find('input[type="text"]');
+				var $fileElement = $element.find('input[type="file"]');
+				var $progressBarElement = $element.find('[role="progressbar"]');
+				var uploadUrl = $element.attr('data-upload-url');
+				var requestUploadUrl = $element.attr('data-request-upload-url');
+				var activeRequest = null;
+
+				$inputElement.on('change', function(event) {
+					if (activeRequest) {
+						activeRequest.abort();
+						$element.removeClass('loading');
+						setProgressBarValue({
+							loaded: 0,
+							tital: 0
+						});
+					}
+					var fileUrl = event.currentTarget.value;
+					$labelElement.val(fileUrl ? path.basename(fileUrl) : '');
+				});
+
+				$fileElement.on('change', function(event) {
+					var fileInputElement = event.currentTarget;
+					var selectedFile = fileInputElement.files[0];
+					if (!selectedFile) { return; }
+					$fileElement.val('');
+					$element.addClass('loading');
+					setProgressBarValue({
+						loaded: 0,
+						total: 0
+					});
+					processUpload(selectedFile, uploadUrl, requestUploadUrl)
+						.progress(function(progress) {
+							setProgressBarValue({
+								loaded: progress.bytesLoaded,
+								total: progress.bytesTotal
+							});
+						})
+						.then(function(uploadedUrl) {
+							$inputElement.val(uploadedUrl).trigger('change');
+						})
+						.always(function() {
+							$element.removeClass('loading');
+							setProgressBarValue({
+								loaded: 0,
+								total: 0
+							});
+						});
+				});
+
+
+				function abortable(promise) {
+					var abortablePromise = promise
+						.then(function(value) {
+							activeRequest = null;
+							return value;
+						})
+						.fail(function(error) {
+							activeRequest = null;
+						});
+					abortablePromise.abort = function() {
+						activeRequest = null;
+						promise.abort();
+					};
+					activeRequest = abortablePromise;
+					return abortablePromise;
+				}
+
+				function processUpload(file, uploadUrl, requestUploadUrl) {
+					if (uploadUrl) {
+						return abortable(uploadFile(file, {
+							url: uploadUrl,
+							method: 'POST',
+							headers: null
+						})).then(function() {
+							return uploadUrl;
+						});
+					} else {
+						var deferred = new $.Deferred();
+						abortable(retrieveUploadUrl(file, requestUploadUrl))
+							.then(function(response) {
+								var uploadOptions = response.upload;
+								var uploadedUrl = response.location;
+								return abortable(uploadFile(file, uploadOptions))
+									.progress(function(progress) {
+										deferred.notify(progress);
+									})
+									.then(function() {
+										return uploadedUrl;
+									});
+							})
+							.then(function(value) {
+								deferred.resolve(value);
+							})
+							.fail(function(error) {
+								deferred.reject(error);
+							});
+						return deferred.promise();
+					}
+				}
+
+				function retrieveUploadUrl(file, requestUploadUrl) {
+					var url = requestUploadUrl + '/' + file.name;
+					return xhr.download({ url: url });
+				}
+
+				function uploadFile(file, options) {
+					var method = options.method;
+					var url = options.url;
+					var headers = options.headers;
+					return xhr.upload({
+						method: method,
+						url: url,
+						headers: headers,
+						body: file
+					});
+				}
+
+				function setProgressBarValue(options) {
+					options = options || {};
+					var loaded = options.loaded || 0;
+					var total = options.total || 0;
+					var percentLoaded = 100 * (total === 0 ? 0 : loaded / total);
+					$progressBarElement.attr('aria-valuemin', 0);
+					$progressBarElement.attr('aria-valuemax', total);
+					$progressBarElement.attr('aria-valuenow', loaded);
+					$progressBarElement.attr('data-percent', percentLoaded);
+					$progressBarElement.css('width', percentLoaded + '%');
+				}
+			});
+		};
+
+	})($);
+
+	$('.upload-control').uploadControl();
+}
+
 
 function initNavigationDropdowns() {
 	$('[data-navigation-dropdown]').on('change', function(event) {
