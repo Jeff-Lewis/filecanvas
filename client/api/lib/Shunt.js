@@ -1,5 +1,7 @@
 'use strict';
 
+var xhr = require('../../utils/xhr');
+
 var TransferBatch = require('./TransferBatch');
 
 var DROPBOX_UPLOAD_API_METHOD = 'PUT';
@@ -179,7 +181,12 @@ Shunt.prototype.uploadFiles = function(files, options) {
 			var headers = {
 				'Authorization': 'Bearer ' + accessToken
 			};
-			return uploadXhrData(file.data, method, url, headers);
+			return xhr.upload({
+				method: method,
+				url: url,
+				headers: headers,
+				body: file.data
+			});
 		}
 
 		function uploadLocalFile(file, options) {
@@ -191,56 +198,12 @@ Shunt.prototype.uploadFiles = function(files, options) {
 				autorename: true
 			});
 			var headers = null;
-			return uploadXhrData(file.data, method, url, headers);
-		}
-
-		function uploadXhrData(data, method, url, headers) {
-			headers = headers || {};
-			var deferred = new $.Deferred();
-			var xhr = new XMLHttpRequest();
-			var async = true;
-			xhr.open(method, url, async);
-			for (var key in headers) {
-				xhr.setRequestHeader(key, headers[key]);
-			}
-			xhr.upload.addEventListener('progress', onUploadProgress);
-			xhr.upload.addEventListener('load', onUploadProgress);
-			xhr.addEventListener('load', onTransferCompleted);
-			xhr.addEventListener('error', onTransferFailed);
-			xhr.addEventListener('abort', onTransferAborted);
-			xhr.send(data);
-			var promise = deferred.promise();
-			promise.abort = function() {
-				xhr.abort();
-			};
-			return promise;
-
-
-			function onUploadProgress(event) {
-				if (!event.lengthComputable) { return; }
-				deferred.notify({
-					bytesLoaded: event.loaded,
-					bytesTotal: event.total
-				});
-			}
-
-			function onTransferFailed(event) {
-				deferred.reject(new Error('Transfer failed'));
-			}
-
-			function onTransferAborted(event) {
-				deferred.reject(new Error('Transfer canceled'));
-			}
-
-			function onTransferCompleted(event) {
-				var xhr = event.currentTarget;
-				var hasError = (xhr.status >= 400);
-				if (hasError) {
-					return onTransferFailed(event);
-				}
-				var response = JSON.parse(xhr.responseText);
-				deferred.resolve(response);
-			}
+			return xhr.upload({
+				method: method,
+				url: url,
+				headers: headers,
+				body: file.data
+			});
 		}
 
 		function getUploadUrl(endpoint, filePath, params) {
