@@ -15,6 +15,7 @@ var errorHandler = require('../middleware/errorHandler');
 var adminAuth = require('../apps/admin/middleware/adminAuth');
 
 var loadAdapters = require('../utils/loadAdapters');
+var loadUploadAdapter = require('../utils/loadUploadAdapter');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
 
 var handlebarsEngine = require('../engines/handlebars');
@@ -23,6 +24,7 @@ var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var ThemeService = require('../services/ThemeService');
 var UrlService = require('../services/UrlService');
+var FileUploadService = require('../services/FileUploadService');
 var AdminPageService = require('../services/AdminPageService');
 
 var HttpError = require('../errors/HttpError');
@@ -40,6 +42,7 @@ module.exports = function(database, options) {
 	var adminTemplatesUrl = options.adminTemplatesUrl;
 	var themesUrl = options.themesUrl;
 	var adaptersConfig = options.adapters;
+	var uploadAdapterConfig = options.uploadAdapter || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing host name'); }
@@ -54,6 +57,7 @@ module.exports = function(database, options) {
 	if (!adminTemplatesUrl) { throw new Error('Missing admin templates URL'); }
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
+	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
 	if (adaptersConfig.dropbox) {
 		adaptersConfig = merge({}, adaptersConfig, {
@@ -63,6 +67,7 @@ module.exports = function(database, options) {
 		});
 	}
 	var adapters = loadAdapters(adaptersConfig, database);
+	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
 	var userService = new UserService(database);
 	var siteService = new SiteService(database, {
@@ -71,6 +76,9 @@ module.exports = function(database, options) {
 	});
 	var themeService = new ThemeService({
 		themesPath: themesPath
+	});
+	var fileUploadService = new FileUploadService({
+		adapter: uploadAdapter
 	});
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
@@ -162,6 +170,7 @@ module.exports = function(database, options) {
 						login: '/login',
 						themes: '/themes',
 						editor: '/editor',
+						upload: '/editor/upload',
 						linkSiteFolder: '/editor/add-files',
 						publish: '/editor/publish',
 						terms: stripTrailingSlash(adminUrl) + '/terms'
@@ -185,6 +194,7 @@ module.exports = function(database, options) {
 		app.get('/themes', retrieveThemesRoute);
 		app.get('/themes/:theme', retrieveThemeRoute);
 		app.get('/editor', retrieveThemeEditorRoute);
+		app.get('/editor/upload/:filename', retrieveThemeEditorUploadRoute);
 		app.post('/login', createThemeEditorLoginRoute);
 		app.post('/editor/add-files', ensureAuth('/editor'), createSiteFolderRoute);
 		app.post('/editor/publish', ensureAuth('/editor'), createSiteRoute);
@@ -359,6 +369,23 @@ module.exports = function(database, options) {
 						return folder.root;
 					});
 			}
+		}
+
+		function retrieveThemeEditorUploadRoute(req, res, next) {
+			var filename = req.params.filename;
+
+			new Promise(function(resolve, reject) {
+				var renamedFilename = fileUploadService.generateUniqueFilename(filename);
+				resolve(
+					fileUploadService.generateRequest(renamedFilename)
+				);
+			})
+			.then(function(response) {
+				res.json(response);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 		}
 
 		function createThemeEditorLoginRoute(req, res, next) {

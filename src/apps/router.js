@@ -108,7 +108,8 @@ module.exports = function(database, config) {
 			adminAssetsUrl: adminAssetsUrl,
 			adminTemplatesUrl: adminTemplatesUrl,
 			themesUrl: themesUrl,
-			adapters: config.adapters
+			adapters: config.adapters,
+			uploadAdapter: config.uploaders.demo
 		}),
 		'my': adminApp(database, {
 			host: config.host,
@@ -124,6 +125,7 @@ module.exports = function(database, config) {
 			themeAssetsUrl: themeAssetsUrl,
 			themesUrl: themesUrl,
 			adapters: config.adapters,
+			uploadAdapter: config.uploaders.admin,
 			siteAuth: config.auth.site
 		}),
 		'sites': sitesApp(database, {

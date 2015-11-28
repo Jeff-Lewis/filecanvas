@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@timkendrick/ember-htmlbars-helpers": "^0.1.1",
+    "aws-sdk": "^2.2.19",
     "bcrypt": "^0.8.5",
     "bytes": "^2.2.0",
     "clarify": "^1.0.5",
@@ -68,6 +69,7 @@
     "simple-mime": "^0.1.0",
     "slug": "^0.9.1",
     "trace": "^1.2.0",
+    "uuid": "^2.0.1",
     "vdom-virtualize": "^1.0.1",
     "virtual-dom": "^2.1.1",
     "webpack": "^1.12.1"

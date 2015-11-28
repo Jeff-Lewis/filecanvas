@@ -24,6 +24,7 @@ var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
 var loadAdapters = require('../utils/loadAdapters');
+var loadUploadAdapter = require('../utils/loadUploadAdapter');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
 var appendQueryParams = require('../utils/appendQueryParams');
 
@@ -46,6 +47,7 @@ module.exports = function(database, options) {
 	var themesUrl = options.themesUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
+	var uploadAdapterConfig = options.uploadAdapter;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing hostname'); }
@@ -62,8 +64,10 @@ module.exports = function(database, options) {
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
+	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
 	var adapters = loadAdapters(adaptersConfig, database);
+	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
 	var userService = new UserService(database);
 
@@ -116,6 +120,7 @@ module.exports = function(database, options) {
 		adminAssetsUrl: adminAssetsUrl,
 		themesUrl: themesUrl,
 		adapters: adapters,
+		uploadAdapter: uploadAdapter,
 		sessionMiddleware: initAdminSession
 	});
 	initPreview(app, database, {
@@ -234,6 +239,7 @@ module.exports = function(database, options) {
 		var adminAssetsUrl = options.adminAssetsUrl;
 		var themesUrl = options.themesUrl;
 		var adapters = options.adapters;
+		var uploadAdapter = options.uploadAdapter;
 		var sessionMiddleware = options.sessionMiddleware;
 
 		app.use('/sites', composeMiddleware([
@@ -249,6 +255,7 @@ module.exports = function(database, options) {
 				adminAssetsUrl: adminAssetsUrl,
 				themesUrl: themesUrl,
 				adapters: adapters,
+				uploadAdapter: uploadAdapter,
 				sessionMiddleware: sessionMiddleware
 			})
 		]));

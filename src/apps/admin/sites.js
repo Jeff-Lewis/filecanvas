@@ -12,6 +12,7 @@ var HttpError = require('../../errors/HttpError');
 var UserService = require('../../services/UserService');
 var SiteService = require('../../services/SiteService');
 var ThemeService = require('../../services/ThemeService');
+var FileUploadService = require('../../services/FileUploadService');
 var AdminPageService = require('../../services/AdminPageService');
 
 module.exports = function(database, options) {
@@ -26,6 +27,7 @@ module.exports = function(database, options) {
 	var adminAssetsUrl = options.adminAssetsUrl || null;
 	var themesUrl = options.themesUrl || null;
 	var adapters = options.adapters || null;
+	var uploadAdapter = options.uploadAdapter || null;
 	var sessionMiddleware = options.sessionMiddleware || null;
 
 	if (!host) { throw new Error('Missing host name'); }
@@ -38,6 +40,7 @@ module.exports = function(database, options) {
 	if (!adminAssetsUrl) { throw new Error('Missing admin assets URL'); }
 	if (!themesUrl) { throw new Error('Missing theme gallery URL'); }
 	if (!adapters) { throw new Error('Missing adapters'); }
+	if (!uploadAdapter) { throw new Error('Missing upload adapter'); }
 	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
 
 	var siteTemplateFiles = readDirContentsSync(siteTemplatePath);
@@ -49,6 +52,9 @@ module.exports = function(database, options) {
 	});
 	var themeService = new ThemeService({
 		themesPath: themesPath
+	});
+	var fileUploadService = new FileUploadService({
+		adapter: uploadAdapter
 	});
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
@@ -92,6 +98,7 @@ module.exports = function(database, options) {
 		app.delete('/:site/users/:username', deleteSiteUserRoute);
 
 		app.get('/:site/edit', retrieveSiteEditRoute);
+		app.get('/:site/edit/upload/:filename', retrieveSiteEditUploadRoute);
 
 
 		function retrieveSitesRoute(req, res, next) {
@@ -511,6 +518,26 @@ module.exports = function(database, options) {
 						});
 					})
 				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+		}
+
+		function retrieveSiteEditUploadRoute(req, res, next) {
+			var userModel = req.user;
+			var username = userModel.username;
+			var filename = req.params.filename;
+
+			new Promise(function(resolve, reject) {
+				var renamedFilename = fileUploadService.generateUniqueFilename(filename);
+				var uploadPath = username + '/' + renamedFilename;
+				resolve(
+					fileUploadService.generateRequest(uploadPath)
+				);
+			})
+			.then(function(response) {
+				res.json(response);
 			})
 			.catch(function(error) {
 				next(error);

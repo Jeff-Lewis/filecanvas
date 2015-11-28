@@ -19,6 +19,9 @@ config.https.cert = process.env.HTTPS_CERT ? fs.readFileSync(process.env.HTTPS_C
 config.cookieSecret = process.env.COOKIE_SECRET || null;
 
 config.adapters = {};
+config.uploaders = {};
+config.uploaders.admin = {};
+config.uploaders.demo = {};
 
 if (process.env.LOCAL === 'true') {
 	config.adapters.local = {};
@@ -57,6 +60,18 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local.thumbnail.format = null;
 	config.adapters.local.thumbnail.width = 256;
 	config.adapters.local.thumbnail.height = 256;
+
+	config.uploaders.admin = {
+		name: 'local',
+		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/admin/',
+		downloadUrl: config.adapters.local.download.url + 'editor-uploads/admin/'
+	};
+
+	config.uploaders.demo = {
+		name: 'local',
+		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/demo/',
+		downloadUrl: config.adapters.local.download.url + 'editor-uploads/demo/'
+	};
 }
 
 if (process.env.DROPBOX_APP_KEY) {
@@ -67,6 +82,21 @@ if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox.appSecret = process.env.DROPBOX_APP_SECRET || null;
 	config.adapters.dropbox.loginCallbackUrl = process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null;
 	config.adapters.dropbox.demoLoginCallbackUrl = process.env.DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK || null;
+}
+
+if (process.env.AWS_ACCESS_KEY_ID) {
+	config.uploaders.admin = {
+		name: 's3',
+		accessKey: process.env.AWS_ACCESS_KEY_ID,
+		secretKey: process.env.AWS_SECRET_ACCESS_KEY,
+		bucket: process.env.AWS_S3_BUCKET
+	};
+	config.uploaders.demo = {
+		name: 's3',
+		accessKey: process.env.AWS_ACCESS_KEY_ID,
+		secretKey: process.env.AWS_SECRET_ACCESS_KEY,
+		bucket: process.env.AWS_S3_BUCKET
+	};
 }
 
 config.db = {};
