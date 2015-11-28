@@ -53,6 +53,34 @@
 					data-language="{{ field.editor.options.language }}"
 				>{{ escapeNewlines (lookup (lookup ../../config configGroup.name) field.name) }}</textarea>
 				{{/if}}
+				{{#if (eq field.editor.name 'file')}}
+				<div class="upload-control"
+					data-request-upload-url="{{ ../../uploadUrl }}"
+				>
+					<input type="hidden"
+						name="theme.config.{{ configGroup.name }}.{{ field.name }}"
+						value="{{ lookup (lookup ../../config configGroup.name) field.name }}"
+					/>
+					<div class="input-group">
+						<input type="text" class="form-control br0 upload-control-label" readonly="readonly"
+							placeholder="{{ field.editor.options.placeholder }}"
+						/>
+						<span class="input-group-btn upload-control-button">
+							<label class="btn btn-primary" title="Choose a file">
+								<i class="fa fa-upload"></i>
+								<input type="file" class="upload-control-file-input"
+									accept="{{ field.editor.options.accept }}"
+								/>
+							</label>
+						</span>
+					</div>
+					<div class="upload-control-progress">
+						<div class="progress progress-striped active mb0">
+							<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0" data-percent="0"></div>
+						</div>
+					</div>
+				</div>
+				{{/if}}
 				{{#if (eq field.editor.name 'colorpicker')}}
 				<div class="input-group" data-colorpicker
 					{{#if field.editor.options.format }}

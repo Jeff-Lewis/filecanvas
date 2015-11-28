@@ -19,7 +19,7 @@
 		</div>
 		<div class="panel-body no-padding editor-sidepanel-body">
 			<div id="theme-options" class="panel-group theme-options-accordion" role="tablist" aria-multiselectable="false" data-fixed-accordion>
-				{{>theme-options theme=(lookup content.themes content.site.theme.id) config=content.site.theme.config}}
+				{{>theme-options theme=(lookup content.themes content.site.theme.id) config=content.site.theme.config uploadUrl=fileUploadUrl}}
 			</div>
 		</div>
 	</div>

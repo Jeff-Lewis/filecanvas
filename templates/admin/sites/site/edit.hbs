@@ -65,7 +65,7 @@
 					</label>
 				</div>
 			</div>
-			{{> editor}}
+			{{> editor fileUploadUrl=(concat session.urls.admin.sites '/' content.site.name '/edit/upload')}}
 		</form>
 	{{/inline}}
 {{/index}}
