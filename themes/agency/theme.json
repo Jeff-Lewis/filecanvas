@@ -653,11 +653,10 @@
 					"default": "",
 					"label": "Navigation bar logo",
 					"editor": {
-						"name": "input",
+						"name": "file",
 						"options": {
-							"type": "string",
-							"placeholder": "Enter a URL",
-							"maxLength": 4096
+							"accept": "image/*",
+							"placeholder": "No image selected"
 						}
 					}
 				},
@@ -667,11 +666,10 @@
 					"default": "",
 					"label": "Header logo",
 					"editor": {
-						"name": "input",
+						"name": "file",
 						"options": {
-							"type": "string",
-							"placeholder": "Enter a URL",
-							"maxLength": 4096
+							"accept": "image/*",
+							"placeholder": "No image selected"
 						}
 					}
 				}
