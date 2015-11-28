@@ -28,8 +28,8 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local.metadata = {};
 	config.adapters.local.metadata.name = process.env.LOCAL_NAME || 'Shunt server';
 	config.adapters.local.metadata.label = process.env.LOCAL_LABEL || 'Shunt sites';
-	config.adapters.local.metadata.path = '/';
-	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../sites');
+	config.adapters.local.metadata.path = '/sites/';
+	config.adapters.local.root = process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../data');
 	config.adapters.local.auth = {};
 	config.adapters.local.auth.strategy = 'bcrypt';
 	config.adapters.local.auth.options = { strength: process.env.LOCAL_BCRYPT_STRENGTH || 10 };
