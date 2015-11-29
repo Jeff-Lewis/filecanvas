@@ -376,8 +376,9 @@ module.exports = function(database, options) {
 
 			new Promise(function(resolve, reject) {
 				var renamedFilename = fileUploadService.generateUniqueFilename(filename);
+				var uploadPath = '_demo/' + renamedFilename;
 				resolve(
-					fileUploadService.generateRequest(renamedFilename)
+					fileUploadService.generateRequest(uploadPath)
 				);
 			})
 			.then(function(response) {
