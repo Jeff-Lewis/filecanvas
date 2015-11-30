@@ -113,7 +113,8 @@ a.widget:visited,
 .form-control.input-sm { font-size: 12px; }
 .form-control.input-lg { font-size: 18px; }
 
-button.btn-reset {
+.btn-block {
+	display: block;
 	text-align: left;
 	-webkit-transition: none;
 	-moz-transition: none;
@@ -1019,6 +1020,15 @@ footer.content-footer {
 	overflow: hidden;
 	cursor: pointer;
     opacity: 0;
+}
+.upload-control-clear {
+	font-size: 16px;
+	line-height: 1;
+	padding: 9px;
+}
+.upload-control-clear .fa {
+	font-size: inherit;
+	line-height: inherit;
 }
 
 .panel-heading {
