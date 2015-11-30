@@ -113,6 +113,24 @@ a.widget:visited,
 .form-control.input-sm { font-size: 12px; }
 .form-control.input-lg { font-size: 18px; }
 
+.btn-reset {
+	display: block;
+	margin: 0;
+	padding: 0;
+	outline: 0;
+	border: none;
+	border-radius: 0;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	text-align: inherit;
+	background: transparent;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
 .btn-block {
 	display: block;
 	text-align: left;
