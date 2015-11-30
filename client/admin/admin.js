@@ -733,6 +733,7 @@ function initUploadControls() {
 				var $labelElement = $element.find('input[type="text"]');
 				var $fileElement = $element.find('input[type="file"]');
 				var $progressBarElement = $element.find('[role="progressbar"]');
+				var $clearButtonElement = $element.find('[data-upload-clear]');
 				var uploadUrl = $element.attr('data-upload-url');
 				var requestUploadUrl = $element.attr('data-request-upload-url');
 				var isImage = $element[0].hasAttribute('data-image');
@@ -745,8 +746,7 @@ function initUploadControls() {
 					};
 				}
 				var activeRequest = null;
-
-				updateFileLabel($labelElement, $inputElement.val());
+				updateSelection($inputElement.val());
 
 				$inputElement.on('change', function(event) {
 					if (activeRequest) {
@@ -758,7 +758,11 @@ function initUploadControls() {
 						});
 					}
 					var fileUrl = event.currentTarget.value;
-					updateFileLabel($labelElement, fileUrl);
+					updateSelection(fileUrl);
+				});
+
+				$clearButtonElement.on('click', function(event) {
+					$inputElement.val('').trigger('change');
 				});
 
 				$fileElement.on('change', function(event) {
@@ -795,8 +799,19 @@ function initUploadControls() {
 				});
 
 
-				function updateFileLabel($labelElement, url) {
-					$labelElement.val(url ? path.basename(url) : '');
+				function updateSelection(url) {
+					updateFileLabel($labelElement, url);
+					updateClearButton($clearButtonElement, url);
+
+
+					function updateFileLabel($element, url) {
+						$element.val(url ? path.basename(url) : '');
+					}
+
+					function updateClearButton($element, url) {
+						var isDisabled = !url;
+						$element.prop('disabled', isDisabled);
+					}
 				}
 
 				function abortable(promise) {

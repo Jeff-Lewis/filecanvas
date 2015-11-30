@@ -68,9 +68,14 @@
 						value="{{ lookup (lookup ../../config configGroup.name) field.name }}"
 					/>
 					<div class="input-group">
-						<input type="text" class="form-control br0 upload-control-label" readonly="readonly"
-							placeholder="{{ field.editor.options.placeholder }}"
-						/>
+						<div class="upload-control-label clearfix">
+							<input type="text" class="form-control br0" readonly="readonly"
+								placeholder="{{ field.editor.options.placeholder }}"
+							/>
+							<button type="button" class="upload-control-clear btn btn-reset text-default-dark" title="Clear current selection" disabled="disabled" data-upload-clear>
+								<i class="fa fa-times-circle"></i>
+							</button>
+						</div>
 						<span class="input-group-btn upload-control-button">
 							<label class="btn btn-primary" title="Choose a file">
 								<i class="fa fa-upload"></i>

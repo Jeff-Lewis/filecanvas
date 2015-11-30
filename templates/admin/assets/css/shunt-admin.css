@@ -1012,17 +1012,28 @@ footer.content-footer {
 	border-color: #d96557;
 }
 
-.upload-control-progress {
-	display: none;
-	padding-top: 14px;
-	padding-bottom: 15px;
-}
-.upload-control.loading .upload-control-label,
-.upload-control.loading .upload-control-button {
-	display: none;
-}
-.upload-control.loading .upload-control-progress {
+.upload-control-label {
 	display: block;
+	position: relative;
+	vertical-align: top;
+}
+.upload-control-clear {
+	display: block;
+	position: absolute;
+	top: 1px;
+	bottom: 1px;
+	right: 0;
+	z-index: 2;
+}
+.upload-control-clear .fa {
+	width: 28px;
+	height: 32px;
+	font-size: 16px;
+	line-height: 1;
+	padding: 8px 6px;
+}
+.upload-control-clear:disabled {
+	display: none;
 }
 .upload-control-file-input,
 .upload-control-file-input::-webkit-file-upload-button {
@@ -1039,14 +1050,17 @@ footer.content-footer {
 	cursor: pointer;
     opacity: 0;
 }
-.upload-control-clear {
-	font-size: 16px;
-	line-height: 1;
-	padding: 9px;
+.upload-control-progress {
+	display: none;
+	padding-top: 14px;
+	padding-bottom: 15px;
 }
-.upload-control-clear .fa {
-	font-size: inherit;
-	line-height: inherit;
+.upload-control.loading .upload-control-label,
+.upload-control.loading .upload-control-button {
+	display: none;
+}
+.upload-control.loading .upload-control-progress {
+	display: block;
 }
 
 .panel-heading {
