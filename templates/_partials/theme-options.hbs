@@ -56,6 +56,12 @@
 				{{#if (eq field.editor.name 'file')}}
 				<div class="upload-control"
 					data-request-upload-url="{{ ../../uploadUrl }}"
+					{{#if field.editor.options.image}}
+					data-image
+					{{#if field.editor.options.image.format}}data-image-format="{{ field.editor.options.image.format }}"{{/if}}
+					{{#if field.editor.options.image.quality}}data-image-quality="{{ field.editor.options.image.format }}"{{/if}}
+					{{#if field.editor.options.image.options}}data-image-options="{{ json field.editor.options.image.options }}"{{/if}}
+					{{/if}}
 				>
 					<input type="hidden"
 						name="theme.config.{{ configGroup.name }}.{{ field.name }}"
@@ -69,7 +75,13 @@
 							<label class="btn btn-primary" title="Choose a file">
 								<i class="fa fa-upload"></i>
 								<input type="file" class="upload-control-file-input"
+									{{#if field.editor.options.accept}}
 									accept="{{ field.editor.options.accept }}"
+									{{else}}
+									{{#if field.editor.options.image}}
+									accept="image/*"
+									{{/if}}
+									{{/if}}
 								/>
 							</label>
 						</span>
