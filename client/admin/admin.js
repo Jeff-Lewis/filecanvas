@@ -3,6 +3,7 @@
 var path = require('path');
 var slug = require('slug');
 var xhr = require('../utils/xhr');
+var loadImage = require('../utils/loadImage');
 
 var DEFAULT_VALIDATION_TRIGGERS = 'input change blur';
 
@@ -734,6 +735,15 @@ function initUploadControls() {
 				var $progressBarElement = $element.find('[role="progressbar"]');
 				var uploadUrl = $element.attr('data-upload-url');
 				var requestUploadUrl = $element.attr('data-request-upload-url');
+				var isImage = $element[0].hasAttribute('data-image');
+				var imageSettings = null;
+				if (isImage) {
+					imageSettings = {
+						format: $element.attr('data-image-format'),
+						quality: $element.attr('data-image-quality'),
+						options: $element.attr('data-image-options') ? JSON.parse($element.attr('data-image-options')) : null
+					};
+				}
 				var activeRequest = null;
 
 				$inputElement.on('change', function(event) {
@@ -759,11 +769,15 @@ function initUploadControls() {
 						loaded: 0,
 						total: 0
 					});
-					processUpload(selectedFile, uploadUrl, requestUploadUrl)
+					processFile(selectedFile, {
+						uploadUrl: uploadUrl,
+						requestUploadUrl: requestUploadUrl,
+						image: imageSettings
+					})
 						.progress(function(progress) {
 							setProgressBarValue({
-								loaded: progress.bytesLoaded,
-								total: progress.bytesTotal
+								loaded: progress.loaded,
+								total: progress.total
 							});
 						})
 						.then(function(uploadedUrl) {
@@ -796,26 +810,112 @@ function initUploadControls() {
 					return abortablePromise;
 				}
 
+				function processFile(file, options) {
+					options = options || {};
+					var uploadUrl = options.uploadUrl;
+					var requestUploadUrl = options.requestUploadUrl;
+					var isImage = Boolean(options.image);
+					var imageFormat = (isImage ? options.image.format : null);
+					var imageQuality = (isImage ? options.image.quality : null);
+					var imageOptions = (isImage ? options.image.options : null);
+
+					if (isImage) {
+						var deferred = new $.Deferred();
+						var resizeImageProgressRatio = 0.1;
+						var uploadProgressRatio = (1 - resizeImageProgressRatio);
+						getResizedImageFile(file, {
+							format: imageFormat,
+							quality: imageQuality,
+							options: imageOptions
+						})
+							.then(function(processedFile) {
+								var percentageLoaded = 100 * resizeImageProgressRatio;
+								deferred.notify({
+									loaded: percentageLoaded,
+									total: 100
+								});
+								processUpload(processedFile, uploadUrl, requestUploadUrl)
+									.progress(function(progress) {
+										var percentageLoaded = (progress.loaded / progress.total);
+										deferred.notify({
+											loaded: 100 * resizeImageProgressRatio + percentageLoaded * uploadProgressRatio,
+											total: 100
+										});
+									})
+									.then(function(value) {
+										deferred.resolve(value);
+									})
+									.fail(function(error) {
+										deferred.reject(error);
+									});
+							})
+							.fail(function(error) {
+								deferred.reject(error);
+							});
+						return deferred.promise();
+					} else {
+						return processUpload(file, uploadUrl, requestUploadUrl);
+					}
+				}
+
+				function getResizedImageFile(file, options) {
+					options = options || {};
+					var imageFormat = options.format || null;
+					var imageQuality = options.quality || null;
+					var imageOptions = options.options || null;
+					return loadImage(file, {
+						format: imageFormat,
+						quality: imageQuality,
+						options: imageOptions
+					});
+				}
+
 				function processUpload(file, uploadUrl, requestUploadUrl) {
+					var deferred = new $.Deferred();
 					if (uploadUrl) {
-						return abortable(uploadFile(file, {
+						abortable(uploadFile(file, {
 							url: uploadUrl,
 							method: 'POST',
 							headers: null
-						})).then(function() {
+						}))
+						.progress(function(progress) {
+							deferred.notify({
+								loaded: progress.bytesLoaded,
+								total: progress.bytesTotal
+							});
+						})
+						.then(function(response) {
 							return uploadUrl;
+						})
+						.then(function(value) {
+							deferred.resolve(value);
+						})
+						.fail(function(error) {
+							deferred.reject(error);
 						});
 					} else {
-						var deferred = new $.Deferred();
+						var retrieveUploadUrlProgressRatio = 0.25;
+						var uploadProgressRatio = (1 - retrieveUploadUrlProgressRatio);
 						abortable(retrieveUploadUrl(file, requestUploadUrl))
+							.progress(function(progress) {
+								var percentageLoaded = 100 * (progress.bytesLoaded / progress.bytesTotal);
+								deferred.notify({
+									loaded: percentageLoaded * retrieveUploadUrlProgressRatio,
+									total: 100
+								});
+							})
 							.then(function(response) {
 								var uploadOptions = response.upload;
 								var uploadedUrl = response.location;
 								return abortable(uploadFile(file, uploadOptions))
 									.progress(function(progress) {
-										deferred.notify(progress);
+										var percentageLoaded = 100 * (progress.bytesLoaded / progress.bytesTotal);
+										deferred.notify({
+											loaded: 100 * retrieveUploadUrlProgressRatio + percentageLoaded * uploadProgressRatio,
+											total: 100
+										});
 									})
-									.then(function() {
+									.then(function(response) {
 										return uploadedUrl;
 									});
 							})
@@ -825,8 +925,8 @@ function initUploadControls() {
 							.fail(function(error) {
 								deferred.reject(error);
 							});
-						return deferred.promise();
 					}
+					return deferred.promise();
 				}
 
 				function retrieveUploadUrl(file, requestUploadUrl) {
