@@ -6,7 +6,7 @@ var S3UploadAdapter = require('../uploaders/S3UploadAdapter');
 module.exports = function(adapterConfig) {
 	if (!adapterConfig) { throw new Error('Missing adapter config'); }
 
-	var adapterName = adapterConfig.name;
+	var adapterName = adapterConfig.adapter;
 	switch(adapterName) {
 		case 'local':
 			return createLocalAdapter(adapterConfig);

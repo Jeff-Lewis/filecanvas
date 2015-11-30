@@ -62,13 +62,13 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local.thumbnail.height = 256;
 
 	config.uploaders.admin = {
-		name: 'local',
+		adapter: 'local',
 		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/',
 		downloadUrl: config.adapters.local.download.url + 'editor-uploads/'
 	};
 
 	config.uploaders.demo = {
-		name: 'local',
+		adapter: 'local',
 		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/',
 		downloadUrl: config.adapters.local.download.url + 'editor-uploads/'
 	};
@@ -86,13 +86,13 @@ if (process.env.DROPBOX_APP_KEY) {
 
 if (process.env.AWS_ACCESS_KEY_ID) {
 	config.uploaders.admin = {
-		name: 's3',
+		adapter: 's3',
 		accessKey: process.env.AWS_ACCESS_KEY_ID,
 		secretKey: process.env.AWS_SECRET_ACCESS_KEY,
 		bucket: process.env.AWS_S3_BUCKET
 	};
 	config.uploaders.demo = {
-		name: 's3',
+		adapter: 's3',
 		accessKey: process.env.AWS_ACCESS_KEY_ID,
 		secretKey: process.env.AWS_SECRET_ACCESS_KEY,
 		bucket: process.env.AWS_S3_BUCKET
