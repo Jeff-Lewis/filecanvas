@@ -648,26 +648,6 @@
 			"icon": "picture-o",
 			"fields": [
 				{
-					"name": "navLogo",
-					"type": "string",
-					"default": "",
-					"label": "Navigation bar logo",
-					"editor": {
-						"name": "file",
-						"options": {
-							"placeholder": "No image selected",
-							"image": {
-								"format": "image/png",
-								"options": {
-									"maxWidth": 250,
-									"maxHeight": 50,
-									"contain": true
-								}
-							}
-						}
-					}
-				},
-				{
 					"name": "headerLogo",
 					"type": "string",
 					"default": "",
@@ -681,6 +661,26 @@
 								"options": {
 									"maxWidth": 250,
 									"maxHeight": 250,
+									"contain": true
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "navLogo",
+					"type": "string",
+					"default": "",
+					"label": "Navigation bar logo",
+					"editor": {
+						"name": "file",
+						"options": {
+							"placeholder": "No image selected",
+							"image": {
+								"format": "image/png",
+								"options": {
+									"maxWidth": 250,
+									"maxHeight": 50,
 									"contain": true
 								}
 							}
