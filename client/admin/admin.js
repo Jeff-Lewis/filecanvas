@@ -746,6 +746,8 @@ function initUploadControls() {
 				}
 				var activeRequest = null;
 
+				updateFileLabel($labelElement, $inputElement.val());
+
 				$inputElement.on('change', function(event) {
 					if (activeRequest) {
 						activeRequest.abort();
@@ -756,7 +758,7 @@ function initUploadControls() {
 						});
 					}
 					var fileUrl = event.currentTarget.value;
-					$labelElement.val(fileUrl ? path.basename(fileUrl) : '');
+					updateFileLabel($labelElement, fileUrl);
 				});
 
 				$fileElement.on('change', function(event) {
@@ -792,6 +794,10 @@ function initUploadControls() {
 						});
 				});
 
+
+				function updateFileLabel($labelElement, url) {
+					$labelElement.val(url ? path.basename(url) : '');
+				}
 
 				function abortable(promise) {
 					var abortablePromise = promise
