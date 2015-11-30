@@ -63,14 +63,14 @@ if (process.env.LOCAL === 'true') {
 
 	config.uploaders.admin = {
 		name: 'local',
-		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/admin/',
-		downloadUrl: config.adapters.local.download.url + 'editor-uploads/admin/'
+		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/',
+		downloadUrl: config.adapters.local.download.url + 'editor-uploads/'
 	};
 
 	config.uploaders.demo = {
 		name: 'local',
-		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/demo/',
-		downloadUrl: config.adapters.local.download.url + 'editor-uploads/demo/'
+		uploadUrl: config.adapters.local.upload.url + 'editor-uploads/',
+		downloadUrl: config.adapters.local.download.url + 'editor-uploads/'
 	};
 }
 
