@@ -655,8 +655,15 @@
 					"editor": {
 						"name": "file",
 						"options": {
-							"accept": "image/*",
-							"placeholder": "No image selected"
+							"placeholder": "No image selected",
+							"image": {
+								"format": "image/png",
+								"options": {
+									"maxWidth": 250,
+									"maxHeight": 50,
+									"contain": true
+								}
+							}
 						}
 					}
 				},
@@ -668,8 +675,15 @@
 					"editor": {
 						"name": "file",
 						"options": {
-							"accept": "image/*",
-							"placeholder": "No image selected"
+							"placeholder": "No image selected",
+							"image": {
+								"format": "image/png",
+								"options": {
+									"maxWidth": 250,
+									"maxHeight": 250,
+									"contain": true
+								}
+							}
 						}
 					}
 				}
