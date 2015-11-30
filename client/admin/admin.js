@@ -736,6 +736,7 @@ function initUploadControls() {
 				var $clearButtonElement = $element.find('[data-upload-clear]');
 				var uploadUrl = $element.attr('data-upload-url');
 				var requestUploadUrl = $element.attr('data-request-upload-url');
+				var shouldHideExtension = $element[0].hasAttribute('data-hide-extension');
 				var isImage = $element[0].hasAttribute('data-image');
 				var imageSettings = null;
 				if (isImage) {
@@ -800,12 +801,21 @@ function initUploadControls() {
 
 
 				function updateSelection(url) {
-					updateFileLabel($labelElement, url);
+					updateFileLabel($labelElement, url, {
+						hideExtension: shouldHideExtension
+					});
 					updateClearButton($clearButtonElement, url);
 
 
-					function updateFileLabel($element, url) {
-						$element.val(url ? path.basename(url) : '');
+					function updateFileLabel($element, url, options) {
+						options = options || {};
+						var shouldHideExtension = options.hideExtension;
+						if (!url) {
+							$element.val('');
+						} else {
+							var filename = path.basename(url, (shouldHideExtension ? path.extname(url) : null));
+							$element.val(filename);
+						}
 					}
 
 					function updateClearButton($element, url) {
