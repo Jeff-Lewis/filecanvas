@@ -1,5 +1,5 @@
 'use strict';
 
-var Shunt = require('./lib/Shunt');
+var Filecanvas = require('./lib/Filecanvas');
 
-window.shunt = new Shunt();
+window.filecanvas = new Filecanvas();

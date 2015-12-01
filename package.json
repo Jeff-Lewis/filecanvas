@@ -1,5 +1,5 @@
 {
-  "name": "Shunt",
+  "name": "Filecanvas",
   "version": "0.0.1",
   "description": "The easiest way to showcase your files",
   "license": "Copyright (c) Tim Kendrick Ltd",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/timkendrick/shunt"
+    "url": "https://github.com/timkendrick/filecanvas"
   },
   "author": {
     "name": "Tim Kendrick",
     "email": "timkendrick@gmail.com"
   },
   "bugs": {
-    "url": "https://github.com/timkendrick/shunt/issues"
+    "url": "https://github.com/timkendrick/filecanvas/issues"
   },
   "dependencies": {
     "@timkendrick/ember-htmlbars-helpers": "^0.1.1",

@@ -1,9 +1,9 @@
-{{#>index title='Site editor' fullPage=true}}
+{{#>index title='Canvas editor' fullPage=true}}
 	{{#*inline 'styles'}}
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css"/>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/css/bootstrap-colorpicker.min.css"/>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css"/>
-		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-editor.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}css/filecanvas-editor.css"/>
 		{{#if content.theme.fonts}}
 		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
 		<link rel="stylesheet" href="{{ content.theme.fonts }}"/>
@@ -16,13 +16,13 @@
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/js/bootstrap-colorpicker.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js"></script>
-		<script type="text/javascript" src="{{ session.urls.assets }}js/shunt-editor.js"></script>
+		<script type="text/javascript" src="{{ session.urls.assets }}js/filecanvas-editor.js"></script>
 		<script type="text/javascript" src="{{ session.urls.templates }}/partials/theme-options.js"></script>
 		<script type="text/javascript" src="{{ session.urls.themes }}/{{ content.site.theme.id }}/template/index.js"></script>
 	{{/inline}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name '/edit') icon='paint-brush' label='Site editor'}}
 		{{/breadcrumb}}
@@ -34,10 +34,10 @@
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
 						<div class="brand">
-							<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+							<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
 						</div>
 					</div>
-					<h3 class="title-bar-header-subtitle">Site editor</h3>
+					<h3 class="title-bar-header-subtitle">Canvas editor</h3>
 				</div>
 				<a class="title-bar-close" href="{{ session.urls.admin.sites }}/{{ content.site.name }}" title="Back to site settings" data-editor-close><i class="fa fa-times"></i></a>
 				<div class="title-bar-controls">
@@ -49,7 +49,7 @@
 					<div class="title-bar-toolbar-container clearfix">
 						<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 						<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
-						<button type="reset" class="btn btn-toolbar" disabled="disabled"><i class="fa fa-refresh mr5"></i> Reset changes</button>
+						<button type="reset" class="btn btn-toolbar" disabled="disabled"><i class="fa fa-refresh mr5"></i> Revert</button>
 					</div>
 				</div>
 				<div class="title-bar-toolbar text-center hidden-xs hidden-sm">

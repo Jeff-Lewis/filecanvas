@@ -85,9 +85,9 @@ module.exports = function(database, options) {
 	function initRoutes(app) {
 		app.get('/', retrieveSitesRoute);
 		app.post('/', createSiteRoute);
-		app.get('/create-site', retrieveCreateSiteRoute);
-		app.get('/create-site/themes', retrieveCreateSiteThemesRoute);
-		app.get('/create-site/themes/:theme', retrieveCreateSiteThemeRoute);
+		app.get('/create-canvas', retrieveCreateSiteRoute);
+		app.get('/create-canvas/themes', retrieveCreateSiteThemesRoute);
+		app.get('/create-canvas/themes/:theme', retrieveCreateSiteThemeRoute);
 		app.get('/:site', retrieveSiteRoute);
 		app.put('/:site', updateSiteRoute);
 		app.delete('/:site', deleteSiteRoute);
@@ -170,7 +170,7 @@ module.exports = function(database, options) {
 			var themes = themeService.getThemes();
 			var themeIds = Object.keys(themes);
 			var firstThemeId = themeIds[0];
-			res.redirect('/sites/create-site/themes/' + firstThemeId);
+			res.redirect('/canvases/create-canvas/themes/' + firstThemeId);
 		}
 
 		function retrieveCreateSiteThemeRoute(req, res, next) {
@@ -203,7 +203,7 @@ module.exports = function(database, options) {
 		function createSiteRoute(req, res, next) {
 			var userModel = req.user;
 			var username = userModel.username;
-			var redirectUrl = req.body['_redirect'] || ('/sites/' + req.body.name);
+			var redirectUrl = req.body['_redirect'] || ('/canvases/' + req.body.name);
 
 			var isDefaultSite = (req.body.home === 'true');
 			var isPrivate = (req.body.private === 'true');
@@ -337,7 +337,7 @@ module.exports = function(database, options) {
 							return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
 						})
 						.then(function() {
-							res.redirect(303, '/sites/' + updatedSiteName);
+							res.redirect(303, '/canvases/' + updatedSiteName);
 						})
 				);
 			})
@@ -356,7 +356,7 @@ module.exports = function(database, options) {
 				return resolve(
 					siteService.updateSiteCache(username, siteName, cache)
 						.then(function() {
-							res.redirect(303, '/sites/' + siteName);
+							res.redirect(303, '/canvases/' + siteName);
 						})
 				);
 			})
@@ -374,7 +374,7 @@ module.exports = function(database, options) {
 				return resolve(
 					siteService.deleteSite(username, siteName)
 						.then(function(siteModel) {
-							res.redirect(303, '/sites');
+							res.redirect(303, '/canvases');
 						})
 				);
 			})
@@ -429,7 +429,7 @@ module.exports = function(database, options) {
 				return resolve(
 					siteService.createSiteUser(username, siteName, siteUserAuthDetails, siteAuthOptions)
 						.then(function(userModel) {
-							res.redirect(303, '/sites/' + siteName + '/users');
+							res.redirect(303, '/canvases/' + siteName + '/users');
 						})
 				);
 			})
@@ -452,7 +452,7 @@ module.exports = function(database, options) {
 				return resolve(
 					siteService.updateSiteUser(username, siteName, siteUsername, siteUserAuthDetails, siteAuthOptions)
 						.then(function(userModel) {
-							res.redirect(303, '/sites/' + siteName + '/users');
+							res.redirect(303, '/canvases/' + siteName + '/users');
 						})
 				);
 			})
@@ -470,7 +470,7 @@ module.exports = function(database, options) {
 				return resolve(
 					siteService.deleteSiteUser(username, siteName, siteUsername)
 						.then(function() {
-							res.redirect(303, '/sites/' + siteName + '/users');
+							res.redirect(303, '/canvases/' + siteName + '/users');
 						})
 				);
 			})

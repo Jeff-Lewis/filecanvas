@@ -10,11 +10,11 @@ var DROPBOX_UPLOAD_API_ENDPOINT = 'https://content.dropboxapi.com/1/files_put/au
 var LOCAL_UPLOAD_API_METHOD = 'POST';
 var LOCAL_UPLOAD_API_ENDPOINT = document.location.protocol + '//upload.' + document.location.host.split('.').slice(1).join('.');
 
-function Shunt() {
+function Filecanvas() {
 }
 
-Shunt.prototype.purgeSiteCache = function(siteAlias) {
-	var url = '/sites/' + siteAlias;
+Filecanvas.prototype.purgeSiteCache = function(siteAlias) {
+	var url = '/canvases/' + siteAlias;
 	var settings = {
 		type: 'POST',
 		beforeSend: function(xhr){
@@ -33,7 +33,7 @@ Shunt.prototype.purgeSiteCache = function(siteAlias) {
 		});
 };
 
-Shunt.prototype.validateFolder = function(adapter, path) {
+Filecanvas.prototype.validateFolder = function(adapter, path) {
 	if (!path || (path.charAt(0) !== '/')) {
 		return new $.Deferred().resolve(false).promise();
 	}
@@ -52,7 +52,7 @@ Shunt.prototype.validateFolder = function(adapter, path) {
 		});
 };
 
-Shunt.prototype.uploadFiles = function(files, options) {
+Filecanvas.prototype.uploadFiles = function(files, options) {
 	options = options || {};
 	var adapterConfig = options.adapter;
 	var numRetries = options.retries || 0;
@@ -222,4 +222,4 @@ Shunt.prototype.uploadFiles = function(files, options) {
 	}
 };
 
-module.exports = Shunt;
+module.exports = Filecanvas;

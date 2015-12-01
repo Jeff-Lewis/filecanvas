@@ -1,13 +1,13 @@
-{{#>index title=(replace 'Site settings: $0' '$0' content.site.label) navigation=true footer=true}}
+{{#>index title=(concat 'Canvas settings: ' content.site.label) navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
 		<div class="mb15">
-			<h4 class="no-margin text-uppercase">Site settings: {{ content.site.label }}</h4>
+			<h4 class="no-margin text-uppercase">Canvas settings: {{ content.site.label }}</h4>
 		</div>
 		<div class="row">
 			<div class="col-md-12 col-lg-10">
@@ -16,12 +16,12 @@
 					<div class="alert alert-block alert-success mb10">
 						<i class="pull-left fa fa-arrow-right"></i>
 						<div>
-							<h5>This site is published at
+							<h5>This canvas is published at
 								<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
 							</h5>
 							<ul>
-								<li>Use the <strong> Site editor</strong> to change how the site looks, and to add files to the site. Any changes you make will be applied to the live site.</li>
-								<li>To take the site offline, click the <strong>Unpublish site</strong> button</li>
+								<li>Use the <strong>Canvas editor</strong> to change how the canvas looks, and to add files to the canvas. Any changes you make will be applied to the live canvas.</li>
+								<li>To take the canvas offline, click the <strong>Unpublish canvas</strong> button</li>
 							</ul>
 						</div>
 					</div>
@@ -29,10 +29,10 @@
 					<div class="alert alert-block alert-info">
 						<i class="pull-left fa fa-wrench"></i>
 						<div>
-							<h5>This site is not published.</h5>
+							<h5>This canvas is not published.</h5>
 							<ul>
-								<li>Use the <strong> Site editor</strong> to choose how the site will look, and to add files to the site</li>
-								<li>Once you're ready to take the site live, click the <strong>Publish site</strong> button</li>
+								<li>Use the <strong>Canvas editor</strong> to choose how the canvas will look, and to add files to the canvas</li>
+								<li>Once you're ready to take the canvas live, click the <strong>Publish canvas</strong> button</li>
 							</ul>
 						</div>
 					</div>
@@ -41,18 +41,18 @@
 						<div class="col-md-6">
 							<a class="widget md-mb0 bg-primary" href="{{ session.urls.admin.sites }}/{{ content.site.name }}/edit">
 								<i class="widget-icon bg-white pull-left fa fa-paint-brush"></i>
-								<h4> Site editor</h4>
+								<h4>Canvas editor</h4>
 							</a>
 						</div>
 						{{#if content.site.published}}
 						<div class="col-md-6">
 							<button class="widget btn btn-block bg-danger mb0" data-toggle="collapse" data-target="#unpublish-site" aria-expanded="false" aria-controls="unpublish-site">
 								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
-								<h4>Unpublish site</h4>
+								<h4>Unpublish canvas</h4>
 							</button>
 							<div class="widget bg-danger mb0">
 								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
-								<h4>Unpublish site</h4>
+								<h4>Unpublish canvas</h4>
 							</div>
 						</div>
 						<div class="col-md-12 collapse" id="unpublish-site">
@@ -71,8 +71,8 @@
 										<div class="alert alert-danger">
 											<i class="pull-left fa fa-exclamation-circle"></i>
 											<div>
-												<h5 class="mb20">You are about to take this site offline. Any links to {{ session.urls.webroot }}{{ content.site.name }} will no longer work.</h5>
-												<button type="submit" class="btn btn-danger mr5">Unpublish site</button>
+												<h5 class="mb20">You are about to take this canvas offline. Any links to {{ session.urls.webroot }}{{ content.site.name }} will no longer work.</h5>
+												<button type="submit" class="btn btn-danger mr5">Unpublish canvas</button>
 												<button type="button" class="btn btn-default" data-toggle="collapse" data-target="#unpublish-site" aria-expanded="false" aria-controls="unpublish-site">Cancel</button>
 											</div>
 										</div>
@@ -84,11 +84,11 @@
 						<div class="col-md-6">
 							<button class="widget btn btn-block bg-success mb0" data-toggle="collapse" data-target="#publish-site" aria-expanded="false" aria-controls="publish-site">
 								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
-								<h4>Publish site</h4>
+								<h4>Publish canvas</h4>
 							</button>
 							<div class="widget bg-success mb0">
 								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
-								<h4>Publish site</h4>
+								<h4>Publish canvas</h4>
 							</div>
 						</div>
 						<div class="col-md-12 collapse" id="publish-site">
@@ -103,7 +103,7 @@
 										<div class="alert alert-info">
 											<i class="pull-left fa fa-exclamation-circle"></i>
 											<div>
-												<h5>You are about to publish this site to the internet</h5>
+												<h5>You are about to publish this canvas to the internet</h5>
 											</div>
 										</div>
 										<div class="form-group">
@@ -124,7 +124,7 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label">Home site</label>
+											<label class="col-sm-2 control-label">Home canvas</label>
 											<div class="col-sm-10">
 												<div class="checkbox">
 													<label>
@@ -137,15 +137,15 @@
 															value="true"
 															{{#unless session.user.defaultSite}}checked="checked"{{/unless}}
 														/>
-														Use this as my home site
+														Use this as my home canvas
 													</label>
 												</div>
-												<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+												<p class="help-block">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
 											</div>
 										</div>
 										<div class="form-group">
 											<div class="col-sm-10 col-sm-offset-2">
-												<button type="submit" class="btn btn-success">Publish site</button>
+												<button type="submit" class="btn btn-success">Publish canvas</button>
 												<button type="reset" class="btn btn-default pull-right" data-toggle="collapse" data-target="#publish-site" aria-expanded="false" aria-controls="publish-site">Cancel</button>
 											</div>
 										</div>
@@ -163,10 +163,10 @@
 			<div class="col-md-12 col-lg-10">
 				<div class="panel mb25">
 					<div class="panel-heading border">
-						<h4 class="no-margin text-uppercase"><i class="fa fa-share-alt mr10"></i>Share this site</h4>
+						<h4 class="no-margin text-uppercase"><i class="fa fa-share-alt mr10"></i>Share this canvas</h4>
 					</div>
 					<div class="panel-body">
-						<p>Copy and paste this link to share your site:</p>
+						<p>Copy and paste this link to share your canvas:</p>
 						<p>
 							<input type="text" class="form-control input-lg mb15" data-select-all-input
 								value="{{ session.urls.webroot }}{{ content.site.name }}"
@@ -197,7 +197,7 @@
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="password-protection"/>
 										<div class="form-group">
-											<label class="col-sm-2 control-label">Site access</label>
+											<label class="col-sm-2 control-label">Privacy settings</label>
 											<div class="col-sm-10">
 												<div class="checkbox">
 													<label>
@@ -210,7 +210,7 @@
 															value="true"
 															{{#if content.site.private}}checked="checked"{{/if}}
 														/>
-														Password protect this site
+														Password protect this canvas
 													</label>
 												</div>
 											</div>
@@ -227,7 +227,7 @@
 													{{content.site.users.length}} registered users
 													{{/if}}
 													{{else}}
-													<span class="text-danger"><i class="fa fa-exclamation-circle"></i> Nobody is allowed to access this site</span>
+													<span class="text-danger"><i class="fa fa-exclamation-circle"></i> Nobody is allowed to access this canvas</span>
 													{{/if}}
 													(<a href="{{ session.urls.admin.sites }}/{{ content.site.name }}/users">edit</a>)
 												</p>
@@ -262,10 +262,10 @@
 										<div class="alert alert-block alert-warning">
 											<i class="pull-left fa fa-exclamation-triangle mt10"></i>
 											<div>
-												<h5>Before changing this site's web address, bear the following points in mind:</h5>
+												<h5>Before changing this canvas's web address, bear the following points in mind:</h5>
 												<ul>
-													<li>After changing the site's address, any links to <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong> will <strong>no longer work.</strong></li>
-													<li>If you have set up a custom domain name for this site, you will need to update your DNS settings to reflect the new web address.</li>
+													<li>After changing the canvas's address, any links to <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong> will <strong>no longer work.</strong></li>
+													<li>If you have set up a custom domain name for this canvas, you will need to update your DNS settings to reflect the new web address.</li>
 												</ul>
 											</div>
 										</div>
@@ -302,7 +302,7 @@
 				{{#if content.site.published}}
 				<div class="panel panel-info mb5">
 					<a class="panel-heading collapsed" data-toggle="collapse" href="#home-site" aria-expanded="{{eq session.state.activeRegion 'home-site'}}" aria-controls="home-site" role="tab">
-						<div class="pull-left"><i class="fa fa-home mr10"></i>Home site</div>
+						<div class="pull-left"><i class="fa fa-home mr10"></i>Home canvas</div>
 						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
 					</a>
 					<div id="home-site" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'home-site')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
@@ -313,7 +313,7 @@
 										<input type="hidden" name="_method" value="PUT"/>
 										<input type="hidden" name="_state.activeRegion" value="home-site"/>
 										<div class="form-group">
-											<label class="col-sm-2 control-label">Home site</label>
+											<label class="col-sm-2 control-label">Home canvas</label>
 											<div class="col-sm-10">
 												<div class="checkbox">
 													<label>
@@ -326,10 +326,10 @@
 															value="true"
 															{{#if content.site.home}}checked="checked"{{/if}}
 														/>
-														Use this as my home site
+														Use this as my home canvas
 													</label>
 												</div>
-												<p class="help-block">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+												<p class="help-block">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
 											</div>
 										</div>
 										<div class="form-group">
@@ -347,7 +347,7 @@
 				{{/if}}
 				<div class="panel panel-info mb5">
 					<a class="panel-heading collapsed" data-toggle="collapse" href="#site-settings" aria-expanded="{{eq session.state.activeRegion 'site-settings'}}" aria-controls="site-settings" role="tab">
-						<div class="pull-left"><i class="fa fa-cog mr10"></i>Site settings</div>
+						<div class="pull-left"><i class="fa fa-cog mr10"></i>Canvas settings</div>
 						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
 					</a>
 					<div id="site-settings" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'site-settings')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
@@ -370,7 +370,7 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label">Site folder</label>
+											<label class="col-sm-2 control-label">Linked folder</label>
 											<div class="col-sm-10">
 												<input type="hidden" name="root.adapter"
 													value="{{ content.site.root.adapter }}"
@@ -386,9 +386,9 @@
 														data-bind-check-folder-exists="site-root-path"
 														data-bind-check-folder-exists-adapter="{{ content.site.root.adapter }}"
 													>
-														<span class="shunt-check-folder-exists-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
-														<span class="shunt-check-folder-exists-valid text-success"><i class="fa fa-check"></i></span>
-														<span class="shunt-check-folder-exists-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
+														<span class="filecanvas-check-folder-exists-loading text-default"><i class="fa fa-refresh fa-spin"></i></span>
+														<span class="filecanvas-check-folder-exists-valid text-success"><i class="fa fa-check"></i></span>
+														<span class="filecanvas-check-folder-exists-invalid text-danger"><i class="fa fa-exclamation-circle"></i></span>
 													</p>
 												</div>
 											</div>
@@ -398,7 +398,7 @@
 											<label class="col-sm-2 control-label">Admin URL</label>
 											<div class="col-sm-10">
 												<div class="web-address-control input-group">
-													<span class="input-group-addon">{{ session.urls.root }}/sites/</span>
+													<span class="input-group-addon">{{ session.urls.root }}/canvases/</span>
 													<input type="text" class="form-control"
 														name="name"
 														value="{{ content.site.name }}"
@@ -426,7 +426,7 @@
 				</div>
 				<div class="panel panel-info mb5">
 					<a class="panel-heading collapsed" data-toggle="collapse" href="#delete-site" aria-expanded="{{eq session.state.activeRegion 'delete-site'}}" aria-controls="delete-site" role="tab">
-						<div class="pull-left"><i class="fa fa-trash mr10"></i>Delete site</div>
+						<div class="pull-left"><i class="fa fa-trash mr10"></i>Delete canvas</div>
 						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
 					</a>
 					<div id="delete-site" class="panel-collapse collapse{{#if (eq session.state.activeRegion 'delete-site')}} in{{/if}}" role="tabpanel" data-accordion-anchor>
@@ -439,11 +439,11 @@
 										<div class="alert alert-block alert-danger">
 											<i class="pull-left fa fa-exclamation-circle mt10"></i>
 											<div>
-												<h5>Before deleting this site, bear the following points in mind:</h5>
+												<h5>Before deleting this canvas, bear the following points in mind:</h5>
 												<ul>
-													<li>Deleting this site will <strong>permanently</strong> remove the Shunt site located at <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
-													<li>Deleting this site will unlink the site’s Dropbox folder from the Shunt service.</li>
-													<li>Deleting this site will <strong>not</strong> delete the contents of your Dropbox folder.</li>
+													<li>Deleting this canvas will <strong>permanently</strong> remove the canvas located at <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
+													<li>Deleting this canvas will unlink the canvas’s folder from the Filecanvas service.</li>
+													<li>Deleting this canvas will <strong>not</strong> delete the contents of the canvas’s folder.</li>
 												</ul>
 											</div>
 										</div>
@@ -452,14 +452,14 @@
 											<div class="col-sm-10">
 												<div class="checkbox">
 													<label>
-														<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete this Shunt site
+														<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete this canvas
 													</label>
 												</div>
 											</div>
 										</div>
 										<div class="form-group">
 											<div class="col-sm-offset-2 col-sm-10">
-												<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete this site</button>
+												<button type="submit" class="btn btn-danger" disabled="disabled" data-bind-value="confirm-delete">Delete this canvas</button>
 											</div>
 										</div>
 									</form>

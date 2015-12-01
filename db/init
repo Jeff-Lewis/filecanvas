@@ -2,4 +2,4 @@
 cd $(dirname $0)
 pwd
 
-mongo localhost/shunt init.js
+mongo localhost/filecanvas init.js

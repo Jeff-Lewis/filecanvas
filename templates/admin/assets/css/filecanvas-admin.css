@@ -511,11 +511,17 @@ button.bg-bluegrey:hover :not(:disabled) {
 }
 
 .brand-logo {
-	font-weight: bold;
+	font-weight: 200;
 }
-
+.brand-logo strong {
+	font-weight: 500;
+}
 .brand-logo a {
 	text-decoration: none;
+}
+.login-panel .brand-logo {
+	font-size: 48px;
+	color: #e3e5e8;
 }
 
 .navbar .brand-logo,
@@ -1185,46 +1191,46 @@ button.panel-heading {
 	opacity: 1;
 }
 
-.shunt-sync-idle { }
-.shunt-sync-loading { display: none; }
-.shunt-sync-success { display: none; }
-.shunt-sync-error { display: none; }
+.filecanvas-sync-idle { }
+.filecanvas-sync-loading { display: none; }
+.filecanvas-sync-success { display: none; }
+.filecanvas-sync-error { display: none; }
 
-.is-shunt-sync-loading .shunt-sync-idle { display: none; }
-.is-shunt-sync-loading .shunt-sync-loading { display: inline; }
-.is-shunt-sync-loading .shunt-sync-success { display: none; }
-.is-shunt-sync-loading .shunt-sync-error { display: none; }
+.is-filecanvas-sync-loading .filecanvas-sync-idle { display: none; }
+.is-filecanvas-sync-loading .filecanvas-sync-loading { display: inline; }
+.is-filecanvas-sync-loading .filecanvas-sync-success { display: none; }
+.is-filecanvas-sync-loading .filecanvas-sync-error { display: none; }
 
-.is-shunt-sync-success .shunt-sync-idle { display: none; }
-.is-shunt-sync-success .shunt-sync-loading { display: none; }
-.is-shunt-sync-success .shunt-sync-success { display: inline }
-.is-shunt-sync-success .shunt-sync-error { display: none; }
+.is-filecanvas-sync-success .filecanvas-sync-idle { display: none; }
+.is-filecanvas-sync-success .filecanvas-sync-loading { display: none; }
+.is-filecanvas-sync-success .filecanvas-sync-success { display: inline }
+.is-filecanvas-sync-success .filecanvas-sync-error { display: none; }
 
-.is-shunt-sync-error .shunt-sync-idle { display: none; }
-.is-shunt-sync-error .shunt-sync-loading { display: none; }
-.is-shunt-sync-error .shunt-sync-success { display: none; }
-.is-shunt-sync-error .shunt-sync-error { display: inline }
+.is-filecanvas-sync-error .filecanvas-sync-idle { display: none; }
+.is-filecanvas-sync-error .filecanvas-sync-loading { display: none; }
+.is-filecanvas-sync-error .filecanvas-sync-success { display: none; }
+.is-filecanvas-sync-error .filecanvas-sync-error { display: inline }
 
 
-.shunt-check-folder-exists-loading { display: none; }
-.shunt-check-folder-exists-valid { display: none; }
-.shunt-check-folder-exists-invalid { display: none; }
-.shunt-check-folder-exists-error { display: none; }
+.filecanvas-check-folder-exists-loading { display: none; }
+.filecanvas-check-folder-exists-valid { display: none; }
+.filecanvas-check-folder-exists-invalid { display: none; }
+.filecanvas-check-folder-exists-error { display: none; }
 
-.is-shunt-check-folder-exists-loading .shunt-check-folder-exists-loading { display: inline; }
-.is-shunt-check-folder-exists-valid .shunt-check-folder-exists-valid { display: inline; }
-.is-shunt-check-folder-exists-invalid .shunt-check-folder-exists-invalid { display: inline; }
-.is-shunt-check-folder-exists-error .shunt-check-folder-exists-error { display: inline; }
+.is-filecanvas-check-folder-exists-loading .filecanvas-check-folder-exists-loading { display: inline; }
+.is-filecanvas-check-folder-exists-valid .filecanvas-check-folder-exists-valid { display: inline; }
+.is-filecanvas-check-folder-exists-invalid .filecanvas-check-folder-exists-invalid { display: inline; }
+.is-filecanvas-check-folder-exists-error .filecanvas-check-folder-exists-error { display: inline; }
 
-.widget-icon.shunt-check-folder-exists-loading { display: none; }
-.widget-icon.shunt-check-folder-exists-valid { display: none; }
-.widget-icon.shunt-check-folder-exists-invalid { display: none; }
-.widget-icon.shunt-check-folder-exists-error { display: none; }
+.widget-icon.filecanvas-check-folder-exists-loading { display: none; }
+.widget-icon.filecanvas-check-folder-exists-valid { display: none; }
+.widget-icon.filecanvas-check-folder-exists-invalid { display: none; }
+.widget-icon.filecanvas-check-folder-exists-error { display: none; }
 
-.is-shunt-check-folder-exists-loading .widget-icon.shunt-check-folder-exists-loading { display: block; }
-.is-shunt-check-folder-exists-valid .widget-icon.shunt-check-folder-exists-valid { display: block; }
-.is-shunt-check-folder-exists-invalid .widget-icon.shunt-check-folder-exists-invalid { display: block; }
-.is-shunt-check-folder-exists-error .widget-icon.shunt-check-folder-exists-error { display: block; }
+.is-filecanvas-check-folder-exists-loading .widget-icon.filecanvas-check-folder-exists-loading { display: block; }
+.is-filecanvas-check-folder-exists-valid .widget-icon.filecanvas-check-folder-exists-valid { display: block; }
+.is-filecanvas-check-folder-exists-invalid .widget-icon.filecanvas-check-folder-exists-invalid { display: block; }
+.is-filecanvas-check-folder-exists-error .widget-icon.filecanvas-check-folder-exists-error { display: block; }
 
 .logout {
 	display: none;

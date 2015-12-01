@@ -8,7 +8,7 @@ var handlebarsEngine = require('../../engines/handlebars');
 var AdminPageService = require('../../services/AdminPageService');
 
 var DEFAULT_USERNAME = 'your-username';
-var DEFAULT_SITE_NAME = 'my-site';
+var DEFAULT_SITE_NAME = 'my-canvas';
 
 module.exports = function(options) {
 	options = options || {};

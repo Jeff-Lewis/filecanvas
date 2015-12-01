@@ -1,10 +1,10 @@
 {{#>index title='Theme gallery' fullPage=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
-		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site') icon='plus' label='Create a site'}}
-		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site/themes') icon='image' label='Theme gallery'}}
-		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site/themes/' content.theme.id) icon=null label=content.theme.name}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sitesCreate icon='plus' label='Create a site'}}
+		{{>breadcrumb-item link=session.urls.admin.sitesCreateThemes icon='image' label='Theme gallery'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sitesCreateThemes content.theme.id) icon=null label=content.theme.name}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -15,7 +15,7 @@
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
 						<div class="brand">
-							<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+							<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
 						</div>
 					</div>
 					<h3 class="title-bar-header-subtitle">Theme gallery</h3>

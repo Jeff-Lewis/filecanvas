@@ -1,4 +1,4 @@
-# shunt.io Privacy Policy
+# filecanvas.com Privacy Policy
 
 This privacy policy has been compiled to better serve those who are concerned with how their 'Personally identifiable information' (PII) is being used online. PII, as used in US privacy law and information security, is information that can be used on its own or with other information to identify, contact, or locate a single person, or to identify an individual in context. Please read our privacy policy carefully to get a clear understanding of how we collect, use, protect or otherwise handle your Personally Identifiable Information in accordance with our website.
 
@@ -162,7 +162,7 @@ To be in accordance with CANSPAM we agree to the following:
 
 If at any time you would like to unsubscribe from receiving future emails, you can:
 
-- Email us at [info@shunt.io](mailto:info@shunt.io)
+- Email us at [info@filecanvas.com](mailto:info@filecanvas.com)
 - Follow the instructions at the bottom of each email.
 
 and we will promptly remove you from **ALL** correspondence.
@@ -173,4 +173,4 @@ and we will promptly remove you from **ALL** correspondence.
 
 If there are any questions regarding this privacy policy you may contact us using the information below.
 
-Tim Kendrick Ltd, Unit 11, Hove Business Centre, Hove, East Sussex, BN3 6HA, United Kingdom, [info@shunt.io](mailto:info@shunt.io)
+Tim Kendrick Ltd, Unit 11, Hove Business Centre, Hove, East Sussex, BN3 6HA, United Kingdom, [info@filecanvas.com](mailto:info@filecanvas.com)

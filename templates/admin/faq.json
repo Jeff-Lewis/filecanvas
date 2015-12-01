@@ -1,77 +1,77 @@
 [
 	{
 		"id": "share-link",
-		"title": "Will people need to sign up for Shunt or Dropbox to access my Shunt sites?",
-		"body": "<p>No. For others to view your site, all they need is the web address of the Shunt site.</p><p>The web address for a Shunt site takes the form <b>https://${username}.shunt.io/${sitename}</b>, where <b>${username}</b> is your Shunt username and <b>${sitename}</b> is your Shunt site path (as specified in your <a href=\"/account\">account settings</a> page and the site's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
+		"title": "Will other people need to sign up for Filecanvas or Dropbox to access my canvases?",
+		"body": "<p>No. For others to view your canvas, all they need is the web address of the canvas.</p><p>The web address for a canvas takes the form <b>https://${username}.filecanvas.com/${sitename}</b>, where <b>${username}</b> is your Filecanvas username and <b>${sitename}</b> is your canvas path (as specified in your <a href=\"/account\">account settings</a> page and the canvas's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
 	},
 	{
-		"id": "site-folder",
-		"title": "Where are my Shunt sites stored?",
-		"body": "<p>Shunt does <b>not</b> store any of your files. All the files in your Shunt sites are located on Dropbox's secure file servers.</p><p>By default, whenever you create a Shunt site, Shunt will create a new <b>site folder</b> within a folder named <code>shunt</code> inside your Dropbox. Your Shunt site will then stay in sync with the contents of this folder.</p>"
+		"id": "canvas-folder",
+		"title": "Where are my canvases stored?",
+		"body": "<p>Filecanvas does <b>not</b> store any of your files. All the files in your canvases are located on Dropbox's secure file servers.</p><p>By default, whenever you create a canvas, Filecanvas will create a new canvas folder within a folder named <code>filecanvas</code> inside your Dropbox. Your canvas will then stay in sync with the contents of this folder.</p>"
 	},
 	{
 		"id": "share-folder",
-		"title": "Can I invite others to collaborate on a Shunt site?",
-		"body": "<p>Absolutely. You can use Dropbox's <a href=\"https://www.dropbox.com/en/help/19\">shared folders</a> feature to share a Shunt site's site folder with other Dropbox users. Any changes they make to the site folder contents will be reflected in the Shunt site.</p>"
+		"title": "Can I invite others to collaborate on a canvas?",
+		"body": "<p>Absolutely. You can use Dropbox's <a href=\"https://www.dropbox.com/en/help/19\">shared folders</a> feature to share a canvas's folder with other Dropbox users. Any changes they make to the folder contents will be reflected in the canvas.</p>"
 	},
 	{
-		"id": "site-limit",
-		"title": "Is there a limit to how many Shunt sites I can create from one account?",
-		"body": "<p>During the beta phase, you can create as many Shunt sites as you want. Please be aware that this is likely to change once the beta phase ends.</p>"
+		"id": "canvas-limit",
+		"title": "Is there a limit to how many canvases I can create from one account?",
+		"body": "<p>During the beta phase, you can create as many canvases as you want. Please be aware that this is likely to change once the beta phase ends.</p>"
 	},
 	{
 		"id": "missing-all-files",
-		"title": "Where did my files go? My Shunt site is suddenly empty!",
-		"body": "<p>Sounds like either you've moved or renamed your site folder within your Dropbox, or you've revoked Shunt's access to your Dropbox.</p><p>If you've moved or renamed your site folder, you can either move the site folder back to its original location (within the <code>shunt</code> folder in your Dropbox), or you can update your site's <b>Dropbox folder</b> setting in the site settings page to match the folder's new location.</p><p>If you've accidentally revoked Shunt's access to your Dropbox folder, just log into Shunt and it will restore Shunt's access to your Dropbox.<p>"
+		"title": "Where did my files go? My canvas is suddenly empty!",
+		"body": "<p>Sounds like either you've moved or renamed your folder within your Dropbox, or you've revoked Filecanvas's access to your Dropbox.</p><p>If you've moved or renamed your canvas folder, you can either move the folder back to its original location (within the <code>filecanvas</code> folder in your Dropbox), or you can update your canvas's <b>Linked folder</b> setting in the canvas settings page to match the folder's new location.</p><p>If you've accidentally revoked Filecanvas's access to your Dropbox folder, just log into Filecanvas and it will restore Filecanvas's access to your Dropbox.<p>"
 	},
 	{
 		"id": "missing-some-files",
-		"title": "I've added some files to a subfolder within my site folder, but I can't see them. Why aren't they showing up?",
-		"body": "<p>It could be because the files are too deeply nested within subfolders. Shunt only shows files up to three levels deep within your site folder, so make sure you don't have any unnecessary levels of folders in there.</p>"
+		"title": "I've added some files to a subfolder within my canvas folder, but I can't see them. Why aren't they showing up?",
+		"body": "<p>It could be because the files are too deeply nested within subfolders. Filecanvas only shows files up to three levels deep within your canvas folder, so make sure you don't have any unnecessary levels of folders in there.</p>"
 	},
 	{
 		"id": "password-protection",
-		"title": "Can I password-protect my Shunt sites?",
-		"body": "<p>Yes. Follow these steps to restrict access to a Shunt site:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Settings\" link for the site that you want to password-protect</li><li>Check the \"Password-protect this site\" checkbox</li><li>Under the \"Password protection\" section, you can set the list of username/password combinations that can be used to access this site</li></ol>"
+		"title": "Can I password-protect my canvases?",
+		"body": "<p>Yes. Follow these steps to restrict access to a canvas:</p><ol><li>Go to your <a href=\"/\" target=\"_blank\">Dashboard</a>, and click on the canvas that you want to password-protect</li><li>Under the \"Password protection\" section, check the \"Password protect this canvas\" checkbox and save your changes</li><li>Under the \"Password protection\" section, you can now edit the username/password combinations that can be used to access this canvas</li></ol>"
 	},
 	{
-		"id": "retrieve-site-user-password",
-		"title": "Can I retrieve the password for a password-protected Shunt site?",
-		"body": "<p>For security reasons, Shunt only stores an encrypted version of the passwords for the users on your password-protected Shunt sites. This means that it's impossible to retrieve a user's password if it has been forgotten. It's very easy to reset a user's password though:</p><ol><li>Go to your <a href=\"/sites\">Site dashboard</a>, and click the \"Settings\" link for the site</li><li>Under the \"Password protection\" section, you can edit the settings for the site's registered users</li><li>Click the pencil icon next to the user and set a new password</li></ol>"
+		"id": "retrieve-canvas-user-password",
+		"title": "Can I retrieve the password for a password-protected canvas?",
+		"body": "<p>For security reasons, Filecanvas only stores an encrypted version of the passwords for the users on your password-protected canvases. This means that it's impossible to retrieve a user's password if it has been forgotten. It's very easy to reset a user's password though:</p><ol><li>Go to your <a href=\"/\" target=\"_blank\">Dashboard</a>, and and click on the canvas</li><li>Under the \"Password protection\" section, follow the link to edit the canvas's registered users</li><li>Click the pencil icon next to the user and set a new password</li></ol>"
 	},
 	{
-		"id": "default-site",
-		"title": "Can I set a default site to display at my Shunt web root?",
-		"body": "<p>Yes. You can choose which site shows up as the default site for your Shunt web root (i.e. at <b>https://${username}.shunt.io/</b>) by changing the \"Home site\" setting in your <a href=\"/account\">account settings</a>.</p>"
+		"id": "default-canvas",
+		"title": "Can I set a default canvas to display at my Filecanvas web root?",
+		"body": "<p>Yes. You can choose which canvas shows up as the default canvas for your Filecanvas web root (i.e. at <b>https://${username}.filecanvas.com/</b>) by changing the \"Home canvas\" setting in your <a href=\"/account\">account settings</a>.</p>"
 	},
 	{
 		"id": "change-username",
-		"title": "Can I change the username for my Shunt web root?",
-		"body": "<p>Yes. You can change your Shunt username in your <a href=\"/account\">account settings</a>. Your web root address will update instantly, and any existing sites will now be accessible from your new web root address.</p>"
+		"title": "Can I change the username for my Filecanvas web root?",
+		"body": "<p>Yes. You can change your Filecanvas username in your <a href=\"/account\">account settings</a>. Your web root address will update instantly, and any existing sites will now be accessible from your new web root address.</p>"
 	},
 	{
-		"id": "move-rename-site-folder",
-		"title": "Can I move/rename my site folder within my Dropbox?",
-		"body": "<p>Yes, however make sure to update the <b>Dropbox folder</b> path in your site settings accordingly, or it will appear as if there are no files in your site.</p><p>You can put your sites anywhere in your Dropbox, however it's recommended that Shunt site folders should be kept in a folder named <code>shunt</code> in your Dropbox root.</p>"
+		"id": "move-rename-canvas-folder",
+		"title": "Can I move/rename my canvas folder within my Dropbox?",
+		"body": "<p>Yes, however make sure to update the <b>Linked folder</b> path in your canvas settings accordingly, or it will appear as if there are no files in your canvas.</p><p>You can put your sites anywhere in your Dropbox, however it's recommended that canvas folders should be kept in a folder named <code>filecanvas</code> in your Dropbox root.</p>"
 	},
 	{
-		"id": "existing-site-folder",
-		"title": "Can I use an existing folder as a Shunt site folder?",
-		"body": "<p>Yes. Make sure the folder is somewhere inside your Dropbox, and then create a new Shunt site, setting the <b>Dropbox folder</b> to the path of your site folder (relative to your Dropbox root and starting with a slash, e.g. <code>/shunt/${sitename}</code>).</p><p>You can add a site from anywhere in your Dropbox, however it's recommended that Shunt site folders should be kept in a folder named <code>shunt</code> in your Dropbox root.</p>"
+		"id": "existing-canvas-folder",
+		"title": "Can I use an existing folder as a canvas folder?",
+		"body": "<p>Yes. Make sure the folder is inside the <code>filecanvas</code> folder within your Dropbox, and then create a new canvas, making sure to set the <b>Canvas name</b> to the name of the folder.</p>"
 	},
 	{
 		"id": "custom-domain",
-		"title": "Can I use my own domain name (e.g. http://www.example.com/) with Shunt?",
-		"body": "<p>Yes. You can point your own domain names to your main Shunt web root, or to individual Shunt sites. And don't worry: if you use your own custom domain name, the Shunt web address won't be displayed to the user.</p><p>To use a custom domain name, set up a CNAME alias as follows:</p><blockquote class=\"faq-example\"><h5><b>Example 1:</b> Pointing your domain to your main Shunt web root</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt web root</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${username}.shunt.io.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your web root at <b>http://${username}.shunt.io/</b>. This means that you will be able to access your Shunt sites at <b>http://www.example.com/${sitename}</b> (where <b>${sitename}</b> is the path to one of your Shunt sites).</b></aside></blockquote><blockquote class=\"faq-example\"><h5><b>Example 2:</b> Pointing your domain to an individual Shunt site</h5><aside>This example assumes your Shunt username is <b>${username}</b>, you have a Shunt site with its path set to <b>${sitename}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Shunt site</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${sitename}.${username}.shunt.io.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your site at <b>http://${username}.shunt.io/${sitename}</b></aside></blockquote><p>The examples above use the <code>www</code> subdomain, however you can set up a CNAME record for whichever subdomain you like (e.g. <code>extranet</code> or <code>my.nested.subdomain</code>). You can also use multiple CNAME records if you want to serve the site from multiple addresses.</p>"
+		"title": "Can I use my own domain name (e.g. http://www.example.com/) with Filecanvas?",
+		"body": "<p>Yes. You can point your own domain names to your main Filecanvas web root, or to individual canvases. And don't worry: if you use your own custom domain name, the Filecanvas web address won't be displayed to the user.</p><p>To use a custom domain name, set up a CNAME alias as follows:</p><blockquote class=\"faq-example\"><h5><b>Example 1:</b> Pointing your domain to your main Filecanvas web root</h5><aside>This example assumes your Filecanvas username is <b>${username}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Filecanvas web root</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${username}.filecanvas.com.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your web root at <b>http://${username}.filecanvas.com/</b>. This means that you will be able to access your canvases at <b>http://www.example.com/${sitename}</b> (where <b>${sitename}</b> is the path to one of your canvases).</b></aside></blockquote><blockquote class=\"faq-example\"><h5><b>Example 2:</b> Pointing your domain to an individual canvas</h5><aside>This example assumes your Filecanvas username is <b>${username}</b>, you have a canvas with its path set to <b>${sitename}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your canvas</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${sitename}.${username}.filecanvas.com.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your canvas at <b>http://${username}.filecanvas.com/${sitename}</b></aside></blockquote><p>The examples above use the <code>www</code> subdomain, however you can set up a CNAME record for whichever subdomain you like (e.g. <code>extranet</code> or <code>my.nested.subdomain</code>). You can also use multiple CNAME records if you want to serve the canvas from multiple addresses.</p>"
 	},
 	{
 		"id": "custom-root-domain",
-		"title": "Can I point my root domain (e.g. http://example.com/) to Shunt?",
-		"body": "<p>It depends on your DNS provider. Some DNS providers don't allow you to create a CNAME record for your root domain, so you might be better off setting up a CNAME record for the <code>www</code> subdomain that points to your Shunt site (see the <a href=\"#custom-domain\">instructions above</a>), and using your DNS provider to set up a redirect from <code>example.com</code> to <code>www.example.com</code>. Alternatively, you can switch to a different DNS provider such as <a href=\"https://www.cloudflare.com/dns\">CloudFlare</a> that allows you to set up a CNAME record on your root domain."
+		"title": "Can I point my root domain (e.g. http://example.com/) to Filecanvas?",
+		"body": "<p>It depends on your DNS provider. Some DNS providers don't allow you to create a CNAME record for your root domain, so you might be better off setting up a CNAME record for the <code>www</code> subdomain that points to your canvas (see the <a href=\"#custom-domain\">instructions above</a>), and using your DNS provider to set up a redirect from <code>example.com</code> to <code>www.example.com</code>. Alternatively, you can switch to a different DNS provider such as <a href=\"https://www.cloudflare.com/dns\">CloudFlare</a> that allows you to set up a CNAME record on your root domain."
 	},
 	{
 		"id": "custom-https-domain",
 		"title": "Can I use SSL for custom domains?",
-		"body": "All Shunt sites on <b>shunt.io</b> are served via https, however the Shunt SSL certificate won't be valid for your custom domain names. <a href=\"mailto:info@shunt.io?subject=Custom%20domain%20SSL%20certificate\">Get in touch</a> if you need SSL support for custom domains."
+		"body": "All canvases on <b>filecanvas.com</b> are served via https, however the Filecanvas SSL certificate won't be valid for your custom domain names. <a href=\"mailto:info@filecanvas.com?subject=Custom%20domain%20SSL%20certificate\">Get in touch</a> if you need SSL support for custom domains."
 	}
 ]

@@ -1,18 +1,18 @@
-{{#>index title='Site dashboard' navigation=true footer=true}}
+{{#>index title='Dashboard' navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
 		<div class="row">
 			<div class="col-md-12 col-lg-10 mb15">
 				<div class="mb15">
-					<h4 class="no-margin text-uppercase">Your sites</h4>
+					<h4 class="no-margin text-uppercase">Your canvases</h4>
 				</div>
 				{{#unless session.sites}}
 				<div class="alert alert-info mb10">
-					<h5>There are no sites registered to this account.</h5>
+					<h5>There are no canvases registered to this account.</h5>
 				</div>
 				{{/unless}}
 				{{#if session.sites}}
@@ -26,7 +26,7 @@
 				{{/if}}
 				<a class="widget bg-white mb15" href="{{ session.urls.admin.sitesCreate }}">
 					<i class="widget-icon bg-primary pull-left fa fa-plus"></i>
-					<h4>Create a site</h4>
+					<h4>Create a canvas</h4>
 				</a>
 			</div>
 		</div>

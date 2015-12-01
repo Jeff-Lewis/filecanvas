@@ -1,9 +1,9 @@
-{{#>index title=(replace 'Site users: $0' '$0' content.site.label) navigation=true footer=true}}
+{{#>index title=(concat 'Users: ' content.site.label) navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
-		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name '/users') icon='users' label='Site users'}}
+		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name '/users') icon='users' label='Users'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -14,12 +14,12 @@
 						<a class="pull-right" href="{{ session.urls.admin.sites }}/{{ content.site.name }}">
 							<i class="fa fa-times"></i>
 						</a>
-						Site users: {{ content.site.label }}
+						Users: {{ content.site.label }}
 					</h4>
 				</div>
 				{{#unless content.site.users}}
 				<div class="alert alert-info">
-					<h5>There are no users registered for this site.</h5>
+					<h5>There are no users registered for this canvas.</h5>
 				</div>
 				{{/unless}}
 				{{#if content.site.users}}

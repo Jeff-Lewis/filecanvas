@@ -67,7 +67,7 @@ $(function() {
 	initInputParsers(parsers);
 	var bindingSources = initBindingSources();
 	initBindingTargets(bindingSources, bindingFilters);
-	initShunt(bindingSources, bindingFilters);
+	initFilecanvas(bindingSources, bindingFilters);
 	updateBindings(bindingSources);
 	initInputValidators(validators);
 	initSelectAllInputs();
@@ -465,22 +465,22 @@ function updateBindings(bindingSources) {
 	}
 }
 
-function initShunt(bindingSources, bindingFilters) {
-	var shunt = window.shunt;
+function initFilecanvas(bindingSources, bindingFilters) {
+	var filecanvas = window.filecanvas;
 
-	initPurgeLinks(shunt);
-	initFolderChecks(shunt, bindingSources, bindingFilters);
+	initPurgeLinks(filecanvas);
+	initFolderChecks(filecanvas, bindingSources, bindingFilters);
 
 
-	function initPurgeLinks(shunt) {
-		var attributeName = 'data-shunt-purge';
+	function initPurgeLinks(filecanvas) {
+		var attributeName = 'data-filecanvas-purge';
 
 		var $purgeButtonElements = $('[' + attributeName + ']');
 
-		createPurgeButtons($purgeButtonElements, attributeName, shunt);
+		createPurgeButtons($purgeButtonElements, attributeName, filecanvas);
 
 
-		function createPurgeButtons($purgeButtonElements, attributeName, shunt) {
+		function createPurgeButtons($purgeButtonElements, attributeName, filecanvas) {
 			$purgeButtonElements.on('click', onPurgeButtonClicked);
 
 
@@ -488,19 +488,19 @@ function initShunt(bindingSources, bindingFilters) {
 				var $purgeButtonElement = $(event.currentTarget);
 				var siteAlias = $purgeButtonElement.attr(attributeName);
 				$purgeButtonElement.prop('disabled', true);
-				$purgeButtonElement.addClass('is-shunt-sync-loading');
-				shunt.purgeSiteCache(siteAlias)
+				$purgeButtonElement.addClass('is-filecanvas-sync-loading');
+				filecanvas.purgeSiteCache(siteAlias)
 					.always(function() {
 						$purgeButtonElement.prop('disabled', false);
-						$purgeButtonElement.removeClass('is-shunt-sync-loading');
+						$purgeButtonElement.removeClass('is-filecanvas-sync-loading');
 					})
 					.done(function() {
 						var successTimeoutDuration = 3000;
-						setButtonState($purgeButtonElement, 'is-shunt-sync-success', successTimeoutDuration);
+						setButtonState($purgeButtonElement, 'is-filecanvas-sync-success', successTimeoutDuration);
 					})
 					.fail(function(error) {
 						var errorTimeoutDuration = 3000;
-						setButtonState($purgeButtonElement, 'is-shunt-sync-error', errorTimeoutDuration);
+						setButtonState($purgeButtonElement, 'is-filecanvas-sync-error', errorTimeoutDuration);
 						return;
 					});
 			}
@@ -516,7 +516,7 @@ function initShunt(bindingSources, bindingFilters) {
 		}
 	}
 
-	function initFolderChecks(shunt, bindingSources, bindingFilters) {
+	function initFolderChecks(filecanvas, bindingSources, bindingFilters) {
 		var targetAttributeName = 'data-bind-check-folder-exists';
 		var targetAdapterAttributeName = 'data-bind-check-folder-exists-adapter';
 		var $targetElements = $('[' + targetAttributeName + ']');
@@ -535,7 +535,7 @@ function initShunt(bindingSources, bindingFilters) {
 			var bindingFilter = binding.filter;
 			var currentState = null;
 			var currentRequest = null;
-			var classPrefix = 'is-shunt-check-folder-exists-';
+			var classPrefix = 'is-filecanvas-check-folder-exists-';
 
 			bindingSource.bind(function(value) {
 				value = bindingFilter(value);
@@ -549,7 +549,7 @@ function initShunt(bindingSources, bindingFilters) {
 				var request = delay(debounceDuration)
 					.then(function() {
 						if (currentRequest !== request) { return; }
-						return shunt.validateFolder(adapterName, path);
+						return filecanvas.validateFolder(adapterName, path);
 					})
 					.done(function(isValid) {
 						if (currentRequest !== request) { return; }

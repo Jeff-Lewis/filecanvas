@@ -534,7 +534,7 @@ function initLivePreview(callback) {
 		var $progressBarElement = $('[data-editor-progress-bar]');
 		var $progressCancelButtonElement = $('[data-editor-progress-cancel]');
 		var $uploadStatusModalElement = $('[data-editor-upload-status-modal]');
-		var shuntApi = window.shunt;
+		var filecanvasApi = window.filecanvas;
 		var activeUpload = null;
 		var showUploadStatus = initUploadStatusModal($uploadStatusModalElement);
 		initUploadHotspots($previewElement, onFilesSelected);
@@ -721,7 +721,7 @@ function initLivePreview(callback) {
 			if (isUploadInProgress) {
 				activeUpload.append(filteredFiles);
 			} else {
-				activeUpload = uploadFiles(filteredFiles, shuntApi, adapterConfig);
+				activeUpload = uploadFiles(filteredFiles, filecanvasApi, adapterConfig);
 				activeUpload.always(function() {
 					activeUpload = null;
 				});
@@ -735,9 +735,9 @@ function initLivePreview(callback) {
 				});
 			}
 
-			function uploadFiles(files, shuntApi, adapterConfig) {
+			function uploadFiles(files, filecanvasApi, adapterConfig) {
 				showUploadProgressIndicator();
-				var upload = shuntApi.uploadFiles(files, {
+				var upload = filecanvasApi.uploadFiles(files, {
 					adapter: adapterConfig,
 					retries: NUM_UPLOAD_RETRIES
 				});
@@ -930,7 +930,7 @@ function initLivePreview(callback) {
 function startTour() {
 	var DEMO_EDITOR_PATH = '/editor';
 	var DEMO_ADD_FILES_PATH = '/editor/add-files';
-	var SITE_EDITOR_PATH = /^\/sites\/[^\/]+\/edit$/;
+	var SITE_EDITOR_PATH = /^\/canvases\/[^\/]+\/edit$/;
 
 	var TOUR_ID_DEMO_EDITOR = 'demo-tour';
 	var TOUR_ID_DEMO_ADD_FILES = 'demo-add-files-tour';
@@ -988,7 +988,7 @@ function startTour() {
 				},
 				backdrop: true,
 				title: 'Theme options',
-				content: '<p>Use the Theme Options panel to choose how your site looks</p>',
+				content: '<p>Use the Theme Options panel to choose how your canvas looks</p>',
 				filter: [
 					TOUR_ID_DEMO_EDITOR,
 					TOUR_ID_SITE_EDITOR
@@ -1000,7 +1000,7 @@ function startTour() {
 				placement: 'top',
 				backdrop: true,
 				title: 'Upload files',
-				content: '<p>Drag files onto the preview area to upload them to your site</p>',
+				content: '<p>Drag files onto the preview area to upload them to your canvas</p>',
 				filter: [
 					TOUR_ID_DEMO_ADD_FILES,
 					TOUR_ID_SITE_EDITOR
@@ -1014,7 +1014,7 @@ function startTour() {
 				},
 				backdrop: true,
 				title: 'Add files',
-				content: '<p>Once you’re happy with how your site looks, click here to add some files</p>',
+				content: '<p>Once you’re happy with how your canvas looks, click here to add some files</p>',
 				filter: [
 					TOUR_ID_DEMO_EDITOR
 				]
@@ -1026,8 +1026,8 @@ function startTour() {
 					desktop: 'bottom'
 				},
 				backdrop: true,
-				title: 'Save your site',
-				content: '<p>Once you’re happy with how your site looks, click here to save it for publishing later</p>',
+				title: 'Save your canvas',
+				content: '<p>Once you’re happy with how your canvas looks, click here to save it for publishing later</p>',
 				filter: [
 					TOUR_ID_DEMO_ADD_FILES
 				]
@@ -1040,7 +1040,7 @@ function startTour() {
 				},
 				backdrop: true,
 				title: 'Save changes',
-				content: '<p>Once you’re happy with how your site looks, click here to save your changes and leave the editor</p>',
+				content: '<p>Once you’re happy with how your canvas looks, click here to save your changes and leave the editor</p>',
 				filter: [
 					TOUR_ID_SITE_EDITOR
 				]

@@ -3,7 +3,7 @@
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css"/>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/css/bootstrap-colorpicker.min.css"/>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css"/>
-		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-editor.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}css/filecanvas-editor.css"/>
 		{{#if content.theme.fonts}}
 		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
 		<link rel="stylesheet" href="{{ content.theme.fonts }}"/>
@@ -16,7 +16,7 @@
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/js/bootstrap-colorpicker.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js"></script>
-		<script type="text/javascript" src="{{ session.urls.assets }}js/shunt-editor.js"></script>
+		<script type="text/javascript" src="{{ session.urls.assets }}js/filecanvas-editor.js"></script>
 		<script type="text/javascript" src="{{ session.urls.templates }}/partials/theme-options.js"></script>
 		<script type="text/javascript" src="{{ session.urls.themes }}/{{ content.site.theme.id }}/template/index.js"></script>
 	{{/inline}}
@@ -38,7 +38,7 @@
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
 						<div class="brand">
-							<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+							<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
 						</div>
 					</div>
 					<h3 class="title-bar-header-subtitle">Theme editor</h3>
@@ -51,7 +51,7 @@
 						{{#unless content.site.name}}
 						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#add-files-modal">Next: Add files</button>
 						{{else}}
-						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#publish-modal">Save this site</button>
+						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#publish-modal">Save this canvas</button>
 						{{/unless}}
 						{{/unless}}
 					</div>
@@ -60,7 +60,7 @@
 					<div class="title-bar-toolbar-container clearfix">
 						<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 						<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
-						<button type="reset" class="btn btn-toolbar" disabled="disabled"><i class="fa fa-refresh mr5"></i> Reset changes</button>
+						<button type="reset" class="btn btn-toolbar" disabled="disabled"><i class="fa fa-refresh mr5"></i> Revert</button>
 					</div>
 				</div>
 				<div class="title-bar-toolbar text-center hidden-xs hidden-sm">
@@ -102,7 +102,7 @@
 						</div>
 						<div class="modal-body">
 						<div class="mb20">
-							<p>Choose where to store this site's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}:</p>
+							<p>Choose where to store this canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}:</p>
 						</div>
 						<div class="text-center">
 							<input type="hidden"
@@ -146,7 +146,7 @@
 							<span class="form-control-feedback fa" aria-hidden="true"></span>
 						</div>
 						<div class="text-center mt30">
-							<button type="submit" class="btn btn-primary">Create site folder</button>
+							<button type="submit" class="btn btn-primary">Create canvas folder</button>
 						</div>
 						</div>
 					</div>
@@ -171,13 +171,13 @@
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Publish site</h4>
+							<h4 class="modal-title">Publish canvas</h4>
 						</div>
 						<div class="modal-body">
 							<div class="alert alert-info">
 								<i class="pull-left fa fa-globe"></i>
 								<div>
-									<h5>You are about to publish this site to the internet</h5>
+									<h5>You are about to publish this canvas to the internet</h5>
 								</div>
 							</div>
 							<div class="row">
@@ -214,7 +214,7 @@
 														</div>
 													</div>
 													<div class="form-group mb0">
-														<label class="col-sm-3 control-label">Home site</label>
+														<label class="col-sm-3 control-label">Home canvas</label>
 														<div class="col-sm-9">
 															<div class="checkbox">
 																<label>
@@ -227,10 +227,10 @@
 																		value="true"
 																		checked="checked"
 																	/>
-																	Use this as my home site
+																	Use this as my home canvas
 																</label>
 															</div>
-															<p class="help-block mb0">Your home site is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+															<p class="help-block mb0">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
 														</div>
 													</div>
 												</div>
@@ -241,7 +241,7 @@
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#publish-modal">Publish site</button>
+							<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#publish-modal">Publish canvas</button>
 						</div>
 					</div>
 				</div>
@@ -251,7 +251,7 @@
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Publish site</h4>
+							<h4 class="modal-title">Publish canvas</h4>
 						</div>
 						<div class="modal-body">
 							<iframe name="modal" frameborder="0"></iframe>

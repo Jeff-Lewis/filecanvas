@@ -1,8 +1,8 @@
 {{#>index title='Create a site' navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Site dashboard'}}
-		{{>breadcrumb-item link=(concat session.urls.admin.sites '/create-site') icon='plus' label='Create a site'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sitesCreate icon='plus' label='Create a canvas'}}
 		{{/breadcrumb}}
 	{{/inline}}
 	{{#*inline 'content'}}
@@ -10,7 +10,7 @@
 			<div class="col-md-12 col-lg-10">
 				<div class="mb15">
 					<h4 class="no-margin text-uppercase">
-						Create a site
+						Create a canvas
 					</h4>
 				</div>
 				<form role="form" method="POST" action="{{ session.urls.admin.sites }}" autocomplete="off">
@@ -43,7 +43,7 @@
 							<div id="create-form-theme" class="panel-collapse collapse{{#if (not content.site.theme.id)}} in{{/if}}">
 								<div class="panel-body form-horizontal bordered-group">
 									<div class="row no-margin">
-										<p>Choose a theme from the selection below. You'll be able to customise the theme after the site has been created.</p>
+										<p>Choose a theme from the selection below. You'll be able to customise the theme after the canvas has been created.</p>
 										<ul class="theme-previews">
 											{{#each content.themes as |theme|}}
 											<li class="theme-preview-control p15">
@@ -73,7 +73,7 @@
 						</div>
 						<div class="panel">
 							<div class="panel-heading">
-								<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Create site</h4>
+								<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Create canvas</h4>
 							</div>
 							<div id="create-form-fields" class="panel-collapse collapse{{#if content.site.theme.id}} in{{/if}}">
 								<div class="panel-body form-horizontal bordered-group">
@@ -81,7 +81,7 @@
 										<div class="col-lg-12">
 											<div id="row">
 												<div class="form-group">
-													<label class="col-sm-2 control-label">Site name</label>
+													<label class="col-sm-2 control-label">Canvas name</label>
 													<div class="col-sm-10">
 														<input type="hidden"
 															name="root.adapter"
@@ -113,7 +113,7 @@
 																	<input type="text" class="form-control" autofocus="autofocus"
 																		name="label"
 																		value="{{ content.site.label }}"
-																		placeholder="Type a site name"
+																		placeholder="Type a name"
 																		data-bind-id="site-label"
 																		data-validate="notEmpty,filename"
 																	/>
@@ -122,12 +122,12 @@
 															<span class="form-control-feedback fa" aria-hidden="true"></span>
 														</div>
 														<span class="form-control-feedback fa" aria-hidden="true"></span>
-														<p class="help-block">This is where Shunt will store the site's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}.<br/>If this folder doesn't already exist, it will be created.</p>
+														<p class="help-block">This is where Filecanvas will store the canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}.<br/>If this folder doesn't already exist, it will be created.</p>
 													</div>
 												</div>
 												<div class="form-group">
 													<div class="col-sm-offset-2 col-sm-10">
-														<button type="submit" class="btn btn-success">Create site</button>
+														<button type="submit" class="btn btn-success">Create canvas</button>
 														<button type="reset" class="btn btn-default pull-right" data-toggle="collapse" data-target="#create-form-theme" data-parent="#create-form">Cancel</button>
 													</div>
 												</div>

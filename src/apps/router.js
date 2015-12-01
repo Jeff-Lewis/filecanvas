@@ -30,7 +30,7 @@ module.exports = function(database, config) {
 
 	if (!host) { throw new Error('Missing host name'); }
 
-	var tempPath = generateTempPath('shunt');
+	var tempPath = generateTempPath('filecanvas');
 	var thumbnailsPath = path.join(tempPath, 'thumbnails');
 
 	var app = express();

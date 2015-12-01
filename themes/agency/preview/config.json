@@ -2,8 +2,8 @@
 	"content": {
 		"pageHeader": "Your company",
 		"pageSubtitle": "Your company slogan",
-		"introTitle": "Welcome to your site",
-		"introText": "Looks like you've created a brand new Shunt site! This page will automatically sync its contents to whatever's in the linked site folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories."
+		"introTitle": "Welcome to your canvas",
+		"introText": "Looks like you've created a brand new canvas! This page will automatically sync its contents to whatever's in the linked folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories."
 	},
 	"footer": {
 		"footerTitle": "About us",

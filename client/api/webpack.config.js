@@ -3,6 +3,6 @@
 module.exports = {
 	entry: './api.js',
 	output: {
-		filename: '../../templates/admin/assets/js/shunt-api.js'
+		filename: '../../templates/admin/assets/js/filecanvas-api.js'
 	}
 };

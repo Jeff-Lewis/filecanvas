@@ -49,17 +49,17 @@
 										</div>
 									</div>
 									<div class="form-group">
-										<label class="col-sm-2 control-label">Home site</label>
+										<label class="col-sm-2 control-label">Home canvas</label>
 										<div class="col-sm-10">
 											<select class="form-control"
 												name="defaultSite"
 											>
-												<option value="">No home site</option>
+												<option value="">No home canvas</option>
 												{{#each session.sites as |site|}}
 												<option value="{{ site.name }}"{{#if (eq site.name ../content.user.defaultSite)}} selected="selected"{{/if}}{{#unless site.published}} disabled="disabled"{{/unless}}>{{ site.label }}{{#unless site.published}} (not published){{/unless}}</option>
 												{{/each}}
 											</select>
-											<p class="help-block">This is the site that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+											<p class="help-block">This is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
 										</div>
 									</div>
 									<div class="form-group">
@@ -94,9 +94,9 @@
 											<div>
 												<h5>Before changing your username, bear the following points in mind:</h5>
 												<ul>
-													<li>Your username determines your Shunt web root, where your sites are located.</li>
-													<li>Changing your username will change the web address of <strong>all your Shunt sites</strong>.</li>
-													<li>If you have set up custom domain names for any of your sites, you will need to update your DNS settings to reflect your new web root.</li>
+													<li>Your username determines your Filecanvas web root, where your canvases are located.</li>
+													<li>Changing your username will change the web address of <strong>all your canvases</strong>.</li>
+													<li>If you have set up custom domain names for any of your canvases, you will need to update your DNS settings to reflect your new web root.</li>
 												</ul>
 											</div>
 										</div>
@@ -144,9 +144,9 @@
 											<div>
 												<h5>Before deleting your account, bear the following points in mind:</h5>
 												<ul>
-													<li>Deleting this account will <strong>permanently</strong> remove all Shunt sites located at <strong>{{ session.urls.webroot }}</strong></li>
-													<li>Deleting this site will unlink your Dropbox folder from the Shunt service.</li>
-													<li>Deleting this site will <strong>not</strong> delete the contents of your Dropbox folder.</li>
+													<li>Deleting this account will <strong>permanently</strong> remove all canvases located at <strong>{{ session.urls.webroot }}</strong></li>
+													<li>Deleting this canvas will unlink your Dropbox folder from the Filecanvas service.</li>
+													<li>Deleting this canvas will <strong>not</strong> delete the contents of your Dropbox folder.</li>
 												</ul>
 											</div>
 										</div>

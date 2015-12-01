@@ -88,7 +88,7 @@ module.exports = function(database, options) {
 		sessionMiddleware: initAdminSession
 	});
 	initHome(app, {
-		redirect: '/sites'
+		redirect: '/canvases'
 	});
 	initLegal(app, {
 		templatesPath: legalTemplatesPath
@@ -242,7 +242,7 @@ module.exports = function(database, options) {
 		var uploadAdapter = options.uploadAdapter;
 		var sessionMiddleware = options.sessionMiddleware;
 
-		app.use('/sites', composeMiddleware([
+		app.use('/canvases', composeMiddleware([
 			ensureAuth('/login'),
 			sitesApp(database, {
 				host: host,
@@ -389,9 +389,9 @@ module.exports = function(database, options) {
 								login: '/login',
 								register: '/register',
 								logout: '/logout',
-								sites: '/sites',
-								sitesCreate: '/sites/create-site',
-								sitesCreateThemes: '/sites/create-site/themes',
+								sites: '/canvases',
+								sitesCreate: '/canvases/create-canvas',
+								sitesCreateThemes: '/canvases/create-canvas/themes',
 								preview: '/preview',
 								terms: '/terms',
 								privacy: '/privacy'

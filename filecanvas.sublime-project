@@ -5,12 +5,16 @@
 			"file_exclude_patterns":
 			[
 				".gitmodules",
-				"*.sublime-project"
+				"*.sublime-project",
+				"*.min.js",
+				"*.min.css"
 			],
 			"folder_exclude_patterns":
 			[
 				"node_modules",
-				".mongodb/data"
+				"db/data",
+				"data",
+				"templates/admin/assets"
 			],
 			"follow_symlinks": true,
 			"path": "."

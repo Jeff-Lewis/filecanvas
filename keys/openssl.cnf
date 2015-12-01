@@ -5,7 +5,7 @@ prompt = no
 
 [req_distinguished_name]
 C = US
-O = Shunt
+O = Filecanvas
 CN = filecanvas.localhost
 
 [v3_req]

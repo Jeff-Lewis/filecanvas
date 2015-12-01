@@ -3,7 +3,7 @@
 module.exports = {
 	entry: './admin.js',
 	output: {
-		filename: '../../templates/admin/assets/js/shunt-admin.js'
+		filename: '../../templates/admin/assets/js/filecanvas-admin.js'
 	},
 	resolve: {
 		alias: {

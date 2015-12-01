@@ -8,21 +8,21 @@
 		<link rel="shortcut icon" href="/favicon.ico"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/app.min.css"/>
-		<link rel="stylesheet" href="{{ session.urls.assets }}css/shunt-admin.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}css/filecanvas-admin.css"/>
 		{{#>styles}}{{/styles}}
-		<title>{{#if title}}{{ title }} | {{/if}}Shunt</title>
+		<title>{{#if title}}{{ title }} | {{/if}}Filecanvas</title>
 	</head>
 	<body class="{{#unless navigation}} navigation-hidden{{/unless}}{{#if fullPage}} full-page{{/if}}{{#unless footer}} no-footer{{/unless}}{{#if blank}} bg-white{{/if}}">
 		<div class="app{{#if navigation}} layout-fixed-header{{/if}}">
 			{{#if navigation}}
 			<div class="sidebar-panel offscreen-left">
 				<div class="brand">
-					<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+					<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
 				</div>
 				<nav role="navigation">
 					<ul class="nav">
 						<li class="menu-accordion{{#if (and (startsWith session.location.pathname session.urls.admin.sites) (not-eq session.location.pathname session.urls.admin.sitesCreate))}} open{{/if}}">
-							<a href="{{ session.urls.admin.sites }}"><i class="fa fa-dashboard"></i> <span>Site dashboard</span></a>
+							<a href="{{ session.urls.admin.sites }}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
 							{{#if session.sites}}
 							<ul class="sub-menu">
 								{{#each session.sites as |site|}}
@@ -31,7 +31,7 @@
 							</ul>
 							{{/if}}
 						</li>
-						<li{{#if (eq session.location.pathname session.urls.admin.sitesCreate)}} class="open"{{/if}}><a href="{{ session.urls.admin.sitesCreate }}"><i class="fa fa-plus"></i> <span>Create a site</span></a></li>
+						<li{{#if (eq session.location.pathname session.urls.admin.sitesCreate)}} class="open"{{/if}}><a href="{{ session.urls.admin.sitesCreate }}"><i class="fa fa-plus"></i> <span>Create a canvas</span></a></li>
 						<li{{#if (eq session.location.pathname session.urls.admin.faq)}} class="open"{{/if}}><a href="{{ session.urls.admin.faq }}"><i class="fa fa-info-circle"></i><span>FAQ</span></a></li>
 						<li{{#if (eq session.location.pathname session.urls.admin.support)}} class="open"{{/if}}><a href="{{ session.urls.admin.support }}"><i class="fa fa-question-circle"></i><span>Support</span></a></li>
 						{{#if session.user}}
@@ -51,7 +51,7 @@
 								<span></span><span></span><span></span>
 							</a>
 						</div>
-						<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+						<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
 					</div>
 					{{#>navbar}}{{/navbar}}
 					<ul class="nav navbar-nav navbar-right hidden-xs">
@@ -80,7 +80,7 @@
 						<div class="title-bar-header">
 							<div class="title-bar-header-title">
 								<div class="brand">
-									<h3 class="brand-logo"><a href="/">Shunt</a></h3>
+									<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
 								</div>
 							</div>
 							{{#if headerTitle}}
@@ -96,12 +96,12 @@
 			<footer class="content-footer">
 				<nav class="footer-right">
 					<ul class="nav">
-						<li><a href="mailto:info@shunt.io">Feedback</a></li>
+						<li><a href="mailto:info@filecanvas.com">Feedback</a></li>
 					</ul>
 				</nav>
 				<nav class="footer-left">
 					<ul class="nav">
-						<li><a>Copyright <i class="fa fa-copyright"></i> <span>Shunt</span> 2015</a></li>
+						<li><a>Copyright <i class="fa fa-copyright"></i> <span>Filecanvas</span> 2015</a></li>
 						<li><a href="{{ session.urls.admin.terms }}">Terms &amp; Conditions</a></li>
 						<li><a href="{{ session.urls.admin.privacy }}">Privacy Policy</a></li>
 					</ul>
@@ -113,8 +113,8 @@
 		<script>window.jQuery || document.write('<script src="{{ session.urls.assets }}js/jquery-1.11.3.min.js"><\/script>');</script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<script>window.jQuery.fn.modal || document.write('<script src="{{ session.urls.assets }}js/bootstrap-3.3.5.min.js"><\/script>');</script>
-		<script src="{{ session.urls.assets }}js/shunt-api.js"></script>
-		<script src="{{ session.urls.assets }}js/shunt-admin.js"></script>
+		<script src="{{ session.urls.assets }}js/filecanvas-api.js"></script>
+		<script src="{{ session.urls.assets }}js/filecanvas-admin.js"></script>
 		{{#>scripts}}{{/scripts}}
 	</body>
 </html>

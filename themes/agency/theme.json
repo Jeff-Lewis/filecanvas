@@ -55,7 +55,7 @@
 				{
 					"name": "introTitle",
 					"type": "string",
-					"default": "Welcome to your site",
+					"default": "Welcome to your canvas",
 					"label": "Intro title",
 					"editor": {
 						"name": "input",
@@ -69,7 +69,7 @@
 				{
 					"name": "introText",
 					"type": "string",
-					"default": "Looks like you've created a brand new Shunt site! This page will automatically sync its contents to whatever's in the linked site folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
+					"default": "Looks like you've created a brand new canvas! This page will automatically sync its contents to whatever's in the linked folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
