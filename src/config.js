@@ -104,6 +104,9 @@ config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.e
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
+config.www = {};
+config.www.root = process.env.WWW_ROOT || null;
+
 config.assets = {};
 config.assets.root = process.env.ASSETS_ROOT || null;
 

@@ -41,6 +41,7 @@ module.exports = function(database, options) {
 	var adminAssetsUrl = options.adminAssetsUrl;
 	var adminTemplatesUrl = options.adminTemplatesUrl;
 	var themesUrl = options.themesUrl;
+	var wwwUrl = options.wwwUrl;
 	var adaptersConfig = options.adapters;
 	var uploadAdapterConfig = options.uploadAdapter || null;
 
@@ -56,6 +57,7 @@ module.exports = function(database, options) {
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!adminTemplatesUrl) { throw new Error('Missing admin templates URL'); }
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
+	if (!wwwUrl) { throw new Error('Missing www URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
@@ -161,7 +163,7 @@ module.exports = function(database, options) {
 					root: urlService.location.protocol + '//' + urlService.location.host,
 					webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 					domain: urlService.getSubdomainUrl('$0'),
-					home: '/',
+					home: wwwUrl,
 					assets: adminAssetsUrl,
 					themeAssets: stripTrailingSlash(themeAssetsUrl),
 					themes: stripTrailingSlash(themesUrl),

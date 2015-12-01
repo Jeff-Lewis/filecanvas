@@ -48,6 +48,12 @@ module.exports = function(database, config) {
 	var errorTemplatesPath = path.join(templatesPath, 'error');
 	var siteTemplatePath = path.join(templatesPath, 'site');
 
+	var wwwSubdomainUrl = getSubdomainUrl({
+		subdomain: 'www',
+		host: config.host,
+		protocol: config.https.port ? 'https' : 'http',
+		port: config.https.port || config.http.port
+	});
 	var assetsSubdomainUrl = getSubdomainUrl({
 		subdomain: 'assets',
 		host: config.host,
@@ -67,6 +73,7 @@ module.exports = function(database, config) {
 		port: config.https.port || config.http.port
 	});
 
+	var wwwUrl = config.www.root || wwwSubdomainUrl;
 	var adminUrl = config.admin.root || adminSubdomainUrl;
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'admin/';
@@ -108,6 +115,7 @@ module.exports = function(database, config) {
 			adminAssetsUrl: adminAssetsUrl,
 			adminTemplatesUrl: adminTemplatesUrl,
 			themesUrl: themesUrl,
+			wwwUrl: wwwUrl,
 			adapters: config.adapters,
 			uploadAdapter: config.uploaders.demo
 		}),
