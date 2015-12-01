@@ -17,7 +17,7 @@
 			{{#if navigation}}
 			<div class="sidebar-panel offscreen-left">
 				<div class="brand">
-					<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
+					<h3 class="brand-logo"><a href="{{ session.urls.home }}">File<strong>canvas</strong></a></h3>
 				</div>
 				<nav role="navigation">
 					<ul class="nav">
@@ -51,7 +51,7 @@
 								<span></span><span></span><span></span>
 							</a>
 						</div>
-						<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
+						<h3 class="brand-logo"><a href="{{ session.urls.home }}">File<strong>canvas</strong></a></h3>
 					</div>
 					{{#>navbar}}{{/navbar}}
 					<ul class="nav navbar-nav navbar-right hidden-xs">
@@ -80,7 +80,7 @@
 						<div class="title-bar-header">
 							<div class="title-bar-header-title">
 								<div class="brand">
-									<h3 class="brand-logo"><a href="/">File<strong>canvas</strong></a></h3>
+									<h3 class="brand-logo"><a href="{{ session.urls.home }}">File<strong>canvas</strong></a></h3>
 								</div>
 							</div>
 							{{#if headerTitle}}

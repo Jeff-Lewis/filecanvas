@@ -378,6 +378,7 @@ module.exports = function(database, options) {
 							root: urlService.location.protocol + '//' + urlService.location.host,
 							webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
 							domain: urlService.getSubdomainUrl('$0'),
+							home: '/',
 							assets: adminAssetsUrl,
 							themeAssets: stripTrailingSlash(themeAssetsUrl),
 							themes: stripTrailingSlash(themesUrl),
