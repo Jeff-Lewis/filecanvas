@@ -5,7 +5,7 @@ var Passport = require('passport').Passport;
 var LocalStrategy = require('passport-local').Strategy;
 var merge = require('lodash.merge');
 
-var transport = require('../middleware/transport');
+var session = require('../middleware/session');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
@@ -66,7 +66,7 @@ module.exports = function(database, options) {
 
 
 	function initAuth(app, passport, database, cookieSecret) {
-		app.use(transport({
+		app.use(session({
 			cookieSecret: cookieSecret
 		}));
 		app.use(passport.initialize());
@@ -234,7 +234,7 @@ module.exports = function(database, options) {
 				app.get('/:user/:site/logout', processPreviewLogoutRoute);
 			} else {
 				app.get('/:user/:site/login', redirectIfLoggedIn);
-				app.post('/:user/:site/login', processLoginRoute);
+				app.post('/:user/:site/login', express.urlencoded(), processLoginRoute);
 				app.get('/:user/:site/logout', processLogoutRoute);
 			}
 

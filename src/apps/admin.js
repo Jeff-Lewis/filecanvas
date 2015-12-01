@@ -15,8 +15,8 @@ var loginApp = require('./admin/login');
 
 var adminAuth = require('./admin/middleware/adminAuth');
 
-var transport = require('../middleware/transport');
-var nestedFormValues = require('../middleware/nestedFormValues');
+var session = require('../middleware/session');
+var forms = require('../middleware/forms');
 var sessionState = require('../middleware/sessionState');
 var redirect = require('../middleware/redirect');
 var invalidRoute = require('../middleware/invalidRoute');
@@ -72,10 +72,10 @@ module.exports = function(database, options) {
 	var userService = new UserService(database);
 
 	var app = express();
-	app.use(transport({
+	app.use(session({
 		cookieSecret: cookieSecret
 	}));
-	app.use(nestedFormValues());
+	app.use(forms());
 	app.use(sessionState());
 
 	initAuth(app, database, {
