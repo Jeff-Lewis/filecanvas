@@ -8,6 +8,15 @@
 .popover {
 	min-width: 230px;
 }
+.popover .popover-content {
+    padding-top: 0;
+}
+.popover .popover-content .popover-progress {
+	margin: -1px -14px 10px;
+}
+.popover .popover-content .popover-progress-bar {
+    height: 3px;
+}
 
 .popover#step-0 {
 	top: 100px !important;

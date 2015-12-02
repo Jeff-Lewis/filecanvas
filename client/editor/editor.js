@@ -938,7 +938,7 @@ function startTour() {
 
 	var currentPath = document.location.pathname;
 	var tourId = getTourId(currentPath);
-	var tourSteps = getFilteredTourSteps(tourId);
+	var tourSteps = addTourProgress(getFilteredTourSteps(tourId));
 	var isDemoTour = (tourId === TOUR_ID_DEMO_EDITOR) || (tourId === TOUR_ID_DEMO_ADD_FILES);
 	var tour = new window.Tour({
 		name: tourId,
@@ -1072,6 +1072,15 @@ function startTour() {
 					return (viewportWidth >= 768 ? placement.desktop : placement.mobile);
 				};
 			}
+			return step;
+		});
+	}
+
+	function addTourProgress(steps) {
+		return steps.map(function(step, index, steps) {
+			step.title += '<span class="pull-right">' + (index + 1) + '/' + steps.length + '</span>';
+			var progress = (index + 1) / steps.length;
+			step.content = '<div class="popover-progress bg-default"><div class="popover-progress-bar bg-primary" style="width:' + (progress * 100) + '%;"></div></div>' + step.content;
 			return step;
 		});
 	}
