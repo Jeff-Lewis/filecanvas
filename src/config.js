@@ -54,12 +54,14 @@ if (process.env.LOCAL === 'true') {
 	config.adapters.local = {
 		login: {
 			admin: {
+				persistent: true,
 				strategy: 'bcrypt',
 				options: {
 					strength: process.env.LOCAL_BCRYPT_STRENGTH || 10
 				}
 			},
 			demo: {
+				persistent: false,
 				strategy: 'bcrypt',
 				options: {
 					strength: process.env.LOCAL_BCRYPT_STRENGTH || 10
@@ -111,11 +113,13 @@ if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox = {
 		login: {
 			admin: {
+				persistent: true,
 				appKey: process.env.DROPBOX_APP_KEY || null,
 				appSecret: process.env.DROPBOX_APP_SECRET || null,
 				loginCallbackUrl: process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null
 			},
 			demo: {
+				persistent: false,
 				appKey: process.env.DROPBOX_APP_KEY || null,
 				appSecret: process.env.DROPBOX_APP_SECRET || null,
 				loginCallbackUrl: process.env.DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK || null

@@ -7,16 +7,38 @@ var RegistrationService = require('../services/RegistrationService');
 
 var HttpError = require('../errors/HttpError');
 
-function LoginAdapter(database) {
+function LoginAdapter(database, options) {
+	options = options || {};
+	var isPersistent = Boolean(options.persistent);
+
 	if (!database) { throw new Error('Missing database'); }
 
 	this.database = database;
+	this.persistent = isPersistent;
 }
 
 LoginAdapter.prototype.adapterName = null;
 LoginAdapter.prototype.database = null;
+LoginAdapter.prototype.persistent = false;
 
 LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
+	return (this.persistent ?
+		this.processLogin(req, query, passportValues) :
+		this.createUser(passportValues)
+	)
+		.then(function(userModel) {
+			if (userModel) {
+				callback(null, userModel);
+			} else {
+				callback(null, false);
+			}
+		})
+		.catch(function(error) {
+			callback(error);
+		});
+};
+
+LoginAdapter.prototype.processLogin = function(req, query, passportValues) {
 	var self = this;
 	var adapterName = this.adapterName;
 	var database = this.database;
@@ -25,20 +47,12 @@ LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
 	var registrationService = new RegistrationService();
 
 	registrationService.clearPendingUser(req);
-	userService.retrieveAdapterUser(adapterName, query)
+	return userService.retrieveAdapterUser(adapterName, query)
 		.catch(function(error) {
 			if (error.status === 404) {
-				return Promise.all([
-					self.createUserModel(passportValues),
-					self.getAdapterConfig(passportValues)
-				])
-					.then(function(values) {
-						var pendingUserModel = values[0];
-						var adapterConfig = values[1];
-						pendingUserModel.adapters = {};
-						pendingUserModel.adapters[adapterName] = adapterConfig;
-						pendingUserModel.adapters.default = adapterName;
-						registrationService.setPendingUser(req, pendingUserModel);
+				return self.createUser(passportValues)
+					.then(function(userModel) {
+						registrationService.setPendingUser(req, userModel);
 						throw new HttpError(401);
 					});
 			}
@@ -69,16 +83,30 @@ LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
 					}
 				});
 		})
-		.then(function(userModel) {
-			callback(null, userModel);
-		})
 		.catch(function(error) {
 			if (error.status === 401) {
-				return callback(null, false);
+				return null;
 			}
-			callback(error);
+			throw error;
 		});
 };
+
+LoginAdapter.prototype.createUser = function(passportValues) {
+	var adapterName = this.adapterName;
+	return Promise.all([
+		this.getUserDetails(passportValues),
+		this.getAdapterConfig(passportValues)
+	])
+		.then(function(values) {
+			var usreModel = values[0];
+			var adapterConfig = values[1];
+			usreModel.adapters = {};
+			usreModel.adapters[adapterName] = adapterConfig;
+			usreModel.adapters.default = adapterName;
+			return usreModel;
+		});
+};
+
 
 LoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
 	throw new Error('Not implemented');
@@ -88,7 +116,7 @@ LoginAdapter.prototype.authenticate = function(passportValues, userAdapterConfig
 	return Promise.reject(new Error('Not implemented'));
 };
 
-LoginAdapter.prototype.createUserModel = function(passportValues) {
+LoginAdapter.prototype.getUserDetails = function(passportValues) {
 	return Promise.reject(new Error('Not implemented'));
 };
 

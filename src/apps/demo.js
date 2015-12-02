@@ -12,7 +12,7 @@ var redirect = require('../middleware/redirect');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
-var adminAuth = require('../apps/admin/middleware/adminAuth');
+var demoAuth = require('./demo/middleware/demoAuth');
 
 var loadLoginAdapters = require('../utils/loadLoginAdapters');
 var loadStorageAdapters = require('../utils/loadStorageAdapters');
@@ -112,10 +112,10 @@ module.exports = function(database, options) {
 		options = options || {};
 		var adapters = options.adapters;
 
-		app.use('/', adminAuth(database, {
+		app.use('/', demoAuth(database, {
 			adapters: adapters,
 			login: '/login',
-			failure: '/register'
+			failure: '/login'
 		}));
 	}
 

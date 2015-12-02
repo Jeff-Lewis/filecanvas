@@ -5,8 +5,6 @@ var Passport = require('passport').Passport;
 
 var adapterAuth = require('../../../middleware/adapterAuth');
 
-var UserService = require('../../../services/UserService');
-
 module.exports = function(database, options) {
 	options = options || {};
 	var loginPathPrefix = options.login || null;
@@ -16,8 +14,6 @@ module.exports = function(database, options) {
 	if (!loginPathPrefix) { throw new Error('Missing login path prefix'); }
 	if (!failureRedirect) { throw new Error('Missing failure redirect'); }
 	if (!adapters) { throw new Error('Missing adapters'); }
-
-	var userService = new UserService(database);
 
 	var app = express();
 
@@ -31,18 +27,21 @@ module.exports = function(database, options) {
 	}));
 
 	passport.serializeUser(function(userModel, callback) {
-		var username = userModel.username;
-		callback(null, username);
+		try {
+			var serializedUserModel = JSON.stringify(userModel);
+			callback(null, serializedUserModel);
+		} catch (error) {
+			callback(error);
+		}
 	});
 
-	passport.deserializeUser(function(username, callback) {
-		return userService.retrieveUser(username)
-			.then(function(userModel) {
-				callback(null, userModel);
-			})
-			.catch(function(error) {
-				callback(error);
-			});
+	passport.deserializeUser(function(serializedUserModel, callback) {
+		try {
+			var deserializedUserModel = JSON.parse(serializedUserModel);
+			callback(null, deserializedUserModel);
+		} catch(error) {
+			callback(error);
+		}
 	});
 
 

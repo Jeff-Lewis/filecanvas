@@ -18,6 +18,7 @@ var HttpError = require('../errors/HttpError');
 
 function DropboxLoginAdapter(database, options) {
 	options = options || {};
+	var isPersistent = options.persistent;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
@@ -26,7 +27,9 @@ function DropboxLoginAdapter(database, options) {
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing login callback URL'); }
 
-	LoginAdapter.call(this, database);
+	LoginAdapter.call(this, database, {
+		persistent: isPersistent
+	});
 
 	this.appKey = appKey;
 	this.appSecret = appSecret;
@@ -77,19 +80,19 @@ DropboxLoginAdapter.prototype.authenticate = function(passportValues, userAdapte
 	return Promise.resolve(true);
 };
 
-DropboxLoginAdapter.prototype.createUserModel = function(passportValues) {
+DropboxLoginAdapter.prototype.getUserDetails = function(passportValues) {
 	var firstName = passportValues.firstName;
 	var lastName = passportValues.lastName;
 	var email = passportValues.email;
 	var fullName = firstName + ' ' + lastName;
 	var username = slug(fullName, { lower: true });
-	var userModel = {
+	var userDetails = {
 		username: username,
 		firstName: firstName,
 		lastName: lastName,
 		email: email
 	};
-	return Promise.resolve(userModel);
+	return Promise.resolve(userDetails);
 };
 
 DropboxLoginAdapter.prototype.getAdapterConfig = function(passportValues, existingAdapterConfig) {

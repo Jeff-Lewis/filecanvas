@@ -17,13 +17,16 @@ var loadFileMetadata = require('../utils/loadFileMetadata');
 
 function LocalLoginAdapter(database, options) {
 	options = options || {};
+	var isPersistent = options.persistent || null;
 	var authStrategy = options.strategy || null;
 	var authOptions = options.options || null;
 
 	if (!authStrategy) { throw new Error('Missing auth strategy'); }
 	if (!authOptions) { throw new Error('Missing auth options'); }
 
-	LoginAdapter.call(this, database);
+	LoginAdapter.call(this, database, {
+		persistent: isPersistent
+	});
 
 	this.authStrategy = authStrategy;
 	this.authOptions = authOptions;
@@ -73,13 +76,13 @@ LocalLoginAdapter.prototype.authenticate = function(passportValues, userAdapterC
 		});
 };
 
-LocalLoginAdapter.prototype.createUserModel = function(passportValues) {
+LocalLoginAdapter.prototype.getUserDetails = function(passportValues) {
 	var passportUsername = passportValues.username;
 	var username = slug(passportUsername, { lower: true });
-	var userModel = {
+	var userDetails = {
 		username: username
 	};
-	return Promise.resolve(userModel);
+	return Promise.resolve(userDetails);
 };
 
 LocalLoginAdapter.prototype.getAdapterConfig = function(passportValues, existingAdapterConfig) {
