@@ -18,15 +18,17 @@
     height: 3px;
 }
 
-.popover#step-0 {
-	top: 100px !important;
-}
 .editor-main > .popover {
 	top: 60px !important;
 	box-shadow: 0 0 64px rgba(0, 0, 0, 0.5);
 }
 .editor-main > .popover > .arrow {
 	display: none;
+}
+@media screen and (min-width: 768px) {
+	.popover#step-0 {
+		top: 100px !important;
+	}
 }
 
 .editor-main.tour-step-backdrop::after {
