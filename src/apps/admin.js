@@ -386,6 +386,7 @@ module.exports = function(database, options) {
 							themes: stripTrailingSlash(themesUrl),
 							templates: '/templates',
 							admin: {
+								root: '/',
 								faq: '/faq',
 								support: '/support',
 								account: '/account',
