@@ -9,7 +9,7 @@ var session = require('../middleware/session');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
-var loadAdapters = require('../utils/loadAdapters');
+var loadStorageAdapters = require('../utils/loadStorageAdapters');
 
 var HttpError = require('../errors/HttpError');
 
@@ -36,14 +36,14 @@ module.exports = function(database, options) {
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
 
-	var adapters = loadAdapters(adaptersConfig, database);
+	var storageAdapters = loadStorageAdapters(adaptersConfig, database);
 
 	var themeService = new ThemeService({
 		themesPath: themesPath
 	});
 	var siteService = new SiteService(database, {
 		host: host,
-		adapters: adapters
+		adapters: storageAdapters
 	});
 	var userService = new UserService(database);
 

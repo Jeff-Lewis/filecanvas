@@ -67,7 +67,7 @@ module.exports = function(database, options) {
 				}
 				next();
 			});
-			var loginMiddleware = adapter.loginMiddleware(passport, { failureRedirect: failureRedirect }, function(req, res) {
+			var loginMiddleware = adapter.middleware(passport, { failureRedirect: failureRedirect }, function(req, res) {
 				req.session.adapter = adapterName;
 				var redirectUrl = req.session.loginRedirect;
 				delete req.session.loginRedirect;

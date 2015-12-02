@@ -151,12 +151,12 @@ module.exports = function(database, config) {
 	};
 
 	if (config.adapters.local) {
-		subdomains[config.adapters.local.upload.subdomain] = uploader(config.adapters.local.root, { host: host });
-		subdomains[config.adapters.local.download.subdomain] = express.static(config.adapters.local.root, { redirect: false });
-		subdomains[config.adapters.local.thumbnail.subdomain] = thumbnailer(config.adapters.local.root, {
-			width: config.adapters.local.thumbnail.width,
-			height: config.adapters.local.thumbnail.height,
-			format: config.adapters.local.thumbnail.format,
+		subdomains[config.adapters.local.storage.upload.subdomain] = uploader(config.adapters.local.storage.sitesRoot, { host: host });
+		subdomains[config.adapters.local.storage.download.subdomain] = express.static(config.adapters.local.storage.sitesRoot, { redirect: false });
+		subdomains[config.adapters.local.storage.thumbnail.subdomain] = thumbnailer(config.adapters.local.storage.sitesRoot, {
+			width: config.adapters.local.storage.thumbnail.width,
+			height: config.adapters.local.storage.thumbnail.height,
+			format: config.adapters.local.storage.thumbnail.format,
 			cache: path.join(thumbnailsPath, 'local')
 		});
 	}

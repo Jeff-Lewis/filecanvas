@@ -16,54 +16,31 @@ var loadFileMetadata = require('../utils/loadFileMetadata');
 
 var HttpError = require('../errors/HttpError');
 
-function LocalAdapter(database, options) {
-	options = options || {};
-	var metadata = options.metadata || null;
-	var authConfig = options.auth || null;
-	var sitesRoot = options.root || null;
-	var downloadUrl = options.download && options.download.url || null;
-	var thumbnailUrl = options.thumbnail && options.thumbnail.url || null;
+function LocalLoginAdapter(database, options) {
+	var authStrategy = options.strategy || null;
+	var authOptions = options.options || null;
 
 	if (!database) { throw new Error('Missing database'); }
-	if (!metadata) { throw new Error('Missing metadata'); }
-	if (!metadata.name) { throw new Error('Missing adapter name'); }
-	if (!metadata.label) { throw new Error('Missing adapter label'); }
-	if (!metadata.path) { throw new Error('Missing default site path'); }
-	if (!authConfig) { throw new Error('Missing local auth config'); }
-	if (!authConfig.strategy) { throw new Error('Missing local auth strategy'); }
-	if (!authConfig.options) { throw new Error('Missing local auth options'); }
-	if (!sitesRoot) { throw new Error('Missing local sites root'); }
-	if (!downloadUrl) { throw new Error('Missing local download URL'); }
-	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
+	if (!authStrategy) { throw new Error('Missing auth strategy'); }
+	if (!authOptions) { throw new Error('Missing auth options'); }
 
 	this.database = database;
-	this.metadata = metadata;
-	this.authConfig = authConfig;
-	this.sitesRoot = sitesRoot;
-	this.downloadUrl = downloadUrl;
-	this.thumbnailUrl = thumbnailUrl;
+	this.authStrategy = authStrategy;
+	this.authOptions = authOptions;
 }
 
-LocalAdapter.prototype.database = null;
-LocalAdapter.prototype.metadata = null;
-LocalAdapter.prototype.authConfig = null;
-LocalAdapter.prototype.sitesRoot = null;
-LocalAdapter.prototype.downloadUrl = null;
-LocalAdapter.prototype.thumbnailUrl = null;
+LocalLoginAdapter.prototype.database = null;
+LocalLoginAdapter.prototype.authStrategy = null;
+LocalLoginAdapter.prototype.authOptions = null;
 
-LocalAdapter.prototype.getMetadata = function(adapterConfig) {
-	return {
-		name: this.metadata.name,
-		label: this.metadata.label,
-		path: this.metadata.path
-	};
-};
-
-LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, callback) {
+LocalLoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
 	var database = this.database;
-	var authConfig = this.authConfig;
+	var authStrategy = this.authStrategy;
+	var authOptions = this.authOptions;
+
 	var userService = new UserService(database);
 	var registrationService = new RegistrationService();
+	var authenticationService = new AuthenticationService();
 
 	var app = express();
 
@@ -71,18 +48,17 @@ LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, cal
 
 	passport.use('admin/local', new LocalStrategy({ passReqToCallback: true },
 		function(req, username, password, callback) {
-			var authenticationService = new AuthenticationService();
 			userService.retrieveUser(username)
 				.catch(function(error) {
 					if (error.status === 404) {
 						var authUsername = slug(username, { lower: true });
-						return authenticationService.create(authUsername, password, authConfig.strategy, authConfig.options)
+						return authenticationService.create(authUsername, password, authStrategy, authOptions)
 							.then(function(authUser) {
 								var userDetails = {
 									username: authUsername
 								};
 								var adapterConfig = {
-									strategy: authConfig.strategy,
+									strategy: authStrategy,
 									password: authUser.password
 								};
 								registrationService.setPendingUser(req, userDetails, 'local', adapterConfig);
@@ -121,7 +97,53 @@ LocalAdapter.prototype.loginMiddleware = function(passport, passportOptions, cal
 	return app;
 };
 
-LocalAdapter.prototype.createFolder = function(folderPath, options) {
+
+function LocalStorageAdapter(database, options) {
+	options = options || {};
+	var adapterName = options.adapterName || null;
+	var adapterLabel = options.adapterLabel || null;
+	var defaultSitesPath = options.defaultSitesPath || null;
+	var sitesRoot = options.sitesRoot || null;
+	var downloadUrl = options.download && options.download.url || null;
+	var thumbnailUrl = options.thumbnail && options.thumbnail.url || null;
+
+	if (!database) { throw new Error('Missing database'); }
+	if (!adapterName) { throw new Error('Missing adapter name'); }
+	if (!adapterLabel) { throw new Error('Missing adapter label'); }
+	if (!defaultSitesPath) { throw new Error('Missing default sites path'); }
+	if (!sitesRoot) { throw new Error('Missing local sites root'); }
+	if (!downloadUrl) { throw new Error('Missing local download URL'); }
+	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
+
+	this.database = database;
+	this.adapterName = adapterName;
+	this.adapterLabel = adapterLabel;
+	this.defaultSitesPath = defaultSitesPath;
+	this.sitesRoot = sitesRoot;
+	this.downloadUrl = downloadUrl;
+	this.thumbnailUrl = thumbnailUrl;
+}
+
+LocalStorageAdapter.prototype.database = null;
+LocalStorageAdapter.prototype.adapterName = null;
+LocalStorageAdapter.prototype.adapterLabel = null;
+LocalStorageAdapter.prototype.defaultSitesPath = null;
+LocalStorageAdapter.prototype.sitesRoot = null;
+LocalStorageAdapter.prototype.downloadUrl = null;
+LocalStorageAdapter.prototype.thumbnailUrl = null;
+
+LocalStorageAdapter.prototype.getMetadata = function(adapterConfig) {
+	var adapterName = this.adapterName;
+	var adapterLabel = this.adapterLabel;
+	var defaultSitesPath = this.defaultSitesPath;
+	return {
+		name: adapterName,
+		label: adapterLabel,
+		path: defaultSitesPath
+	};
+};
+
+LocalStorageAdapter.prototype.createFolder = function(folderPath, options) {
 	var sitesRoot = this.sitesRoot;
 	return checkWhetherFileExists(folderPath)
 		.then(function(folderExists) {
@@ -155,7 +177,7 @@ LocalAdapter.prototype.createFolder = function(folderPath, options) {
 	}
 };
 
-LocalAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
+LocalStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 	var sitesRoot = this.sitesRoot;
 	return checkWhetherFileExists(sitePath)
 		.then(function(folderExists) {
@@ -221,7 +243,7 @@ LocalAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
 	}
 };
 
-LocalAdapter.prototype.loadFolderContents = function(folderPath, options) {
+LocalStorageAdapter.prototype.loadFolderContents = function(folderPath, options) {
 	var sitesRoot = this.sitesRoot;
 	var fullPath = path.join(sitesRoot, folderPath);
 	return loadFileMetadata(fullPath, {
@@ -236,7 +258,7 @@ LocalAdapter.prototype.loadFolderContents = function(folderPath, options) {
 		});
 };
 
-LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
+LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 	var sitesRoot = this.sitesRoot;
 	var fullPath = path.resolve(sitesRoot, filePath);
 	return loadFileMetadata(fullPath, {
@@ -249,21 +271,24 @@ LocalAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 		});
 };
 
-LocalAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
+LocalStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
 	var downloadUrl = this.downloadUrl;
 	return Promise.resolve(downloadUrl + filePath.substr('/'.length));
 };
 
-LocalAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
+LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
 	var thumbnailUrl = this.thumbnailUrl;
 	return Promise.resolve(thumbnailUrl + filePath.substr('/'.length));
 };
 
-LocalAdapter.prototype.getUploadConfig = function(sitePath, options) {
+LocalStorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	return {
 		adapter: 'local',
 		path: sitePath
 	};
 };
 
-module.exports = LocalAdapter;
+module.exports = {
+	LoginAdapter: LocalLoginAdapter,
+	StorageAdapter: LocalStorageAdapter
+};

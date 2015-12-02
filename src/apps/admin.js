@@ -23,7 +23,8 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
-var loadAdapters = require('../utils/loadAdapters');
+var loadLoginAdapters = require('../utils/loadLoginAdapters');
+var loadStorageAdapters = require('../utils/loadStorageAdapters');
 var loadUploadAdapter = require('../utils/loadUploadAdapter');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
 var appendQueryParams = require('../utils/appendQueryParams');
@@ -66,7 +67,8 @@ module.exports = function(database, options) {
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
-	var adapters = loadAdapters(adaptersConfig, database);
+	var loginAdapters = loadLoginAdapters('admin', adaptersConfig, database);
+	var storageAdapters = loadStorageAdapters(adaptersConfig, database);
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
 	var userService = new UserService(database);
@@ -79,12 +81,12 @@ module.exports = function(database, options) {
 	app.use(sessionState());
 
 	initAuth(app, database, {
-		adapters: adapters
+		adapters: loginAdapters
 	});
 	initLogin(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
-		adapters: adapters,
+		adapters: loginAdapters,
 		sessionMiddleware: initAdminSession
 	});
 	initHome(app, {
@@ -119,7 +121,7 @@ module.exports = function(database, options) {
 		themeAssetsUrl: themeAssetsUrl,
 		adminAssetsUrl: adminAssetsUrl,
 		themesUrl: themesUrl,
-		adapters: adapters,
+		adapters: storageAdapters,
 		uploadAdapter: uploadAdapter,
 		sessionMiddleware: initAdminSession
 	});
@@ -136,7 +138,7 @@ module.exports = function(database, options) {
 	});
 	initAdapters(app, database, {
 		host: host,
-		adapters: adapters,
+		adapters: storageAdapters,
 		sessionMiddleware: initAdminSession
 	});
 	initErrorHandler(app, {

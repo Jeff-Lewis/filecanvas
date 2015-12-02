@@ -14,7 +14,8 @@ var errorHandler = require('../middleware/errorHandler');
 
 var adminAuth = require('../apps/admin/middleware/adminAuth');
 
-var loadAdapters = require('../utils/loadAdapters');
+var loadLoginAdapters = require('../utils/loadLoginAdapters');
+var loadStorageAdapters = require('../utils/loadStorageAdapters');
 var loadUploadAdapter = require('../utils/loadUploadAdapter');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
 
@@ -61,20 +62,14 @@ module.exports = function(database, options) {
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
-	if (adaptersConfig.dropbox) {
-		adaptersConfig = merge({}, adaptersConfig, {
-			dropbox: {
-				loginCallbackUrl: adaptersConfig.dropbox.demoLoginCallbackUrl
-			}
-		});
-	}
-	var adapters = loadAdapters(adaptersConfig, database);
+	var loginAdapters = loadLoginAdapters('demo', adaptersConfig, database);
+	var storageAdapters = loadStorageAdapters(adaptersConfig, database);
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
 	var userService = new UserService(database);
 	var siteService = new SiteService(database, {
 		host: host,
-		adapters: adapters
+		adapters: storageAdapters
 	});
 	var themeService = new ThemeService({
 		themesPath: themesPath
@@ -96,11 +91,11 @@ module.exports = function(database, options) {
 	app.use(sessionState());
 
 	initAuth(app, database, {
-		adapters: adapters
+		adapters: loginAdapters
 	});
 	initRoutes(app);
 	initSitePreview(app, {
-		adapters: adapters
+		adapters: storageAdapters
 	});
 	initErrorHandler(app, {
 		templatesPath: errorTemplatesPath,
@@ -297,9 +292,9 @@ module.exports = function(database, options) {
 					};
 				}
 				resolve(
-					(useDummyFiles ? Promise.resolve(theme.preview.files) : loadFolderContents(siteRoot, adapters, userModel))
+					(useDummyFiles ? Promise.resolve(theme.preview.files) : loadFolderContents(siteRoot, storageAdapters, userModel))
 						.then(function(siteContent) {
-							var adapterConfig = (useDummyFiles ? null : getSiteUploadConfig(siteRoot, adapters, userModel));
+							var adapterConfig = (useDummyFiles ? null : getSiteUploadConfig(siteRoot, storageAdapters, userModel));
 							var sitePreviewUrl = (
 								useDummyFiles ?
 									stripTrailingSlash(themesUrl) + '/' + themeId + '/preview' :
@@ -345,7 +340,7 @@ module.exports = function(database, options) {
 				return Object.keys(userModel.adapters).filter(function(adapterName) {
 					return adapterName !== 'default';
 				}).reduce(function(adaptersMetadata, adapterName) {
-					var adapter = adapters[adapterName];
+					var adapter = storageAdapters[adapterName];
 					var adapterConfig = userModel.adapters[adapterName];
 					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
 					return adaptersMetadata;
@@ -398,7 +393,7 @@ module.exports = function(database, options) {
 			var redirectUrl = req.body.redirect || null;
 
 			new Promise(function(resolve, reject) {
-				var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
+				var adaptersHash = Object.keys(loginAdapters).reduce(function(adaptersHash, key) {
 					adaptersHash[key] = true;
 					return adaptersHash;
 				}, {});
@@ -450,7 +445,7 @@ module.exports = function(database, options) {
 				var userAdapters = userModel.adapters;
 				var siteAdapter = siteRoot.adapter;
 				var sitePath = siteRoot.path;
-				var adapter = adapters[siteAdapter];
+				var adapter = storageAdapters[siteAdapter];
 				var adapterOptions = userAdapters[siteAdapter];
 				return adapter.createFolder(sitePath, adapterOptions);
 			}
