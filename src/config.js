@@ -84,7 +84,7 @@ if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox.demoLoginCallbackUrl = process.env.DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK || null;
 }
 
-if (process.env.AWS_ACCESS_KEY_ID) {
+if (process.env.AWS_S3_BUCKET) {
 	config.uploaders.admin = {
 		adapter: 's3',
 		accessKey: process.env.AWS_ACCESS_KEY_ID,
