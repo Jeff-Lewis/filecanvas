@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('util');
 var path = require('path');
 var fs = require('fs');
 var mapSeries = require('promise-map-series');
@@ -9,92 +10,98 @@ var mkdirp = require('mkdirp');
 var slug = require('slug');
 
 var AuthenticationService = require('../services/AuthenticationService');
-var RegistrationService = require('../services/RegistrationService');
-var UserService = require('../services/UserService');
+
+var LoginAdapter = require('./LoginAdapter');
 
 var loadFileMetadata = require('../utils/loadFileMetadata');
 
-var HttpError = require('../errors/HttpError');
-
 function LocalLoginAdapter(database, options) {
+	options = options || {};
 	var authStrategy = options.strategy || null;
 	var authOptions = options.options || null;
 
-	if (!database) { throw new Error('Missing database'); }
 	if (!authStrategy) { throw new Error('Missing auth strategy'); }
 	if (!authOptions) { throw new Error('Missing auth options'); }
 
-	this.database = database;
+	LoginAdapter.call(this, database);
+
 	this.authStrategy = authStrategy;
 	this.authOptions = authOptions;
 }
 
-LocalLoginAdapter.prototype.database = null;
+util.inherits(LocalLoginAdapter, LoginAdapter);
+
+LocalLoginAdapter.prototype.adapterName = 'local';
 LocalLoginAdapter.prototype.authStrategy = null;
 LocalLoginAdapter.prototype.authOptions = null;
 
 LocalLoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
-	var database = this.database;
-	var authStrategy = this.authStrategy;
-	var authOptions = this.authOptions;
-
-	var userService = new UserService(database);
-	var registrationService = new RegistrationService();
-	var authenticationService = new AuthenticationService();
-
 	var app = express();
 
 	app.post('/', passport.authenticate('admin/local', passportOptions), callback);
 
+	var self = this;
 	passport.use('admin/local', new LocalStrategy({ passReqToCallback: true },
 		function(req, username, password, callback) {
-			userService.retrieveUser(username)
-				.catch(function(error) {
-					if (error.status === 404) {
-						var authUsername = slug(username, { lower: true });
-						return authenticationService.create(authUsername, password, authStrategy, authOptions)
-							.then(function(authUser) {
-								var userDetails = {
-									username: authUsername
-								};
-								var adapterConfig = {
-									strategy: authStrategy,
-									password: authUser.password
-								};
-								registrationService.setPendingUser(req, userDetails, 'local', adapterConfig);
-								throw new HttpError(401);
-							});
-					}
-					throw error;
-				})
-				.then(function(userModel) {
-					var adapterConfig = userModel.adapters['local'];
-					if (!adapterConfig) {
-						throw new HttpError(401);
-					}
-					var validUsers = [
-						{
-							username: username,
-							strategy: adapterConfig.strategy,
-							password: adapterConfig.password
-						}
-					];
-					return authenticationService.authenticate(username, password, validUsers)
-						.then(function(userModel) {
-							if (!userModel) { throw new HttpError(401); }
-							return callback(null, userModel);
-						});
-				})
-				.catch(function(error) {
-					if (error.status === 401) {
-						return callback(null, false);
-					}
-					return callback(error);
-				});
+			var passportValues = {
+				username: username,
+				password: password
+			};
+			var query = { 'username': username };
+			self.login(req, query, passportValues, callback);
 		})
 	);
 
 	return app;
+};
+
+LocalLoginAdapter.prototype.authenticate = function(passportValues, userAdapterConfig) {
+	var passportUsername = passportValues.username;
+	var passportPassword = passportValues.password;
+
+	var authenticationService = new AuthenticationService();
+	var validUsers = [
+		{
+			username: userAdapterConfig.username,
+			strategy: userAdapterConfig.strategy,
+			password: userAdapterConfig.password
+		}
+	];
+	return authenticationService.authenticate(passportUsername, passportPassword, validUsers)
+		.then(function(validUser) {
+			return Boolean(validUser);
+		});
+};
+
+LocalLoginAdapter.prototype.createUserModel = function(passportValues) {
+	var passportUsername = passportValues.username;
+	var username = slug(passportUsername, { lower: true });
+	var userModel = {
+		username: username
+	};
+	return Promise.resolve(userModel);
+};
+
+LocalLoginAdapter.prototype.getAdapterConfig = function(passportValues, existingAdapterConfig) {
+	var passportUsername = passportValues.username;
+	var passportPassword = passportValues.password;
+	var authStrategy = this.authStrategy;
+	var authOptions = this.authOptions;
+
+	var authenticationService = new AuthenticationService();
+
+	if (existingAdapterConfig) {
+		return Promise.resolve(existingAdapterConfig);
+	} else {
+		return authenticationService.create(passportUsername, passportPassword, authStrategy, authOptions)
+			.then(function(authUser) {
+				return {
+					strategy: authUser.strategy,
+					username: authUser.username,
+					password: authUser.password
+				};
+			});
+	}
 };
 
 

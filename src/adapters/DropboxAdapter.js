@@ -1,17 +1,16 @@
 'use strict';
 
+var util = require('util');
 var path = require('path');
 var express = require('express');
 var escapeRegExp = require('escape-regexp');
 var objectAssign = require('object-assign');
-var isEqual = require('lodash.isequal');
 var slug = require('slug');
 var mapSeries = require('promise-map-series');
 var Dropbox = require('dropbox');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
-var UserService = require('../services/UserService');
-var RegistrationService = require('../services/RegistrationService');
+var LoginAdapter = require('./LoginAdapter');
 
 var FileModel = require('../models/FileModel');
 
@@ -23,36 +22,35 @@ function DropboxLoginAdapter(database, options) {
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
 
-	if (!database) { throw new Error('Missing database'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
 	if (!loginCallbackUrl) { throw new Error('Missing login callback URL'); }
 
-	this.database = database;
+	LoginAdapter.call(this, database);
+
 	this.appKey = appKey;
 	this.appSecret = appSecret;
 	this.loginCallbackUrl = loginCallbackUrl;
 }
 
-DropboxLoginAdapter.prototype.database = null;
+util.inherits(DropboxLoginAdapter, LoginAdapter);
+
+DropboxLoginAdapter.prototype.adapterName = 'dropbox';
 DropboxLoginAdapter.prototype.appKey = null;
 DropboxLoginAdapter.prototype.appSecret = null;
 DropboxLoginAdapter.prototype.loginCallbackUrl = null;
 
 DropboxLoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
-	var database = this.database;
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
-
-	var userService = new UserService(database);
-	var registrationService = new RegistrationService();
 
 	var app = express();
 
 	app.post('/', passport.authenticate('admin/dropbox'));
 	app.get('/oauth2/callback', passport.authenticate('admin/dropbox', passportOptions), callback);
 
+	var self = this;
 	passport.use('admin/dropbox', new DropboxOAuth2Strategy({
 			clientID: appKey,
 			clientSecret: appSecret,
@@ -60,80 +58,50 @@ DropboxLoginAdapter.prototype.middleware = function(passport, passportOptions, c
 			passReqToCallback: true
 		},
 		function(req, accessToken, refreshToken, profile, callback) {
-			var uid = profile.id;
-			var firstName = profile._json.name_details.given_name;
-			var lastName = profile._json.name_details.surname;
-			var email = profile.emails[0].value;
-			var userDetails = {
-				firstName: firstName,
-				lastName: lastName,
-				email: email
+			var passportValues = {
+				uid: profile.id,
+				token: accessToken,
+				firstName: profile._json.name_details.given_name,
+				lastName: profile._json.name_details.surname,
+				email: profile.emails[0].value
 			};
-			return loginUser(req, uid, accessToken, userDetails)
-				.then(function(userModel) {
-					callback(null, userModel);
-				})
-				.catch(function(error) {
-					if (error.status === 401) {
-						return callback(null, false);
-					}
-					callback(error);
-				});
-
-
-			function loginUser(req, uid, accessToken, userDetails) {
-				var adapterConfig = objectAssign({
-					uid: uid,
-					token: accessToken
-				}, userDetails);
-				registrationService.clearPendingUser(req);
-				return userService.retrieveAdapterUser('dropbox', { 'uid': uid })
-					.catch(function(error) {
-						if (error.status === 404) {
-							var fullName = firstName + ' ' + lastName;
-							var username = slug(fullName, { lower: true });
-							var userDetails = {
-								username: username,
-								firstName: firstName,
-								lastName: lastName,
-								email: email
-							};
-							var adapterConfig = {
-								uid: uid,
-								token: accessToken,
-								firstName: firstName,
-								lastName: lastName,
-								email: email
-							};
-							registrationService.setPendingUser(req, userDetails, 'dropbox', adapterConfig);
-							throw new HttpError(401);
-						}
-						throw error;
-					})
-					.then(function(userModel) {
-						var username = userModel.username;
-						var userAdapterConfig = userModel.adapters.dropbox;
-						var hasUpdatedUserDetails = !isEqual(userAdapterConfig, adapterConfig);
-						if (hasUpdatedUserDetails) {
-							return userService.updateUserAdapterSettings(username, 'dropbox', adapterConfig)
-								.then(function() {
-									var userAdapterConfig = userModel.adapters.dropbox;
-									userAdapterConfig.token = accessToken;
-									userAdapterConfig.firstName = firstName;
-									userAdapterConfig.lastName = lastName;
-									userAdapterConfig.email = email;
-									return userModel;
-								});
-						} else {
-							return userModel;
-						}
-					});
-			}
+			var query = { 'uid': profile.id };
+			self.login(req, query, passportValues, callback);
 		}
 	));
 
 	return app;
 };
+
+DropboxLoginAdapter.prototype.authenticate = function(passportValues, userAdapterConfig) {
+	return Promise.resolve(true);
+};
+
+DropboxLoginAdapter.prototype.createUserModel = function(passportValues) {
+	var firstName = passportValues.firstName;
+	var lastName = passportValues.lastName;
+	var email = passportValues.email;
+	var fullName = firstName + ' ' + lastName;
+	var username = slug(fullName, { lower: true });
+	var userModel = {
+		username: username,
+		firstName: firstName,
+		lastName: lastName,
+		email: email
+	};
+	return Promise.resolve(userModel);
+};
+
+DropboxLoginAdapter.prototype.getAdapterConfig = function(passportValues, existingAdapterConfig) {
+	return Promise.resolve({
+		uid: passportValues.uid,
+		token: passportValues.token,
+		firstName: passportValues.firstName,
+		lastName: passportValues.lastName,
+		email: passportValues.email
+	});
+};
+
 
 
 function DropboxStorageAdapter(database, options) {

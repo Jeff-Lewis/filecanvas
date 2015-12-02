@@ -11,12 +11,8 @@ RegistrationService.prototype.getPendingUser = function(req) {
 	return req.session.registration || null;
 };
 
-RegistrationService.prototype.setPendingUser = function(req, userDetails, adapter, adapterConfig) {
-	req.session.registration = {
-		user: userDetails,
-		adapter: adapter,
-		adapterConfig: adapterConfig
-	};
+RegistrationService.prototype.setPendingUser = function(req, userModel) {
+	req.session.registration = userModel;
 };
 
 RegistrationService.prototype.clearPendingUser = function(req) {

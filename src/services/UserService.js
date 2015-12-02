@@ -1,6 +1,5 @@
 'use strict';
 
-var objectAssign = require('object-assign');
 var escapeRegExp = require('escape-regexp');
 var dotObject = require('dot-object');
 
@@ -19,20 +18,8 @@ function UserService(database) {
 
 UserService.prototype.database = null;
 
-UserService.prototype.createUser = function(userDetails, adapterName, adapterConfig) {
+UserService.prototype.createUser = function(userModel) {
 	var database = this.database;
-	var userModel = objectAssign({
-		username: null,
-		firstName: null,
-		lastName: null,
-		email: null,
-		defaultSite: null,
-		adapters: {}
-	}, userDetails);
-
-	userModel.adapters.default = adapterName;
-	userModel.adapters[adapterName] = adapterConfig;
-
 	var requireFullModel = true;
 	return validateUserModel(userModel, requireFullModel)
 		.then(function(userModel) {

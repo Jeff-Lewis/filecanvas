@@ -102,22 +102,19 @@ module.exports = function(database, options) {
 
 		function retrieveRegisterRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
-				var pendingUser = registrationService.getPendingUser(req) || {
-					user: {
-						username: null
-					}
+				var pendingUserModel = registrationService.getPendingUser(req) || {
+					username: null
 				};
-				var userDetails = pendingUser.user;
-				var username = userDetails.username;
+				var username = pendingUserModel.username;
 				return resolve(
 					userService.generateUsername(username)
 						.then(function(username) {
-							userDetails = objectAssign(userDetails, {
+							var userDetails = objectAssign({}, pendingUserModel, {
 								username: username
 							});
 							var templateData = {
 								content: {
-									user: pendingUser.user
+									user: userDetails
 								}
 							};
 							return adminPageService.render(req, res, {
@@ -134,17 +131,17 @@ module.exports = function(database, options) {
 
 		function processRegisterRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
-				var pendingUser = registrationService.getPendingUser(req);
-				var adapter = pendingUser.adapter;
-				var adapterConfig = pendingUser.adapterConfig;
-				var userDetails = {
+				var pendingUserModel = registrationService.getPendingUser(req);
+				var userModel = {
 					username: req.body.username,
 					firstName: req.body.firstName,
 					lastName: req.body.lastName,
-					email: req.body.email
+					email: req.body.email,
+					defaultSite: null,
+					adapters: pendingUserModel.adapters
 				};
 				return resolve(
-					userService.createUser(userDetails, adapter, adapterConfig)
+					userService.createUser(userModel)
 						.then(function(userModel) {
 							registrationService.clearPendingUser(req);
 							req.login(userModel, function(error) {
