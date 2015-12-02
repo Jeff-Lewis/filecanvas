@@ -162,7 +162,6 @@ module.exports = function(database, options) {
 					assets: adminAssetsUrl,
 					themeAssets: stripTrailingSlash(themeAssetsUrl),
 					themes: stripTrailingSlash(themesUrl),
-					admin: stripTrailingSlash(adminUrl),
 					templates: stripTrailingSlash(adminTemplatesUrl),
 					demo: {
 						login: '/login',
@@ -170,7 +169,10 @@ module.exports = function(database, options) {
 						editor: '/editor',
 						upload: '/editor/upload',
 						linkSiteFolder: '/editor/add-files',
-						publish: '/editor/publish',
+						publish: '/editor/publish'
+					},
+					admin: {
+						root: adminUrl,
 						terms: stripTrailingSlash(adminUrl) + '/terms'
 					}
 				}
