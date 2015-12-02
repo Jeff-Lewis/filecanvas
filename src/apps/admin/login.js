@@ -102,9 +102,11 @@ module.exports = function(database, options) {
 
 		function retrieveRegisterRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
-				var pendingUserModel = registrationService.getPendingUser(req) || {
-					username: null
-				};
+				var pendingUserModel = registrationService.getPendingUser(req);
+				if (!pendingUserModel) {
+					res.redirect('/login');
+					return;
+				}
 				var username = pendingUserModel.username;
 				return resolve(
 					userService.generateUsername(username)
