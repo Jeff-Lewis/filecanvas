@@ -317,7 +317,7 @@ function initBindingSources() {
 		function getCurrentValue($sourceElement) {
 			if ($sourceElement.is('input[type="radio"],input[type="checkbox"]')) {
 				return $sourceElement.prop('checked');
-			} else if ($sourceElement.is('button,input[type="submit"],input[type="reset"]')) {
+			} else if ($sourceElement.is('button,input[type="submit"],input[type="reset"],fieldset')) {
 				return !$sourceElement.prop('disabled');
 			} else if ($sourceElement.is('input,textarea,select,option')) {
 				return $sourceElement.val();
@@ -447,7 +447,7 @@ function initBindingTargets(bindingSources, bindingFilters) {
 	function updateBindingTarget($targetElement, value) {
 		if ($targetElement.is('input[type="radio"],input[type="checkbox"]')) {
 			$targetElement.prop('checked', value && (value !== 'false'));
-		} else if ($targetElement.is('button,input[type="submit"],input[type="reset"]')) {
+		} else if ($targetElement.is('button,input[type="submit"],input[type="reset"],fieldset')) {
 			$targetElement.prop('disabled', !(value && (value !== 'false')));
 		} else if ($targetElement.is('input,textarea,select,option')) {
 			$targetElement.val(value);
