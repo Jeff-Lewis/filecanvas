@@ -1154,6 +1154,13 @@ function initModals() {
 }
 
 function initModalForms() {
+	var $activeModalElement = null;
+	window.$.fn.modal.dismiss = function() {
+		if ($activeModalElement) {
+			$activeModalElement.modal('hide');
+		}
+	};
+
 	$('form[target="modal"]').on('submit', function(event) {
 		var $formElement = $(event.currentTarget);
 		var targetIframeName = $formElement.attr('target');
@@ -1164,6 +1171,7 @@ function initModalForms() {
 			$submitElements.prop('disabled', false);
 		});
 	});
+
 	$('iframe[name="modal"]').load(function() {
 		var iframeElement = this;
 		iframeElement.style.height = '0';
@@ -1180,6 +1188,13 @@ function initModalForms() {
 			});
 		});
 	});
+	$('iframe[name="modal"]').closest('.modal')
+		.on('show.bs.modal', function(event) {
+			$activeModalElement = $(this);
+		})
+		.on('hide.bs.modal', function(event) {
+			$activeModalElement = null;
+		});
 }
 
 function initLogout() {
