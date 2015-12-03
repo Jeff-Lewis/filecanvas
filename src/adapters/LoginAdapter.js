@@ -22,12 +22,16 @@ LoginAdapter.prototype.database = null;
 LoginAdapter.prototype.persistent = false;
 
 LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
-	return (this.persistent ?
+	var isPersistent = this.persistent;
+	return (isPersistent ?
 		this.processLogin(req, query, passportValues) :
 		this.createUser(passportValues)
 	)
 		.then(function(userModel) {
 			if (userModel) {
+				if (!isPersistent) {
+					userModel.pending = true;
+				}
 				callback(null, userModel);
 			} else {
 				callback(null, false);
