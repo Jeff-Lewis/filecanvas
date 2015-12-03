@@ -735,7 +735,9 @@ function initUploadControls() {
 				var $progressBarElement = $element.find('[role="progressbar"]');
 				var $clearButtonElement = $element.find('[data-upload-clear]');
 				var uploadUrl = $element.attr('data-upload-url');
+				var uploadMethod = $element.attr('data-upload-method') || 'POST';
 				var requestUploadUrl = $element.attr('data-request-upload-url');
+				var requestUploadMethod = $element.attr('data-request-upload-method') || 'POST';
 				var shouldHideExtension = $element[0].hasAttribute('data-hide-extension');
 				var isImage = $element[0].hasAttribute('data-image');
 				var imageSettings = null;
@@ -778,7 +780,9 @@ function initUploadControls() {
 					});
 					processFile(selectedFile, {
 						uploadUrl: uploadUrl,
+						uploadMethod: uploadMethod,
 						requestUploadUrl: requestUploadUrl,
+						requestUploadMethod: requestUploadMethod,
 						image: imageSettings
 					})
 						.progress(function(progress) {
@@ -844,7 +848,9 @@ function initUploadControls() {
 				function processFile(file, options) {
 					options = options || {};
 					var uploadUrl = options.uploadUrl;
+					var uploadMethod = options.uploadMethod;
 					var requestUploadUrl = options.requestUploadUrl;
+					var requestUploadMethod = options.requestUploadMethod;
 					var isImage = Boolean(options.image);
 					var imageFormat = (isImage ? options.image.format : null);
 					var imageQuality = (isImage ? options.image.quality : null);
@@ -865,7 +871,12 @@ function initUploadControls() {
 									loaded: percentageLoaded,
 									total: 100
 								});
-								processUpload(processedFile, uploadUrl, requestUploadUrl)
+								processUpload(processedFile, {
+									uploadUrl: uploadUrl,
+									uploadMethod: uploadMethod,
+									requestUploadUrl: requestUploadUrl,
+									requestUploadMethod: requestUploadMethod
+								})
 									.progress(function(progress) {
 										var percentageLoaded = (progress.loaded / progress.total);
 										deferred.notify({
@@ -885,7 +896,12 @@ function initUploadControls() {
 							});
 						return deferred.promise();
 					} else {
-						return processUpload(file, uploadUrl, requestUploadUrl);
+						return processUpload(file, {
+							uploadUrl: uploadUrl,
+							uploadMethod: uploadMethod,
+							requestUploadUrl: requestUploadUrl,
+							requestUploadMethod: requestUploadMethod
+						});
 					}
 				}
 
@@ -901,12 +917,17 @@ function initUploadControls() {
 					});
 				}
 
-				function processUpload(file, uploadUrl, requestUploadUrl) {
+				function processUpload(file, options) {
+					options = options || {};
+					var uploadUrl = options.uploadUrl;
+					var uploadMethod = options.uploadMethod;
+					var requestUploadUrl = options.requestUploadUrl;
+					var requestUploadMethod = options.requestUploadMethod;
 					var deferred = new $.Deferred();
 					if (uploadUrl) {
 						abortable(uploadFile(file, {
 							url: uploadUrl,
-							method: 'POST',
+							method: uploadMethod,
 							headers: null
 						}))
 						.progress(function(progress) {
@@ -927,7 +948,10 @@ function initUploadControls() {
 					} else {
 						var retrieveUploadUrlProgressRatio = 0.25;
 						var uploadProgressRatio = (1 - retrieveUploadUrlProgressRatio);
-						abortable(retrieveUploadUrl(file, requestUploadUrl))
+						abortable(retrieveUploadUrl(file, {
+							url: requestUploadUrl,
+							method: requestUploadMethod
+						}))
 							.progress(function(progress) {
 								var percentageLoaded = 100 * (progress.bytesLoaded / progress.bytesTotal);
 								deferred.notify({
@@ -960,9 +984,11 @@ function initUploadControls() {
 					return deferred.promise();
 				}
 
-				function retrieveUploadUrl(file, requestUploadUrl) {
-					var url = requestUploadUrl + '/' + file.name;
-					return xhr.download({ url: url });
+				function retrieveUploadUrl(file, options) {
+					options = options || {};
+					var url = options.url + '/' + file.name;
+					var method = options.method;
+					return xhr.download({ url: url, method: method });
 				}
 
 				function uploadFile(file, options) {
