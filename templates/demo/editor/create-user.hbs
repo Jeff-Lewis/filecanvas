@@ -51,7 +51,7 @@
 							<div id="row">
 								{{> register-fields user=session.user overlay=true}}
 								<div class="form-group">
-									<div class="text-center">
+									<div class="col-sm-9 col-sm-offset-3">
 										<div class="checkbox">
 											<label>
 												<input type="checkbox"
@@ -59,6 +59,10 @@
 												/>I agree to the <a href="{{ session.urls.admin.terms }}" target="_blank">terms and conditions</a>
 											</label>
 										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="text-center">
 										<button type="submit" class="btn btn-primary mt15" disabled="disabled"
 											data-bind-value="confirm-terms"
 										>Create account</button>
