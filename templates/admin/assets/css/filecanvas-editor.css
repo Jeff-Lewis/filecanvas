@@ -90,6 +90,7 @@
 	border-bottom: none;
 	line-height: 20px;
 	height: 50px;
+	cursor: pointer;
 }
 .editor-sidepanel-controls {
 	position: static;
