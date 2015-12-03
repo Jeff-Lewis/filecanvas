@@ -92,11 +92,10 @@
 	height: 50px;
 }
 .editor-sidepanel-controls {
-	float: none;
-	position: absolute;
-	top: 15px;
-	right: 15px;
-	line-height: 20px;
+	position: static;
+	float: right;
+	top: auto;
+	right: auto;
 }
 .editor-sidepanel-controls button,
 .editor-sidepanel-controls button.btn-icon-icon.btn-xs {
@@ -114,11 +113,18 @@
 .editor-sidepanel-controls button.btn-icon-icon.btn-xs:focus {
 	color: white;
 }
-.editor-sidepanel-controls button i,
-.editor-sidepanel-controls button.btn-icon-icon.btn-xs i {
+.editor-sidepanel-controls button .fa,
+.editor-sidepanel-controls button.btn-icon-icon.btn-xs .fa {
 	font-size: 16px;
 	line-height: 16px;
 	padding: 16px 15px 18px;
+}
+.editor-sidepanel-controls button .fa-chevron-down:before {
+	display: inline-block;
+	transition: all 0.3s ease;
+}
+.editor-sidepanel.collapsed .editor-sidepanel-controls button .fa-chevron-down:before {
+	transform: rotate(-90deg);
 }
 .editor-sidepanel-body {
 	position: absolute;
@@ -248,6 +254,19 @@
 	.editor-sidepanel.collapsed .editor-sidepanel-collapsed-title {
 		opacity: 1;
 		transform: translate(20px, 0) rotate(90deg);
+	}
+	.editor-sidepanel-controls {
+		float: none;
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		line-height: 20px;
+	}
+	.editor-sidepanel-controls button .fa-chevron-down:before {
+		content: "\f0c9";
+	}
+	.editor-sidepanel.collapsed .editor-sidepanel-controls button .fa-chevron-down:before {
+		transform: none;
 	}
 	.editor-main {
 		display: block;
