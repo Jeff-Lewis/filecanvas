@@ -8,6 +8,7 @@ body.navigation-hidden .app,
 body.navigation-hidden .main-panel {
 	background-color: #495469;
 }
+
 body.overlay,
 body.overlay .app,
 body.overlay .main-panel {
@@ -44,17 +45,17 @@ body.no-footer .main-content {
     margin-bottom: 0;
 }
 
-html.no-border,
-html.no-border body {
+html.no-padding,
+html.no-padding body {
 	height: auto;
 }
-html.no-border body {
-	min-width: auto;
+html.no-padding body {
+	min-width: 0;
 }
-html.no-border .app {
+html.no-padding .app {
 	min-height: auto;
 }
-html.no-border .main-content {
+html.no-padding .main-content {
     padding: 0;
 }
 
