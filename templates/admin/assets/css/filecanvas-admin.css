@@ -411,9 +411,12 @@ button.bg-bluegrey:hover :not(:disabled) {
 }
 .modal.fade .modal-dialog {
     -webkit-transition: -webkit-transform .15s ease-out;
+    -moz-transition: -moz-transform .15s ease-out;
+    -ms-transition: -ms-transform .15s ease-out;
     -o-transition: -o-transform .15s ease-out;
     transition: transform .15s ease-out;
     -webkit-transform: scale(0.95);
+    -moz-transform: scale(0.95);
     -ms-transform: scale(0.95);
     -o-transform: scale(0.95);
     transform: scale(0.95)
@@ -422,9 +425,11 @@ button.bg-bluegrey:hover :not(:disabled) {
 .modal.in .modal-dialog {
 	-webkit-animation: none;
 	-moz-animation: none;
+	-ms-animation: none;
 	-o-animation: none;
 	animation: none;
     -webkit-transform: scale(1);
+    -moz-transform: scale(1);
     -ms-transform: scale(1);
     -o-transform: scale(1);
     transform: scale(1)
@@ -572,6 +577,7 @@ button.bg-bluegrey:hover :not(:disabled) {
 .no-transition {
 	-webkit-transition: none;
 	-moz-transition: none;
+	-ms-transition: none;
 	-o-transition: none;
 	transition: none;
 }
@@ -623,6 +629,7 @@ button.bg-bluegrey:hover :not(:disabled) {
 .sidebar-panel > nav ul > li > a {
 	-webkit-transition: none;
 	-moz-transition: none;
+	-ms-transition: none;
 	-o-transition: none;
 	transition: none;
 }
@@ -742,6 +749,7 @@ a.btn-toolbar:visited {
 	color: rgba(255, 255, 255, 0.8);
 	-webkit-transition: none;
 	-moz-transition: none;
+	-ms-transition: none;
 	-o-transition: none;
 	transition: none;
 	margin-left: 0;
@@ -925,11 +933,12 @@ footer.content-footer {
 	opacity: 0;
 	-webkit-transform: translateY(-25%);
 	-moz-transform: translateY(-25%);
-	-o-transform: translateY(-25%);
 	-ms-transform: translateY(-25%);
+	-o-transform: translateY(-25%);
 	transform: translateY(-25%);
 	-webkit-transition: all 150ms ease;
 	-moz-transition: all 150ms ease;
+	-ms-transition: all 150ms ease;
 	-o-transition: all 150ms ease;
 	transition: all 150ms ease;
 }
@@ -937,8 +946,8 @@ footer.content-footer {
 	opacity: 1;
 	-webkit-transform: translateY(0);
 	-moz-transform: translateY(0);
-	-o-transform: translateY(0);
 	-ms-transform: translateY(0);
+	-o-transform: translateY(0);
 	transform: translateY(0);
 }
 .theme-preview-control-radio-input {
@@ -1064,6 +1073,10 @@ footer.content-footer {
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-transform: translate(0,0);
+    -moz-transform: translate(0,0);
+    -ms-transform: translate(0,0);
+    -o-transform: translate(0,0);
     transform: translate(0,0);
 }
 .path-control-segments > li::before {
@@ -1157,12 +1170,13 @@ button.panel-heading {
 	font-size: 20px;
 	-webkit-transform: rotate(0deg);
 	-moz-transform: rotate(0deg);
-	-o-transform: rotate(0deg);
 	-ms-transform: rotate(0deg);
+	-o-transform: rotate(0deg);
 	transform: rotate(0deg);
-	-webkit-transition: transform 300ms ease;
-	-moz-transition: transform 300ms ease;
-	-o-transition: transform 300ms ease;
+	-webkit-transition: -webkit-transform 300ms ease;
+	-moz-transition: -moz-transform 300ms ease;
+	-ms-transition: -ms-transform 300ms ease;
+	-o-transition: -o-transform 300ms ease;
 	transition: transform 300ms ease;
 }
 .panel-heading.collapsed .panel-arrow {

@@ -122,9 +122,17 @@
 }
 .editor-sidepanel-controls button .fa-chevron-down:before {
 	display: inline-block;
-	transition: all 0.3s ease;
+	-webkit-transition: -webkit-transform 0.3s ease;
+	-moz-transition: -moz-transform 0.3s ease;
+	-ms-transition: -ms-transform 0.3s ease;
+	-o-transition: -o-transform 0.3s ease;
+	transition: transform 0.3s ease;
 }
 .editor-sidepanel.collapsed .editor-sidepanel-controls button .fa-chevron-down:before {
+	-webkit-transform: rotate(-90deg);
+	-moz-transform: rotate(-90deg);
+	-ms-transform: rotate(-90deg);
+	-o-transform: rotate(-90deg);
 	transform: rotate(-90deg);
 }
 .editor-sidepanel-body {
@@ -190,11 +198,23 @@
 }
 .editor-progress {
 	visibility: hidden;
+	-webkit-transform: translateY(-100%);
+	-moz-transform: translateY(-100%);
+	-ms-transform: translateY(-100%);
+	-o-transform: translateY(-100%);
 	transform: translateY(-100%);
+	-webkit-transition: all 0.2s ease;
+	-moz-transition: all 0.2s ease;
+	-ms-transition: all 0.2s ease;
+	-o-transition: all 0.2s ease;
 	transition: all 0.2s ease;
 }
 .editor-progress.active {
 	visibility: visible;
+	-webkit-transform: translateY(0);
+	-moz-transform: translateY(0);
+	-ms-transform: translateY(0);
+	-o-transform: translateY(0);
 	transform: translateY(0);
 }
 .editor-progress-cancel-button {
@@ -228,17 +248,37 @@
 		margin-top: 0;
 		margin-bottom: 0;
 		white-space: nowrap;
+		-webkit-transform-origin: 0 10px;
+		-moz-transform-origin: 0 10px;
+		-ms-transform-origin: 0 10px;
+		-o-transform-origin: 0 10px;
 		transform-origin: 0 10px;
+		-webkit-transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
+		-moz-transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
+		-ms-transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
+		-o-transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
 		transform: translate(20px, 0) rotate(90deg) translate(0, -30px);
 	}
 	.editor-sidepanel-title,
 	.editor-sidepanel-collapsed-title {
+		-webkit-transition: width 0.3s ease;
+		-moz-transition: width 0.3s ease;
+		-ms-transition: width 0.3s ease;
+		-o-transition: width 0.3s ease;
 		transition: width 0.3s ease;
 	}
 	.editor-sidepanel {
+		-webkit-transition: width 0.3s ease, visibility 0.3s linear;
+		-moz-transition: width 0.3s ease, visibility 0.3s linear;
+		-ms-transition: width 0.3s ease, visibility 0.3s linear;
+		-o-transition: width 0.3s ease, visibility 0.3s linear;
 		transition: width 0.3s ease, visibility 0.3s linear;
 	}
 	.editor-sidepanel-body {
+		-webkit-transition: opacity 0.3s ease, visibility 0.3s linear;
+		-moz-transition: opacity 0.3s ease, visibility 0.3s linear;
+		-ms-transition: opacity 0.3s ease, visibility 0.3s linear;
+		-o-transition: opacity 0.3s ease, visibility 0.3s linear;
 		transition: opacity 0.3s ease, visibility 0.3s linear;
 	}
 	.editor-sidepanel.collapsed {
@@ -254,6 +294,10 @@
 	}
 	.editor-sidepanel.collapsed .editor-sidepanel-collapsed-title {
 		opacity: 1;
+		-webkit-transform: translate(20px, 0) rotate(90deg);
+		-moz-transform: translate(20px, 0) rotate(90deg);
+		-ms-transform: translate(20px, 0) rotate(90deg);
+		-o-transform: translate(20px, 0) rotate(90deg);
 		transform: translate(20px, 0) rotate(90deg);
 	}
 	.editor-sidepanel-controls {
@@ -267,6 +311,10 @@
 		content: "\f0c9";
 	}
 	.editor-sidepanel.collapsed .editor-sidepanel-controls button .fa-chevron-down:before {
+		-webkit-transform: none;
+		-moz-transform: none;
+		-ms-transform: none;
+		-o-transform: none;
 		transform: none;
 	}
 	.editor-main {
@@ -280,6 +328,10 @@
 		left: 300px;
 	}
 	.editor-sidepanel + .editor-main {
+		-webkit-transition: left 0.3s ease;
+		-moz-transition: left 0.3s ease;
+		-ms-transition: left 0.3s ease;
+		-o-transition: left 0.3s ease;
 		transition: left 0.3s ease;
 	}
 
@@ -336,6 +388,10 @@
 }
 
 .fa-uppercase {
+	-webkit-transform: translateY(1px);
+	-moz-transform: translateY(1px);
+	-ms-transform: translateY(1px);
+	-o-transform: translateY(1px);
 	transform: translateY(1px);
 }
 .fa-uppercase::before {
