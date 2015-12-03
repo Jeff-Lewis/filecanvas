@@ -12,6 +12,20 @@
 								<form class="form-horizontal bordered-group" role="form" method="POST" action="{{ session.urls.admin.register }}" autocomplete="off">
 									<input type="hidden" name="_method" value="POST"/>
 									{{> register-fields user=content.user}}
+									<div class="form-group">
+										<div class="text-center">
+											<div class="checkbox">
+												<label>
+													<input type="checkbox"
+														data-bind-id="confirm-terms"
+													/>I agree to the <a href="{{ session.urls.admin.terms }}" target="_blank">terms and conditions</a>
+												</label>
+											</div>
+											<button type="submit" class="btn btn-success mt15" disabled="disabled"
+												data-bind-value="confirm-terms"
+											>Create account</button>
+										</div>
+									</div>
 								</form>
 							</div>
 						</div>
