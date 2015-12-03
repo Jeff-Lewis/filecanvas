@@ -23,10 +23,8 @@ LoginAdapter.prototype.persistent = false;
 
 LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
 	var isPersistent = this.persistent;
-	return (isPersistent ?
-		this.processLogin(req, query, passportValues) :
-		this.createUser(passportValues)
-	)
+	var self = this;
+	return (isPersistent ? loginExistingUser(req, query, passportValues) : createSessionUser(req, query, passportValues))
 		.then(function(userModel) {
 			if (userModel) {
 				if (!isPersistent) {
@@ -40,6 +38,24 @@ LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
 		.catch(function(error) {
 			callback(error);
 		});
+
+	function loginExistingUser() {
+		return self.processLogin(req, query, passportValues);
+	}
+
+	function createSessionUser(req, query, passportValues) {
+		var database = self.database;
+		var userService = new UserService(database);
+		return self.createUser(passportValues)
+			.then(function(userModel) {
+				var username = userModel.username;
+				return userService.generateUsername(username)
+					.then(function(username) {
+						userModel.username = username;
+						return userModel;
+					});
+			});
+	}
 };
 
 LoginAdapter.prototype.processLogin = function(req, query, passportValues) {
