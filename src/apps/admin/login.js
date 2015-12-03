@@ -51,9 +51,9 @@ module.exports = function(database, options) {
 
 	function initRoutes(app) {
 		app.get('/login', redirectIfLoggedIn('/'), retrieveLoginRoute);
-		app.get('/register', redirectIfLoggedIn('/'), retrieveRegisterRoute);
-		app.post('/register', redirectIfLoggedIn('/'), processRegisterRoute);
 		app.get('/logout', redirectIfLoggedOut('/'), retrieveLogoutRoute);
+		app.get('/register', redirectIfLoggedIn('/'), retrieveCreateUserRoute);
+		app.post('/register', redirectIfLoggedIn('/'), createUserRoute);
 
 
 		function redirectIfLoggedIn(redirectPath) {
@@ -100,7 +100,7 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function retrieveRegisterRoute(req, res, next) {
+		function retrieveCreateUserRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
 				var pendingUserModel = registrationService.getPendingUser(req);
 				if (!pendingUserModel) {
@@ -131,7 +131,7 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function processRegisterRoute(req, res, next) {
+		function createUserRoute(req, res, next) {
 			new Promise(function(resolve, reject) {
 				var pendingUserModel = registrationService.getPendingUser(req);
 				var userModel = {

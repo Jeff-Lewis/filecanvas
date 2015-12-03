@@ -168,7 +168,14 @@ function getExistingUsernames(database, username) {
 function createUser(database, userModel) {
 	return database.collection(DB_COLLECTION_USERS).insertOne(userModel)
 		.then(function() {
-			return userModel;
+			return {
+				username: userModel.username,
+				firstName: userModel.firstName,
+				lastName: userModel.lastName,
+				email: userModel.email,
+				defaultSite: userModel.defaultSite,
+				adapters: userModel.adapters
+			};
 		});
 }
 

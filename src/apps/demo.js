@@ -169,7 +169,8 @@ module.exports = function(database, options) {
 						editor: '/editor',
 						upload: '/editor/upload',
 						linkSiteFolder: '/editor/add-files',
-						publish: '/editor/publish'
+						createUser: '/editor/create-user',
+						createSite: '/editor/create-canvas'
 					},
 					admin: {
 						root: adminUrl,
@@ -196,13 +197,16 @@ module.exports = function(database, options) {
 		app.get('/editor', retrieveThemeEditorRoute);
 		app.get('/editor/upload/:filename', retrieveThemeEditorUploadRoute);
 		app.post('/login', createThemeEditorLoginRoute);
-		app.post('/editor/add-files', ensureAuth('/editor'), createSiteFolderRoute);
-		app.post('/editor/publish', ensureAuth('/editor'), createSiteRoute);
+		app.post('/editor/add-files', ensureAuth('/editor', { allowPending: true }), createSiteFolderRoute);
+		app.post('/editor/create-user', ensureAuth('/editor', { allowPending: true }), createUserRoute);
+		app.post('/editor/create-canvas', ensureAuth('/editor', { allowPending: false }), createSiteRoute);
 
 
-		function ensureAuth(loginUrl) {
+		function ensureAuth(loginUrl, options) {
+			options = options || {};
+			var allowPendingUser = Boolean(options.allowPending);
 			return function(req, res, next) {
-				if (req.isAuthenticated()) {
+				if (req.isAuthenticated() && (allowPendingUser || !req.user.pending)) {
 					next();
 				} else {
 					res.redirect(loginUrl);
@@ -453,8 +457,45 @@ module.exports = function(database, options) {
 			}
 		}
 
+		function createUserRoute(req, res, next) {
+			var pendingUserModel = req.user;
+			var userModel = {
+				username: req.body.username,
+				firstName: req.body.firstName,
+				lastName: req.body.lastName,
+				email: req.body.email,
+				defaultSite: null,
+				adapters: pendingUserModel.adapters
+			};
+
+			new Promise(function(resolve, reject) {
+				return resolve(
+					userService.createUser(userModel)
+						.then(function(userModel) {
+							req.login(userModel, function(error) {
+								if (error) { return next(error); }
+								Object.keys(req.body).forEach(function(key) {
+									req.query[key] = req.body[key];
+									delete req.body[key];
+								});
+								req.session.state = {
+									editor: {
+										overlay: true
+									}
+								};
+								retrieveThemeEditorRoute(req, res, next);
+							});
+						})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+		}
+
 		function createSiteRoute(req, res, next) {
 			var userModel = req.user;
+			var username = userModel.username;
 			var siteName = req.body.name || null;
 			var siteLabel = req.body.label || null;
 			var siteRoot = req.body.root || null;
@@ -475,7 +516,6 @@ module.exports = function(database, options) {
 				var theme = themeService.getTheme(themeId);
 				var themeConfigDefaults = theme.defaults;
 				var themeConfig = merge({}, themeConfigDefaults, themeConfigOverrides);
-				var username = userModel.username;
 				var siteModel = {
 					'owner': username,
 					'name': siteName,
@@ -506,7 +546,7 @@ module.exports = function(database, options) {
 								}
 							};
 							return adminPageService.render(req, res, {
-								template: 'editor/publish',
+								template: 'editor/create-site-success',
 								context: templateData
 							});
 						})

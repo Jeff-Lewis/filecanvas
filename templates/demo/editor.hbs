@@ -28,12 +28,21 @@
 			{{#unless content.site.name}}
 			action="{{ session.urls.demo.linkSiteFolder }}"
 			{{else}}
-			action="{{ session.urls.demo.publish }}" target="modal"
+			{{#if session.user.pending}}
+			action="{{ session.urls.demo.createUser }}"
+			{{else}}
+			action="{{ session.urls.demo.createSite }}" target="modal"
+			{{/if}}
 			{{/unless}}
 			{{/unless}}
 			autocomplete="off" data-editor
 		>
 			<input type="hidden" name="_method" value="POST"/>
+			{{#if content.state}}
+			{{#each state as |value key|}}
+			<input type="hidden" name="_state.{{ key }}" value="{{ value }}">
+			{{/each}}
+			{{/if}}
 			<div class="title-bar">
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
@@ -51,7 +60,11 @@
 						{{#unless content.site.name}}
 						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#add-files-modal">Next: Add files</button>
 						{{else}}
-						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#publish-modal">Save this canvas</button>
+						{{#if session.user.pending}}
+						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#create-user-modal">Save this canvas</button>
+						{{else}}
+						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#create-site-modal">Save this canvas</button>
+						{{/if}}
 						{{/unless}}
 						{{/unless}}
 					</div>
@@ -101,136 +114,108 @@
 							<h4 class="modal-title">Add files</h4>
 						</div>
 						<div class="modal-body">
-						<div class="mb20">
-							<p>Choose where to store this canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}:</p>
-						</div>
-						<div class="text-center">
-							<input type="hidden"
-								name="name"
-								value="{{ content.site.name }}"
-								data-bind-value="site-label|slug"
-							/>
-							<input type="hidden"
-								name="root.adapter"
-								value="{{ content.site.root.adapter }}"
-							/>
-							<input type="hidden"
-								name="root.path"
-								value="{{ content.site.root.path }}"
-								readonly="readonly"
-								data-bind-value="site-label|filename|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
-								data-validate="path,notEmpty"
-							/>
-							<div class="path-control has-extra"
-								data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}"
-							>
-								<input type="text" class="form-control"
-									readonly="readonly"
-									value="{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}"
+							<div class="mb20">
+								<p>Choose where to store this canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}:</p>
+							</div>
+							<div class="text-center">
+								<input type="hidden"
+									name="name"
+									value="{{ content.site.name }}"
+									data-bind-value="site-label|slug"
 								/>
-								<ul class="path-control-segments">
-								</ul><div class="path-control-extra">
-									<div class="input-group input-group-sm">
-										<span class="input-group-addon"><i class="fa fa-folder-o"></i></span>
-										<input type="text" class="form-control" autofocus="autofocus"
-											name="label"
-											value="{{ content.site.label }}"
-											placeholder="Type a folder name"
-											data-bind-id="site-label"
-											data-validate="notEmpty,filename"
-										/>
+								<input type="hidden"
+									name="root.adapter"
+									value="{{ content.site.root.adapter }}"
+								/>
+								<input type="hidden"
+									name="root.path"
+									value="{{ content.site.root.path }}"
+									readonly="readonly"
+									data-bind-value="site-label|filename|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
+									data-validate="path,notEmpty"
+								/>
+								<div class="path-control has-extra"
+									data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}"
+								>
+									<input type="text" class="form-control"
+										readonly="readonly"
+										value="{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}"
+									/>
+									<ul class="path-control-segments">
+									</ul><div class="path-control-extra">
+										<div class="input-group input-group-sm">
+											<span class="input-group-addon"><i class="fa fa-folder-o"></i></span>
+											<input type="text" class="form-control" autofocus="autofocus"
+												name="label"
+												value="{{ content.site.label }}"
+												placeholder="Type a folder name"
+												data-bind-id="site-label"
+												data-validate="notEmpty,filename"
+											/>
+										</div>
 									</div>
+									<span class="form-control-feedback fa" aria-hidden="true"></span>
 								</div>
 								<span class="form-control-feedback fa" aria-hidden="true"></span>
 							</div>
-							<span class="form-control-feedback fa" aria-hidden="true"></span>
-						</div>
-						<div class="text-center mt30">
-							<button type="submit" class="btn btn-primary">Create canvas folder</button>
-						</div>
+							<div class="text-center mt30">
+								<button type="submit" class="btn btn-primary">Create canvas folder</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			{{else}}
-			<input type="hidden"
-				name="label"
-				value="{{ content.site.label }}"
-			/>
-			<input type="hidden"
-				name="root.adapter"
-				value="{{ content.site.root.adapter }}"
-			/>
-			<input type="hidden"
-				name="root.path"
-				value="{{ content.site.root.path }}"
-			/>
-			<input type="hidden" name="published" value="true"/>
-			<div id="publish-modal" class="modal fade" tabindex="-1" role="dialog">
+			{{#if session.user.pending}}
+			<div id="create-user-modal" class="modal fade" tabindex="-1" role="dialog"{{#if content.overlay}} data-show="true"{{/if}}>
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Publish canvas</h4>
+							<h4 class="modal-title">Save canvas</h4>
 						</div>
 						<div class="modal-body">
 							<div class="alert alert-info">
-								<i class="pull-left fa fa-globe"></i>
+								<i class="pull-left fa fa-user-plus"></i>
 								<div>
-									<h5>You are about to publish this canvas to the internet</h5>
+									<h5>Create your account to save this canvas</h5>
 								</div>
 							</div>
 							<div class="row">
 								<div class="col-lg-12">
 									<div class="form-horizontal">
+										<input type="hidden"
+											name="name"
+											value="{{ content.site.name }}"
+										/>
+										<input type="hidden"
+											name="label"
+											value="{{ content.site.label }}"
+										/>
+										<input type="hidden"
+											name="root.adapter"
+											value="{{ content.site.root.adapter }}"
+										/>
+										<input type="hidden"
+											name="root.path"
+											value="{{ content.site.root.path }}"
+										/>
 										<div class="row no-margin">
 											<div class="col-lg-12">
 												<div id="row">
+													{{> register-fields user=session.user modal=true}}
 													<div class="form-group">
-														<label class="col-sm-3 control-label">Site name</label>
-														<div class="col-sm-9">
-															<input type="text" class="form-control" autofocus="autofocus"
-																name="label"
-																value="{{ content.site.label }}"
-																data-validate="notEmpty"
-															/>
-														</div>
-													</div>
-													<div class="form-group">
-														<label class="col-sm-3 control-label">Web address</label>
-														<div class="col-sm-9">
-															<div class="web-address-control input-group">
-																<span class="input-group-addon">{{ session.urls.webroot }}</span>
-																<input type="text" class="form-control"
-																	name="name"
-																	value="{{ content.site.name }}"
-																	data-bind-id="site-name"
-																	data-parser="slug"
-																	data-validate="slug"
-																	data-trigger="focus"
-																/>
-																<span class="form-control-feedback fa" aria-hidden="true"></span>
-															</div>
-														</div>
-													</div>
-													<div class="form-group mb0">
-														<label class="col-sm-3 control-label">Home canvas</label>
-														<div class="col-sm-9">
+														<div class="text-center">
 															<div class="checkbox">
 																<label>
-																	<input type="hidden"
-																		name="home"
-																		value="false"
-																	/>
 																	<input type="checkbox"
-																		name="home"
-																		value="true"
-																		checked="checked"
-																	/>
-																	Use this as my home canvas
+																		data-bind-id="confirm-terms"
+																	/>I agree to the <a href="{{ session.urls.admin.terms }}" target="_blank">terms and conditions</a>
 																</label>
 															</div>
-															<p class="help-block mb0">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+															<button type="submit" class="btn btn-primary mt15" disabled="disabled"
+																data-bind-value="confirm-terms"
+															>Create account</button>
 														</div>
 													</div>
 												</div>
@@ -240,18 +225,128 @@
 								</div>
 							</div>
 						</div>
-						<div class="modal-footer">
-							<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#publish-modal">Publish canvas</button>
-						</div>
 					</div>
 				</div>
 			</div>
-			<div class="modal fade" tabindex="-1" role="dialog" data-keyboard="false" backdrop="static">
+			{{else}}
+			<div id="create-site-modal" class="modal fade" tabindex="-1" role="dialog"{{#if content.overlay}} data-show="true"{{/if}}>
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Publish canvas</h4>
+							<h4 class="modal-title">Save canvas</h4>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="form-horizontal">
+										<input type="hidden"
+											name="name"
+											value="{{ content.site.name }}"
+										/>
+										<input type="hidden"
+											name="label"
+											value="{{ content.site.label }}"
+										/>
+										<input type="hidden"
+											name="root.adapter"
+											value="{{ content.site.root.adapter }}"
+										/>
+										<input type="hidden"
+											name="root.path"
+											value="{{ content.site.root.path }}"
+										/>
+										<div class="row no-margin">
+											<div class="col-lg-12">
+												<div id="row">
+													<div class="form-group">
+														<label class="col-sm-3 control-label">Canvas name</label>
+														<div class="col-sm-9">
+															<input type="text" class="form-control" autofocus="autofocus"
+																name="label"
+																value="{{ content.site.label }}"
+																data-bind-id="site-name"
+																data-validate="notEmpty"
+															/>
+														</div>
+													</div>
+													<div class="form-group">
+														<label class="col-sm-3 control-label">Publish</label>
+														<div class="col-sm-9">
+															<div class="checkbox">
+																<label>
+																	<input type="hidden"
+																		name="published"
+																		value="false"
+																	/>
+																	<input type="checkbox"
+																		name="published"
+																		value="true"
+																		data-bind-id="published"
+																	/>Publish this canvas to the internet</a>
+																</label>
+															</div>
+														</div>
+													</div>
+													<fieldset disabled="disabled"
+														data-bind-value="published"
+													>
+														<div class="form-group">
+															<label class="col-sm-3 control-label">Web address</label>
+															<div class="col-sm-9">
+																<div class="web-address-control input-group">
+																	<span class="input-group-addon">{{ session.urls.webroot }}</span>
+																	<input type="text" class="form-control"
+																		name="name"
+																		value="{{ content.site.name }}"
+																		data-bind-value="site-name|slug"
+																		data-parser="slug"
+																		data-validate="slug"
+																		data-trigger="focus"
+																	/>
+																	<span class="form-control-feedback fa" aria-hidden="true"></span>
+																</div>
+															</div>
+														</div>
+														<div class="form-group mb0">
+															<label class="col-sm-3 control-label">Home canvas</label>
+															<div class="col-sm-9">
+																<div class="checkbox">
+																	<label>
+																		<input type="hidden"
+																			name="home"
+																			value="false"
+																		/>
+																		<input type="checkbox"
+																			name="home"
+																			value="true"
+																			checked="checked"
+																		/>
+																		Use this as my home canvas
+																	</label>
+																</div>
+																<p class="help-block mb0">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+															</div>
+														</div>
+													</fieldset>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="text-center mt30">
+								<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#create-site-modal">Save canvas</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal fade" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Save canvas</h4>
 						</div>
 						<div class="modal-body">
 							<iframe name="modal" frameborder="0"></iframe>
@@ -259,6 +354,7 @@
 					</div>
 				</div>
 			</div>
+			{{/if}}
 			{{/unless}}
 			{{/unless}}
 		</form>
