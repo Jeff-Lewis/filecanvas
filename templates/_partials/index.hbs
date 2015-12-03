@@ -12,7 +12,7 @@
 		{{#>styles}}{{/styles}}
 		<title>{{#if title}}{{ title }} | {{/if}}Filecanvas</title>
 	</head>
-	<body class="{{#unless navigation}} navigation-hidden{{/unless}}{{#if fullPage}} full-page{{/if}}{{#unless footer}} no-footer{{/unless}}{{#if blank}} bg-white{{/if}}">
+	<body class="{{#unless navigation}} navigation-hidden{{/unless}}{{#if fullPage}} full-page{{/if}}{{#unless footer}} no-footer{{/unless}}{{#if overlay}} overlay{{/if}}">
 		<div class="app{{#if navigation}} layout-fixed-header{{/if}}">
 			{{#if navigation}}
 			<div class="sidebar-panel offscreen-left">

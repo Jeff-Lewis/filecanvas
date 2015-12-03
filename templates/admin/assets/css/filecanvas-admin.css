@@ -8,9 +8,9 @@ body.navigation-hidden .app,
 body.navigation-hidden .main-panel {
 	background-color: #495469;
 }
-body.bg-white,
-body.bg-white .app,
-body.bg-white .main-panel {
+body.overlay,
+body.overlay .app,
+body.overlay .main-panel {
 	background-color: white;
 }
 body.navigation-hidden button.bg-white {
