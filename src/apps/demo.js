@@ -2,6 +2,7 @@
 
 var merge = require('lodash.merge');
 var express = require('express');
+var composeMiddleware = require('compose-middleware').compose;
 
 var previewApp = require('./demo/preview');
 
@@ -170,7 +171,8 @@ module.exports = function(database, options) {
 						upload: '/editor/upload',
 						linkSiteFolder: '/editor/add-files',
 						createUser: '/editor/create-user',
-						createSite: '/editor/create-canvas'
+						createSite: '/editor/canvases',
+						sites: '/editor/canvases'
 					},
 					admin: {
 						root: adminUrl,
@@ -195,24 +197,44 @@ module.exports = function(database, options) {
 		app.get('/themes', retrieveThemesRoute);
 		app.get('/themes/:theme', retrieveThemeRoute);
 		app.get('/editor', retrieveThemeEditorRoute);
-		app.get('/editor/upload/:filename', retrieveThemeEditorUploadRoute);
-		app.post('/login', createThemeEditorLoginRoute);
-		app.post('/editor/add-files', ensureAuth('/editor', { allowPending: true }), createSiteFolderRoute);
-		app.post('/editor/create-user', ensureAuth('/editor', { allowPending: true }), createUserRoute);
-		app.post('/editor/create-canvas', ensureAuth('/editor', { allowPending: false }), createSiteRoute);
+
+		var ensureLogin = ensureAuth('/editor', { allowPending: true });
+		var ensureUser = composeMiddleware(ensureLogin, ensureAuth(retrieveCreateUserRoute, { allowPending: false }));
+
+		app.get('/login', retrieveThemeEditorLoginRoute);
+		app.post('/editor/add-files', ensureLogin, createSiteFolderRoute, moveRequestBodyIntoQuery, retrieveThemeEditorRoute);
+		app.post('/editor/upload/:filename', ensureLogin, createThemeEditorUploadRoute);
+		app.get('/editor/create-user', ensureLogin, retrieveCreateUserRoute);
+		app.post('/editor/create-user', ensureLogin, createUserRoute);
+		app.post('/editor/canvases', ensureUser, createSiteRoute);
+		app.get('/editor/canvases/:site', ensureUser, retrieveSitePublishRoute);
+		app.put('/editor/canvases/:site', ensureUser, updateSiteRoute);
 
 
-		function ensureAuth(loginUrl, options) {
+		function ensureAuth(loginRoute, options) {
 			options = options || {};
 			var allowPendingUser = Boolean(options.allowPending);
 			return function(req, res, next) {
 				if (req.isAuthenticated() && (allowPendingUser || !req.user.pending)) {
 					next();
 				} else {
-					res.redirect(loginUrl);
+					if (typeof loginRoute === 'string') {
+						res.redirect(loginRoute);
+					} else if (typeof loginRoute === 'function') {
+						loginRoute(req, res, next);
+					}
 				}
 			};
 		}
+
+		function moveRequestBodyIntoQuery(req, res, next) {
+			Object.keys(req.body).forEach(function(key) {
+				req.query[key] = req.body[key];
+				delete req.body[key];
+			});
+			next();
+		}
+
 
 		function retrieveThemesRoute(req, res, next) {
 			var themeIds = Object.keys(themeService.getThemes());
@@ -375,7 +397,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function retrieveThemeEditorUploadRoute(req, res, next) {
+		function createThemeEditorUploadRoute(req, res, next) {
 			var filename = req.params.filename;
 
 			new Promise(function(resolve, reject) {
@@ -393,10 +415,10 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function createThemeEditorLoginRoute(req, res, next) {
-			var themeId = req.body.theme && req.body.theme.id || null;
-			var themeConfig = req.body.theme && req.body.theme.config || null;
-			var redirectUrl = req.body.redirect || null;
+		function retrieveThemeEditorLoginRoute(req, res, next) {
+			var themeId = req.query.theme && req.query.theme.id || null;
+			var themeConfig = req.query.theme && req.query.theme.config || null;
+			var redirectUrl = req.query.redirect || '/editor';
 
 			new Promise(function(resolve, reject) {
 				var adaptersHash = Object.keys(loginAdapters).reduce(function(adaptersHash, key) {
@@ -405,7 +427,7 @@ module.exports = function(database, options) {
 				}, {});
 				var templateData = {
 					content: {
-						redirect: redirectUrl || '/editor',
+						redirect: redirectUrl,
 						adapters: adaptersHash,
 						state: {
 							'editor.overlay': true,
@@ -434,11 +456,7 @@ module.exports = function(database, options) {
 				resolve(
 					createSiteFolder(siteRoot, userModel)
 						.then(function() {
-							Object.keys(req.body).forEach(function(key) {
-								req.query[key] = req.body[key];
-								delete req.body[key];
-							});
-							retrieveThemeEditorRoute(req, res, next);
+							next();
 						})
 				);
 			})
@@ -457,6 +475,45 @@ module.exports = function(database, options) {
 			}
 		}
 
+		function retrieveCreateUserRoute(req, res, next) {
+			var pendingSiteModel = {
+				name: req.body.name || null,
+				label: req.body.label || null,
+				root: req.body.root || null,
+				home: (req.body.home === 'true'),
+				private: (req.body.private === 'true'),
+				published: (req.body.published === 'true'),
+				theme: {
+					id: req.body.theme && req.body.theme.id || null,
+					config: req.body.theme && req.body.config || null
+				}
+			};
+			if (typeof pendingSiteModel.theme.config === 'string') {
+				try {
+					pendingSiteModel.theme.config = JSON.parse(pendingSiteModel.theme.config);
+				} catch(error) {
+					return next(new HttpError(401));
+				}
+			}
+
+			new Promise(function(resolve, reject) {
+				var templateData = {
+					content: {
+						site: pendingSiteModel
+					}
+				};
+				resolve(
+					adminPageService.render(req, res, {
+						template: 'editor/create-user',
+						context: templateData
+					})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+		}
+
 		function createUserRoute(req, res, next) {
 			var pendingUserModel = req.user;
 			var userModel = {
@@ -469,21 +526,12 @@ module.exports = function(database, options) {
 			};
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					userService.createUser(userModel)
 						.then(function(userModel) {
 							req.login(userModel, function(error) {
 								if (error) { return next(error); }
-								Object.keys(req.body).forEach(function(key) {
-									req.query[key] = req.body[key];
-									delete req.body[key];
-								});
-								req.session.state = {
-									editor: {
-										overlay: true
-									}
-								};
-								retrieveThemeEditorRoute(req, res, next);
+								createSiteRoute(req, res, next);
 							});
 						})
 				);
@@ -530,7 +578,7 @@ module.exports = function(database, options) {
 					'published': isPublished,
 					'cache': null
 				};
-				return resolve(
+				resolve(
 					siteService.createSite(siteModel)
 						.then(function(siteModel) {
 							if (!isDefaultSite) { return siteModel; }
@@ -547,6 +595,90 @@ module.exports = function(database, options) {
 							};
 							return adminPageService.render(req, res, {
 								template: 'editor/create-site-success',
+								context: templateData
+							});
+						})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+		}
+
+		function retrieveSitePublishRoute(req, res, next) {
+			var userModel = req.user;
+			var username = userModel.username;
+			var siteName = req.params.site;
+
+			new Promise(function(resolve, reject) {
+				var templateData = {
+					content: {
+						site: {
+							owner: username,
+							name: siteName
+						}
+					}
+				};
+				resolve(
+					adminPageService.render(req, res, {
+						template: 'editor/publish-site',
+						context: templateData
+					})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+		}
+
+		function updateSiteRoute(req, res, next) {
+			var userModel = req.user;
+			var username = userModel.username;
+			var defaultSiteName = userModel.defaultSite;
+			var siteName = req.params.site;
+
+			var updates = {};
+			if (req.body.name) { updates.name = req.body.name; }
+			if (req.body.label) { updates.label = req.body.label; }
+			if (req.body.root) { updates.root = req.body.root || null; }
+			if (req.body.private) { updates.private = req.body.private === 'true'; }
+			if (req.body.published) { updates.published = req.body.published === 'true'; }
+
+			var themeId = req.body.theme && req.body.theme.id || null;
+			var themeConfigOverrides = req.body.theme && req.body.theme.config || null;
+
+			new Promise(function(resolve, reject) {
+				if (themeId || themeConfigOverrides) {
+					var theme = themeService.getTheme(themeId);
+					var themeConfigDefaults = theme.defaults;
+					var themeConfig = merge({}, themeConfigDefaults, themeConfigOverrides);
+					updates.theme = {
+						id: themeId,
+						config: themeConfig
+					};
+				}
+
+				var isDefaultSite = siteName === defaultSiteName;
+				var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
+				var updatedSiteName = ('name' in updates ? updates.name : siteName);
+				resolve(
+					siteService.updateSite(username, siteName, updates)
+						.then(function() {
+							var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));
+							if (updatedDefaultSiteName === defaultSiteName) { return; }
+							return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
+						})
+						.then(function() {
+							var templateData = {
+								content: {
+									site: {
+										owner: username,
+										name: updatedSiteName
+									}
+								}
+							};
+							return adminPageService.render(req, res, {
+								template: 'editor/publish-site-success',
 								context: templateData
 							});
 						})

@@ -1,19 +1,19 @@
 {{#>index title='Site published' overlay=true borderless=true}}
 	{{#*inline 'content'}}
-		<div class="alert alert-success">
+		<div class="alert alert-block alert-success">
 			<i class="pull-left fa fa-check"></i>
 			<div>
-				<h5>Congratulations! You've just created your first canvas.</h5>
+				<h5 class="mb5">Congratulations! You've just published your first canvas.</h5>
+				<p>See it in action at <strong><a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a></strong></p>
 			</div>
 		</div>
 		<div class="ml5">
-			<p>This canvas is not yet published. Use the <strong>Publish this canvas</strong> button below to publish it to the internet.
+			<p>This canvas is now live on the internet.</p>
 			<p>You can edit your canvas at any time in the <a href="{{ session.urls.admin.root }}" target="_top">Filecanvas admin area</a>.</p>
 			<p>Enjoy using Filecanvas!</p>
 			<p> &nbsp;– The Filecanvas Team</p>
 			<div class="mt30 text-center">
 				<a href="{{ session.urls.admin.root }}" class="btn btn-primary" target="_top">Go to the admin area</a>
-				<a href="{{ session.urls.demo.sites }}/{{ content.site.name }}" class="btn btn-success">Publish this canvas</a>
 			</div>
 		</div>
 	{{/inline}}

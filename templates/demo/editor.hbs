@@ -28,16 +28,16 @@
 			{{#unless content.site.name}}
 			action="{{ session.urls.demo.linkSiteFolder }}"
 			{{else}}
-			{{#if session.user.pending}}
-			action="{{ session.urls.demo.createUser }}"
-			{{else}}
 			action="{{ session.urls.demo.createSite }}" target="modal"
-			{{/if}}
 			{{/unless}}
 			{{/unless}}
 			autocomplete="off" data-editor
 		>
+			{{#if session.user}}
 			<input type="hidden" name="_method" value="POST"/>
+			{{else}}
+			<input type="hidden" name="_method" value="GET"/>
+			{{/if}}
 			{{#if content.state}}
 			{{#each state as |value key|}}
 			<input type="hidden" name="_state.{{ key }}" value="{{ value }}">
@@ -60,11 +60,7 @@
 						{{#unless content.site.name}}
 						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#add-files-modal">Next: Add files</button>
 						{{else}}
-						{{#if session.user.pending}}
-						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#create-user-modal">Save this canvas</button>
-						{{else}}
-						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#create-site-modal">Save this canvas</button>
-						{{/if}}
+						<button type="submit" class="btn btn-success bold">Save this canvas</button>
 						{{/unless}}
 						{{/unless}}
 					</div>
@@ -166,182 +162,22 @@
 				</div>
 			</div>
 			{{else}}
-			{{#if session.user.pending}}
-			<div id="create-user-modal" class="modal fade" tabindex="-1" role="dialog"{{#if content.overlay}} data-show="true"{{/if}}>
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Save canvas</h4>
-						</div>
-						<div class="modal-body">
-							<div class="alert alert-info">
-								<i class="pull-left fa fa-user-plus"></i>
-								<div>
-									<h5>Create your account to save this canvas</h5>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-lg-12">
-									<div class="form-horizontal">
-										<input type="hidden"
-											name="name"
-											value="{{ content.site.name }}"
-										/>
-										<input type="hidden"
-											name="label"
-											value="{{ content.site.label }}"
-										/>
-										<input type="hidden"
-											name="root.adapter"
-											value="{{ content.site.root.adapter }}"
-										/>
-										<input type="hidden"
-											name="root.path"
-											value="{{ content.site.root.path }}"
-										/>
-										<div class="row no-margin">
-											<div class="col-lg-12">
-												<div id="row">
-													{{> register-fields user=session.user modal=true}}
-													<div class="form-group">
-														<div class="text-center">
-															<div class="checkbox">
-																<label>
-																	<input type="checkbox"
-																		data-bind-id="confirm-terms"
-																	/>I agree to the <a href="{{ session.urls.admin.terms }}" target="_blank">terms and conditions</a>
-																</label>
-															</div>
-															<button type="submit" class="btn btn-primary mt15" disabled="disabled"
-																data-bind-value="confirm-terms"
-															>Create account</button>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			{{else}}
-			<div id="create-site-modal" class="modal fade" tabindex="-1" role="dialog"{{#if content.overlay}} data-show="true"{{/if}}>
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Save canvas</h4>
-						</div>
-						<div class="modal-body">
-							<div class="row">
-								<div class="col-lg-12">
-									<div class="form-horizontal">
-										<input type="hidden"
-											name="name"
-											value="{{ content.site.name }}"
-										/>
-										<input type="hidden"
-											name="label"
-											value="{{ content.site.label }}"
-										/>
-										<input type="hidden"
-											name="root.adapter"
-											value="{{ content.site.root.adapter }}"
-										/>
-										<input type="hidden"
-											name="root.path"
-											value="{{ content.site.root.path }}"
-										/>
-										<div class="row no-margin">
-											<div class="col-lg-12">
-												<div id="row">
-													<div class="form-group">
-														<label class="col-sm-3 control-label">Canvas name</label>
-														<div class="col-sm-9">
-															<input type="text" class="form-control" autofocus="autofocus"
-																name="label"
-																value="{{ content.site.label }}"
-																data-bind-id="site-name"
-																data-validate="notEmpty"
-															/>
-														</div>
-													</div>
-													<div class="form-group">
-														<label class="col-sm-3 control-label">Publish</label>
-														<div class="col-sm-9">
-															<div class="checkbox">
-																<label>
-																	<input type="hidden"
-																		name="published"
-																		value="false"
-																	/>
-																	<input type="checkbox"
-																		name="published"
-																		value="true"
-																		data-bind-id="published"
-																	/>Publish this canvas to the internet</a>
-																</label>
-															</div>
-														</div>
-													</div>
-													<fieldset disabled="disabled"
-														data-bind-value="published"
-													>
-														<div class="form-group">
-															<label class="col-sm-3 control-label">Web address</label>
-															<div class="col-sm-9">
-																<div class="web-address-control input-group">
-																	<span class="input-group-addon">{{ session.urls.webroot }}</span>
-																	<input type="text" class="form-control"
-																		name="name"
-																		value="{{ content.site.name }}"
-																		data-bind-value="site-name|slug"
-																		data-parser="slug"
-																		data-validate="slug"
-																		data-trigger="focus"
-																	/>
-																	<span class="form-control-feedback fa" aria-hidden="true"></span>
-																</div>
-															</div>
-														</div>
-														<div class="form-group mb0">
-															<label class="col-sm-3 control-label">Home canvas</label>
-															<div class="col-sm-9">
-																<div class="checkbox">
-																	<label>
-																		<input type="hidden"
-																			name="home"
-																			value="false"
-																		/>
-																		<input type="checkbox"
-																			name="home"
-																			value="true"
-																			checked="checked"
-																		/>
-																		Use this as my home canvas
-																	</label>
-																</div>
-																<p class="help-block mb0">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
-															</div>
-														</div>
-													</fieldset>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="text-center mt30">
-								<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#create-site-modal">Save canvas</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<input type="hidden"
+				name="name"
+				value="{{ content.site.name }}"
+			/>
+			<input type="hidden"
+				name="label"
+				value="{{ content.site.label }}"
+			/>
+			<input type="hidden"
+				name="root.adapter"
+				value="{{ content.site.root.adapter }}"
+			/>
+			<input type="hidden"
+				name="root.path"
+				value="{{ content.site.root.path }}"
+			/>
 			<div class="modal fade" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
@@ -354,7 +190,6 @@
 					</div>
 				</div>
 			</div>
-			{{/if}}
 			{{/unless}}
 			{{/unless}}
 		</form>

@@ -1,6 +1,6 @@
 <div class="login-form row{{#if stacked}} stacked{{/if}}">
 	{{#if adapters.dropbox}}
-	<form class="col-sm-12" method="POST" action="{{ loginUrl }}/dropbox" target="_top">
+	<form class="{{#if stacked}}col-sm-12{{else}}col-sm-6{{/if}}" method="POST" action="{{ loginUrl }}/dropbox" target="_top">
 		{{#if state}}
 		{{#each state as |value key|}}
 		<input type="hidden" name="_state.{{ key }}" value="{{ value }}">
@@ -14,7 +14,7 @@
 	</form>
 	{{/if}}
 	{{#if adapters.local}}
-	<div class="col-sm-12">
+	<div class="{{#if stacked}}col-sm-12{{else}}col-sm-6{{/if}}">
 		<button type="button" class="btn btn-block widget bg-{{ buttonColor }} mb5" data-toggle="collapse" data-target="#login" aria-expanded="false" aria-controls="login">
 			<i class="widget-icon bg-primary pull-left fa fa-user"></i>
 			<h4>Admin login</h4>
