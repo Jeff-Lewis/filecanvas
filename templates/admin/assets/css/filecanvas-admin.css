@@ -398,6 +398,11 @@ button.bg-bluegrey:hover :not(:disabled) {
 }
 .modal-body > iframe[name="modal"] {
 	width: 100%;
+	-webkit-transition: height 0.1s ease;
+	-moz-transition: height 0.1s ease;
+	-ms-transition: height 0.1s ease;
+	-o-transition: height 0.1s ease;
+	transition: height 0.1s ease;
 }
 .modal-footer {
 	border-top: none;
