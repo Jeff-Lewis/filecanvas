@@ -1174,17 +1174,20 @@ function initModalForms() {
 
 	$('iframe[name="modal"]').load(function() {
 		var iframeElement = this;
-		var documentElement = iframeElement.contentWindow.document;
-		var htmlElement = documentElement.documentElement;
-		var contentHeight = htmlElement.scrollHeight;
-		try {
-			iframeElement.style.height = contentHeight + 'px';
-		} catch (error) {
-			iframeElement.style.height = '';
-			if (!(error instanceof DOMException)) { throw error; }
-		}
+		iframeElement.style.height = '0';
+		setTimeout(function() {
+			setTimeout(function() {
+				try {
+					var documentElement = iframeElement.contentWindow.document;
+					var contentHeight = $(documentElement).height();
+					iframeElement.style.height = contentHeight + 'px';
+				} catch (error) {
+					iframeElement.style.height = '';
+					if (!(error instanceof DOMException)) { throw error; }
+				}
+			});
+		});
 	});
-
 	$('iframe[name="modal"]').closest('.modal')
 		.on('show.bs.modal', function(event) {
 			$activeModalElement = $(this);
