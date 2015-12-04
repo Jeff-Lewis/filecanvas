@@ -587,6 +587,8 @@ function initSelectAllInputs() {
 function initFixedAccordions() {
 	(function($) {
 
+		var TRANSITION_DURATION = ($.fn.collapse.Constructor && $.fn.collapse.Constructor.TRANSITION_DURATION || 350);
+
 		$.fn.fixedAccordion = function() {
 			return this.each(function() {
 				var $element = $(this);
@@ -631,7 +633,7 @@ function initFixedAccordions() {
 						$tabElements.each(function(index, element) {
 							$(element).on('show.bs.collapse', function() {
 								var scrollOffset = scrollOffsets[index];
-								$accordionElement.animate({ 'scrollTop': scrollOffset }, 350);
+								$accordionElement.animate({ 'scrollTop': scrollOffset }, TRANSITION_DURATION);
 							});
 						});
 					}
