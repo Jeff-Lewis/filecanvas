@@ -151,7 +151,7 @@ function checkWhetherUsernameExists(database, username) {
 }
 
 function getExistingUsernames(database, username) {
-	var pattern = new RegExp('^' + escapeRegExp(username) + '\d+$');
+	var pattern = new RegExp('^' + escapeRegExp(username) + '[0-9]+$');
 	var query = { username: pattern };
 	var fields = [
 		'username'
