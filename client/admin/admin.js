@@ -656,7 +656,13 @@ function initAccordionAnchors() {
 
 	$('.collapse[data-collapse-anchor]')
 		.on('show.bs.collapse', function() {
-			var scrollTargetSelector = $(this).attr('data-collapse-anchor') || ('#' + this.id);
+			var $element = $(this);
+			var scrollTargetSelector = $element.attr('data-collapse-anchor') || ('#' + this.id);
+			var isScrollDisabled = this.hasAttribute('data-anchor-scroll-disabled');
+			if (isScrollDisabled) {
+				updateHashSilently(scrollTargetSelector);
+				return;
+			}
 			var $scrollTargetElement = $(scrollTargetSelector);
 			var $activePanelElement = $('.collapse.in[data-collapse-anchor],.collapsing[data-collapse-anchor]');
 			var targetIsHidden = $(scrollTargetSelector).css('display') === 'none';
@@ -683,7 +689,8 @@ function initAccordionAnchors() {
 		})
 		.on('hide.bs.collapse', function() {
 			if (isExternalHashUpdate) { return; }
-			var scrollTargetSelector = $(this).attr('data-collapse-anchor') || ('#' + this.id);
+			var $element = $(this);
+			var scrollTargetSelector = $element.attr('data-collapse-anchor') || ('#' + this.id);
 			var isCurrentHash = (location.hash === scrollTargetSelector);
 			if (isCurrentHash) {
 				updateHashSilently(null);
