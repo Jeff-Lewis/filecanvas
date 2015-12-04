@@ -440,6 +440,13 @@ button.bg-bluegrey:hover :not(:disabled) {
     -o-transform: scale(1);
     transform: scale(1)
 }
+
+.collapse-anchor {
+	display: block;
+	position: relative;
+	top: -60px;
+}
+
 .info-message,
 .login-panel {
 	margin-top: 60px;

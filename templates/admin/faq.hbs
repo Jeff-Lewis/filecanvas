@@ -11,12 +11,13 @@
 					<h4 class="no-margin text-uppercase">Frequently asked questions</h4>
 				</div>
 				{{#each content.questions as |question|}}
+				<a id="{{ question.id }}" class="collapse-anchor"></a>
 				<div class="panel panel-primary mb5">
-					<a class="panel-heading collapsed" data-toggle="collapse" href="#{{ question.id }}" aria-expanded="false" aria-controls="{{ question.id }}" role="tab">
+					<a class="panel-heading collapsed" data-toggle="collapse" href="#{{ question.id }}-answer" aria-expanded="false" aria-controls="{{ question.id }}" role="tab">
 						<div class="pull-left">{{ question.title }}</div>
 						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
 					</a>
-					<div id="{{ question.id }}" class="panel-collapse collapse" role="tabpanel" data-collapse-anchor>
+					<div id="{{ question.id }}-answer" class="panel-collapse collapse" role="tabpanel" data-collapse-anchor="#{{ question.id }}">
 						<div class="panel-body">
 							{{{ question.body }}}
 						</div>
