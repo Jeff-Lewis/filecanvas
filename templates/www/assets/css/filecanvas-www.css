@@ -1,3 +1,6 @@
+body {
+	-moz-osx-font-smoothing: grayscale;
+}
 body.home {
 	padding-top: 40px;
 	background-color: #495469;
