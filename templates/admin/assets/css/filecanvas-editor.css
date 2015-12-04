@@ -98,8 +98,8 @@
 	top: auto;
 	right: auto;
 }
-.editor-sidepanel-controls button,
-.editor-sidepanel-controls button.btn-icon-icon.btn-xs {
+.editor-sidepanel-controls .btn,
+.editor-sidepanel-controls .btn.btn-icon-icon.btn-xs {
 	width: 46px;
 	height: 50px;
 	margin: -15px;
@@ -108,19 +108,19 @@
 	background-color: transparent;
 	color: rgba(255, 255, 255, 0.8);
 }
-.editor-sidepanel-controls button:hover,
-.editor-sidepanel-controls button:focus,
-.editor-sidepanel-controls button.btn-icon-icon.btn-xs:hover,
-.editor-sidepanel-controls button.btn-icon-icon.btn-xs:focus {
+.editor-sidepanel-controls .btn:hover,
+.editor-sidepanel-controls .btn:focus,
+.editor-sidepanel-controls .btn.btn-icon-icon.btn-xs:hover,
+.editor-sidepanel-controls .btn.btn-icon-icon.btn-xs:focus {
 	color: white;
 }
-.editor-sidepanel-controls button .fa,
-.editor-sidepanel-controls button.btn-icon-icon.btn-xs .fa {
+.editor-sidepanel-controls .btn .fa,
+.editor-sidepanel-controls .btn.btn-icon-icon.btn-xs .fa {
 	font-size: 16px;
 	line-height: 16px;
 	padding: 16px 15px 18px;
 }
-.editor-sidepanel-controls button .fa-chevron-down:before {
+.editor-sidepanel-controls .btn .fa-chevron-down:before {
 	display: inline-block;
 	-webkit-transition: -webkit-transform 0.3s ease;
 	-moz-transition: -moz-transform 0.3s ease;
@@ -128,7 +128,7 @@
 	-o-transition: -o-transform 0.3s ease;
 	transition: transform 0.3s ease;
 }
-.editor-sidepanel.collapsed .editor-sidepanel-controls button .fa-chevron-down:before {
+.editor-sidepanel.collapsed .editor-sidepanel-controls .btn .fa-chevron-down:before {
 	-webkit-transform: rotate(-90deg);
 	-moz-transform: rotate(-90deg);
 	-ms-transform: rotate(-90deg);
@@ -307,10 +307,10 @@
 		right: 15px;
 		line-height: 20px;
 	}
-	.editor-sidepanel-controls button .fa-chevron-down:before {
+	.editor-sidepanel-controls .btn .fa-chevron-down:before {
 		content: "\f0c9";
 	}
-	.editor-sidepanel.collapsed .editor-sidepanel-controls button .fa-chevron-down:before {
+	.editor-sidepanel.collapsed .editor-sidepanel-controls .btn .fa-chevron-down:before {
 		-webkit-transform: none;
 		-moz-transform: none;
 		-ms-transform: none;
