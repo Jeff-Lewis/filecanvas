@@ -3,7 +3,7 @@ body.home {
 	background-color: #495469;
 }
 h1 {
-	font-size: 70px;
+	font-size: 60px;
 	font-weight: 200;
 	line-height: 1;
 	text-align: center;
@@ -13,7 +13,7 @@ h1 strong {
 	font-weight: 500;
 }
 h2 {
-	font-size: 20px;
+	font-size: 16px;
 	font-weight: 300;
 	color: #b2b6be;
 	margin-bottom: 45px;
@@ -26,10 +26,10 @@ form {
 		padding-top: 120px;
 	}
 	h1 {
-		font-size: 8em;
+		font-size: 80px;
 	}
 	h2 {
-		font-size: 26px;
+		font-size: 24px;
 	}
 	.signup-field {
 		width: 207px;
