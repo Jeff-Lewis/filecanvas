@@ -74,39 +74,38 @@ if (process.env.LOCAL === 'true') {
 			defaultSitesPath: '/sites/',
 			sitesRoot: process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../data'),
 			upload: {
-				subdomain: 'upload'
+				subdomain: 'upload',
+				url: getSubdomainUrl({
+					subdomain: 'upload',
+					host: config.host,
+					protocol: config.https.port ? 'https' : 'http',
+					port: config.https.port || config.http.port
+				})
 			},
 			download: {
-				subdomain: 'download'
+				subdomain: 'download',
+				url: getSubdomainUrl({
+					subdomain: 'download',
+					host: config.host,
+					protocol: config.https.port ? 'https' : 'http',
+					port: config.https.port || config.http.port
+				})
+
 			},
 			thumbnail: {
 				subdomain: 'thumbnail',
+				url: getSubdomainUrl({
+					subdomain: 'thumbnail',
+					host: config.host,
+					protocol: config.https.port ? 'https' : 'http',
+					port: config.https.port || config.http.port
+				}),
 				format: null,
 				width: 256,
 				height: 256
 			}
 		}
 	};
-
-	config.adapters.local.storage.upload.url = getSubdomainUrl({
-		subdomain: config.adapters.local.storage.upload.subdomain,
-		host: config.host,
-		protocol: config.https.port ? 'https' : 'http',
-		port: config.https.port || config.http.port
-	});
-
-	config.adapters.local.storage.download.url = getSubdomainUrl({
-		subdomain: config.adapters.local.storage.download.subdomain,
-		host: config.host,
-		protocol: config.https.port ? 'https' : 'http',
-		port: config.https.port || config.http.port
-	});
-	config.adapters.local.storage.thumbnail.url = getSubdomainUrl({
-		subdomain: config.adapters.local.storage.thumbnail.subdomain,
-		host: config.host,
-		protocol: config.https.port ? 'https' : 'http',
-		port: config.https.port || config.http.port
-	});
 }
 
 if (process.env.DROPBOX_APP_KEY) {
