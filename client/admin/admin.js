@@ -1228,12 +1228,11 @@ function initModalForms() {
 
 	$('iframe[name="modal"]').load(function() {
 		var iframeElement = this;
-		iframeElement.style.height = '0';
 		setTimeout(function() {
 			setTimeout(function() {
 				try {
 					var documentElement = iframeElement.contentWindow.document;
-					var contentHeight = $(documentElement).height();
+					var contentHeight = documentElement.documentElement.scrollHeight;
 					iframeElement.style.height = contentHeight + 'px';
 				} catch (error) {
 					iframeElement.style.height = '';
