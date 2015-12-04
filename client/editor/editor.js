@@ -370,6 +370,7 @@ function initLivePreview(callback) {
 				if (!isThemeSettingsField) { return; }
 				if (isUpdating) { return; }
 				if ((inputElement.tagName === 'SELECT') && (event.type === 'input')) { return; }
+				if ((event.type === 'input') && getIsMobile()) { return; }
 				if (throttle) {
 					if (throttleTimeout) {
 						clearTimeout(throttleTimeout);
@@ -414,6 +415,10 @@ function initLivePreview(callback) {
 					if (!isThemeSettingsField) { return; }
 					event.preventDefault();
 				}
+			}
+
+			function getIsMobile() {
+				return (document.documentElement.clientWidth < 768);
 			}
 
 			function onUndoButtonClicked(event) {
