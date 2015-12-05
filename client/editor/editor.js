@@ -123,6 +123,10 @@ function initLivePreview(callback) {
 	var engine = engines[engineName];
 	var throttle = engine.throttle;
 	initPreview(currentSiteModel, null, previewUrl, engine, templateId, function(error, rerender) {
+		if (error) {
+			showErrorIndicator($formElement);
+			return;
+		}
 		onPreviewLoaded(error, rerender);
 		hideLoadingIndicator($previewElement);
 		hideLoadingIndicator($formElement);
@@ -161,6 +165,10 @@ function initLivePreview(callback) {
 
 	function hideLoadingIndicator($element) {
 		$element.removeClass('loading');
+	}
+
+	function showErrorIndicator($element) {
+		$element.addClass('error');
 	}
 
 	function disableControls($element) {
@@ -208,7 +216,14 @@ function initLivePreview(callback) {
 				var previewIframeElement = $previewElement[0];
 				var iframeDocumentElement = getIframeDomElement(previewIframeElement);
 				removeAllChildren(iframeDocumentElement);
-				templateEngine.render(themeId, templateId, customizedSiteModel, previewIframeElement, callback);
+				try {
+					templateEngine.render(themeId, templateId, customizedSiteModel, previewIframeElement, callback);
+				} catch(error) {
+					callback(error);
+				}
+			})
+			.fail(function(error) {
+				callback(error);
 			});
 
 
@@ -247,7 +262,12 @@ function initLivePreview(callback) {
 			showLoadingIndicator($formElement);
 			showLoadingIndicator($themeOptionsPanelElement);
 			showLoadingIndicator($previewElement);
-			updateTheme(currentSiteModel, themeOverrides, function(siteModel) {
+			updateTheme(currentSiteModel, themeOverrides, function(error, siteModel) {
+				if (error) {
+					showErrorIndicator($formElement);
+					deferred.reject(error);
+					return;
+				}
 				currentThemeOverrides = siteModel.metadata.theme.config;
 				if (isUserInitiatedAction) {
 					formValues.theme.config = siteModel.metadata.theme.config;
@@ -308,15 +328,21 @@ function initLivePreview(callback) {
 				var themeEngine = theme.templates.index.engine;
 				var engine = engines[themeEngine];
 				redrawThemeOptions(theme, siteModel, $themeOptionsPanelElement);
-				loadThemeTemplate(themeTemplateUrl)
+				return loadThemeTemplate(themeTemplateUrl)
 					.then(function() {
 						var themeOverrides = { id: themeId };
 						initPreview(currentSiteModel, themeOverrides, previewUrl, engine, templateId, function(error, rerender) {
+							if (error) {
+								return callback(error);
+							}
 							onPreviewLoaded(error, rerender);
 							throttle = engine.throttle;
-							callback(siteModel);
+							callback(null, siteModel);
 						});
 					});
+			})
+			.fail(function(error) {
+				callback(error);
 			});
 
 			function redrawThemeOptions(theme, siteModel, $parentElement) {

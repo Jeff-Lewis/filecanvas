@@ -176,11 +176,13 @@
 	z-index: 1;
 }
 
-.editor-loading {
+.editor-loading,
+.editor-error {
 	display: none;
 	background-color: #f0f0f0;
 }
-.editor.loading .editor-loading {
+.editor.loading .editor-loading,
+.editor.error .editor-error {
 	display: block;
 	position: absolute;
 	width: 100%;
@@ -226,7 +228,8 @@
 	height: 100%;
 	background-color: white;
 }
-.editor-preview.loading {
+.editor-preview.loading,
+.editor-preview.error {
 	display: none;
 }
 
@@ -336,7 +339,9 @@
 	}
 
 	.editor.loading .editor-sidepanel,
-	.editor.loading .editor-main {
+	.editor.loading .editor-main,
+	.editor.error .editor-sidepanel,
+	.editor.error .editor-main {
 		visibility: hidden;
 	}
 }
