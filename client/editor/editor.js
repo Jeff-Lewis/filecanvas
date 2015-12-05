@@ -93,6 +93,7 @@ function initLivePreview(callback) {
 	var $previewElement = $('[data-editor-preview]');
 	var $previewDataElement = $('[data-editor-preview-data]');
 	var $themeOptionsPanelElement = $('#theme-options');
+	var $controlsElement = $('[data-editor-controls]');
 	var $undoButtonElement = $('[data-editor-undo]');
 	var $redoButtonElement = $('[data-editor-redo]');
 	var $resetButtonElement = $('input[type="reset"],button[type="reset"]');
@@ -118,12 +119,14 @@ function initLivePreview(callback) {
 
 	showLoadingIndicator($formElement);
 	showLoadingIndicator($previewElement);
+	disableControls($controlsElement);
 	var engine = engines[engineName];
 	var throttle = engine.throttle;
 	initPreview(currentSiteModel, null, previewUrl, engine, templateId, function(error, rerender) {
 		onPreviewLoaded(error, rerender);
 		hideLoadingIndicator($previewElement);
 		hideLoadingIndicator($formElement);
+		enableControls($controlsElement);
 		callback(error);
 	});
 	initLiveUpdates(function(formValues, options) {
@@ -158,6 +161,14 @@ function initLivePreview(callback) {
 
 	function hideLoadingIndicator($element) {
 		$element.removeClass('loading');
+	}
+
+	function disableControls($element) {
+		$element.prop('disabled', true);
+	}
+
+	function enableControls($element) {
+		$element.prop('disabled', false);
 	}
 
 	function parseAdapterConfig($adapterConfigElement) {
@@ -232,6 +243,7 @@ function initLivePreview(callback) {
 			}
 			$themeOptionsPanelElement.empty();
 			currentThemeOverrides = null;
+			disableControls($controlsElement);
 			showLoadingIndicator($formElement);
 			showLoadingIndicator($themeOptionsPanelElement);
 			showLoadingIndicator($previewElement);
@@ -249,6 +261,7 @@ function initLivePreview(callback) {
 				hideLoadingIndicator($themeOptionsPanelElement);
 				hideLoadingIndicator($previewElement);
 				hideLoadingIndicator($formElement);
+				enableControls($controlsElement);
 				deferred.resolve();
 			});
 		} else {
