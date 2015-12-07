@@ -1231,6 +1231,10 @@ button.panel-heading {
 	font-size: 300%;
 	color: #1081DE;
 }
+.widget-icon.fa-google {
+	background-color: #4184f3;
+	color: white;
+}
 
 .widget[data-toggle="collapse"][aria-expanded="true"] {
 	display: none;

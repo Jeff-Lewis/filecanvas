@@ -13,6 +13,20 @@
 		</button>
 	</form>
 	{{/if}}
+	{{#if adapters.google}}
+	<form class="{{#if stacked}}col-sm-12{{else}}col-sm-6{{/if}}" method="POST" action="{{ loginUrl }}/google" target="_top">
+		{{#if state}}
+		{{#each state as |value key|}}
+		<input type="hidden" name="_state.{{ key }}" value="{{ value }}"/>
+		{{/each}}
+		{{/if}}
+		<input type="hidden" name="redirect" value="{{ redirect }}">
+		<button type="submit" class="btn btn-block widget bg-{{ buttonColor }} mb5" disabled="disabled">
+			<i class="widget-icon pull-left fa fa-google"></i>
+			<h4>Sign in with Google</h4>
+		</button>
+	</form>
+	{{/if}}
 	{{#if adapters.local}}
 	<div class="{{#if stacked}}col-sm-12{{else}}col-sm-6{{/if}}">
 		<button type="button" class="btn btn-block widget bg-{{ buttonColor }} mb5" data-toggle="collapse" data-target="#login" aria-expanded="false" aria-controls="login">
