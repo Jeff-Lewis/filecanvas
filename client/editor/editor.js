@@ -383,8 +383,8 @@ function initLivePreview(callback) {
 			preventEnterKeyFormSubmission($formElement);
 			$undoButtonElement.on('click', onUndoButtonClicked);
 			$redoButtonElement.on('click', onRedoButtonClicked);
-			Mousetrap.bind('mod+z', onCtrlZPressed);
-			Mousetrap.bind('mod+shift+z', onCtrlShiftZPressed);
+			Mousetrap.bind('mod+z', onUndoPressed);
+			Mousetrap.bind(['mod+shift+z', 'ctrl+y'], onRedoPressed);
 			updateUndoRedoButtonState();
 
 
@@ -468,7 +468,7 @@ function initLivePreview(callback) {
 				redo();
 			}
 
-			function onCtrlZPressed(event) {
+			function onUndoPressed(event) {
 				event.stopImmediatePropagation();
 				event.preventDefault();
 				var isUndoDisabled = !undoHistory.getHasPrevious();
@@ -476,7 +476,7 @@ function initLivePreview(callback) {
 				undo();
 			}
 
-			function onCtrlShiftZPressed(event) {
+			function onRedoPressed(event) {
 				event.preventDefault();
 				event.stopImmediatePropagation();
 				var isRedoDisabled = !undoHistory.getHasNext();
