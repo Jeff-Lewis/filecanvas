@@ -134,6 +134,16 @@ if (process.env.DROPBOX_APP_KEY) {
 	};
 }
 
+if (process.env.GOOGLE === 'true') {
+	config.adapters.google = {
+		login: {
+			admin: {},
+			demo: {}
+		},
+		storage: {}
+	};
+}
+
 if (process.env.LOCAL === 'true') {
 	config.uploaders.admin = {
 		adapter: 'local',

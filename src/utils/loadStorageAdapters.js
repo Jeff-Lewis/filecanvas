@@ -2,6 +2,7 @@
 
 var DropboxStorageAdapter = require('../adapters/DropboxAdapter').StorageAdapter;
 var LocalStorageAdapter = require('../adapters/LocalAdapter').StorageAdapter;
+var GoogleStorageAdapter = require('../adapters/GoogleAdapter').StorageAdapter;
 
 module.exports = function(adaptersConfig, database) {
 	return Object.keys(adaptersConfig).reduce(function(namedAdapters, key) {
@@ -18,6 +19,8 @@ function loadStorageAdapter(adapterName, adapterConfig, database) {
 	switch (adapterName) {
 		case 'dropbox':
 			return new DropboxStorageAdapter(database, adapterConfig);
+		case 'google':
+			return new GoogleStorageAdapter(database, adapterConfig);
 		case 'local':
 			return new LocalStorageAdapter(database, adapterConfig);
 		default:

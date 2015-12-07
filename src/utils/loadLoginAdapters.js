@@ -1,6 +1,7 @@
 'use strict';
 
 var DropboxLoginAdapter = require('../adapters/DropboxAdapter').LoginAdapter;
+var GoogleLoginAdapter = require('../adapters/GoogleAdapter').LoginAdapter;
 var LocalLoginAdapter = require('../adapters/LocalAdapter').LoginAdapter;
 
 module.exports = function(loginProfile, adaptersConfig, database) {
@@ -18,6 +19,8 @@ function loadLoginAdapter(adapterName, adapterConfig, database) {
 	switch (adapterName) {
 		case 'dropbox':
 			return new DropboxLoginAdapter(database, adapterConfig);
+		case 'google':
+			return new GoogleLoginAdapter(database, adapterConfig);
 		case 'local':
 			return new LocalLoginAdapter(database, adapterConfig);
 		default:
