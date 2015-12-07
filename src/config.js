@@ -19,7 +19,7 @@ config.https.cert = process.env.HTTPS_CERT ? fs.readFileSync(process.env.HTTPS_C
 config.cookieSecret = process.env.COOKIE_SECRET || null;
 
 config.db = {};
-config.db.uri = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URI || null;
+config.db.url = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URL || null;
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 

@@ -10,7 +10,7 @@ var serve = require('./serve');
 var captureErrors = require('./utils/captureErrors');
 
 var dataService = new DataService();
-dataService.connect(config.db.uri)
+dataService.connect(config.db.url)
 	.then(function(database) {
 		process.stdout.write('Database connected' + '\n');
 		return database;
