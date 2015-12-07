@@ -40,7 +40,7 @@
     "github-markdown-css": "^2.1.0",
     "handlebars": "^4.0.4",
     "html-pdf": "^1.4.0",
-    "htmlbars": "^0.14.6",
+    "htmlbars": "^0.14.7",
     "is-path-inside": "^1.0.0",
     "is-url": "^1.2.1",
     "istextorbinary": "^1.0.2",
