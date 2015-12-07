@@ -7,6 +7,8 @@ cd $(dirname $0)
 
 (mongod --dbpath db/data/db) &
 
+(redis-server /usr/local/etc/redis.conf) &
+
 (cd client/admin; webpack -d --watch) &
 (cd client/api; webpack -d --watch) &
 (cd client/editor; webpack -d --watch) &

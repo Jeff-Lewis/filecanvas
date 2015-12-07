@@ -106,6 +106,8 @@ module.exports = function(database, config) {
 		'try': demoApp(database, {
 			host: config.host,
 			cookieSecret: config.session.cookieSecret,
+			sessionStore: config.session.store,
+			sessionDuration: config.session.duration,
 			templatesPath: demoTemplatesPath,
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
@@ -122,6 +124,8 @@ module.exports = function(database, config) {
 		'my': adminApp(database, {
 			host: config.host,
 			cookieSecret: config.session.cookieSecret,
+			sessionStore: config.session.store,
+			sessionDuration: config.session.duration,
 			templatesPath: adminTemplatesPath,
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
@@ -139,6 +143,8 @@ module.exports = function(database, config) {
 		'sites': sitesApp(database, {
 			host: config.host,
 			cookieSecret: config.session.cookieSecret,
+			sessionStore: config.session.store,
+			sessionDuration: config.session.duration,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
 			themeAssetsUrl: themeAssetsUrl,

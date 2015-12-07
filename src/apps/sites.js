@@ -22,6 +22,8 @@ module.exports = function(database, options) {
 	options = options || {};
 	var host = options.host;
 	var cookieSecret = options.cookieSecret;
+	var sessionStore = options.sessionStore;
+	var sessionDuration = options.sessionDuration;
 	var themesPath = options.themesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
@@ -35,6 +37,8 @@ module.exports = function(database, options) {
 	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
+	if (!isPreview && !sessionStore) { throw new Error('Missing session store URL'); }
+	if (!isPreview && !sessionDuration) { throw new Error('Missing session duration'); }
 
 	var storageAdapters = loadStorageAdapters(adaptersConfig, database);
 
@@ -52,7 +56,9 @@ module.exports = function(database, options) {
 
 	if (!isPreview) {
 		initAuth(app, passport, database, {
-			cookieSecret: cookieSecret
+			cookieSecret: cookieSecret,
+			sessionStore: sessionStore,
+			sessionDuration: sessionDuration
 		});
 	}
 	initRoutes(app, passport, database, {
@@ -70,8 +76,12 @@ module.exports = function(database, options) {
 	function initAuth(app, passport, database, options) {
 		options = options || {};
 		var cookieSecret = options.cookieSecret;
+		var sessionStore = options.sessionStore;
+		var sessionDuration = options.sessionDuration;
 		app.use(session({
-			cookieSecret: cookieSecret
+			cookieSecret: cookieSecret,
+			store: sessionStore,
+			ttl: sessionDuration
 		}));
 		app.use(passport.initialize());
 		app.use(passport.session());

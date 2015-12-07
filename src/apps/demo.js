@@ -34,6 +34,8 @@ var HttpError = require('../errors/HttpError');
 module.exports = function(database, options) {
 	var host = options.host;
 	var cookieSecret = options.cookieSecret;
+	var sessionStore = options.sessionStore;
+	var sessionDuration = options.sessionDuration;
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
@@ -50,6 +52,8 @@ module.exports = function(database, options) {
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing host name'); }
 	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
+	if (!sessionStore) { throw new Error('Missing session store URL'); }
+	if (!sessionDuration) { throw new Error('Missing session duration'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
@@ -86,7 +90,9 @@ module.exports = function(database, options) {
 
 	var app = express();
 	app.use(session({
-		cookieSecret: cookieSecret
+		cookieSecret: cookieSecret,
+		store: sessionStore,
+		ttl: sessionDuration
 	}));
 	app.use(forms());
 	app.use(sessionState());
