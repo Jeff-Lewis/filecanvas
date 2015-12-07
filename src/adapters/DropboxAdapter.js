@@ -7,7 +7,7 @@ var escapeRegExp = require('escape-regexp');
 var objectAssign = require('object-assign');
 var slug = require('slug');
 var mapSeries = require('promise-map-series');
-var Dropbox = require('dropbox');
+var Dropbox = require('../../lib/dropbox/dist/dropbox');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
 var LoginAdapter = require('./LoginAdapter');
