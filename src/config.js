@@ -16,7 +16,8 @@ config.https.port = process.env.HTTPS_PORT || null;
 config.https.key = process.env.HTTPS_KEY ? fs.readFileSync(process.env.HTTPS_KEY) : null;
 config.https.cert = process.env.HTTPS_CERT ? fs.readFileSync(process.env.HTTPS_CERT) : null;
 
-config.cookieSecret = process.env.COOKIE_SECRET || null;
+config.session = {};
+config.session.cookieSecret = process.env.COOKIE_SECRET || null;
 
 config.db = {};
 config.db.url = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URL || null;

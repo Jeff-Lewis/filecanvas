@@ -51,7 +51,9 @@ module.exports = function(database, options) {
 	var passport = new Passport();
 
 	if (!isPreview) {
-		initAuth(app, passport, database, cookieSecret);
+		initAuth(app, passport, database, {
+			cookieSecret: cookieSecret
+		});
 	}
 	initRoutes(app, passport, database, {
 		themeAssetsUrl: themeAssetsUrl,
@@ -65,7 +67,9 @@ module.exports = function(database, options) {
 	return app;
 
 
-	function initAuth(app, passport, database, cookieSecret) {
+	function initAuth(app, passport, database, options) {
+		options = options || {};
+		var cookieSecret = options.cookieSecret;
 		app.use(session({
 			cookieSecret: cookieSecret
 		}));
