@@ -4,3 +4,8 @@
 /db/data/
 /db/backup/
 /data
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

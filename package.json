@@ -5,8 +5,8 @@
   "license": "Copyright (c) Tim Kendrick Ltd",
   "main": "server.js",
   "scripts": {
-    "postinstall": "./install.sh",
-    "start": "foreman start"
+    "prestart": "./install.sh",
+    "start": "node server.js"
   },
   "engines": {
     "node": "0.12.x"
