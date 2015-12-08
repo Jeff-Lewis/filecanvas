@@ -6,6 +6,7 @@
   "main": "server.js",
   "scripts": {
     "prepublish": "./install.sh",
+    "prestart": "./install.sh",
     "start": "node server.js"
   },
   "engines": {
