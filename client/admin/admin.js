@@ -932,9 +932,10 @@ function initUploadControls() {
 									requestUploadMethod: requestUploadMethod
 								})
 									.progress(function(progress) {
-										var percentageLoaded = (progress.loaded / progress.total);
+										var percentageAlreadyLoaded = 100 * resizeImageProgressRatio;
+										var percentageUploaded = 100 * uploadProgressRatio * (progress.loaded / progress.total);
 										deferred.notify({
-											loaded: 100 * resizeImageProgressRatio + percentageLoaded * uploadProgressRatio,
+											loaded: percentageAlreadyLoaded + percentageUploaded,
 											total: 100
 										});
 									})
@@ -1018,9 +1019,10 @@ function initUploadControls() {
 								var uploadedUrl = response.location;
 								return abortable(uploadFile(file, uploadOptions))
 									.progress(function(progress) {
-										var percentageLoaded = 100 * (progress.bytesLoaded / progress.bytesTotal);
+										var percentageAlreadyLoaded = 100 * retrieveUploadUrlProgressRatio;
+										var percentageUploaded = 100 * uploadProgressRatio * (progress.bytesLoaded / progress.bytesTotal);
 										deferred.notify({
-											loaded: 100 * retrieveUploadUrlProgressRatio + percentageLoaded * uploadProgressRatio,
+											loaded: percentageAlreadyLoaded + percentageUploaded,
 											total: 100
 										});
 									})
