@@ -203,13 +203,13 @@ module.exports = function(database, options) {
 		app.get('/themes', retrieveThemesRoute);
 		app.get('/themes/:theme', retrieveThemeRoute);
 		app.get('/editor', retrieveThemeEditorRoute);
+		app.post('/editor/upload/:filename', createThemeEditorUploadRoute);
 
 		var ensureLogin = ensureAuth('/editor', { allowPending: true });
 		var ensureUser = composeMiddleware(ensureLogin, ensureAuth(retrieveCreateUserRoute, { allowPending: false }));
 
 		app.get('/login', retrieveThemeEditorLoginRoute);
 		app.post('/editor/add-files', ensureLogin, createSiteFolderRoute, moveRequestBodyIntoQuery, retrieveThemeEditorRoute);
-		app.post('/editor/upload/:filename', ensureLogin, createThemeEditorUploadRoute);
 		app.get('/editor/create-user', ensureLogin, retrieveCreateUserRoute);
 		app.post('/editor/create-user', ensureLogin, createUserRoute);
 		app.post('/editor/canvases', ensureUser, createSiteRoute);
