@@ -6,6 +6,8 @@ var isTextOrBinary = require('istextorbinary');
 var template = require('es6-template-strings');
 var pdf = require('html-pdf');
 
+var parseShortcutUrl = require('../utils/parseShortcutUrl');
+
 var HttpError = require('../errors/HttpError');
 
 var UserService = require('../services/UserService');
@@ -274,6 +276,35 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 					var adapter = adapters[siteAdapter];
 					var adapterOptions = userAdapters[siteAdapter];
 					return adapter.retrieveThumbnailLink(fullPath, adapterOptions);
+				});
+		});
+};
+
+SiteService.prototype.retrieveSiteShortcutLink = function(username, siteName, filePath) {
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
+	var database = this.database;
+	var adapters = this.adapters;
+	var fileExtension = path.extname(filePath);
+	var isShortcutFile = (['.webloc', '.url', '.desktop'].indexOf(fileExtension) !== -1);
+	if (!isShortcutFile) { return Promise.reject(new Error('Invalid shortcut file: ' + filePath)); }
+	return retrieveSiteRoot(database, username, siteName)
+		.then(function(siteRoot) {
+			if (!siteRoot) { throw new HttpError(404); }
+			var userService = new UserService(database);
+			return userService.retrieveUserAdapters(username)
+				.then(function(userAdapters) {
+					var siteAdapter = siteRoot.adapter;
+					var sitePath = siteRoot.path;
+					var fullPath = sitePath + '/' + filePath;
+					var adapter = adapters[siteAdapter];
+					var adapterOptions = userAdapters[siteAdapter];
+					return adapter.readFile(fullPath, adapterOptions);
+				})
+				.then(function(shortcutData) {
+					var shortcutType = fileExtension.substr('.'.length);
+					return parseShortcutUrl(shortcutData, { type: shortcutType });
 				});
 		});
 };

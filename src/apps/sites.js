@@ -339,6 +339,7 @@ module.exports = function(database, options) {
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
 			app.get('/:user/:site/thumbnail/*', ensureAuth, thumbnailRoute);
+			app.get('/:user/:site/redirect/*', ensureAuth, shortcutRoute);
 
 
 			function ensureAuth(req, res, next) {
@@ -542,6 +543,24 @@ module.exports = function(database, options) {
 						siteService.retrieveSiteThumbnailLink(username, siteName, filePath)
 							.then(function(thumbnailUrl) {
 								res.redirect(thumbnailUrl);
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
+			}
+
+			function shortcutRoute(req, res, next) {
+				var username = req.params.user;
+				var siteName = req.params.site;
+				var filePath = req.params[0];
+
+				new Promise(function(resolve, reject) {
+					resolve(
+						siteService.retrieveSiteShortcutLink(username, siteName, filePath)
+							.then(function(shortcutUrl) {
+								res.redirect(shortcutUrl);
 							})
 					);
 				})

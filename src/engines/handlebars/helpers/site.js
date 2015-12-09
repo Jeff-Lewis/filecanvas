@@ -21,6 +21,10 @@ module.exports['thumbnail'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
 	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;
 };
+module.exports['shortcut'] = function(rootModel, file) {
+	if (!file || !file.path) { return null; }
+	return rootModel.metadata.siteRoot + 'redirect' + file.path;
+};
 module.exports['extension'] = function(file, options) {
 	if (!file || !file.path) { return null; }
 	return path.extname(file.path).replace(/^\./, '');
