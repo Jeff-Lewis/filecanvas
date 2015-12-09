@@ -1,5 +1,5 @@
 <div class="post item span4 isotope-item filter-{{ slug (basename subfolder.path) }}" data-file-modified="{{ timestamp file.modified }}">
-	<a href="{{ download @root file }}" target="_blank" class="project-wrp">
+	<a href="{{ if (or (eq (extension file) 'webloc') (eq (extension file) 'url') (eq (extension file) 'desktop')) (shortcut @root file) (download @root file) }}" target="_blank" class="project-wrp">
 		<div class="profile-photo{{ if file.thumbnail ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
 			{{#if file.thumbnail}}
 			<div class="profile-thumbnail">
