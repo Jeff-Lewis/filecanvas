@@ -64,7 +64,14 @@ function load(options, isUpload) {
 		if (hasError) {
 			return onTransferFailed(event);
 		}
-		var response = (xhr.responseText ? JSON.parse(xhr.responseText) : null);
+		var response;
+		if (xhr.responseText) {
+			try {
+				response = JSON.parse(xhr.responseText);
+			} catch (error) {
+				response = null;
+			}
+		}
 		deferred.resolve(response);
 	}
 }
