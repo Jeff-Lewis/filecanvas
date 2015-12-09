@@ -13,8 +13,8 @@ $(document).ready(function(){
 			'html',
 			'txt'
 		];
-		$('.post a.project-wrp').click(function(event) {
-			var $element = $(this);
+		$(document).on('click', '.post a.project-wrp', function(event) {
+			var $element = $(event.currentTarget);
 			var downloadUrl = $element.attr('href');
 			var extension = downloadUrl.split('.').pop();
 			var canShowImagePreview = IMAGE_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
