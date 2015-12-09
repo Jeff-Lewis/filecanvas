@@ -261,6 +261,17 @@ DropboxStorageAdapter.prototype.loadFolderContents = function(folderPath, option
 		});
 };
 
+DropboxStorageAdapter.prototype.readFile = function(filePath, options) {
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
+	var uid = options.uid;
+	var accessToken = options.token;
+	return new DropboxConnector().connect(appKey, appSecret, accessToken, uid)
+		.then(function(dropboxClient) {
+			return dropboxClient.readFile(filePath);
+		});
+};
+
 DropboxStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
@@ -512,6 +523,21 @@ DropboxClient.prototype.createFolder = function(folderPath) {
 			client.mkdir(folderPath, function(error, stat) {
 				if (error) { return reject(error); }
 				resolve(stat);
+			});
+		});
+	}
+};
+
+DropboxClient.prototype.readFile = function(path, options) {
+	var client = this.client;
+	return readFile(client, path, options);
+
+
+	function readFile(client, path, options) {
+		return new Promise(function(resolve, reject) {
+			client.readFile(path, options, function(error, data) {
+				if (error) { return reject(error); }
+				resolve(data);
 			});
 		});
 	}

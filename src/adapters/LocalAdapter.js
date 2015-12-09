@@ -268,6 +268,17 @@ LocalStorageAdapter.prototype.loadFolderContents = function(folderPath, options)
 		});
 };
 
+LocalStorageAdapter.prototype.readFile = function(filePath, options) {
+	var sitesRoot = this.sitesRoot;
+	var fullPath = path.join(sitesRoot, filePath);
+	return new Promise(function(resolve, reject) {
+		fs.readFile(fullPath, { encoding: 'utf8' }, function(error, data) {
+			if (error) { return reject(error); }
+			resolve(data);
+		});
+	});
+};
+
 LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 	var sitesRoot = this.sitesRoot;
 	var fullPath = path.resolve(sitesRoot, filePath);
