@@ -719,10 +719,10 @@ body.full-page .title-bar {
 .title-bar-controls .btn,
 .title-bar-controls .title-bar-close {
 	float: left;
-	margin-left: 5px;
+	margin-right: 5px;
 }
-.title-bar-controls .btn:first-child {
-	margin-left: 0;
+.title-bar-controls .btn:last-child {
+	margin-right: 0;
 }
 .title-bar .title-bar-close {
 	float: right;
