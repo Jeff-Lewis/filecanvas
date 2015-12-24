@@ -20,23 +20,30 @@ $(document).ready(function(){
 			var canShowImagePreview = IMAGE_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
 			if (canShowImagePreview) {
 				event.preventDefault();
-				$.fancybox.open(downloadUrl, {
-					type: 'image',
-					afterLoad: onLightboxOpened
-				});
+				showImagePreview(downloadUrl);
 			}
 			var canShowDocumentPreview = DOCUMENT_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
 			if (canShowDocumentPreview) {
 				event.preventDefault();
-				$.fancybox.open(downloadUrl, {
-					type: 'iframe',
-					afterLoad: onLightboxOpened
-				});
+				showDocumentPreview(downloadUrl);
 			}
+		});
+	}
 
+	function showImagePreview(url) {
+		showPreview(url, { type: 'image' });
+	}
 
-			function onLightboxOpened() {
-				$('.fancybox-inner').wrap('<a class="fancybox-download" href="' + downloadUrl + '" download onclick="$.fancybox.close()"></a>');
+	function showDocumentPreview(url) {
+		showPreview(url, { type: 'iframe' });
+	}
+
+	function showPreview(url, options) {
+		var type = options.type;
+		$.fancybox.open(url, {
+			type: type,
+			afterLoad: function() {
+				$('.fancybox-inner').wrap('<a class="fancybox-download" href="' + url + '" download onclick="$.fancybox.close()"></a>');
 			}
 		});
 	}
