@@ -22,14 +22,13 @@ module.exports = function(root, options) {
 	if (!cachePath) { throw new Error('Missing thumbnail cache path'); }
 
 	var staticMiddleware = express.static(path.resolve(cachePath));
-	var cachedPaths = {};
 	return function(req, res, next) {
 		var imagePath = stripLeadingSlash(decodeURIComponent(req.url));
 		var isOutsideRoot = !isPathInside(path.resolve(root, imagePath), root);
 		if (isOutsideRoot) {
 			return next(new HttpError(404));
 		}
-		processThumbnail(imagePath, cachedPaths)
+		processThumbnail(imagePath)
 			.then(function(outputImagePath) {
 				req.url = outputImagePath;
 				staticMiddleware(req, res, next);
@@ -44,36 +43,26 @@ module.exports = function(root, options) {
 		return string.substr('/'.length);
 	}
 
-	function processThumbnail(imagePath, cachedPaths) {
-		var isAlreadyProcessed = imagePath in cachedPaths;
+	function processThumbnail(imagePath) {
 		var outputImagePath = imagePath;
 		if (format) {
 			var extension = '.' + format;
 			outputImagePath = path.join(path.dirname(imagePath), path.basename(imagePath, path.extname(imagePath)) + extension);
 		}
-		if (isAlreadyProcessed) {
-			if (cachedPaths[imagePath] === false) {
-				return Promise.reject(new HttpError(404));
-			}
-			return Promise.resolve(outputImagePath);
-		}
 		var source = path.resolve(root, imagePath);
 		var destination = path.resolve(cachePath, outputImagePath);
-		return createThumbnail(source, {
-			width: width,
-			height: height,
-			destination: destination
-		})
-		.catch(function(error) {
-			if (error.status === 404) {
-				cachedPaths[imagePath] = false;
-			}
-			throw error;
-		})
-		.then(function() {
-			cachedPaths[imagePath] = true;
-			return outputImagePath;
-		});
+		return checkWhetherFileExists(destination)
+			.then(function(fileExists) {
+				if (fileExists) { return outputImagePath; }
+				return createThumbnail(source, {
+					width: width,
+					height: height,
+					destination: destination
+				});
+			})
+			.then(function() {
+				return outputImagePath;
+			});
 	}
 
 	function createThumbnail(imagePath, options) {
@@ -81,7 +70,7 @@ module.exports = function(root, options) {
 		var width = options.width;
 		var height = options.height;
 		var destination = options.destination;
-		return fileExists(imagePath)
+		return checkWhetherFileExists(imagePath)
 			.then(function(exists) {
 				if (!exists) { throw new HttpError(404); }
 			})
@@ -92,18 +81,18 @@ module.exports = function(root, options) {
 					height: height
 				});
 			});
+	}
 
-		function fileExists(filePath) {
-			return new Promise(function(resolve, reject) {
-				fs.stat(filePath, function(error, stat) {
-					if (error && (error.code === 'ENOENT')) {
-						return resolve(false);
-					}
-					if (error) { return reject(error); }
-					if (!stat.isFile()) { return resolve(false); }
-					resolve(true);
-				});
+	function checkWhetherFileExists(filePath) {
+		return new Promise(function(resolve, reject) {
+			fs.stat(filePath, function(error, stat) {
+				if (error && (error.code === 'ENOENT')) {
+					return resolve(false);
+				}
+				if (error) { return reject(error); }
+				if (!stat.isFile()) { return resolve(false); }
+				resolve(true);
 			});
-		}
+		});
 	}
 };
