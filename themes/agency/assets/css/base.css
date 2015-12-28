@@ -5,6 +5,7 @@ Import Basic Files
 @import url("https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.css");        	/* Fancybox */
 @import url("normalize.css");				/* CSS Resets */
 @import url("layout.css");					/* Main Styles */
+@import url("shortcodes.css");				/* Shortcodes */
 @import url("grid.css");					/* Twitter Bootstrap Grid */
 @import url("isotope.css");        			/* Isotope for Portfolio */
 @import url("mediaqueries.css");    		/* Media Queries */
