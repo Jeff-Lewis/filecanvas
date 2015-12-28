@@ -170,6 +170,8 @@ $(document).ready(function(){
 							return createImageContentElement(options);
 						case 'iframe':
 							return createIframeContentElement(options);
+						case 'pdf':
+							return createPdfContentElement(options);
 						default:
 							throw new Error('Invalid overlay content type: ' + contentType);
 					}
@@ -190,6 +192,23 @@ $(document).ready(function(){
 						iframeElement.frameBorder = 0;
 						iframeElement.src = iframeUrl;
 						return iframeElement;
+					}
+
+					function createPdfContentElement(options) {
+						var pdfUrl = options.url;
+						var objectElement = document.createElement('object');
+						objectElement.className = 'overlay-content-pdf';
+						objectElement.type = 'application/pdf';
+						objectElement.width = '100%';
+						objectElement.height = '100%';
+						objectElement.data = pdfUrl;
+						var embedElement = document.createElement('embed');
+						embedElement.type = 'application/pdf';
+						embedElement.width = '100%';
+						embedElement.height = '100%';
+						embedElement.src = pdfUrl;
+						objectElement.appendChild(embedElement);
+						return objectElement;
 					}
 				}
 			};
@@ -236,6 +255,9 @@ $(document).ready(function(){
 			'html',
 			'txt'
 		];
+		var PDF_PREVIEW_EXTENSIONS = [
+			'pdf'
+		];
 		$(document).on('click', '.post a.project-wrp', function(event) {
 			var $element = $(event.currentTarget);
 			var downloadUrl = $element.attr('href');
@@ -257,6 +279,16 @@ $(document).ready(function(){
 				event.preventDefault();
 				showOverlay({
 					type: 'iframe',
+					url: downloadUrl,
+					title: title,
+					description: description
+				});
+			}
+			var canShowPdfPreview = PDF_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
+			if (canShowPdfPreview) {
+				event.preventDefault();
+				showOverlay({
+					type: 'pdf',
 					url: downloadUrl,
 					title: title,
 					description: description
