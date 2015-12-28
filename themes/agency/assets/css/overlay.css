@@ -1,0 +1,238 @@
+.overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+.overlay.is-active {
+	display: block;
+}
+
+.overlay-sidepanel {
+	position: relative;
+	background-color: #111111;
+	color: #CCCCCC;
+	font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+	font-size: 14px;
+	line-height: 1.2;
+	text-align: left;
+	white-space: normal;
+	-webkit-box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+	-ms-box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+	-o-box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+@media screen and (min-width: 768px) {
+}
+
+.overlay-sidepanel h1,
+.overlay-sidepanel h2,
+.overlay-sidepanel h3,
+.overlay-sidepanel h4,
+.overlay-sidepanel h5,
+.overlay-sidepanel h6,
+.overlay-sidepanel p {
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	text-align: inherit;
+	line-height: inherit;
+	letter-spacing: inherit;
+	text-transform: inherit;
+}
+
+.overlay-close,
+.overlay-download {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	appearance: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	cursor: pointer;
+}
+
+.overlay-sidepanel h1 {
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.overlay-close {
+	float: right;
+	position: relative;
+	padding: 16px;
+	width: 48px;
+	height: 48px;
+	color: white;
+	background-color: transparent;
+	opacity: 0.8;
+}
+
+.overlay-close::before {
+	content: '×';
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+	font-size: 22px;
+	font-family: "Arial", sans-serif;
+	text-align: center;
+	font-weight: bold;
+	box-sizing: border-box;
+}
+
+.overlay-close:hover {
+	opacity: 1;
+}
+
+.overlay-details {
+	padding: 6px 15px;
+}
+
+.overlay-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.overlay-description {
+	display: none;
+}
+
+.overlay-controls {
+	padding: 10px 15px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #111111;
+	-webkit-box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.5);
+	-ms-box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.5);
+	-o-box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.overlay-download {
+	display: none;
+	color: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	border-radius: 2px;
+	text-align: center;
+	font-size: 12px;
+	line-height: 16px;
+	padding: 8px;
+	font-weight: bold;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+}
+.overlay-download:link {
+	display: block;
+}
+.overlay-download:hover,
+.overlay-download:focus {
+	color: white;
+	border: 1px solid white;
+}
+
+.overlay-content {
+	position: absolute;
+	top: 48px;
+	left: 0;
+	right: 0;
+	bottom: 54px;
+	background-color: #111111;
+}
+
+.overlay-content-image {
+	position: absolute;
+	width: auto;
+	height: auto;
+	margin: auto;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.overlay-content-iframe {
+	background-color: white;
+	width: 100%;
+	height: 100%;
+}
+
+@media screen and (min-width: 768px) {
+	.overlay-details {
+		padding: 15px;
+		overflow: visible;
+	}
+
+	.overlay-title {
+		overflow: visible;
+		text-overflow: inherit;
+		white-space: normal;
+		margin-right: 32px;
+	}
+
+	.overlay-description {
+		display: block;
+		text-overflow: inherit;
+		margin-top: 15px;
+		border-top: 1px solid #CCCCCC;
+		padding-top: 10px;
+		line-height: 1.5;
+	}
+
+	.overlay-controls {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: 15px;
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		-ms-box-shadow: none;
+		-o-box-shadow: none;
+		box-shadow: none;
+	}
+
+	.overlay-content {
+		position: relative;
+		top: auto;
+		left: auto;
+		right: auto;
+		bottom: auto;
+		height: 100%;
+		margin-right: 300px;
+	}
+
+	.overlay-sidepanel {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: 0;
+		left: auto;
+		width: 300px;
+		box-sizing: border-box;
+		-webkit-box-shadow: -2px 0 12px rgba(0, 0, 0, 0.5);
+		-moz-box-shadow: -2px 0 12px rgba(0, 0, 0, 0.5);
+		-ms-box-shadow: -2px 0 12px rgba(0, 0, 0, 0.5);
+		-o-box-shadow: -2px 0 12px rgba(0, 0, 0, 0.5);
+		box-shadow: -2px 0 12px rgba(0, 0, 0, 0.5);
+	}
+}

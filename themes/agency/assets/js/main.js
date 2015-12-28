@@ -6,6 +6,7 @@ $(document).ready(function(){
 	initSelectNav();
 	initSmoothScroll();
 	initFooterHeight();
+	initOverlay();
 	initFileFilters();
 	initFilePreview();
 
@@ -88,6 +89,142 @@ $(document).ready(function(){
 		});
 	}
 
+	function initOverlay() {
+
+		(function($) {
+			var KEYCODE_ESCAPE = 27;
+
+			function Overlay(element) {
+				var $element = $(element);
+				var $contentElement = $element.find('[data-role="content"]');
+				var $titleElement = $element.find('[data-role="title"]');
+				var $descriptionElement = $element.find('[data-role="description"]');
+				var $downloadButtonElement = $element.find('[data-role="download"]');
+				var $closeButtonElement = $element.find('[data-role="close"]');
+
+				this.$element = $element;
+				this.$contentElement = $contentElement;
+				this.$titleElement = $titleElement;
+				this.$descriptionElement = $descriptionElement;
+				this.$downloadButtonElement = $downloadButtonElement;
+				this.$closeButtonElement = $closeButtonElement;
+
+				var self = this;
+
+				$element.on('mousedown', function(event) {
+					var wasBackgroundPressed = (event.target === event.currentTarget);
+					if (wasBackgroundPressed) {
+						self.hide();
+					}
+				});
+
+				$closeButtonElement.on('click', function(event) {
+					self.hide();
+				});
+
+				this.onKeyPressed = function(event) {
+					switch (event.keyCode) {
+						case KEYCODE_ESCAPE:
+							onEscapeKeyPressed(event);
+							return;
+					}
+
+
+					function onEscapeKeyPressed(event) {
+						self.hide();
+					}
+				};
+			}
+
+			Overlay.prototype.$element = null;
+			Overlay.prototype.$contentElement = null;
+			Overlay.prototype.$titleElement = null;
+			Overlay.prototype.$descriptionElement = null;
+			Overlay.prototype.$downloadButtonElement = null;
+			Overlay.prototype.$closeButtonElement = null;
+
+			Overlay.prototype.onKeyPressed = null;
+
+			Overlay.prototype.show = function(options) {
+				var title = options.title;
+				var description = options.description;
+				var downloadUrl = options.download || null;
+				var contentElement = createContentElement(options);
+				this.$contentElement.empty().append(contentElement);
+				this.$titleElement.text(title);
+				this.$descriptionElement.html(description);
+				if (downloadUrl) {
+					this.$downloadButtonElement.attr('href', downloadUrl);
+				} else {
+					this.$downloadButtonElement.removeAttr('href');
+				}
+				this.$element.addClass('is-active');
+
+				$(document).off('keydown', this.onKeyPressed).on('keydown', this.onKeyPressed);
+
+
+				function createContentElement(options) {
+					var contentType = options.type;
+					switch (contentType) {
+						case 'image':
+							return createImageContentElement(options);
+						case 'iframe':
+							return createIframeContentElement(options);
+						default:
+							throw new Error('Invalid overlay content type: ' + contentType);
+					}
+
+
+					function createImageContentElement(options) {
+						var imageUrl = options.url;
+						var imageElement = document.createElement('img');
+						imageElement.className = 'overlay-content-image';
+						imageElement.src = imageUrl;
+						return imageElement;
+					}
+
+					function createIframeContentElement(options) {
+						var iframeUrl = options.url;
+						var iframeElement = document.createElement('iframe');
+						iframeElement.className = 'overlay-content-iframe';
+						iframeElement.frameBorder = 0;
+						iframeElement.src = iframeUrl;
+						return iframeElement;
+					}
+				}
+			};
+
+			Overlay.prototype.hide = function() {
+				this.$element.removeClass('is-active');
+				this.$contentElement.empty();
+				this.$titleElement.text('');
+				this.$descriptionElement.text('');
+				this.$downloadButtonElement.removeAttr('href');
+				$(document).off('keydown', this.onKeyPressed);
+			};
+
+			$.fn.overlay = function(action, options) {
+				return this.each(function() {
+					var $element = $(this);
+					var overlay = $element.data('overlay') || null;
+					if (!overlay) { overlay = new Overlay(this); }
+
+					switch (action) {
+						case 'show':
+							overlay.show(options);
+							break;
+						case 'hide':
+							overlay.hide();
+							break;
+					}
+				});
+			};
+
+		})($);
+
+		$('[data-overlay]').overlay();
+	}
+
 	function initFilePreview() {
 		var IMAGE_PREVIEW_EXTENSIONS = [
 			'jpg',
@@ -103,33 +240,38 @@ $(document).ready(function(){
 			var $element = $(event.currentTarget);
 			var downloadUrl = $element.attr('href');
 			var extension = downloadUrl.split('.').pop();
+			var title = $element.attr('data-title');
+			var description = $element.attr('data-description');
 			var canShowImagePreview = IMAGE_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
 			if (canShowImagePreview) {
 				event.preventDefault();
-				showImagePreview(downloadUrl);
+				showOverlay({
+					type: 'image',
+					url: downloadUrl,
+					title: title,
+					description: description
+				});
 			}
 			var canShowDocumentPreview = DOCUMENT_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
 			if (canShowDocumentPreview) {
 				event.preventDefault();
-				showDocumentPreview(downloadUrl);
+				showOverlay({
+					type: 'iframe',
+					url: downloadUrl,
+					title: title,
+					description: description
+				});
 			}
 		});
 
-		function showImagePreview(url) {
-			showPreview(url, { type: 'image' });
-		}
 
-		function showDocumentPreview(url) {
-			showPreview(url, { type: 'iframe' });
-		}
-
-		function showPreview(url, options) {
-			var type = options.type;
-			$.fancybox.open(url, {
-				type: type,
-				afterLoad: function() {
-					$('.fancybox-inner').wrap('<a class="fancybox-download" href="' + url + '" download onclick="$.fancybox.close()"></a>');
-				}
+		function showOverlay(options) {
+			$('#overlay').overlay('show', {
+				type: options.type,
+				url: options.url,
+				download: options.url,
+				title: options.title,
+				description: options.description
 			});
 		}
 	}
