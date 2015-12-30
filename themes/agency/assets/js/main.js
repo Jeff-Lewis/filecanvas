@@ -6,9 +6,8 @@ $(document).ready(function(){
 	initSelectNav();
 	initSmoothScroll();
 	initFooterHeight();
-	initOverlay();
 	initFileFilters();
-	initFilePreview();
+	initOverlay();
 
 
 	function initStickyNav() {
@@ -108,6 +107,7 @@ $(document).ready(function(){
 				this.$descriptionElement = $descriptionElement;
 				this.$downloadButtonElement = $downloadButtonElement;
 				this.$closeButtonElement = $closeButtonElement;
+				this.$htmlElement = $(document.documentElement);
 
 				var self = this;
 
@@ -142,6 +142,7 @@ $(document).ready(function(){
 			Overlay.prototype.$descriptionElement = null;
 			Overlay.prototype.$downloadButtonElement = null;
 			Overlay.prototype.$closeButtonElement = null;
+			Overlay.prototype.$htmlElement = null;
 
 			Overlay.prototype.onKeyPressed = null;
 
@@ -149,7 +150,13 @@ $(document).ready(function(){
 				var title = options.title;
 				var description = options.description;
 				var downloadUrl = options.download || null;
-				var contentElement = createContentElement(options);
+				var self = this;
+				var contentElement = createContentElement(options, function(error) {
+					self.$element.removeClass('is-loading');
+					if (error) {
+						self.$element.addClass('is-error');
+					}
+				});
 				this.$contentElement.empty().append(contentElement);
 				this.$titleElement.text(title);
 				this.$descriptionElement.html(description);
@@ -158,43 +165,58 @@ $(document).ready(function(){
 				} else {
 					this.$downloadButtonElement.removeAttr('href');
 				}
-				this.$element.addClass('is-active');
+				this.$element.addClass('is-active').addClass('is-loading');
+				this.$htmlElement.addClass('overlay-active');
 
 				$(document).off('keydown', this.onKeyPressed).on('keydown', this.onKeyPressed);
 
 
-				function createContentElement(options) {
-					var contentType = options.type;
+				function createContentElement(options, callback) {
+					var contentType = options.type || detectContentType(options.url);
 					switch (contentType) {
 						case 'image':
-							return createImageContentElement(options);
+							return createImageContentElement(options, callback);
 						case 'iframe':
-							return createIframeContentElement(options);
+							return createIframeContentElement(options, callback);
 						case 'pdf':
-							return createPdfContentElement(options);
+							return createPdfContentElement(options, callback);
+						case 'unknown':
+							return createUnknownContentElement(options, callback);
 						default:
 							throw new Error('Invalid overlay content type: ' + contentType);
 					}
 
 
-					function createImageContentElement(options) {
+					function createImageContentElement(options, callback) {
 						var imageUrl = options.url;
 						var imageElement = document.createElement('img');
 						imageElement.className = 'overlay-content-image';
 						imageElement.src = imageUrl;
+						$(imageElement).on('error', function(event) {
+							callback(event.error || new Error(event.message));
+						});
+						$(imageElement).on('load', function(event) {
+							callback(null);
+						});
 						return imageElement;
 					}
 
-					function createIframeContentElement(options) {
+					function createIframeContentElement(options, callback) {
 						var iframeUrl = options.url;
 						var iframeElement = document.createElement('iframe');
 						iframeElement.className = 'overlay-content-iframe';
 						iframeElement.frameBorder = 0;
 						iframeElement.src = iframeUrl;
+						$(iframeElement).on('error', function(event) {
+							callback(event.error || new Error(event.message));
+						});
+						$(iframeElement).on('load', function(event) {
+							callback(null);
+						});
 						return iframeElement;
 					}
 
-					function createPdfContentElement(options) {
+					function createPdfContentElement(options, callback) {
 						var pdfUrl = options.url;
 						var objectElement = document.createElement('object');
 						objectElement.className = 'overlay-content-pdf';
@@ -208,7 +230,58 @@ $(document).ready(function(){
 						embedElement.height = '100%';
 						embedElement.src = pdfUrl;
 						objectElement.appendChild(embedElement);
+						setTimeout(function() {
+							callback(null);
+						});
 						return objectElement;
+					}
+
+					function createUnknownContentElement(options, callback) {
+						var url = options.url;
+						var extension = getUrlExtension(url);
+						var previewElement = document.createElement('div');
+						previewElement.className = 'overlay-content-unknown';
+						previewElement.setAttribute('data-extension', extension);
+						setTimeout(function() {
+							callback(null);
+						});
+						return previewElement;
+					}
+
+					function detectContentType(url) {
+						var extension = getUrlExtension(url);
+						switch (extension) {
+							case 'jpg':
+							case 'jpeg':
+							case 'png':
+							case 'gif':
+								return 'image';
+
+							case 'htm':
+							case 'html':
+							case 'txt':
+							case null:
+								return 'iframe';
+
+							case 'pdf':
+								return 'pdf';
+
+							default:
+								return 'unknown';
+						}
+					}
+
+					function getUrlExtension(url) {
+						var path = url.split('#')[0].split('?')[0];
+						var filename = stripTrailingSlash(path).split('/').pop();
+						var extension = filename.split('.').pop() || null;
+						if (extension) { extension = extension.toLowerCase(); }
+						return extension;
+
+						function stripTrailingSlash(string) {
+							var REGEXP_TRAILING_SLASH = /\/+$/;
+							return string.replace(REGEXP_TRAILING_SLASH, '');
+						}
 					}
 				}
 			};
@@ -219,6 +292,7 @@ $(document).ready(function(){
 				this.$titleElement.text('');
 				this.$descriptionElement.text('');
 				this.$downloadButtonElement.removeAttr('href');
+				this.$htmlElement.removeClass('overlay-active');
 				$(document).off('keydown', this.onKeyPressed);
 			};
 
@@ -242,70 +316,49 @@ $(document).ready(function(){
 		})($);
 
 		$('[data-overlay]').overlay();
-	}
 
-	function initFilePreview() {
-		var IMAGE_PREVIEW_EXTENSIONS = [
-			'jpg',
-			'jpeg',
-			'gif',
-			'png'
-		];
-		var DOCUMENT_PREVIEW_EXTENSIONS = [
-			'html',
-			'txt'
-		];
-		var PDF_PREVIEW_EXTENSIONS = [
-			'pdf'
-		];
-		$(document).on('click', '.post a.project-wrp', function(event) {
-			var $element = $(event.currentTarget);
-			var downloadUrl = $element.attr('href');
-			var extension = downloadUrl.split('.').pop();
-			var title = $element.attr('data-title');
-			var description = $element.attr('data-description');
-			var canShowImagePreview = IMAGE_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
-			if (canShowImagePreview) {
-				event.preventDefault();
-				showOverlay({
-					type: 'image',
-					url: downloadUrl,
-					title: title,
-					description: description
-				});
-			}
-			var canShowDocumentPreview = DOCUMENT_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
-			if (canShowDocumentPreview) {
-				event.preventDefault();
-				showOverlay({
-					type: 'iframe',
-					url: downloadUrl,
-					title: title,
-					description: description
-				});
-			}
-			var canShowPdfPreview = PDF_PREVIEW_EXTENSIONS.indexOf(extension) !== -1;
-			if (canShowPdfPreview) {
-				event.preventDefault();
-				showOverlay({
-					type: 'pdf',
-					url: downloadUrl,
-					title: title,
-					description: description
-				});
+		$('[data-toggle="overlay"]').on('click', function(event) {
+			event.preventDefault();
+			var $element = $(this);
+			var overlayTargetSelector = $element.data('target') || null;
+			var overlayType = $element.data('overlay-type') || null;
+			var overlayUrl = $element.data('overlay-url');
+			var overlayDownload = $element.data('overlay-download') || null;
+			var overlayTitle = $element.data('overlay-title') || null;
+			var overlayDescription = $element.data('overlay-description') || null;
+
+			var $targetElement = overlayTargetSelector ? $(overlayTargetSelector) : getDefaultOverlay();
+			$targetElement.overlay('show', {
+				type: overlayType,
+				url: overlayUrl,
+				download: overlayDownload,
+				title: overlayTitle,
+				description: overlayDescription
+			});
+
+
+			function getDefaultOverlay() {
+				return $.fn.overlay.__defaultOverlay || ($.fn.overlay.__defaultOverlay = createOverlay().appendTo(document.body));
+
+
+				function createOverlay() {
+					var templateHtml =
+						'<div class="overlay" data-overlay>' +
+						'	<div class="overlay-content" data-role="content"></div>' +
+						'	<div class="overlay-sidepanel">' +
+						'		<button class="overlay-close" data-role="close"></button>' +
+						'		<div class="overlay-details">' +
+						'			<h1 class="overlay-title" data-role="title"></h1>' +
+						'			<div class="overlay-description" data-role="description"></div>' +
+						'		</div>' +
+						'		<div class="overlay-controls">' +
+						'			<a class="overlay-download" download data-role="download" href="#">Download</a>' +
+						'		</div>' +
+						'	</div>' +
+						'</div>';
+					return $(templateHtml).overlay();
+				}
 			}
 		});
-
-
-		function showOverlay(options) {
-			$('#overlay').overlay('show', {
-				type: options.type,
-				url: options.url,
-				download: options.url,
-				title: options.title,
-				description: options.description
-			});
-		}
 	}
-
 });
