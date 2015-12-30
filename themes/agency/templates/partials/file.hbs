@@ -1,5 +1,11 @@
 <div class="post item span4 isotope-item filter-{{ slug (basename subfolder.path) }}" data-file-modified="{{ timestamp file.modified }}">
-	<a href="{{ if (or (eq (extension file) 'webloc') (eq (extension file) 'url') (eq (extension file) 'desktop')) (shortcut @root file) (download @root file) }}" target="_blank" class="project-wrp" data-title="{{ strip-number-prefix file }}" data-description="{{ date file.modified }} – {{ filesize file }}">
+	<a class="project-wrp" href="{{ if (is-shortcut file) (shortcut @root file) (download @root file) }}" target="_blank"
+		data-toggle={{ if (has-preview file) 'overlay' null }}
+		data-overlay-url={{ if (has-preview file) (preview @root file) null }}
+		data-overlay-download={{ if (has-preview file) (download @root file) null }}
+		data-overlay-title={{ if (has-preview file) (strip-number-prefix file) null }}
+		data-overlay-description={{ if (has-preview file) (concat (date file.modified) ' – ' (filesize file)) null }}
+	>
 		<div class="profile-photo{{ if file.thumbnail ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
 			{{#if file.thumbnail}}
 			<div class="profile-thumbnail">
