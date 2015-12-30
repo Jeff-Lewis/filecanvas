@@ -37,6 +37,18 @@ module.exports['filesize'] = function(file, options) {
 	if (!file || !file.size) { return null; }
 	return bytes.format(file.size, { decimalPlaces: 1 }).toUpperCase();
 };
+module.exports['is-shortcut'] = function(file) {
+	var extension = path.extname(file.path);
+	var SHORTCUT_EXTENSIONS = ['.url', '.webloc', '.desktop'];
+	var isShortcutFile = (SHORTCUT_EXTENSIONS.indexOf(extension) !== -1);
+	return isShortcutFile;
+};
+module.exports['has-preview'] = function(file) {
+	var extension = path.extname(file.path);
+	var PREVIEW_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.htm', '.html', '.txt', '.pdf'];
+	var hasPreview = (PREVIEW_EXTENSIONS.indexOf(extension) !== -1);
+	return hasPreview;
+};
 module.exports['files'] = function(file, options) {
 	if (!file || !file.contents) { return null; }
 	return file.contents.filter(function(file) {
