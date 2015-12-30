@@ -352,6 +352,7 @@
 	}
 
 	.project-wrp hr.mini {
+		text-align: left;
 		margin-left: 20px;
 		-webkit-transition: all 0.1s linear;
 		   -moz-transition: all 0.1s linear;
