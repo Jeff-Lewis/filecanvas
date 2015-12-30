@@ -1,5 +1,5 @@
-@keyframes overlay-loading-spinner { to { transform: rotate(360deg); } }
-@-webkit-keyframes overlay-loading-spinner { to { -webkit-transform: rotate(360deg) translate3d(0, 0, 0); } }
+@-webkit-keyframes overlay-loading-spinner { from { -webkit-transform: rotate(0); } to { -webkit-transform: rotate(360deg); } }
+@keyframes overlay-loading-spinner { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
 html.overlay-active body {
 	overflow: hidden;
