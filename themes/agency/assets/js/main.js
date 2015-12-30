@@ -300,7 +300,10 @@ $(document).ready(function(){
 				return this.each(function() {
 					var $element = $(this);
 					var overlay = $element.data('overlay') || null;
-					if (!overlay) { overlay = new Overlay(this); }
+					if (!overlay) {
+						overlay = new Overlay(this);
+						$element.data('overlay', overlay);
+					}
 
 					switch (action) {
 						case 'show':
