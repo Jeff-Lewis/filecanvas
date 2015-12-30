@@ -419,7 +419,7 @@ blockquote.small small {
 }
 
 button {
-	padding: 10px 30px !important;
+	padding: 10px 30px;
 	-webkit-transition: all .1s linear;
 	   -moz-transition: all .1s linear;
 	     -o-transition: all .1s linear;
