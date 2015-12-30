@@ -115,6 +115,7 @@ function LocalStorageAdapter(database, options) {
 	var defaultSitesPath = options.defaultSitesPath || null;
 	var sitesRoot = options.sitesRoot || null;
 	var downloadUrl = options.download && options.download.url || null;
+	var previewUrl = options.preview && options.preview.url || null;
 	var thumbnailUrl = options.thumbnail && options.thumbnail.url || null;
 
 	if (!database) { throw new Error('Missing database'); }
@@ -123,6 +124,7 @@ function LocalStorageAdapter(database, options) {
 	if (!defaultSitesPath) { throw new Error('Missing default sites path'); }
 	if (!sitesRoot) { throw new Error('Missing local sites root'); }
 	if (!downloadUrl) { throw new Error('Missing local download URL'); }
+	if (!previewUrl) { throw new Error('Missing local preview URL'); }
 	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
 
 	this.database = database;
@@ -131,6 +133,7 @@ function LocalStorageAdapter(database, options) {
 	this.defaultSitesPath = defaultSitesPath;
 	this.sitesRoot = sitesRoot;
 	this.downloadUrl = downloadUrl;
+	this.previewUrl = previewUrl;
 	this.thumbnailUrl = thumbnailUrl;
 }
 
@@ -140,6 +143,7 @@ LocalStorageAdapter.prototype.adapterLabel = null;
 LocalStorageAdapter.prototype.defaultSitesPath = null;
 LocalStorageAdapter.prototype.sitesRoot = null;
 LocalStorageAdapter.prototype.downloadUrl = null;
+LocalStorageAdapter.prototype.previewUrl = null;
 LocalStorageAdapter.prototype.thumbnailUrl = null;
 
 LocalStorageAdapter.prototype.getMetadata = function(adapterConfig) {
@@ -295,6 +299,11 @@ LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options)
 LocalStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
 	var downloadUrl = this.downloadUrl;
 	return Promise.resolve(downloadUrl + filePath.substr('/'.length));
+};
+
+LocalStorageAdapter.prototype.retrievePreviewLink = function(filePath, options) {
+	var previewUrl = this.previewUrl;
+	return Promise.resolve(previewUrl + filePath.substr('/'.length));
 };
 
 LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {

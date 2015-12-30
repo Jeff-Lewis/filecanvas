@@ -17,6 +17,10 @@ module.exports['download'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
 	return rootModel.metadata.siteRoot + 'download' + file.path;
 };
+module.exports['preview'] = function(rootModel, file) {
+	if (!file || !file.path) { return null; }
+	return rootModel.metadata.siteRoot + 'preview' + file.path;
+};
 module.exports['thumbnail'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
 	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;

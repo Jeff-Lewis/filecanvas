@@ -212,6 +212,7 @@ module.exports = function(database, options) {
 			app.post('/:user/login', createDefaultSiteRedirectRoute('/login'));
 			app.get('/:user/logout', createDefaultSiteRedirectRoute('/logout'));
 			app.get('/:user/download/*', createDefaultSiteRedirectRoute('/download/*'));
+			app.get('/:user/preview/*', createDefaultSiteRedirectRoute('/preview/*'));
 			app.get('/:user/thumbnail/*', createDefaultSiteRedirectRoute('/thumbnail/*'));
 
 
@@ -338,6 +339,7 @@ module.exports = function(database, options) {
 			app.get('/:user/:site/login', loginRoute);
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
+			app.get('/:user/:site/preview/*', ensureAuth, previewRoute);
 			app.get('/:user/:site/thumbnail/*', ensureAuth, thumbnailRoute);
 			app.get('/:user/:site/redirect/*', ensureAuth, shortcutRoute);
 
@@ -525,6 +527,24 @@ module.exports = function(database, options) {
 						siteService.retrieveSiteDownloadLink(username, siteName, filePath)
 							.then(function(downloadUrl) {
 								res.redirect(downloadUrl);
+							})
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
+			}
+
+			function previewRoute(req, res, next) {
+				var username = req.params.user;
+				var siteName = req.params.site;
+				var filePath = req.params[0];
+
+				new Promise(function(resolve, reject) {
+					resolve(
+						siteService.retrieveSitePreviewLink(username, siteName, filePath)
+							.then(function(previewUrl) {
+								res.redirect(previewUrl);
 							})
 					);
 				})

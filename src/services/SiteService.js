@@ -258,6 +258,28 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 		});
 };
 
+SiteService.prototype.retrieveSitePreviewLink = function(username, siteName, filePath) {
+	if (!username) { return Promise.reject(new Error('No username specified')); }
+	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
+	var database = this.database;
+	var adapters = this.adapters;
+	return retrieveSiteRoot(database, username, siteName)
+		.then(function(siteRoot) {
+			if (!siteRoot) { throw new HttpError(404); }
+			var userService = new UserService(database);
+			return userService.retrieveUserAdapters(username)
+				.then(function(userAdapters) {
+					var siteAdapter = siteRoot.adapter;
+					var sitePath = siteRoot.path;
+					var fullPath = sitePath + '/' + filePath;
+					var adapter = adapters[siteAdapter];
+					var adapterOptions = userAdapters[siteAdapter];
+					return adapter.retrievePreviewLink(fullPath, adapterOptions);
+				});
+		});
+};
+
 SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, filePath) {
 	if (!username) { return Promise.reject(new Error('No username specified')); }
 	if (!siteName) { return Promise.reject(new Error('No site specified')); }

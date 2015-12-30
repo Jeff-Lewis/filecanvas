@@ -283,6 +283,17 @@ DropboxStorageAdapter.prototype.retrieveDownloadLink = function(filePath, option
 		});
 };
 
+DropboxStorageAdapter.prototype.retrievePreviewLink = function(filePath, options) {
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
+	var uid = options.uid;
+	var accessToken = options.token;
+	return new DropboxConnector().connect(appKey, appSecret, accessToken, uid)
+		.then(function(dropboxClient) {
+			return dropboxClient.generatePreviewLink(filePath);
+		});
+};
+
 DropboxStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
@@ -561,11 +572,28 @@ DropboxClient.prototype.writeFile = function(path, data, options) {
 DropboxClient.prototype.generateDownloadLink = function(filePath) {
 	var self = this;
 	return new Promise(function(resolve, reject) {
-		var generateTemporaryUrl = true;
-		self.client.makeUrl(filePath, { download: generateTemporaryUrl },
+		self.client.makeUrl(filePath, { download: true },
 			function(error, shareUrlModel) {
 				if (error) { return reject(error); }
 				return resolve(shareUrlModel.url);
+			}
+		);
+	});
+};
+
+DropboxClient.prototype.generatePreviewLink = function(filePath) {
+	var self = this;
+	var extension = path.extname(filePath);
+	var PREVIEW_EXTENSIONS = ['.pdf', '.htm', '.html', '.txt'];
+	var canUseDownloadLink = (PREVIEW_EXTENSIONS.indexOf(extension) === -1);
+	if (canUseDownloadLink) {
+		return this.generateDownloadLink(filePath);
+	}
+	return new Promise(function(resolve, reject) {
+		self.client.makeUrl(filePath, { download: false, long: true },
+			function(error, shareUrlModel) {
+				if (error) { return reject(error); }
+				return resolve(shareUrlModel.url + '&raw=1');
 			}
 		);
 	});

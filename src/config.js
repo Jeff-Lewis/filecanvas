@@ -95,6 +95,16 @@ if (process.env.LOCAL === 'true') {
 				})
 
 			},
+			preview: {
+				subdomain: 'media',
+				url: getSubdomainUrl({
+					subdomain: 'media',
+					host: config.host,
+					protocol: config.https.port ? 'https' : 'http',
+					port: config.https.port || config.http.port
+				})
+
+			},
 			thumbnail: {
 				subdomain: 'thumbnail',
 				url: getSubdomainUrl({

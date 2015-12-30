@@ -157,14 +157,24 @@ module.exports = function(database, config) {
 	};
 
 	if (config.adapters.local) {
-		subdomains[config.adapters.local.storage.upload.subdomain] = uploader(config.adapters.local.storage.sitesRoot, { host: host });
-		subdomains[config.adapters.local.storage.download.subdomain] = express.static(config.adapters.local.storage.sitesRoot, { redirect: false });
-		subdomains[config.adapters.local.storage.thumbnail.subdomain] = thumbnailer(config.adapters.local.storage.sitesRoot, {
+		var localUploadMiddleware = uploader(config.adapters.local.storage.sitesRoot, { host: host });
+		var localDownloadMiddleware = express.static(config.adapters.local.storage.sitesRoot, { redirect: false });
+		var localThumbnailMiddleware = thumbnailer(config.adapters.local.storage.sitesRoot, {
 			width: config.adapters.local.storage.thumbnail.width,
 			height: config.adapters.local.storage.thumbnail.height,
 			format: config.adapters.local.storage.thumbnail.format,
 			cache: path.join(thumbnailsPath, 'local')
 		});
+		subdomains[config.adapters.local.storage.upload.subdomain] = localUploadMiddleware;
+		subdomains[config.adapters.local.storage.download.subdomain] = function(req, res, next) {
+			res.setHeader('Content-disposition', 'attachment; filename="' + decodeURIComponent(path.basename(req.originalUrl)) + '";');
+			localDownloadMiddleware(req, res, next);
+		};
+		subdomains[config.adapters.local.storage.preview.subdomain] = function(req, res, next) {
+			res.setHeader('Content-disposition', 'inline; filename="' + decodeURIComponent(path.basename(req.originalUrl)) + '";');
+			localDownloadMiddleware(req, res, next);
+		};
+		subdomains[config.adapters.local.storage.thumbnail.subdomain] = localThumbnailMiddleware;
 	}
 
 	initMiddleware(app, {
