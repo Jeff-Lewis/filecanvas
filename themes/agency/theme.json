@@ -273,7 +273,7 @@
 							"underline": false,
 							"fonts": [
 								{
-									"name": "System font",
+									"name": "System default",
 									"value": "sans-serif"
 								},
 								{
@@ -350,7 +350,7 @@
 							"underline": false,
 							"fonts": [
 								{
-									"name": "System font",
+									"name": "System default",
 									"value": "sans-serif"
 								},
 								{
@@ -427,7 +427,7 @@
 							"underline": false,
 							"fonts": [
 								{
-									"name": "System font",
+									"name": "System default",
 									"value": "sans-serif"
 								},
 								{
@@ -504,7 +504,7 @@
 							"underline": false,
 							"fonts": [
 								{
-									"name": "System font",
+									"name": "System default",
 									"value": "sans-serif"
 								},
 								{
@@ -581,7 +581,7 @@
 							"underline": false,
 							"fonts": [
 								{
-									"name": "System font",
+									"name": "System default",
 									"value": "sans-serif"
 								},
 								{
