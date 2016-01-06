@@ -76,13 +76,14 @@ module.exports = function(options) {
 		app.get('/:theme/metadata/thumbnail', rewriteThumbnailRequest, staticServer);
 		app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
 		app.get('/:theme/preview', retrieveThemePreviewRoute);
+		app.get('/:theme/preview/download/*', rewritePreviewDownloadRequest, staticServer);
+		app.get('/:theme/preview/preview/*', rewritePreviewPreviewRequest, staticServer);
 		app.get('/:theme/preview/thumbnail/*', rewritePreviewThumbnailRequest, thumbnailer(themesPath, {
 			width: thumbnailWidth,
 			height: thumbnailHeight,
 			format: thumbnailFormat,
 			cache: thumbnailsPath
 		}));
-		app.get('/:theme/preview/download/*', rewritePreviewDownloadRequest, staticServer);
 
 		return app;
 
@@ -163,22 +164,33 @@ module.exports = function(options) {
 			});
 		}
 
-		function rewritePreviewThumbnailRequest(req, res, next) {
+		function rewritePreviewDownloadRequest(req, res, next) {
 			var themeId = req.params.theme;
-			var imagePath = req.params[0];
+			var filePath = req.params[0];
 			try {
-				req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + imagePath;
+				req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + filePath;
 				next();
 			} catch (error) {
 				next(error);
 			}
 		}
 
-		function rewritePreviewDownloadRequest(req, res, next) {
+		function rewritePreviewPreviewRequest(req, res, next) {
 			var themeId = req.params.theme;
 			var filePath = req.params[0];
 			try {
 				req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + filePath;
+				next();
+			} catch (error) {
+				next(error);
+			}
+		}
+
+		function rewritePreviewThumbnailRequest(req, res, next) {
+			var themeId = req.params.theme;
+			var imagePath = req.params[0];
+			try {
+				req.url = '/' + themeId + '/' + THEME_PREVIEW_FILES_PATH + '/' + imagePath;
 				next();
 			} catch (error) {
 				next(error);
