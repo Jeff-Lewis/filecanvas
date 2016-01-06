@@ -12,5 +12,6 @@ cd $(dirname $0)
 (cd client/admin; webpack -d --watch) &
 (cd client/api; webpack -d --watch) &
 (cd client/editor; webpack -d --watch) &
+(cd client/overlay; webpack -d --watch) &
 
 (NODE_ENV=development foreman start -f Procfile.dev)
