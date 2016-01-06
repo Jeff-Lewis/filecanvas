@@ -4,6 +4,10 @@
 .tour-step-background {
 	border-radius: 5px;
 }
+.tour-step-background + .bootstrap-select,
+.tour-step-background + .popover + .bootstrap-select {
+	z-index: 1200;
+}
 
 .popover {
 	min-width: 230px;
