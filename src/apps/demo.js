@@ -491,7 +491,7 @@ module.exports = function(database, options) {
 				published: (req.body.published === 'true'),
 				theme: {
 					id: req.body.theme && req.body.theme.id || null,
-					config: req.body.theme && req.body.config || null
+					config: req.body.theme && req.body.theme.config || null
 				}
 			};
 			if (typeof pendingSiteModel.theme.config === 'string') {
