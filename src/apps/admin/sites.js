@@ -215,7 +215,7 @@ module.exports = function(database, options) {
 				try {
 					themeConfig = JSON.parse(themeConfig);
 				} catch(error) {
-					return next(new HttpError(401));
+					return next(new HttpError(400));
 				}
 			}
 

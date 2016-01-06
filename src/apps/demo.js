@@ -498,7 +498,7 @@ module.exports = function(database, options) {
 				try {
 					pendingSiteModel.theme.config = JSON.parse(pendingSiteModel.theme.config);
 				} catch(error) {
-					return next(new HttpError(401));
+					return next(new HttpError(400));
 				}
 			}
 
@@ -562,7 +562,7 @@ module.exports = function(database, options) {
 				try {
 					themeConfigOverrides = JSON.parse(themeConfigOverrides);
 				} catch(error) {
-					return next(new HttpError(401));
+					return next(new HttpError(400));
 				}
 			}
 
