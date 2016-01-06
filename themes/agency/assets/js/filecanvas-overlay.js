@@ -1,0 +1,1 @@
+../../../../templates/admin/assets/js/filecanvas-overlay.js
