@@ -80,6 +80,8 @@ module.exports = function(database, config) {
 	var themeAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'themes/';
 	var themesUrl = config.themes.root || themesSubdomainUrl;
 
+	var appCachePath = path.join(adminAssetsPath, 'filecanvas.appcache');
+
 	var subdomains = {
 		'ping': pingApp({
 			errorTemplatesPath: errorTemplatesPath
@@ -111,6 +113,7 @@ module.exports = function(database, config) {
 			templatesPath: demoTemplatesPath,
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
+			appCachePath: appCachePath,
 			themesPath: themesPath,
 			themeAssetsUrl: themeAssetsUrl,
 			adminUrl: adminUrl,
@@ -129,6 +132,7 @@ module.exports = function(database, config) {
 			templatesPath: adminTemplatesPath,
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
+			appCachePath: appCachePath,
 			legalTemplatesPath: legalTemplatesPath,
 			themesPath: themesPath,
 			faqPath: faqPath,

@@ -1,0 +1,20 @@
+CACHE MANIFEST
+
+NETWORK:
+*
+
+CACHE:
+//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/css/bootstrap-colorpicker.min.css
+//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/js/bootstrap-colorpicker.js
+//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css
+//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/js/bootstrap-select.min.js
+//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css
+//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js
+//code.jquery.com/jquery-1.11.3.min.js
+//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css
+//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js
+//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
+//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/fonts/fontawesome-webfont.eot?v=4.5.0
+//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/fonts/fontawesome-webfont.woff2?v=4.5.0
+//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/fonts/fontawesome-webfont.woff?v=4.5.0
+//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/fonts/fontawesome-webfont.svg?v=4.5.0

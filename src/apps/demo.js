@@ -12,6 +12,7 @@ var sessionState = require('../middleware/sessionState');
 var redirect = require('../middleware/redirect');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
+var appCache = require('../middleware/appCache');
 
 var demoAuth = require('./demo/middleware/demoAuth');
 
@@ -39,6 +40,7 @@ module.exports = function(database, options) {
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
+	var appCachePath = options.appCachePath;
 	var themesPath = options.themesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
 	var adminUrl = options.adminUrl;
@@ -58,6 +60,7 @@ module.exports = function(database, options) {
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
+	if (!appCachePath) { throw new Error('Missing app cache manifest path'); }
 	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
 	if (!adminUrl) { throw new Error('Missing admin URL'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
@@ -99,6 +102,9 @@ module.exports = function(database, options) {
 
 	initAuth(app, database, {
 		adapters: loginAdapters
+	});
+	initAppCache(app, {
+		manifest: appCachePath
 	});
 	initRoutes(app);
 	initSitePreview(app, {
@@ -146,6 +152,13 @@ module.exports = function(database, options) {
 
 		app.set('views', templatesPath);
 		app.set('view engine', 'hbs');
+	}
+
+	function initAppCache(app, options) {
+		options = options || {};
+		var manifestPath = options.manifest;
+
+		app.get('/filecanvas.appcache', appCache({ manifest: manifestPath }));
 	}
 
 	function initAdminSession(req, res, next) {
