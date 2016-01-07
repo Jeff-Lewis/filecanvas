@@ -2,6 +2,8 @@
 
 (function($) {
 	var KEYCODE_ESCAPE = 27;
+	var KEYCODE_LEFT = 37;
+	var KEYCODE_RIGHT = 39;
 
 	function Overlay(element) {
 		var $element = $(element);
@@ -10,6 +12,8 @@
 		var $descriptionElement = $element.find('[data-role="description"]');
 		var $downloadButtonElement = $element.find('[data-role="download"]');
 		var $closeButtonElement = $element.find('[data-role="close"]');
+		var $previousButtonElement = $element.find('[data-role="previous"]');
+		var $nextButtonElement = $element.find('[data-role="next"]');
 
 		this.$element = $element;
 		this.$contentElement = $contentElement;
@@ -17,6 +21,8 @@
 		this.$descriptionElement = $descriptionElement;
 		this.$downloadButtonElement = $downloadButtonElement;
 		this.$closeButtonElement = $closeButtonElement;
+		this.$previousButtonElement = $previousButtonElement;
+		this.$nextButtonElement = $nextButtonElement;
 		this.$htmlElement = $(document.documentElement);
 
 		var self = this;
@@ -32,16 +38,38 @@
 			self.hide();
 		});
 
+		$previousButtonElement.on('click', function(event) {
+			if (self.previousItem) { self.show(self.previousItem); }
+		});
+
+		$nextButtonElement.on('click', function(event) {
+			if (self.nextItem) { self.show(self.nextItem); }
+		});
+
 		this.onKeyPressed = function(event) {
 			switch (event.keyCode) {
 				case KEYCODE_ESCAPE:
 					onEscapeKeyPressed(event);
+					return;
+				case KEYCODE_LEFT:
+					onLeftKeyPressed(event);
+					return;
+				case KEYCODE_RIGHT:
+					onRightKeyPressed(event);
 					return;
 			}
 
 
 			function onEscapeKeyPressed(event) {
 				self.hide();
+			}
+
+			function onLeftKeyPressed(event) {
+				if (self.previousItem) { self.show(self.previousItem); }
+			}
+
+			function onRightKeyPressed(event) {
+				if (self.nextItem) { self.show(self.nextItem); }
 			}
 		};
 	}
@@ -52,14 +80,20 @@
 	Overlay.prototype.$descriptionElement = null;
 	Overlay.prototype.$downloadButtonElement = null;
 	Overlay.prototype.$closeButtonElement = null;
+	Overlay.prototype.$previousButtonElement = null;
+	Overlay.prototype.$nextButtonElement = null;
 	Overlay.prototype.$htmlElement = null;
 
+	Overlay.prototype.previousItem = null;
+	Overlay.prototype.nextItem = null;
 	Overlay.prototype.onKeyPressed = null;
 
 	Overlay.prototype.show = function(options) {
 		var title = options.title;
 		var description = options.description;
 		var downloadUrl = options.download || null;
+		var previousItem = (options.collection ? getPreviousItem(options.collection, options) : null);
+		var nextItem = (options.collection ? getNextItem(options.collection, options) : null);
 		var self = this;
 		var contentElement = createContentElement(options, function(error) {
 			self.$element.removeClass('is-loading');
@@ -75,11 +109,28 @@
 		} else {
 			this.$downloadButtonElement.removeAttr('href');
 		}
+		this.$previousButtonElement.prop('disabled', !previousItem);
+		this.$nextButtonElement.prop('disabled', !nextItem);
 		this.$element.addClass('is-active').addClass('is-loading');
 		this.$htmlElement.addClass('overlay-active');
 
+		this.previousItem = previousItem;
+		this.nextItem = nextItem;
+
 		$(document).off('keydown', this.onKeyPressed).on('keydown', this.onKeyPressed);
 
+
+		function getPreviousItem(collection, item) {
+			var currentIndex = collection.indexOf(item);
+			if (currentIndex === -1) { currentIndex = 0; }
+			return (currentIndex === 0 ? collection[collection.length - 1] : collection[currentIndex - 1]);
+		}
+
+		function getNextItem(collection, item) {
+			var currentIndex = collection.indexOf(item);
+			if (currentIndex === -1) { currentIndex = collection.length - 1; }
+			return (currentIndex === collection.length - 1 ? collection[0] : collection[currentIndex + 1]);
+		}
 
 		function createContentElement(options, callback) {
 			var contentType = options.type || detectContentType(options.url);
@@ -203,6 +254,8 @@
 		this.$descriptionElement.text('');
 		this.$downloadButtonElement.removeAttr('href');
 		this.$htmlElement.removeClass('overlay-active');
+		this.previousItem = null;
+		this.nextItem = null;
 		$(document).off('keydown', this.onKeyPressed);
 	};
 
@@ -231,22 +284,40 @@
 	$('[data-toggle="overlay"]').on('click', function(event) {
 		event.preventDefault();
 		var $element = $(this);
+		var $overlayTriggerElements = $('[data-toggle="overlay"]');
+		var itemIndex = $overlayTriggerElements.index(this);
 		var overlayTargetSelector = $element.data('target') || null;
-		var overlayType = $element.data('overlay-type') || null;
-		var overlayUrl = $element.data('overlay-url');
-		var overlayDownload = $element.data('overlay-download') || null;
-		var overlayTitle = $element.data('overlay-title') || null;
-		var overlayDescription = $element.data('overlay-description') || null;
-
 		var $targetElement = overlayTargetSelector ? $(overlayTargetSelector) : getDefaultOverlay();
-		$targetElement.overlay('show', {
-			type: overlayType,
-			url: overlayUrl,
-			download: overlayDownload,
-			title: overlayTitle,
-			description: overlayDescription
+		var overlayItems = parseOverlayItems($overlayTriggerElements);
+		var overlayItem = overlayItems[itemIndex];
+		overlayItems.forEach(function(item, index) {
+			item.collection = overlayItems;
 		});
+		$targetElement.overlay('show', overlayItem);
 
+
+		function parseOverlayItems($overlayTriggerElement) {
+			return $overlayTriggerElements.map(function(index, element) {
+				var $element = $(element);
+				return parseOverlayItem($element);
+			}).get();
+
+
+			function parseOverlayItem($overlayTriggerElement) {
+				var overlayType = $overlayTriggerElement.data('overlay-type') || null;
+				var overlayUrl = $overlayTriggerElement.data('overlay-url');
+				var overlayDownload = $overlayTriggerElement.data('overlay-download') || null;
+				var overlayTitle = $overlayTriggerElement.data('overlay-title') || null;
+				var overlayDescription = $overlayTriggerElement.data('overlay-description') || null;
+				return {
+					type: overlayType,
+					url: overlayUrl,
+					download: overlayDownload,
+					title: overlayTitle,
+					description: overlayDescription
+				};
+			}
+		}
 
 		function getDefaultOverlay() {
 			return $.fn.overlay.__defaultOverlay || ($.fn.overlay.__defaultOverlay = createOverlay().appendTo(document.body));
@@ -266,6 +337,8 @@
 					'			<a class="overlay-download" download data-role="download" href="#">Download</a>' +
 					'		</div>' +
 					'	</div>' +
+					'	<button type="button" class="overlay-previous" data-role="previous"></button>' +
+					'	<button type="button" class="overlay-next" data-role="next"></button>' +
 					'</div>';
 				return $(templateHtml).overlay();
 			}

@@ -52,7 +52,9 @@ html.overlay-active body {
 }
 
 .overlay-close,
-.overlay-download {
+.overlay-download,
+.overlay-previous,
+.overlay-next {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	-ms-appearance: none;
@@ -150,6 +152,49 @@ html.overlay-active body {
 .overlay-download:focus {
 	color: white;
 	border: 1px solid white;
+}
+
+.overlay-previous,
+.overlay-next {
+	display: block;
+	position: absolute;
+	top: 50%;
+	margin-top: -24px;
+	width: 48px;
+	height: 48px;
+	background-color: #111111;
+	background-repeat: no-repeat;
+	background-position: center;
+	color: white;
+	opacity: 0.8;
+}
+.overlay-previous:hover,
+.overlay-next:hover {
+	opacity: 1;
+}
+.overlay-previous:disabled,
+.overlay-next:disabled {
+	display: none;
+}
+.overlay-previous {
+	left: 0;
+	background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D%2248px%22%20height%3D%2248px%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20preserveAspectRatio%3D%22xMidYMid%22%3E%3Cpath%20d%3D%22M27%2C14%20L17%2C24%20L27%2C34%22%20stroke%3D%22rgb(255%2C255%2C255)%22%20stroke-width%3D%224%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E');
+	border-radius: 0 2px 2px 0;
+}
+.overlay-next {
+	right: 0;
+	background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D%2248px%22%20height%3D%2248px%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%20preserveAspectRatio%3D%22xMidYMid%22%3E%3Cpath%20d%3D%22M21%2C14%20L31%2C24%20L21%2C34%22%20stroke%3D%22rgb(255%2C255%2C255)%22%20stroke-width%3D%224%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E');
+	border-radius: 2px 0 0 2px;
+}
+.overlay-previous,
+.overlay-next {
+	visibility: visible;
+	transition: visibility 0.3s linear, opacity 0.3s ease, background-color 0.3s ease;
+}
+.overlay-sidepanel:hover + .overlay-previous,
+.overlay-sidepanel:hover + .overlay-previous + .overlay-next {
+	visibility: hidden;
+	opacity: 0;
 }
 
 .overlay-content {
@@ -260,6 +305,10 @@ html.overlay-active body {
 		-ms-box-shadow: none;
 		-o-box-shadow: none;
 		box-shadow: none;
+	}
+
+	.overlay-next {
+		right: 300px;
 	}
 
 	.overlay-content {
