@@ -35,9 +35,6 @@ html.overlay-active body {
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
-@media screen and (min-width: 768px) {
-}
-
 .overlay-sidepanel h1,
 .overlay-sidepanel h2,
 .overlay-sidepanel h3,
@@ -166,12 +163,6 @@ html.overlay-active body {
 	overflow: auto;
 }
 
-@media screen and (min-width: 767px) {
-	.overlay-content {
-		overflow: hidden;
-	}
-}
-
 .overlay.is-loading .overlay-content {
 	text-align: center;
 }
@@ -279,6 +270,7 @@ html.overlay-active body {
 		bottom: auto;
 		height: 100%;
 		margin-right: 300px;
+		overflow: hidden;
 	}
 
 	.overlay-sidepanel {
