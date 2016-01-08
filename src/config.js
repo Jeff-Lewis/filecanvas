@@ -13,8 +13,8 @@ config.http.port = process.env.PORT || 80;
 
 config.https = {};
 config.https.port = process.env.HTTPS === 'true' ? process.env.HTTPS_PORT || 443 : null;
-config.https.cert = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_CERT || '/opt/ssl/cert.pem') : null;
-config.https.key = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_KEY || '/opt/ssl/key.pem') : null;
+config.https.cert = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_CERT) : null;
+config.https.key = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_KEY) : null;
 
 config.session = {};
 config.session.cookieSecret = process.env.COOKIE_SECRET || null;
@@ -53,7 +53,7 @@ config.uploaders = {};
 config.uploaders.admin = {};
 config.uploaders.demo = {};
 
-if (process.env.LOCAL === 'true') {
+if (process.env.LOCAL_SITE_ROOT) {
 	config.adapters.local = {
 		login: {
 			admin: {
@@ -157,20 +157,6 @@ if (process.env.GOOGLE === 'true') {
 	};
 }
 
-if (process.env.LOCAL === 'true') {
-	config.uploaders.admin = {
-		adapter: 'local',
-		uploadUrl: config.adapters.local.storage.upload.url + 'editor-uploads/',
-		downloadUrl: config.adapters.local.storage.download.url + 'editor-uploads/'
-	};
-
-	config.uploaders.demo = {
-		adapter: 'local',
-		uploadUrl: config.adapters.local.storage.upload.url + 'editor-uploads/',
-		downloadUrl: config.adapters.local.storage.download.url + 'editor-uploads/'
-	};
-}
-
 if (process.env.AWS_S3_BUCKET) {
 	config.uploaders.admin = {
 		adapter: 's3',
@@ -183,6 +169,18 @@ if (process.env.AWS_S3_BUCKET) {
 		accessKey: process.env.AWS_ACCESS_KEY_ID,
 		secretKey: process.env.AWS_SECRET_ACCESS_KEY,
 		bucket: process.env.AWS_S3_BUCKET
+	};
+} else if (process.env.LOCAL_SITE_ROOT) {
+	config.uploaders.admin = {
+		adapter: 'local',
+		uploadUrl: config.adapters.local.storage.upload.url + 'editor-uploads/',
+		downloadUrl: config.adapters.local.storage.download.url + 'editor-uploads/'
+	};
+
+	config.uploaders.demo = {
+		adapter: 'local',
+		uploadUrl: config.adapters.local.storage.upload.url + 'editor-uploads/',
+		downloadUrl: config.adapters.local.storage.download.url + 'editor-uploads/'
 	};
 }
 
