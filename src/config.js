@@ -12,9 +12,9 @@ config.http = {};
 config.http.port = process.env.PORT || 80;
 
 config.https = {};
-config.https.port = process.env.HTTPS_PORT || null;
-config.https.key = process.env.HTTPS_KEY ? fs.readFileSync(process.env.HTTPS_KEY) : null;
-config.https.cert = process.env.HTTPS_CERT ? fs.readFileSync(process.env.HTTPS_CERT) : null;
+config.https.port = process.env.HTTPS === 'true' ? process.env.HTTPS_PORT || 443 : null;
+config.https.cert = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_CERT || '/opt/ssl/cert.pem') : null;
+config.https.key = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_KEY || '/opt/ssl/key.pem') : null;
 
 config.session = {};
 config.session.cookieSecret = process.env.COOKIE_SECRET || null;
