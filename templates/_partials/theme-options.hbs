@@ -30,7 +30,7 @@
 						<input type="checkbox"
 							name="theme.config.{{ configGroup.name }}.{{ field.name }}"
 							value="true"
-						   {{#if (lookup (lookup ../../config configGroup.name) field.name)}}checked{{/if}}
+						   {{#if (eq (lookup (lookup ../../config configGroup.name) field.name) 'true') }}checked{{/if}}
 						/>
 						{{ field.editor.options.label }}
 					</label>
