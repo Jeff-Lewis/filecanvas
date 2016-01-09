@@ -1,18 +1,20 @@
 <nav id="mainnav">
 	<div class="container">
 		<div class="row">
+			{{#if metadata.theme.config.images.navLogo}}
 			<div class="span4">
-				{{#if metadata.theme.config.images.navLogo}}
-				{{#if metadata.theme.config.footer.contactWebsite}}
-				<a class="logo" href="{{ metadata.theme.config.footer.contactWebsite }}" target="_blank"></a>
-				{{else}}
-				<a class="logo"></a>
-				{{/if}}
-				{{/if}}
+				<a class="logo" href={{ if metadata.theme.config.footer.contactWebsite metadata.theme.config.footer.contactWebsite null }} target="_blank">
+					<img src={{ metadata.theme.config.images.navLogo }} />
+				</a>
 			</div>
 			<div class="span8">
 				{{yield}}
 			</div>
+			{{else}}
+			<div class="span12">
+				{{yield}}
+			</div>
+			{{/if}}
 		</div>
 	</div>
 </nav>

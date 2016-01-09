@@ -97,17 +97,5 @@
 		font-weight: {{ metadata.theme.config.fonts.sectionHeader.font-weight }};
 		text-transform: {{ metadata.theme.config.fonts.sectionHeader.text-transform }};
 	}
-
-	{{#if metadata.theme.config.images.headerLogo}}
-	header .logo {
-		background-image: url('{{{ metadata.theme.config.images.headerLogo }}}');
-	}
-	{{/if}}
-
-	{{#if metadata.theme.config.images.navLogo}}
-	nav#mainnav .logo {
-		background-image: url('{{{ metadata.theme.config.images.navLogo }}}');
-	}
-	{{/if}}
 </style>
 <style type="text/css">{{ css metadata.theme.config.scripts.css }}</style>

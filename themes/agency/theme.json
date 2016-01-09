@@ -668,6 +668,18 @@
 					}
 				},
 				{
+					"name": "headerLogoCentered",
+					"type": "boolean",
+					"default": "true",
+					"label": "",
+					"editor": {
+						"name": "checkbox",
+						"options": {
+							"label": "Centered header logo"
+						}
+					}
+				},
+				{
 					"name": "navLogo",
 					"type": "string",
 					"default": "",
