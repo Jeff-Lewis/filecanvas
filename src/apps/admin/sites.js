@@ -98,7 +98,7 @@ module.exports = function(database, options) {
 		app.delete('/:site/users/:username', deleteSiteUserRoute);
 
 		app.get('/:site/edit', retrieveSiteEditRoute);
-		app.get('/:site/edit/upload/:filename', retrieveSiteEditUploadRoute);
+		app.post('/:site/edit/upload/:filename', createSiteEditUploadRoute);
 
 
 		function retrieveSitesRoute(req, res, next) {
@@ -215,7 +215,7 @@ module.exports = function(database, options) {
 				try {
 					themeConfig = JSON.parse(themeConfig);
 				} catch(error) {
-					return next(new HttpError(400));
+					return next(new HttpError(401));
 				}
 			}
 
@@ -524,7 +524,7 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function retrieveSiteEditUploadRoute(req, res, next) {
+		function createSiteEditUploadRoute(req, res, next) {
 			var userModel = req.user;
 			var username = userModel.username;
 			var filename = req.params.filename;
