@@ -1,7 +1,5 @@
 /.env
 
-/db/data/
-/db/backup/
 /data
 
 /.elasticbeanstalk/*

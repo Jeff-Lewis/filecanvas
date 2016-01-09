@@ -5,7 +5,7 @@ trap "killall mongod" EXIT
 
 cd $(dirname $0)
 
-(mongod --dbpath db/data/db) &
+(mongod --dbpath services/mongodb/data/db) &
 
 (redis-server /usr/local/etc/redis.conf) &
 
