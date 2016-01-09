@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+cd $(dirname $0)
+
+eval $(docker-machine env default)
+docker-machine start default | true
+
+trap "docker-compose stop && docker-compose rm -f" EXIT
+
+export $(cat docker-compose.env | xargs)
+docker-compose up

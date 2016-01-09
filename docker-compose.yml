@@ -1,0 +1,55 @@
+web:
+  build: .
+  links:
+    - mongodb
+    - redis
+  ports:
+    - "80:80"
+    - "443:443"
+  environment:
+    - HOST
+    - HTTPS
+    - NEW_RELIC_LICENSE_KEY
+    - DROPBOX_APP_KEY
+    - DROPBOX_APP_SECRET
+    - DROPBOX_OAUTH2_LOGIN_CALLBACK
+    - DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK
+    - AWS_S3_BUCKET
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - GOOGLE
+    - LOCAL_NAME
+    - LOCAL_LABEL
+    - LOCAL_BCRYPT_STRENGTH
+    - COOKIE_SECRET
+    - WWW_ROOT
+    - ASSETS_ROOT
+    - ADMIN_ROOT
+    - THEMES_ROOT
+    - SITE_USER_BCRYPT_STRENGTH
+    - SESSION_DURATION
+    - PORT=80
+    - HTTPS_PORT=443
+    - HTTPS_CERT=/opt/ssl/cert.pem
+    - HTTPS_KEY=/opt/ssl/key.pem
+    - LOCAL_SITE_ROOT=/data/sites
+    - MONGODB_URL=mongodb://mongodb/${DB_NAME}
+    - REDIS_URL=redis://redis
+  volumes:
+    - ${LOCAL_SITE_ROOT}:/data/sites
+    - ${HTTPS_CERT}:/opt/ssl/cert.pem
+    - ${HTTPS_KEY}:/opt/ssl/key.pem
+mongodb:
+  image: mongo
+  volumes:
+    - /data/db
+redis:
+  image: redis
+init:
+  build: ./services/mongodb/worker
+  links:
+    - mongodb
+  volumes:
+    - ./services/mongodb/scripts/init.js:/opt/src/worker.js
+  environment:
+    - MONGODB_URL=mongodb://mongodb/${DB_NAME}

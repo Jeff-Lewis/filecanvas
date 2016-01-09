@@ -1,0 +1,15 @@
+*
+
+!client
+!lib
+!src
+!templates
+!themes
+
+templates/admin/assets/js/*
+
+!install.sh
+!LICENSE.md
+!package.json
+!README.md
+!server.js
