@@ -37,6 +37,11 @@ module.exports['filesize'] = function(file, options) {
 	if (!file || !file.size) { return null; }
 	return bytes.format(file.size, { decimalPlaces: 1 }).toUpperCase();
 };
+module.exports['strip-number-prefix'] = function(file, options) {
+	if (!file || !file.path) { return null; }
+	var label = path.basename(file.path, path.extname(file.path));
+	return stripLeadingNumber(label);
+};
 module.exports['is-shortcut'] = function(file) {
 	var extension = path.extname(file.path);
 	var SHORTCUT_EXTENSIONS = ['.url', '.webloc', '.desktop'];
@@ -64,11 +69,6 @@ module.exports['folders'] = function(file, options) {
 	}).sort(function(file1, file2) {
 		return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
 	});
-};
-module.exports['strip-number-prefix'] = function(file, options) {
-	if (!file || !file.path) { return null; }
-	var label = path.basename(file.path, path.extname(file.path));
-	return stripLeadingNumber(label);
 };
 
 function sortByPrefixedFilename(file1, file2) {
