@@ -50,7 +50,7 @@
 	"images": {
 		"navLogo": "",
 		"headerLogo": "",
-		"headerLogoCentered": true
+		"headerLogoCentered": "true"
 	},
 	"browser": {
 		"title": ""
