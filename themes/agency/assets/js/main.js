@@ -5,7 +5,6 @@ $(document).ready(function(){
 	initOnePageNav();
 	initSelectNav();
 	initSmoothScroll();
-	initFooterHeight();
 	initFileFilters();
 	initLocalizedDates();
 	initOverlayDescriptions();
@@ -47,22 +46,6 @@ $(document).ready(function(){
 				easing: 'swing'
 			});
 		});
-	}
-
-	function initFooterHeight() {
-		var footerHeight = 0;
-		updateFooterHeight();
-		$(window).on('resize', function() {
-			updateFooterHeight();
-		});
-
-
-		function updateFooterHeight() {
-			var updatedFooterHeight = $('footer').outerHeight();
-			if (updatedFooterHeight === footerHeight) { return; }
-			footerHeight = updatedFooterHeight;
-			$('.pages').css('paddingBottom', footerHeight);
-		}
 	}
 
 	function initFileFilters() {

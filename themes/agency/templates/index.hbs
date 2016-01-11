@@ -109,43 +109,43 @@
 			</div>
 			{{/each}}
 		</section>
-		<footer>
-			{{#if (or
-			metadata.theme.config.footer.contactTitle
-			metadata.theme.config.footer.contactEmail
-			metadata.theme.config.footer.contactWebsite
-			metadata.theme.config.footer.contactPhone
-			metadata.theme.config.footer.contactAddress
-			metadata.theme.config.footer.footerTitle
-			metadata.theme.config.footer.footerText
-			)}}
-			<div class="footer">
-				<div class="container">
-					<div class="row">
-						<div class="contact span6">
-							<h5>{{ metadata.theme.config.footer.contactTitle }}</h5>
-							{{#if metadata.theme.config.footer.contactEmail}}
-							<p><strong>E-mail:</strong> <a class="white-text" href="mailto:{{ metadata.theme.config.footer.contactEmail }}">{{ metadata.theme.config.footer.contactEmail }}</a></p>
-							{{/if}}
-							{{#if metadata.theme.config.footer.contactWebsite}}
-							<p><strong>Web:</strong> <a class="white-text" href={{ metadata.theme.config.footer.contactWebsite }} target="_blank">{{ metadata.theme.config.footer.contactWebsite }}</a></p>
-							{{/if}}
-							{{#if metadata.theme.config.footer.contactPhone}}
-							<p><strong>Phone:</strong> <span class="white-text">{{ metadata.theme.config.footer.contactPhone }}</span></p>
-							{{/if}}
-							{{#if metadata.theme.config.footer.contactAddress}}
-							<p><strong>Location:</strong> <span class="white-text">{{ metadata.theme.config.footer.contactAddress }}</span></p>
-							{{/if}}
-						</div>
-						<div class="span2"></div>
-						<div class="about span4">
-							<h5>{{ metadata.theme.config.footer.footerTitle }}</h5>
-							{{ markdown metadata.theme.config.footer.footerText }}
-						</div>
+		{{#if (or
+		metadata.theme.config.footer.contactTitle
+		metadata.theme.config.footer.contactEmail
+		metadata.theme.config.footer.contactWebsite
+		metadata.theme.config.footer.contactPhone
+		metadata.theme.config.footer.contactAddress
+		metadata.theme.config.footer.footerTitle
+		metadata.theme.config.footer.footerText
+		)}}
+		<div class="footer">
+			<div class="container">
+				<div class="row">
+					<div class="contact span6">
+						<h5>{{ metadata.theme.config.footer.contactTitle }}</h5>
+						{{#if metadata.theme.config.footer.contactEmail}}
+						<p><strong>E-mail:</strong> <a class="white-text" href="mailto:{{ metadata.theme.config.footer.contactEmail }}">{{ metadata.theme.config.footer.contactEmail }}</a></p>
+						{{/if}}
+						{{#if metadata.theme.config.footer.contactWebsite}}
+						<p><strong>Web:</strong> <a class="white-text" href={{ metadata.theme.config.footer.contactWebsite }} target="_blank">{{ metadata.theme.config.footer.contactWebsite }}</a></p>
+						{{/if}}
+						{{#if metadata.theme.config.footer.contactPhone}}
+						<p><strong>Phone:</strong> <span class="white-text">{{ metadata.theme.config.footer.contactPhone }}</span></p>
+						{{/if}}
+						{{#if metadata.theme.config.footer.contactAddress}}
+						<p><strong>Location:</strong> <span class="white-text">{{ metadata.theme.config.footer.contactAddress }}</span></p>
+						{{/if}}
+					</div>
+					<div class="span2"></div>
+					<div class="about span4">
+						<h5>{{ metadata.theme.config.footer.footerTitle }}</h5>
+						{{ markdown metadata.theme.config.footer.footerText }}
 					</div>
 				</div>
 			</div>
-			{{/if}}
+		</div>
+		{{/if}}
+		<footer>
 			{{ partial 'banner' }}
 		</footer>
 	</div>

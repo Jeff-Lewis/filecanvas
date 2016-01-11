@@ -9,6 +9,10 @@ body {
 	min-height: 100%;
 }
 
+header + .wrapper {
+	min-height: 0;
+}
+
 footer {
 	position: absolute;
 	width: 100%;
