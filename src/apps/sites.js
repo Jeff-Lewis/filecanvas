@@ -309,7 +309,7 @@ module.exports = function(database, options) {
 							});
 					} else {
 						var siteLoginUrl = requestPath;
-						res.redirect(siteLoginUrl);
+						res.redirect(siteLoginUrl + '?retry');
 					}
 				})(req, res, next);
 			}
@@ -403,6 +403,7 @@ module.exports = function(database, options) {
 			function loginRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var isRetryAttempt = ('retry' in req.query);
 				var themeIdOverride = (isPreview && req.query.theme && req.query.theme.id || null);
 				var themeConfigOverrides = null;
 				if (isPreview && req.query.theme && req.query.theme.config) {
@@ -437,7 +438,8 @@ module.exports = function(database, options) {
 											metadata: {
 												siteRoot: getSiteRootUrl(req, '/login'),
 												themeRoot: themeAssetsUrl + themeId + '/',
-												theme: siteTheme
+												theme: siteTheme,
+												retry: isRetryAttempt
 											},
 											resource: {
 												private: siteModel.private
