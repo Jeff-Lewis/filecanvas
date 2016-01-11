@@ -4,7 +4,9 @@
 		data-overlay-url={{ if (has-preview file) (preview @root file) null }}
 		data-overlay-download={{ if (has-preview file) (download @root file) null }}
 		data-overlay-title={{ if (has-preview file) (strip-number-prefix file) null }}
-		data-overlay-description={{ if (has-preview file) (concat (date file.modified) ' – ' (filesize file)) null }}
+		data-file={{ basename file.path }}
+		data-file-size={{ file.size }}
+		data-file-modified={{ timestamp file.modified }}
 	>
 		<div class="profile-photo{{ if file.thumbnail ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
 			{{#if file.thumbnail}}
@@ -23,6 +25,6 @@
 		<div class="project-client">&nbsp;</div>
 		<div class="project-name">{{ strip-number-prefix file }}</div>
 		<hr class="mini"/>
-		<div class="project-date">{{ date file.modified }} – {{ filesize file }}</div>
+		<div class="project-date"><time datetime={{ timestamp file.modified }}>{{ date file.modified }}</time> – {{ filesize file }}</div>
 	</a>
 </div>

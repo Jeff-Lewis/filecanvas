@@ -11,5 +11,5 @@ module.exports['timestamp'] = function(value, options) {
 module.exports['date'] = function(value, options) {
 	if (!value) { return null; }
 	var date = new Date(value);
-	return DAYS[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()] + ' ' + date.getFullYear();
+	return DAYS[date.getUTCDay()] + ' ' + date.getUTCDate() + ' ' + MONTHS[date.getUTCMonth()] + ' ' + date.getUTCFullYear();
 };
