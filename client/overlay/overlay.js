@@ -92,8 +92,8 @@
 		var title = options.title;
 		var description = options.description;
 		var downloadUrl = options.download || null;
-		var previousItem = (options.collection ? getPreviousItem(options.collection, options) : null);
-		var nextItem = (options.collection ? getNextItem(options.collection, options) : null);
+		var previousItem = (options.collection && (options.collection.length > 1) ? getPreviousItem(options.collection, options) : null);
+		var nextItem = (options.collection && (options.collection.length > 1) ? getNextItem(options.collection, options) : null);
 		var self = this;
 		var contentElement = createContentElement(options, function(error) {
 			self.$element.removeClass('is-loading');
