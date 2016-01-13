@@ -78,8 +78,9 @@ $(function() {
 	initUploadControls();
 	initNavigationDropdowns();
 	initOffscreenSidebar();
-	initModals();
+	initModalAutofocus();
 	initModalForms();
+	initModalAutoload();
 	initLogout();
 });
 
@@ -1210,8 +1211,26 @@ function initOffscreenSidebar() {
 	});
 }
 
-function initModals() {
-	$('.modal[data-show="true"]').modal();
+function initModalAutofocus() {
+	$('.modal').on('show.bs.modal shown.bs.modal', function(event) {
+		var $autofocusElement = $(this).find('[autofocus]');
+		if ($autofocusElement.is('[data-validate]')) {
+			resetValidation($autofocusElement);
+		}
+		$autofocusElement.focus();
+	});
+
+
+	function resetValidation($inputElement) {
+		$inputElement
+			.one('reset', preventEventBubbling)
+			.trigger('reset');
+
+
+		function preventEventBubbling(event) {
+			event.stopPropagation();
+		}
+	}
 }
 
 function initModalForms() {
@@ -1255,6 +1274,10 @@ function initModalForms() {
 		.on('hide.bs.modal', function(event) {
 			$activeModalElement = null;
 		});
+}
+
+function initModalAutoload() {
+	$('.modal[data-show="true"]').modal();
 }
 
 function initLogout() {
