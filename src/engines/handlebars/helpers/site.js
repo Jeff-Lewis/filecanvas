@@ -70,6 +70,14 @@ module.exports['folders'] = function(file, options) {
 		return sortByPrefixedFilename(file1, file2) || sortByFilename(file1, file2);
 	});
 };
+module.exports['flattenedFiles'] = function(file, options) {
+	if (!file || !file.contents) { return null; }
+	return file.contents.reduce(function getDirectoryFiles(files, file) {
+		return files.concat(file.directory ? file.contents.reduce(getDirectoryFiles, []) : [file]);
+	}, []).sort(function(file1, file2) {
+		return sortByPrefixedFilename(file1, file2) || sortByLastModified(file1, file2);
+	});
+};
 
 function sortByPrefixedFilename(file1, file2) {
 	var file1Filename = path.basename(file1.path);
