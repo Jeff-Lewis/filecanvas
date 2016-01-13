@@ -67,6 +67,10 @@ html.no-padding .main-content {
 	float: none;
 }
 
+iframe {
+	display: block;
+}
+
 a:not(:link) {
 	cursor: default;
 }
@@ -989,7 +993,8 @@ footer.content-footer {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	overflow: hidden;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 }
 @media screen and (max-width: 767px) {
 	.theme-gallery-main {
