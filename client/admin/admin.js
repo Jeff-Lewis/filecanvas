@@ -863,6 +863,7 @@ function initUploadControls() {
 						hideExtension: shouldHideExtension
 					});
 					updateClearButton($clearButtonElement, url);
+					updateElementState($labelElement, url);
 
 
 					function updateFileLabel($element, url, options) {
@@ -879,6 +880,10 @@ function initUploadControls() {
 					function updateClearButton($element, url) {
 						var isDisabled = !url;
 						$element.prop('disabled', isDisabled);
+					}
+
+					function updateElementState($element, url) {
+						$element.toggleClass('has-value', Boolean(url));
 					}
 				}
 

@@ -1135,6 +1135,28 @@ footer.content-footer {
 	position: relative;
 	vertical-align: top;
 }
+.upload-control-icon {
+	display: block;
+	position: absolute;
+	top: 1px;
+	bottom: 1px;
+	left: 1px;
+	z-index: 2;
+	font-size: 14px;
+	line-height: 1;
+	padding: 8px 0 10px;
+	width: 32px;
+	text-align: center;
+}
+.upload-control-label-input + .upload-control-icon {
+	display: none;
+}
+.upload-control-label-input.has-value +  .upload-control-icon {
+	display: block;
+}
+.upload-control-label-input.has-value {
+	padding-left: 30px;
+}
 .upload-control-clear {
 	display: block;
 	position: absolute;
