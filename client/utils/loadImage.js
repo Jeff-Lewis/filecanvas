@@ -35,7 +35,7 @@ module.exports = function(file, options) {
 	}
 
 	function updateFileExtension(filename, mimeType) {
-		return path.basename(filename, path.extname(filename)) + getMimeExtension(mimeType);
+		return filename + getMimeExtension(mimeType);
 
 
 		function getMimeExtension(mimeType) {
