@@ -46,8 +46,6 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 
 - Sub-groups are ordered by their folder name, just like the file ordering.
 
-- **IMPORTANT:** Any files nested deeper than the sub-group level will not show up in the canvas.
-
 
 ## Collaborating with others
 

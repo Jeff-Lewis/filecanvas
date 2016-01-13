@@ -25,11 +25,6 @@
 		"body": "<p>Sounds like either you've moved or renamed your folder within your Dropbox, or you've revoked Filecanvas's access to your Dropbox.</p><p>If you've moved or renamed your canvas folder, you can either move the folder back to its original location (within the <code>filecanvas</code> folder in your Dropbox), or you can update your canvas's <b>Linked folder</b> setting in the canvas settings page to match the folder's new location.</p><p>If you've accidentally revoked Filecanvas's access to your Dropbox folder, just log into Filecanvas and it will restore Filecanvas's access to your Dropbox.<p>"
 	},
 	{
-		"id": "missing-some-files",
-		"title": "I've added some files to a subfolder within my canvas folder, but I can't see them. Why aren't they showing up?",
-		"body": "<p>It could be because the files are too deeply nested within subfolders. Filecanvas only shows files up to three levels deep within your canvas folder, so make sure you don't have any unnecessary levels of folders in there.</p>"
-	},
-	{
 		"id": "password-protection",
 		"title": "Can I password-protect my canvases?",
 		"body": "<p>Yes. Follow these steps to restrict access to a canvas:</p><ol><li>Go to your <a href=\"/\" target=\"_blank\">Dashboard</a>, and click on the canvas that you want to password-protect</li><li>Under the \"Password protection\" section, check the \"Password protect this canvas\" checkbox and save your changes</li><li>Under the \"Password protection\" section, you can now edit the username/password combinations that can be used to access this canvas</li></ol>"
