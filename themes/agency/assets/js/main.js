@@ -29,6 +29,10 @@ $(document).ready(function(){
 			nested: false,
 			label: false
 		});
+		var isPreviewVersion = document.location.href === 'about:blank';
+		if (isPreviewVersion) {
+			$('.selectnav').prop('disabled', true);
+		}
 	}
 
 	function initSmoothScroll() {
