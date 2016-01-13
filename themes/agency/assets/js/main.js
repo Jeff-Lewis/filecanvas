@@ -19,10 +19,8 @@ $(document).ready(function(){
 			currentClass: 'current',
 			changeHash: false,
 			scrollSpeed: 750,
-			scrollOffset: 30,
 			scrollThreshold: 0.5,
-			filter: ':not(.external)',
-			easing: 'swing'
+			filter: ':not(.external)'
 		});
 	}
 
