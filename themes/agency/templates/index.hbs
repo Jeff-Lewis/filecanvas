@@ -98,7 +98,7 @@
 								{{ partial 'file' file=file }}
 								{{/each}}
 								{{#each (folders folder) key='path' as |subfolder|}}
-								{{#each (files subfolder) key='path' as |file|}}
+								{{#each (flattenedFiles subfolder) key='path' as |file|}}
 								{{ partial 'file' file=file }}
 								{{/each}}
 								{{/each}}
