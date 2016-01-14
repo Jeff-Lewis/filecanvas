@@ -1,6 +1,5 @@
 'use strict';
 
-var path = require('path');
 var fs = require('fs');
 var getSubdomainUrl = require('./utils/getSubdomainUrl');
 
@@ -74,8 +73,8 @@ if (process.env.LOCAL_SITE_ROOT) {
 		storage: {
 			adapterName: process.env.LOCAL_NAME || 'Filecanvas server',
 			adapterLabel: process.env.LOCAL_LABEL || 'Filecanvas server',
-			defaultSitesPath: '/sites/',
-			sitesRoot: process.env.LOCAL_SITE_ROOT || path.resolve(__dirname, '../data'),
+			defaultSitesPath: '/',
+			sitesRoot: process.env.LOCAL_SITE_ROOT || null,
 			upload: {
 				subdomain: 'upload',
 				url: getSubdomainUrl({
