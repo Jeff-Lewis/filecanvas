@@ -1,4 +1,4 @@
-<div class="post item span4 isotope-item filter-{{ slug (basename subfolder.path) }}" data-file-modified="{{ timestamp file.modified }}">
+<div class="post item span4 isotope-item filter-{{ slug (basename parent.path) }}" data-file-modified="{{ timestamp file.modified }}">
 	<a class="project-wrp" href="{{ if (is-shortcut file) (shortcut @root file) (download @root file) }}" target="_blank"
 		data-toggle={{ if (has-preview file) 'overlay' null }}
 		data-overlay-url={{ if (has-preview file) (preview @root file) null }}
