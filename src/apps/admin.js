@@ -22,7 +22,6 @@ var redirect = require('../middleware/redirect');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
-var appCache = require('../middleware/appCache');
 
 var loadLoginAdapters = require('../utils/loadLoginAdapters');
 var loadStorageAdapters = require('../utils/loadStorageAdapters');
@@ -42,7 +41,6 @@ module.exports = function(database, options) {
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
-	var appCachePath = options.appCachePath;
 	var themesPath = options.themesPath;
 	var legalTemplatesPath = options.legalTemplatesPath;
 	var faqPath = options.faqPath;
@@ -62,7 +60,6 @@ module.exports = function(database, options) {
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
-	if (!appCachePath) { throw new Error('Missing app cache manifest path'); }
 	if (!legalTemplatesPath) { throw new Error('Missing legal templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!faqPath) { throw new Error('Missing FAQ path'); }
@@ -97,9 +94,6 @@ module.exports = function(database, options) {
 		partialsPath: partialsPath,
 		adapters: loginAdapters,
 		sessionMiddleware: initAdminSession
-	});
-	initAppCache(app, {
-		manifest: appCachePath
 	});
 	initHome(app, {
 		redirect: '/canvases'
@@ -163,13 +157,6 @@ module.exports = function(database, options) {
 
 	return app;
 
-
-	function initAppCache(app, options) {
-		options = options || {};
-		var manifestPath = options.manifest;
-
-		app.get('/filecanvas.appcache', appCache({ manifest: manifestPath }));
-	}
 
 	function initHome(app, options) {
 		options = options || {};
