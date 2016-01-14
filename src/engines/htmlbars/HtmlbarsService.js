@@ -39,7 +39,7 @@ HtmlbarsService.prototype.render = function(template, context, templateOptions) 
 	var hooks = this.hooks;
 
 	// Render the Htmlbars template
-	var env = merge({ helpers: helpers }, templateOptions, {
+	var env = merge({}, { helpers: helpers }, templateOptions, {
 		dom: new DOMHelper(document),
 		hooks: hooks
 	});

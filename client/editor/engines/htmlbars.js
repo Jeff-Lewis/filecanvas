@@ -66,7 +66,7 @@ function render(themeId, templateId, context, previewIframeElement, callback) {
 		var template = compilePrecompiledTemplate(precompiledTemplate);
 		var partials = compilePartials(precompiledPartials);
 		var templateFunction = function(context, targetElement) {
-			var env = merge({ helpers: helpers, partials: partials }, templateOptions, {
+			var env = merge({}, { helpers: helpers, partials: partials }, templateOptions, {
 				dom: new DOMHelper(templateOptions.dom || null),
 				hooks: hooks
 			});

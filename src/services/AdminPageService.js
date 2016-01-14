@@ -33,7 +33,7 @@ AdminPageService.prototype.render = function(req, res, options) {
 	options = options || {};
 	var pageTemplateName = options.template;
 	var context = options.context || null;
-	var templateOptions = merge({ partials: this.partials }, options.options);
+	var templateOptions = merge({}, { partials: this.partials }, options.options);
 
 	return this.loadSessionData(req, res)
 		.then(function() {

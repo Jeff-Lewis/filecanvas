@@ -7,7 +7,7 @@ var Handlebars = require('handlebars');
 function HandlebarsService(options) {
 	options = options || {};
 	this.helpers = options.helpers || {};
-	this.compilerOptions = merge({ knownHelpers: this.helpers }, options.compiler || {});
+	this.compilerOptions = merge({}, { knownHelpers: this.helpers }, options.compiler || {});
 }
 
 HandlebarsService.prototype.helpers = null;
