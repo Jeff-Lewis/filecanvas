@@ -18,8 +18,9 @@ module.exports = function(options) {
 
 	function initRoutes(app) {
 		app.get('/', ensureAuth, retrievePreviewRoute);
-		app.get('/:root/thumbnail/*', ensureAuth, retrieveThumbnailRoute);
 		app.get('/:root/download/*', ensureAuth, retrieveDownloadRoute);
+		app.get('/:root/preview/*', ensureAuth, retrievePreviewRoute);
+		app.get('/:root/thumbnail/*', ensureAuth, retrieveThumbnailRoute);
 
 
 		function ensureAuth(req, res, next) {
@@ -49,6 +50,31 @@ module.exports = function(options) {
 				var adapterOptions = userAdapters[siteAdapter];
 				resolve(
 					adapter.retrieveDownloadLink(fullPath, adapterOptions)
+						.then(function(downloadUrl) {
+							res.redirect(downloadUrl);
+						})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+		}
+
+		function retrievePreviewRoute(req, res, next) {
+			var userModel = req.user;
+			var userAdapters = userModel.adapters;
+			var urlEncodedSiteRoot = req.params.root;
+			var filePath = req.params[0];
+
+			new Promise(function(resolve, reject) {
+				var siteRoot = parseSiteRoot(urlEncodedSiteRoot);
+				var siteAdapter = siteRoot.adapter;
+				var sitePath = siteRoot.path;
+				var fullPath = sitePath + '/' + filePath;
+				var adapter = adapters[siteAdapter];
+				var adapterOptions = userAdapters[siteAdapter];
+				resolve(
+					adapter.retrievePreviewLink(fullPath, adapterOptions)
 						.then(function(downloadUrl) {
 							res.redirect(downloadUrl);
 						})
