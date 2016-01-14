@@ -1,6 +1,5 @@
 'use strict';
 
-var path = require('path');
 var loadImage = require('blueimp-load-image/js/load-image');
 var objectAssign = require('object-assign');
 
