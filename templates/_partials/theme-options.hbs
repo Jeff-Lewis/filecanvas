@@ -98,6 +98,13 @@
 							<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0" data-percent="0"></div>
 						</div>
 					</div>
+					<div class="upload-control-error alert alert-xs alert-danger">
+						<button type="button" class="close" aria-label="close" data-upload-dismiss-error>
+							<i class="fa fa-times-circle"></i>
+						</button>
+						<i class="upload-control-error-icon fa fa-exclamation-triangle"></i>
+						<p class="bold">Upload failed, please try again</p>
+					</div>
 				</div>
 				{{/if}}
 				{{#if (eq field.editor.name 'colorpicker')}}

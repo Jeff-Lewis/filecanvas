@@ -1224,15 +1224,27 @@ footer.content-footer {
     opacity: 0;
 }
 .upload-control-progress {
-	display: none;
 	padding-top: 14px;
 	padding-bottom: 15px;
 }
+.upload-control-error {
+}
 .upload-control.loading .upload-control-label,
-.upload-control.loading .upload-control-button {
+.upload-control.loading .upload-control-button,
+.upload-control.error .upload-control-label,
+.upload-control.error .upload-control-button {
+	display: none;
+}
+.upload-control .upload-control-progress {
 	display: none;
 }
 .upload-control.loading .upload-control-progress {
+	display: block;
+}
+.upload-control .upload-control-error {
+	display: none;
+}
+.upload-control.error .upload-control-error {
 	display: block;
 }
 

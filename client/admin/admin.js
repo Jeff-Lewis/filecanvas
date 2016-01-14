@@ -789,6 +789,7 @@ function initUploadControls() {
 				var $fileElement = $element.find('input[type="file"]');
 				var $progressBarElement = $element.find('[role="progressbar"]');
 				var $clearButtonElement = $element.find('[data-upload-clear]');
+				var $dismissErrorButtonElement = $element.find('[data-upload-dismiss-error]');
 				var uploadUrl = $element.attr('data-upload-url');
 				var uploadMethod = $element.attr('data-upload-method') || 'POST';
 				var requestUploadUrl = $element.attr('data-request-upload-url');
@@ -823,6 +824,10 @@ function initUploadControls() {
 					$inputElement.val('').trigger('change');
 				});
 
+				$dismissErrorButtonElement.on('click', function(event) {
+					$element.removeClass('error');
+				});
+
 				$fileElement.on('change', function(event) {
 					var fileInputElement = event.currentTarget;
 					var selectedFile = fileInputElement.files[0];
@@ -848,6 +853,9 @@ function initUploadControls() {
 						})
 						.then(function(uploadedUrl) {
 							$inputElement.val(uploadedUrl).trigger('change');
+						})
+						.fail(function() {
+							$element.addClass('error');
 						})
 						.always(function() {
 							$element.removeClass('loading');
