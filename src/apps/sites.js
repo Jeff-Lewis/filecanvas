@@ -294,14 +294,14 @@ module.exports = function(database, options) {
 					if (error) { return next(error); }
 					var loginWasSuccessful = Boolean(user);
 					var requestPath = req.originalUrl.split('?')[0];
+					var redirectUrl = req.body.redirect || null;
 					if (loginWasSuccessful) {
 						ensurePreviousUserLoggedOut(req)
 							.then(function() {
 								req.login(user, function(error) {
 									if (error) { return next(error); }
-									var redirectParam = req.params.redirect;
-									var redirectUrl = redirectParam || requestPath.replace(/\/login$/, '') || '/';
-									res.redirect(redirectUrl);
+									var siteIndexUrl = requestPath.replace(/\/login$/, '') || '/';
+									res.redirect(siteIndexUrl + (redirectUrl ? '?redirect=' + encodeURIComponent(redirectUrl) : ''));
 								});
 							})
 							.catch(function(error) {
@@ -309,7 +309,7 @@ module.exports = function(database, options) {
 							});
 					} else {
 						var siteLoginUrl = requestPath;
-						res.redirect(siteLoginUrl + '?retry');
+						res.redirect(siteLoginUrl + '?retry' + (redirectUrl ? '&redirect=' + encodeURIComponent(redirectUrl) : ''));
 					}
 				})(req, res, next);
 			}
@@ -372,17 +372,21 @@ module.exports = function(database, options) {
 									});
 							}
 
-							var requestPath = req.originalUrl.split('?')[0];
-
-							var siteLoginUrl = '/login';
-							var isDownloadLink = (requestPath.indexOf('/download') === 0);
-							if (isDownloadLink) {
-								// TODO: Generate login redirect link for download URLs (redirect to index page, then download file)
-								siteLoginUrl += '?redirect=' + encodeURIComponent(requestPath);
-							} else {
-								siteLoginUrl = (requestPath === '/' ? '' : requestPath) + siteLoginUrl;
+							var pathPrefix = '/' + username + '/' + siteName;
+							if (req.path.indexOf(pathPrefix) !== 0) {
+								throw new HttpError(500);
 							}
-							res.redirect(siteLoginUrl);
+							var resourcePath = req.path.replace(pathPrefix, '') || '/';
+							var requestPath = req.originalUrl.split('?')[0];
+							var requestPrefix = (resourcePath === '/' ? requestPath : requestPath.substr(0, requestPath.lastIndexOf(resourcePath)));
+
+							var siteLoginUrl = (requestPrefix === '/' ? '' : requestPrefix) + '/login';
+							var needsRedirect = (resourcePath !== '/');
+							if (needsRedirect) {
+								res.redirect(siteLoginUrl + '?redirect=' + encodeURIComponent((requestPrefix === '/' ? '' : requestPrefix) + resourcePath));
+							} else {
+								res.redirect(siteLoginUrl);
+							}
 						})
 					);
 				})
@@ -404,6 +408,7 @@ module.exports = function(database, options) {
 				var username = req.params.user;
 				var siteName = req.params.site;
 				var isRetryAttempt = ('retry' in req.query);
+				var redirectUrl = req.query.redirect || null;
 				var themeIdOverride = (isPreview && req.query.theme && req.query.theme.id || null);
 				var themeConfigOverrides = null;
 				if (isPreview && req.query.theme && req.query.theme.config) {
@@ -439,7 +444,8 @@ module.exports = function(database, options) {
 												siteRoot: getSiteRootUrl(req, '/login'),
 												themeRoot: themeAssetsUrl + themeId + '/',
 												theme: siteTheme,
-												retry: isRetryAttempt
+												retry: isRetryAttempt,
+												redirect: redirectUrl
 											},
 											resource: {
 												private: siteModel.private
@@ -463,6 +469,7 @@ module.exports = function(database, options) {
 			function siteRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var redirectUrl = req.query.redirect || null;
 				var useCached = (req.query.cached === 'true');
 				var themeIdOverride = (isPreview && req.query.theme && req.query.theme.id || null);
 				var themeConfigOverrides = null;
@@ -504,6 +511,9 @@ module.exports = function(database, options) {
 												root: siteModel.contents
 											}
 										};
+										if (redirectUrl) {
+											templateData.metadata.redirect = redirectUrl;
+										}
 										if (isPreview) {
 											templateData.metadata.admin = true;
 											templateData.metadata.preview = true;
