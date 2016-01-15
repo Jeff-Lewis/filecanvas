@@ -52,7 +52,7 @@ config.uploaders = {};
 config.uploaders.admin = {};
 config.uploaders.demo = {};
 
-if (process.env.LOCAL_SITE_ROOT) {
+if (process.env.LOCAL) {
 	config.adapters.local = {
 		login: {
 			admin: {
