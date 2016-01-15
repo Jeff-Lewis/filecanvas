@@ -189,12 +189,19 @@ html.overlay-active body {
 .overlay-previous,
 .overlay-next {
 	visibility: visible;
-	transition: visibility 0.3s linear, opacity 0.3s ease, background-color 0.3s ease;
+	transition: visibility 0.1s linear, opacity 0.1s ease, background-color 0.1s ease, transform 0.1s ease;
+	transform: translateX(0);
 }
 .overlay-sidepanel:hover + .overlay-previous,
 .overlay-sidepanel:hover + .overlay-previous + .overlay-next {
 	visibility: hidden;
 	opacity: 0;
+}
+.overlay-sidepanel:hover + .overlay-previous {
+	transform: translateX(-10px);
+}
+.overlay-sidepanel:hover + .overlay-previous + .overlay-next {
+	transform: translateX(10px);
 }
 
 .overlay-content {
