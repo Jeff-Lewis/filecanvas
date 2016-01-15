@@ -10,6 +10,9 @@
 				<div class="container">
 					<div class="row">
 						<form class="form-signin" role="form" action={{ login @root }} method="POST" autocomplete="off" style="text-align: center;">
+							{{#if metadata.redirect}}
+							<input type="hidden" name="redirect" value={{ metadata.redirect }} />
+							{{/if}}
 							<h2 class="form-signin-heading">Sign in</h2>
 							{{#if metadata.retry}}
 							<p>Invalid username or password.</p>

@@ -1,6 +1,9 @@
 <html lang="en">
 <head>
 	{{ partial 'head' title=(if metadata.theme.config.browser.title metadata.theme.config.browser.title metadata.theme.config.content.pageHeader) }}
+	{{#if metadata.redirect}}
+	<meta http-equiv="refresh" content="0;url={{ metadata.redirect }}"/>
+	{{/if}}
 </head>
 <body data-admin={{ if metadata.admin '' null }} data-admin-upload={{ if metadata.admin '' null }}>
 	{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
