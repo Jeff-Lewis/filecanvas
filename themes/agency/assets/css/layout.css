@@ -380,12 +380,6 @@
 		     	transition: all 0.1s linear;
 	}
 
-	.project-wrp:hover img {
-		opacity: 0.5;
-		-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
-		filter: alpha(opacity=50);
-	}
-
 	.option-set li {
 		display: inline-block;
 		margin-right: 15px;

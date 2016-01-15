@@ -166,7 +166,7 @@ footer a:hover {
 	background-color: #2d2d2d;
 }
 
-.profile-photo .file-icon {
+.profile-photo .profile-icon {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -174,22 +174,22 @@ footer a:hover {
 	margin-left: -35px;
 }
 
-.file-icon {
+.profile-icon {
 	-webkit-filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
 	-moz-filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
 	-o-filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
 	filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
 }
-.file-icon .file-icon-page {
+.profile-icon .profile-icon-page {
 	fill: #FFFFFF;
 }
-.file-icon .file-icon-content {
+.profile-icon .profile-icon-content {
 	fill: #2d2d2d;
 }
-.file-icon .file-icon-title {
+.profile-icon .profile-icon-title {
 	fill: #FFFFFF;
 }
-.file-icon .file-icon-text {
+.profile-icon .profile-icon-text {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size: 13px;
 	font-weight: bold;
@@ -200,6 +200,49 @@ footer a:hover {
 .profile-photo.has-thumbnail {
 	background-image: none;
 }
+
+.profile-rollover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: white;
+	line-height: 170px;
+	text-align: center;
+}
+.profile-rollover i {
+	font-size: 64px;
+	line-height: 150px;
+}
+.project-wrp .profile-rollover {
+	opacity: 0;
+	-webkit-transform: translateY(-25%);
+	-moz-transform: translateY(-25%);
+	-ms-transform: translateY(-25%);
+	-o-transform: translateY(-25%);
+	transform: translateY(-25%);
+	-webkit-transition: all 150ms ease;
+	-moz-transition: all 150ms ease;
+	-ms-transition: all 150ms ease;
+	-o-transition: all 150ms ease;
+	transition: all 150ms ease;
+}
+.project-wrp:hover .profile-rollover {
+	opacity: 1;
+	-webkit-transform: translateY(0);
+	-moz-transform: translateY(0);
+	-ms-transform: translateY(0);
+	-o-transform: translateY(0);
+	transform: translateY(0);
+}
+.project-wrp:hover .profile-thumbnail,
+.project-wrp:hover .profile-icon {
+	opacity: 0.45;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=45)";
+	filter: alpha(opacity=45);
+}
+
 
 .project-wrp:hover img {
 	opacity: 1;
