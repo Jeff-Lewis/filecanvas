@@ -1,6 +1,7 @@
 'use strict';
 
 $(document).ready(function(){
+	initIframeScrolling();
 	initStickyNav();
 	initOnePageNav();
 	initSelectNav();
@@ -9,6 +10,18 @@ $(document).ready(function(){
 	initLocalizedDates();
 	initOverlayDescriptions();
 
+
+	function initIframeScrolling() {
+		var isWithinIframe = (window !== window.top);
+		if (isWithinIframe) {
+			$('html').css({
+				'height': '1px',
+				'min-height': '100%',
+				'overflow': 'auto',
+				'-webkit-overflow-scrolling': 'touch'
+			});
+		}
+	}
 
 	function initStickyNav() {
 		$('#mainnav').sticky({ topSpacing: 0 });

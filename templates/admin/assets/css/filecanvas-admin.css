@@ -1024,14 +1024,11 @@ footer.content-footer {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	overflow: auto;
-	-webkit-overflow-scrolling: touch;
 }
 @media screen and (max-width: 767px) {
 	.theme-gallery-main {
 		top: 109px;
 		bottom: 54px;
-		overflow: auto;
 	}
 }
 .theme-gallery-preview {

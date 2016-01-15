@@ -162,7 +162,6 @@
 	left: 0;
 	bottom: 55px;
 	right: 0;
-	overflow: auto;
 	background-color: #f0f0f0;
 }
 .editor-sidepanel.collapsed + .editor-main {
@@ -329,7 +328,6 @@
 		top: 55px;
 		bottom: 0;
 		left: 0;
-		overflow: hidden;
 	}
 	.editor-sidepanel + .editor-main {
 		left: 300px;
