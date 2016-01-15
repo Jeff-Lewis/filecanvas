@@ -418,7 +418,7 @@ function updateSite(database, username, siteName, fields) {
 	var filter = { 'owner': username, 'name': siteName };
 	var updates = { $set: fields };
 	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
-		.then(function(error, numRecords) {
+		.then(function(numRecords) {
 			if (numRecords === 0) { throw new HttpError(404); }
 			return;
 		});
@@ -482,7 +482,7 @@ function updateSiteCache(database, username, siteName, cache) {
 	var filter = { 'owner': username, 'name': siteName };
 	var updates = { $set: { 'cache': cache } };
 	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
-		.then(function(error, numRecords) {
+		.then(function(numRecords) {
 			if (numRecords === 0) { throw new HttpError(404); }
 			return;
 		});
@@ -528,7 +528,7 @@ function updateSiteUser(database, username, siteName, siteUsername, authDetails,
 			var filter = { 'owner': username, 'name': siteName, 'users.username': siteUsername };
 			var updates = { $set: { 'users.$': siteUserModel } };
 			return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
-				.then(function(error, numRecords) {
+				.then(function(numRecords) {
 					if (numRecords === 0) { throw new HttpError(404); }
 					return;
 				});
@@ -539,7 +539,7 @@ function deleteSiteUser(database, username, siteName, siteUsername) {
 	var filter = { 'owner': username, 'name': siteName };
 	var updates = { $pull: { 'users': { 'username': siteUsername } } };
 	return database.collection(DB_COLLECTION_SITES).updateOne(filter, updates)
-		.then(function(error, numRecords) {
+		.then(function(numRecords) {
 			if (numRecords === 0) { throw new HttpError(404); }
 			return;
 		});
