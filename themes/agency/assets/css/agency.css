@@ -236,11 +236,15 @@ footer a:hover {
 	-o-transform: translateY(0);
 	transform: translateY(0);
 }
-.project-wrp:hover .profile-thumbnail,
+.project-wrp:hover .profile-thumbnail {
+	opacity: 0.5;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+}
 .project-wrp:hover .profile-icon {
-	opacity: 0.45;
-	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=45)";
-	filter: alpha(opacity=45);
+	opacity: 0.35;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=35)";
+	filter: alpha(opacity=35);
 }
 
 
