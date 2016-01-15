@@ -617,19 +617,19 @@ module.exports = function(database, options) {
 			var siteName = req.params.site;
 
 			new Promise(function(resolve, reject) {
-				var templateData = {
-					content: {
-						site: {
-							owner: username,
-							name: siteName
-						}
-					}
-				};
 				resolve(
-					adminPageService.render(req, res, {
-						template: 'editor/publish-site',
-						context: templateData
-					})
+					siteService.retrieveSite(username, siteName)
+						.then(function(siteModel) {
+							var templateData = {
+								content: {
+									site: siteModel
+								}
+							};
+							adminPageService.render(req, res, {
+								template: 'editor/publish-site',
+								context: templateData
+							});
+						})
 				);
 			})
 			.catch(function(error) {
