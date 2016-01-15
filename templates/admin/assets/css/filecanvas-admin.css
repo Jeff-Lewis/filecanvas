@@ -74,11 +74,12 @@ iframe {
 	display: block;
 }
 
-a:not(:link) {
-	cursor: default;
+a {
+	text-decoration: none;
+	cursor: auto !important;
 }
 
-a,
+a:link,
 a:active,
 a:focus,
 a:hover,
