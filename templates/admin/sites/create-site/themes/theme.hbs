@@ -1,8 +1,8 @@
 {{#>index title='Theme gallery' fullPage=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
-		{{>breadcrumb-item link=session.urls.admin.sitesCreate icon='plus' label='Create a site'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Your canvases'}}
+		{{>breadcrumb-item link=session.urls.admin.sitesCreate icon='plus' label='Create a canvas'}}
 		{{>breadcrumb-item link=session.urls.admin.sitesCreateThemes icon='image' label='Theme gallery'}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sitesCreateThemes content.theme.id) icon=null label=content.theme.name}}
 		{{/breadcrumb}}

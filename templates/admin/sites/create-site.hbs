@@ -1,7 +1,7 @@
 {{#>index title='Create a site' navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Your canvases'}}
 		{{>breadcrumb-item link=session.urls.admin.sitesCreate icon='plus' label='Create a canvas'}}
 		{{/breadcrumb}}
 	{{/inline}}
@@ -37,7 +37,7 @@
 							{{/if}}
 							<div class="panel-heading">
 								<h4 class="no-margin text-uppercase">
-									<i class="fa fa-arrow-right mr10"></i>Step 1: Choose a theme
+									<i class="fa fa-arrow-right mr10 hidden-xs"></i>Step 1: Choose a theme
 								</h4>
 							</div>
 							<div id="create-form-theme" class="panel-collapse collapse{{#if (not content.site.theme.id)}} in{{/if}}">
@@ -73,7 +73,9 @@
 						</div>
 						<div class="panel">
 							<div class="panel-heading">
-								<h4 class="no-margin text-uppercase"><i class="fa fa-arrow-right mr10"></i>Step 2: Create canvas</h4>
+								<h4 class="no-margin text-uppercase">
+									<i class="fa fa-arrow-right mr10 hidden-xs"></i>Step 2: Create canvas
+								</h4>
 							</div>
 							<div id="create-form-fields" class="panel-collapse collapse{{#if content.site.theme.id}} in{{/if}}">
 								<div class="panel-body form-horizontal bordered-group">

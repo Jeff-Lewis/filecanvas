@@ -23,7 +23,7 @@
 				<nav role="navigation">
 					<ul class="nav">
 						<li class="menu-accordion{{#if (and (startsWith session.location.pathname session.urls.admin.sites) (not-eq session.location.pathname session.urls.admin.sitesCreate))}} open{{/if}}">
-							<a href="{{ session.urls.admin.sites }}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
+							<a href="{{ session.urls.admin.sites }}"><i class="fa fa-dashboard"></i> <span>Your canvases</span></a>
 							{{#if session.sites}}
 							<ul class="sub-menu">
 								{{#each session.sites as |site|}}
@@ -102,7 +102,7 @@
 				</nav>
 				<nav class="footer-left">
 					<ul class="nav">
-						<li><a>Copyright <i class="fa fa-copyright"></i> <span>Filecanvas</span> 2015</a></li>
+						<li><a>Copyright <i class="fa fa-copyright"></i> <span>Filecanvas</span></a></li>
 						<li><a href="{{ session.urls.admin.terms }}">Terms &amp; Conditions</a></li>
 						<li><a href="{{ session.urls.admin.privacy }}">Privacy Policy</a></li>
 					</ul>

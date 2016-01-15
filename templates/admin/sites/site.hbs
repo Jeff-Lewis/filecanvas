@@ -1,7 +1,7 @@
 {{#>index title=(concat 'Canvas settings: ' content.site.label) navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Your canvases'}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
 		{{/breadcrumb}}
 	{{/inline}}
@@ -29,7 +29,7 @@
 					<div class="alert alert-block alert-info">
 						<i class="pull-left fa fa-wrench"></i>
 						<div>
-							<h5>This canvas is not published.</h5>
+							<h5 class="xs-mt15">This canvas is not published.</h5>
 							<ul>
 								<li>Use the <strong>Canvas editor</strong> to choose how the canvas will look, and to add files to the canvas</li>
 								<li>Once you're ready to take the canvas live, click the <strong>Publish canvas</strong> button</li>
@@ -71,9 +71,9 @@
 										<div class="alert alert-danger">
 											<i class="pull-left fa fa-exclamation-circle"></i>
 											<div>
-												<h5 class="mb20">You are about to take this canvas offline. Any links to {{ session.urls.webroot }}{{ content.site.name }} will no longer work.</h5>
-												<button type="submit" class="btn btn-danger mr5">Unpublish canvas</button>
-												<button type="button" class="btn btn-default" data-toggle="collapse" data-target="#unpublish-site" aria-expanded="false" aria-controls="unpublish-site">Cancel</button>
+												<h5 class="mb20">You are about to take this canvas offline. Any links to <a>{{ session.urls.webroot }}{{ content.site.name }}</a> will no longer work.</h5>
+												<button type="submit" class="btn btn-danger mr5 mb10">Unpublish canvas</button>
+												<button type="button" class="btn btn-default mb10" data-toggle="collapse" data-target="#unpublish-site" aria-expanded="false" aria-controls="unpublish-site">Cancel</button>
 											</div>
 										</div>
 									</form>
@@ -137,10 +137,10 @@
 															value="true"
 															{{#unless session.user.defaultSite}}checked="checked"{{/unless}}
 														/>
-														Use this as my home canvas
+														<span class="checkbox-label">Use this as my home canvas</span>
 													</label>
 												</div>
-												<p class="help-block">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+												<p class="help-block">Your home canvas is the canvas that loads when a user navigates to <strong><a>{{ session.urls.webroot }}</a></strong></p>
 											</div>
 										</div>
 										<div class="form-group">
@@ -168,7 +168,10 @@
 					<div class="panel-body">
 						<p>Copy and paste this link to share your canvas:</p>
 						<p>
-							<input type="text" class="form-control input-lg mb15" data-select-all-input
+							<input type="text" class="form-control mb15 visible-xs" data-select-all-input
+								value="{{ session.urls.webroot }}{{ content.site.name }}"
+							/>
+							<input type="text" class="form-control input-lg mb15 hidden-xs" data-select-all-input
 								value="{{ session.urls.webroot }}{{ content.site.name }}"
 							/>
 						</p>
@@ -210,7 +213,7 @@
 															value="true"
 															{{#if content.site.private}}checked="checked"{{/if}}
 														/>
-														Password protect this canvas
+														<span class="checkbox-label">Password protect this canvas</span>
 													</label>
 												</div>
 											</div>
@@ -264,7 +267,7 @@
 											<div>
 												<h5>Before changing this canvas's web address, bear the following points in mind:</h5>
 												<ul>
-													<li>After changing the canvas's address, any links to <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong> will <strong>no longer work.</strong></li>
+													<li>After changing the canvas's address, any links to <strong><a>{{ session.urls.webroot }}{{ content.site.name }}</a></strong> will <strong>no longer work.</strong></li>
 													<li>If you have set up a custom domain name for this canvas, you will need to update your DNS settings to reflect the new web address.</li>
 												</ul>
 											</div>
@@ -326,10 +329,10 @@
 															value="true"
 															{{#if content.site.home}}checked="checked"{{/if}}
 														/>
-														Use this as my home canvas
+														<span class="checkbox-label">Use this as my home canvas</span>
 													</label>
 												</div>
-												<p class="help-block">Your home canvas is the canvas that loads when a user navigates to <strong>{{ session.urls.webroot }}</strong></p>
+												<p class="help-block">Your home canvas is the canvas that loads when a user navigates to <strong><a>{{ session.urls.webroot }}</a></strong></p>
 											</div>
 										</div>
 										<div class="form-group">
@@ -441,7 +444,7 @@
 											<div>
 												<h5>Before deleting this canvas, bear the following points in mind:</h5>
 												<ul>
-													<li>Deleting this canvas will <strong>permanently</strong> remove the canvas located at <strong>{{ session.urls.webroot }}{{ content.site.name }}</strong></li>
+													<li>Deleting this canvas will <strong>permanently</strong> remove the canvas located at <strong><a>{{ session.urls.webroot }}{{ content.site.name }}</strong></a></li>
 													<li>Deleting this canvas will unlink the canvas’s folder from the Filecanvas service.</li>
 													<li>Deleting this canvas will <strong>not</strong> delete the contents of the canvas’s folder.</li>
 												</ul>
@@ -452,7 +455,8 @@
 											<div class="col-sm-10">
 												<div class="checkbox">
 													<label>
-														<input type="checkbox" data-bind-id="confirm-delete"/> I want to permanently delete this canvas
+														<input type="checkbox" data-bind-id="confirm-delete"/>
+														<span class="checkbox-label">I want to permanently delete this canvas</span>
 													</label>
 												</div>
 											</div>

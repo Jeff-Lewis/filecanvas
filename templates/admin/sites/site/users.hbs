@@ -1,7 +1,7 @@
 {{#>index title=(concat 'Users: ' content.site.label) navigation=true footer=true}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Your canvases'}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name '/users') icon='users' label='Users'}}
 		{{/breadcrumb}}
@@ -76,7 +76,10 @@
 												<label class="col-sm-3 control-label">Are you sure?</label>
 												<div class="col-sm-9">
 													<div class="checkbox">
-														<label><input type="checkbox" data-bind-id="confirm-delete-{{ user.username }}"/> I want to permanently delete <strong>{{ user.username }}</strong></label>
+														<label>
+															<input type="checkbox" data-bind-id="confirm-delete-{{ user.username }}"/>
+															<span class="checkbox-label">I want to permanently delete <strong>{{ user.username }}</strong></span>
+														</label>
 													</div>
 												</div>
 											</div>

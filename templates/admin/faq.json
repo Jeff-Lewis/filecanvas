@@ -2,12 +2,12 @@
 	{
 		"id": "share-link",
 		"title": "Will other people need to sign up for Filecanvas or Dropbox to access my canvases?",
-		"body": "<p>No. For others to view your canvas, all they need is the web address of the canvas.</p><p>The web address for a canvas takes the form <b>https://${username}.filecanvas.com/${sitename}</b>, where <b>${username}</b> is your Filecanvas username and <b>${sitename}</b> is your canvas path (as specified in your <a href=\"/account\">account settings</a> page and the canvas's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
+		"body": "<p>No. For others to view your canvas, all they need is the web address of the canvas.</p><p>The web address for a canvas takes the form <strong><a>https://${username}.filecanvas.com/${sitename}</a></strong>, where <strong>${username}</strong> is your Filecanvas username and <strong>${sitename}</strong> is your canvas path (as specified in your <a href=\"/account\">account settings</a> page and the canvas's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
 	},
 	{
 		"id": "canvas-folder",
 		"title": "Where are my canvases stored?",
-		"body": "<p>Filecanvas does <b>not</b> store any of your files. All the files in your canvases are located on Dropbox's secure file servers.</p><p>By default, whenever you create a canvas, Filecanvas will create a new canvas folder within a folder named <code>filecanvas</code> inside your Dropbox. Your canvas will then stay in sync with the contents of this folder.</p>"
+		"body": "<p>Filecanvas does <strong>not</strong> store any of your files. All the files in your canvases are located on Dropbox's secure file servers.</p><p>By default, whenever you create a canvas, Filecanvas will create a new canvas folder within a folder named <code>filecanvas</code> inside your Dropbox. Your canvas will then stay in sync with the contents of this folder.</p>"
 	},
 	{
 		"id": "share-folder",
@@ -22,7 +22,7 @@
 	{
 		"id": "missing-all-files",
 		"title": "Where did my files go? My canvas is suddenly empty!",
-		"body": "<p>Sounds like either you've moved or renamed your folder within your Dropbox, or you've revoked Filecanvas's access to your Dropbox.</p><p>If you've moved or renamed your canvas folder, you can either move the folder back to its original location (within the <code>filecanvas</code> folder in your Dropbox), or you can update your canvas's <b>Linked folder</b> setting in the canvas settings page to match the folder's new location.</p><p>If you've accidentally revoked Filecanvas's access to your Dropbox folder, just log into Filecanvas and it will restore Filecanvas's access to your Dropbox.<p>"
+		"body": "<p>Sounds like either you've moved or renamed your folder within your Dropbox, or you've revoked Filecanvas's access to your Dropbox.</p><p>If you've moved or renamed your canvas folder, you can either move the folder back to its original location (within the <code>filecanvas</code> folder in your Dropbox), or you can update your canvas's <strong>Linked folder</strong> setting in the canvas settings page to match the folder's new location.</p><p>If you've accidentally revoked Filecanvas's access to your Dropbox folder, just log into Filecanvas and it will restore Filecanvas's access to your Dropbox.<p>"
 	},
 	{
 		"id": "password-protection",
@@ -37,7 +37,7 @@
 	{
 		"id": "default-canvas",
 		"title": "Can I set a default canvas to display at my Filecanvas web root?",
-		"body": "<p>Yes. You can choose which canvas shows up as the default canvas for your Filecanvas web root (i.e. at <b>https://${username}.filecanvas.com/</b>) by changing the \"Home canvas\" setting in your <a href=\"/account\">account settings</a>.</p>"
+		"body": "<p>Yes. You can choose which canvas shows up as the default canvas for your Filecanvas web root (i.e. at <strong><a>https://${username}.filecanvas.com/</a></strong>) by changing the \"Home canvas\" setting in your <a href=\"/account\">account settings</a>.</p>"
 	},
 	{
 		"id": "change-username",
@@ -47,17 +47,17 @@
 	{
 		"id": "move-rename-canvas-folder",
 		"title": "Can I move/rename my canvas folder within my Dropbox?",
-		"body": "<p>Yes, however make sure to update the <b>Linked folder</b> path in your canvas settings accordingly, or it will appear as if there are no files in your canvas.</p><p>You can put your sites anywhere in your Dropbox, however it's recommended that canvas folders should be kept in a folder named <code>filecanvas</code> in your Dropbox root.</p>"
+		"body": "<p>Yes, however make sure to update the <strong>Linked folder</strong> path in your canvas settings accordingly, or it will appear as if there are no files in your canvas.</p><p>You can put your sites anywhere in your Dropbox, however it's recommended that canvas folders should be kept in a folder named <code>filecanvas</code> in your Dropbox root.</p>"
 	},
 	{
 		"id": "existing-canvas-folder",
 		"title": "Can I use an existing folder as a canvas folder?",
-		"body": "<p>Yes. Make sure the folder is inside the <code>filecanvas</code> folder within your Dropbox, and then create a new canvas, making sure to set the <b>Canvas name</b> to the name of the folder.</p>"
+		"body": "<p>Yes. Make sure the folder is inside the <code>filecanvas</code> folder within your Dropbox, and then create a new canvas, making sure to set the <strong>Canvas name</strong> to the name of the folder.</p>"
 	},
 	{
 		"id": "custom-domain",
 		"title": "Can I use my own domain name (e.g. http://www.example.com/) with Filecanvas?",
-		"body": "<p>Yes. You can point your own domain names to your main Filecanvas web root, or to individual canvases. And don't worry: if you use your own custom domain name, the Filecanvas web address won't be displayed to the user.</p><p>To use a custom domain name, set up a CNAME alias as follows:</p><blockquote class=\"faq-example\"><h5><b>Example 1:</b> Pointing your domain to your main Filecanvas web root</h5><aside>This example assumes your Filecanvas username is <b>${username}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your Filecanvas web root</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${username}.filecanvas.com.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your web root at <b>http://${username}.filecanvas.com/</b>. This means that you will be able to access your canvases at <b>http://www.example.com/${sitename}</b> (where <b>${sitename}</b> is the path to one of your canvases).</b></aside></blockquote><blockquote class=\"faq-example\"><h5><b>Example 2:</b> Pointing your domain to an individual canvas</h5><aside>This example assumes your Filecanvas username is <b>${username}</b>, you have a canvas with its path set to <b>${sitename}</b>, you own the domain name <b>example.com</b>, and you want to point <b>www.example.com</b> to your canvas</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${sitename}.${username}.filecanvas.com.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <b>http://www.example.com</b> should now be pointing to your canvas at <b>http://${username}.filecanvas.com/${sitename}</b></aside></blockquote><p>The examples above use the <code>www</code> subdomain, however you can set up a CNAME record for whichever subdomain you like (e.g. <code>extranet</code> or <code>my.nested.subdomain</code>). You can also use multiple CNAME records if you want to serve the canvas from multiple addresses.</p>"
+		"body": "<p>Yes. You can point your own domain names to your main Filecanvas web root, or to individual canvases. And don't worry: if you use your own custom domain name, the Filecanvas web address won't be displayed to the user.</p><p>To use a custom domain name, set up a CNAME alias as follows:</p><blockquote class=\"faq-example\"><h5><strong>Example 1:</strong> Pointing your domain to your main Filecanvas web root</h5><aside>This example assumes your Filecanvas username is <strong>${username}</strong>, you own the domain name <strong>example.com</strong>, and you want to point <strong>www.example.com</strong> to your Filecanvas web root</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <code>${username}.filecanvas.com.</code> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <strong>http://www.example.com</strong> should now be pointing to your web root at <strong><a>http://${username}.filecanvas.com/</a></strong>. This means that you will be able to access your canvases at <strong>http://www.example.com/${sitename}</strong> (where <strong>${sitename}</strong> is the path to one of your canvases).</b></aside></blockquote><blockquote class=\"faq-example\"><h5><strong>Example 2:</strong> Pointing your domain to an individual canvas</h5><aside>This example assumes your Filecanvas username is <strong>${username}</strong>, you have a canvas with its path set to <strong>${sitename}</strong>, you own the domain name <strong>example.com</strong>, and you want to point <strong>www.example.com</strong> to your canvas</aside><ol><li>Log in to your hosting provider's DNS settings page</li><li>Add a CNAME alias entry that points from the <code>www</code> subdomain to <a><code>${sitename}.${username}.filecanvas.com.</code></a> (including the trailing <code>.</code> character)</li></ol><aside>Once the DNS settings have updated, <strong>http://www.example.com</strong> should now be pointing to your canvas at <strong><a>http://${username}.filecanvas.com/${sitename}</a></strong></aside></blockquote><p>The examples above use the <code>www</code> subdomain, however you can set up a CNAME record for whichever subdomain you like (e.g. <code>extranet</code> or <code>my.nested.subdomain</code>). You can also use multiple CNAME records if you want to serve the canvas from multiple addresses.</p>"
 	},
 	{
 		"id": "custom-root-domain",
@@ -67,6 +67,6 @@
 	{
 		"id": "custom-https-domain",
 		"title": "Can I use SSL for custom domains?",
-		"body": "All canvases on <b>filecanvas.com</b> are served via https, however the Filecanvas SSL certificate won't be valid for your custom domain names. <a href=\"mailto:info@filecanvas.com?subject=Custom%20domain%20SSL%20certificate\">Get in touch</a> if you need SSL support for custom domains."
+		"body": "All canvases on <strong>filecanvas.com</strong> are served via https, however the Filecanvas SSL certificate won't be valid for your custom domain names. <a href=\"mailto:info@filecanvas.com?subject=Custom%20domain%20SSL%20certificate\">Get in touch</a> if you need SSL support for custom domains."
 	}
 ]

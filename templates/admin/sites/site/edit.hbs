@@ -22,7 +22,7 @@
 	{{/inline}}
 	{{#*inline 'navbar'}}
 		{{#>breadcrumb}}
-		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Dashboard'}}
+		{{>breadcrumb-item link=session.urls.admin.sites icon='dashboard' label='Your canvases'}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name) icon='globe' label=content.site.label}}
 		{{>breadcrumb-item link=(concat session.urls.admin.sites '/' content.site.name '/edit') icon='paint-brush' label='Site editor'}}
 		{{/breadcrumb}}

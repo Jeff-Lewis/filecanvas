@@ -12,12 +12,12 @@
 				</div>
 				{{#each content.questions as |question|}}
 				<a id="{{ question.id }}" class="collapse-anchor"></a>
-				<div class="panel panel-primary mb5">
-					<a class="panel-heading collapsed" data-toggle="collapse" href="#{{ question.id }}-answer" aria-expanded="false" aria-controls="{{ question.id }}" role="tab">
+				<div class="faq panel panel-primary mb5">
+					<a class="faq-question panel-heading collapsed" data-toggle="collapse" href="#{{ question.id }}-answer" aria-expanded="false" aria-controls="{{ question.id }}" role="tab">
 						<div class="pull-left">{{ question.title }}</div>
 						<div class="panel-controls"><i class="panel-arrow fa fa-angle-up"></i></div>
 					</a>
-					<div id="{{ question.id }}-answer" class="panel-collapse collapse" role="tabpanel" data-collapse-anchor="#{{ question.id }}">
+					<div id="{{ question.id }}-answer" class="faq-answer panel-collapse collapse" role="tabpanel" data-collapse-anchor="#{{ question.id }}">
 						<div class="panel-body">
 							{{{ question.body }}}
 						</div>
