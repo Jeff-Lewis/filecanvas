@@ -46,16 +46,19 @@ body.no-footer .main-content {
     margin-bottom: 0;
 }
 
-html.no-padding,
-html.no-padding body {
+html.overlay {
+	width: 1px;
+	min-width: 100%;
 	height: auto;
 }
-html.no-padding body {
+html.overlay body {
 	min-width: 0;
+	height: auto;
 }
-html.no-padding .app {
+html.overlay .app {
 	min-height: auto;
 }
+
 html.no-padding .main-content {
     padding: 0;
 }
