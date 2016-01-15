@@ -1372,6 +1372,12 @@ footer.content-footer {
 	content: "\f00d";
 }
 
+.path-control {
+	display: inline-block;
+}
+.path-control.editing {
+	display: block;
+}
 .path-control > input {
 	display: none;
 }
@@ -1382,23 +1388,25 @@ footer.content-footer {
 	display: none;
 }
 .path-control-segments {
-	display: inline-block;
+	display: block;
 	list-style: none;
 	line-height: 25px;
-	padding: 5px 0 2px;
+	padding: 0;
+	margin-top: 2px;
 	margin-bottom: 0;
 }
 .path-control-segments > li {
+	display: block;
 	position: relative;
-	display: inline-block;
 	padding: 0 10px;
 	background-color: #e2e2e2;
 	border-radius: 2px;
-	margin-right: 17px;
 	border: 1px solid #ccc;
+	margin-bottom: 20px;
+	text-align: center;
 }
-.path-control-segments > li:last-child {
-	margin-right: 0;
+.path-control:not(.has-extra) .path-control-segments > li:last-child {
+	margin-bottom: 0;
 }
 .path-control > input:not(:disabled):not(:read-only) + .path-control-segments > li {
 	cursor: pointer;
@@ -1409,14 +1417,13 @@ footer.content-footer {
 .path-control-extra {
 	display: inline-block;
 	vertical-align: top;
-	margin-left: 17px;
+	margin-bottom: 5px;
 }
 .path-control-extra .form-control {
 	display: inline-block;
 	width: auto;
 }
 .path-control-extra .input-group {
-	padding: 5px 0 2px;
 	width: 100px;
 }
 .path-control-extra .input-group .input-group-addon {
@@ -1463,13 +1470,16 @@ footer.content-footer {
 	content: "\f0a0";
 }
 .path-control-segments > li::after {
-    content: "\f0da";
+    content: "\f0d7";
 	position: absolute;
-	left: 100%;
+	top: 100%;
+	margin-top: 1px;
+	left: 50%;
+	margin-left: -10px;
 	font-size: 16px;
     vertical-align: top;
-    padding: 0 8px;
-	line-height: 25px;
+    padding: 1px 8px 0;
+	line-height: 19px;
     color: #999;
 }
 .path-control:not(.has-extra) .path-control-segments > li:last-child::after {
@@ -1477,6 +1487,47 @@ footer.content-footer {
 }
 .path-control.has-error .path-control-segments > li {
 	border-color: #d96557;
+}
+.path-control-segments + .form-control-feedback {
+	top: auto;
+	bottom: 0;
+	margin-bottom: 0;
+}
+@media screen and (min-width: 768px) {
+	.form-group .path-control {
+		display: block;
+		margin-right: 42px;
+	}
+	.form-group .path-control.editing {
+		margin-right: 0;
+	}
+	.path-control-segments {
+		display: inline-block;
+		margin-top: 0;
+	}
+	.path-control-segments > li {
+		display: inline-block;
+		margin-top: 5px;
+		margin-bottom: 2px;
+		margin-right: 17px;
+	}
+	.path-control:not(.has-extra) .path-control-segments > li:last-child {
+		margin-right: 0;
+	}
+	.path-control-segments > li::after {
+		content: "\f0da";
+		top: auto;
+		margin-top: 0;
+		margin-left: 0;
+		left: 100%;
+		padding: 0 8px;
+		line-height: 25px;
+		color: #999;
+	}
+	.path-control-extra {
+		margin-top: 5px;
+		margin-bottom: 2px;
+	}
 }
 
 .upload-control-label {
