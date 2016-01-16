@@ -250,6 +250,10 @@
 .editor-preview.error {
 	display: none;
 }
+.title-bar.controls-2 ~ .editor-main,
+.title-bar.controls-2 ~ .editor-sidepanel:not(.collapsed) {
+	bottom: 93px;
+}
 
 @media screen and (min-width: 768px) {
 	.editor-sidepanel {
@@ -355,6 +359,10 @@
 		transition: left 0.3s ease;
 	}
 
+	.title-bar.controls-2 ~ .editor-main,
+	.title-bar.controls-2 ~ .editor-sidepanel:not(.collapsed) {
+		bottom: 0;
+	}
 }
 
 .theme-options-accordion {
@@ -425,6 +433,21 @@
 	margin-right: -4px;
 }
 
+.editor-file-upload-input,
+.editor-file-upload-input::-webkit-file-upload-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+	display: block;
+	position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+	overflow: hidden;
+	cursor: pointer;
+    opacity: 0;
+}
 .editor-font-control .bootstrap-select.form-control {
 	float: left;
 }

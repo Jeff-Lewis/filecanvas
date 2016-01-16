@@ -1119,6 +1119,9 @@ select.btn-toolbar {
 }
 
 @media screen and (max-width: 767px) {
+	.title-bar-close {
+		display: none;
+	}
 	.title-bar-controls {
 		position: absolute;
 		float: none;
@@ -1131,9 +1134,13 @@ select.btn-toolbar {
 	}
 	.title-bar-controls .btn {
 		float: none;
-	}
-	.title-bar-controls .btn:first-child:last-child {
+		margin-right: 0;
+		display: block;
 		width: 100%;
+		margin-bottom: 5px;
+	}
+	.title-bar-controls .btn:last-child {
+		margin-bottom: 0;
 	}
 	.title-bar-toolbar {
 		background-color: #495469;

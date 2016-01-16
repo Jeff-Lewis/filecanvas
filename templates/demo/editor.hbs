@@ -43,7 +43,7 @@
 			<input type="hidden" name="_state.{{ key }}" value="{{ value }}">
 			{{/each}}
 			{{/if}}
-			<div class="title-bar">
+			<div class="title-bar{{#if (and session.user content.site.name)}} controls-2{{/if}}">
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
 						<div class="brand">
@@ -60,13 +60,17 @@
 						{{#unless content.site.name}}
 						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#add-files-modal">Next: Add files</button>
 						{{else}}
+						<label class="editor-file-upload btn btn-primary bold visible-xs">
+							Upload a file
+							<input type="file" class="editor-file-upload-input" data-editor-upload/>
+						</label>
 						<button type="submit" class="btn btn-success bold">Save this canvas</button>
 						{{/unless}}
 						{{/unless}}
 					</div>
 				</div>
 				<div id="title-bar-toolbar" class="title-bar-toolbar pull-right hidden-xs">
-					<fieldset class="title-bar-toolbar-container clearfix" data-editor-controls>
+					<fieldset class="title-bar-toolbar-container clearfix" disabled="disabled" data-editor-controls>
 						<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-undo><i class="fa fa-undo mr5"></i> Undo</button>
 						<button type="button" class="btn btn-toolbar" disabled="disabled" data-editor-redo><i class="fa fa-repeat mr5"></i> Redo</button>
 						<button type="reset" class="btn btn-toolbar" disabled="disabled"><i class="fa fa-refresh mr5"></i> <span class="visible-xs-inline-block visible-sm-inline-block visible-md-inline-block">Reset</span><span class="hidden-xs hidden-sm hidden-md">Reset changes</span></button>
