@@ -1356,6 +1356,7 @@ footer.content-footer {
 		border: none;
 		border-radius: 0;
 		background-color: transparent;
+		padding-left: 2px;
 		padding-right: 2px;
 	}
 	.input-group.web-address-control.has-error .input-group-addon {
