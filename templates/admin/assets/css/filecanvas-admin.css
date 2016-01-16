@@ -392,6 +392,7 @@ button.bg-bluegrey:hover :not(:disabled) {
 }
 
 .modal-content {
+	min-width: 300px;
 	border-color: #09c;
 	border-radius: 0;
 }
