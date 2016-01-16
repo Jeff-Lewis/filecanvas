@@ -20,7 +20,8 @@
 								<a href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">{{ session.urls.webroot }}{{ content.site.name }}</a>
 							</h5>
 							<ul>
-								<li>Use the <strong>Canvas editor</strong> to change how the canvas looks, and to add files to the canvas. Any changes you make will be applied to the live canvas.</li>
+								<li>Click <strong>Edit canvas</strong> to change how the canvas looks, and to add files to the canvas. Any changes you make will be applied to the live canvas.</li>
+								<li>Click the <strong>Visit canvas</strong> button to take a look at the live canvas</li>
 								<li>To take the canvas offline, click the <strong>Unpublish canvas</strong> button</li>
 							</ul>
 						</div>
@@ -31,21 +32,28 @@
 						<div>
 							<h5 class="xs-mt15">This canvas is not published.</h5>
 							<ul>
-								<li>Use the <strong>Canvas editor</strong> to choose how the canvas will look, and to add files to the canvas</li>
+								<li>Click <strong>Edit canvas</strong> to choose how the canvas will look, and to add files to the canvas</li>
+								<li>Click the <strong>Preview canvas</strong> button to see exactly how the canvas will look when it's published</li>
 								<li>Once you're ready to take the canvas live, click the <strong>Publish canvas</strong> button</li>
 							</ul>
 						</div>
 					</div>
 					{{/if}}
 					<div class="row">
-						<div class="col-md-6">
+						<div class="col-md-4">
 							<a class="widget md-mb0 lg-mb0 bg-primary" href="{{ session.urls.admin.sites }}/{{ content.site.name }}/edit">
 								<i class="widget-icon bg-white pull-left fa fa-paint-brush"></i>
-								<h4>Canvas editor</h4>
+								<h4>Edit canvas</h4>
 							</a>
 						</div>
 						{{#if content.site.published}}
-						<div class="col-md-6">
+						<div class="col-md-4">
+							<a class="widget md-mb0 lg-mb0 bg-primary" href="{{ session.urls.webroot }}{{ content.site.name }}" target="_blank">
+								<i class="widget-icon bg-white pull-left fa fa-external-link"></i>
+								<h4>Visit canvas</h4>
+							</a>
+						</div>
+						<div class="col-md-4">
 							<button class="widget btn btn-block bg-danger mb0" data-toggle="collapse" data-target="#unpublish-site" aria-expanded="false" aria-controls="unpublish-site">
 								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
 								<h4>Unpublish canvas</h4>
@@ -81,7 +89,13 @@
 							</div>
 						</div>
 						{{else}}
-						<div class="col-md-6">
+						<div class="col-md-4">
+							<a class="widget md-mb0 lg-mb0 bg-primary" href="{{ session.urls.admin.preview }}/{{ content.site.name }}" target="_blank">
+								<i class="widget-icon bg-white pull-left fa fa-external-link"></i>
+								<h4>Preview canvas</h4>
+							</a>
+						</div>
+						<div class="col-md-4">
 							<button class="widget btn btn-block bg-success mb0" data-toggle="collapse" data-target="#publish-site" aria-expanded="false" aria-controls="publish-site">
 								<i class="widget-icon bg-white pull-left fa fa-power-off"></i>
 								<h4>Publish canvas</h4>
