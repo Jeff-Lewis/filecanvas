@@ -162,6 +162,7 @@
 	left: 0;
 	bottom: 55px;
 	right: 0;
+	overflow: hidden;
 	background-color: #f0f0f0;
 }
 .editor-sidepanel.collapsed + .editor-main {
@@ -200,7 +201,9 @@
 	display: block;
 }
 .editor.loading .editor-preview,
-.editor.error .editor-preview {
+.editor.error .editor-preview,
+.editor.loading .editor-progress,
+.editor.error .editor-progress {
 	display: none;
 }
 
