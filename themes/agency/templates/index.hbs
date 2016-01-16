@@ -6,34 +6,43 @@
 	{{/if}}
 </head>
 <body data-admin={{ if metadata.admin '' null }} data-admin-upload={{ if metadata.admin '' null }}>
-	{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
-	<header id="home">
-		<div class="header-bg"></div>
-		<div class="pattern"></div>
-		<div class="container">
-			{{#if metadata.theme.config.images.headerLogo}}
-			<div class="row">
-				<div class="span12">
-					<div class="logo-container{{ if (eq metadata.theme.config.images.headerLogoCentered 'true') ' centered' '' }}">
-						<a class="logo" href={{ if metadata.theme.config.footer.contactWebsite metadata.theme.config.footer.contactWebsite null }} target="_blank">
-							<img src={{ metadata.theme.config.images.headerLogo }} />
-						</a>
+	<div class="wrapper{{ if (or
+		metadata.theme.config.footer.contactTitle
+		metadata.theme.config.footer.contactEmail
+		metadata.theme.config.footer.contactWebsite
+		metadata.theme.config.footer.contactPhone
+		metadata.theme.config.footer.contactAddress
+		metadata.theme.config.footer.footerTitle
+		metadata.theme.config.footer.footerText
+		) ' has-footer' }}"
+	>
+		{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
+		<header id="home">
+			<div class="header-bg"></div>
+			<div class="pattern"></div>
+			<div class="container">
+				{{#if metadata.theme.config.images.headerLogo}}
+				<div class="row">
+					<div class="span12">
+						<div class="logo-container{{ if (eq metadata.theme.config.images.headerLogoCentered 'true') ' centered' }}">
+							<a class="logo" href={{ if metadata.theme.config.footer.contactWebsite metadata.theme.config.footer.contactWebsite null }} target="_blank">
+								<img src={{ metadata.theme.config.images.headerLogo }} />
+							</a>
+						</div>
+					</div>
+				</div>
+				{{/if}}
+				<div class="row">
+					<div class="span12">
+						<div id="slidecaption">
+							<h1>{{ markdown metadata.theme.config.content.pageHeader }}</h1>
+							<h2>{{ markdown metadata.theme.config.content.pageSubtitle }}</h2>
+						</div>
 					</div>
 				</div>
 			</div>
-			{{/if}}
-			<div class="row">
-				<div class="span12">
-					<div id="slidecaption">
-						<h1>{{ markdown metadata.theme.config.content.pageHeader }}</h1>
-						<h2>{{ markdown metadata.theme.config.content.pageSubtitle }}</h2>
-					</div>
-				</div>
-			</div>
-		</div>
-	</header>
-	{{/if}}
-	<div class="wrapper">
+		</header>
+		{{/if}}
 		{{#partial 'navbar'}}
 		{{#if (or (folders resource.root) resource.private)}}
 		<ul id="fluid-nav" class="fluid-navigation visible-desktop">

@@ -9,8 +9,11 @@ body {
 	min-height: 100%;
 }
 
-header + .wrapper {
-	min-height: 0;
+.wrapper.has-footer {
+	background-color: #000;
+}
+.wrapper.has-footer .pages {
+	background-color: #fff;
 }
 
 footer {
