@@ -103,6 +103,8 @@ Collection.prototype.findOne = function(query, fields, options) {
 
 Collection.prototype.updateOne = function(filter, updates, options) {
 	options = options || {};
+	updates = parseUpdates(updates);
+	if (!updates) { return Promise.resolve(); }
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.updateOne(filter, updates, options,
@@ -117,6 +119,8 @@ Collection.prototype.updateOne = function(filter, updates, options) {
 
 Collection.prototype.updateMany = function(filter, updates, options) {
 	options = objectAssign(options || {}, { multi: true });
+	updates = parseUpdates(updates);
+	if (!updates) { return Promise.resolve(); }
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.updateMany(filter, updates, options,
@@ -168,7 +172,20 @@ Collection.prototype.count = function(query, options) {
 			}
 		);
 	});
-
 };
+
+function parseUpdates(updates) {
+	updates = objectAssign({}, updates);
+	var updateOperators = ['$inc', '$mul', '$rename', '$setOnInsert', '$set', '$unset', '$min', '$max', '$currentDate'];
+	updateOperators.forEach(function(operator) {
+		if ((operator in updates) && (!operator || (Object.keys(updates[operator]).length === 0))) {
+			delete updates[operator];
+		}
+	});
+	if (Object.keys(updates).length === 0) {
+		updates = null;
+	}
+	return updates;
+}
 
 module.exports = DataService;
