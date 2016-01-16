@@ -157,7 +157,7 @@ function initLivePreview(callback) {
 	function onPreviewLoaded(error, rerender) {
 		if (error) { throw error; }
 		rerenderPreview = rerender;
-		initInlineUploads($previewElement, adapterConfig);
+		initUploads(adapterConfig);
 	}
 
 	function showLoadingIndicator($element) {
@@ -572,17 +572,21 @@ function initLivePreview(callback) {
 		}
 	}
 
-	function initInlineUploads($previewElement, adapterConfig) {
+	function initUploads(adapterConfig) {
 		if (!adapterConfig) { return; }
 		var $progressElement = $('[data-editor-progress]');
 		var $progressLabelElement = $('[data-editor-progress-label]');
 		var $progressBarElement = $('[data-editor-progress-bar]');
 		var $progressCancelButtonElement = $('[data-editor-progress-cancel]');
 		var $uploadStatusModalElement = $('[data-editor-upload-status-modal]');
+
 		var filecanvasApi = window.filecanvas;
-		var activeUpload = null;
 		var showUploadStatus = initUploadStatusModal($uploadStatusModalElement);
-		initUploadHotspots($previewElement, onFilesSelected);
+		var activeUpload = null;
+
+		initFileUploads(uploadFiles);
+		initInlineUploads($previewElement, uploadFiles);
+
 		$progressCancelButtonElement.off('click').on('click', onUploadCancelRequested);
 
 
@@ -600,173 +604,187 @@ function initLivePreview(callback) {
 			};
 		}
 
-		function initUploadHotspots($previewIframeElement, uploadCallback) {
-			var previewIframeElement = $previewIframeElement[0];
-			onIframeDomReady(previewIframeElement)
-				.then(function(previewDocument) {
-					var $previewDocument = $(previewDocument);
-					disableContextMenu($previewDocument);
-					addHotspotListeners($previewDocument, '[data-admin-upload]', uploadCallback);
-				});
+		function initFileUploads(uploadCallback) {
+			var $fileInputElements = $('[data-editor-upload]');
+			$fileInputElements.on('change', function(event) {
+				var fileInputElement = event.currentTarget;
+				var files = Array.prototype.slice.call(fileInputElement.files)
+					.map(function(file) {
+						return {
+							path: file.name,
+							data: file
+						};
+					});
+				$(fileInputElement).val('');
+				uploadCallback(files);
+			});
+		}
+
+		function initInlineUploads($previewElement, uploadCallback) {
+			initUploadHotspots($previewElement, uploadCallback);
 
 
-			function disableContextMenu($document) {
-				$document.on('contextmenu', function(event) {
-					event.preventDefault();
-				});
-			}
-
-			function addHotspotListeners($element, selector, uploadCallback) {
-				var $activeDropTarget = null;
-				$element
-					.on('dragenter dragover', '[data-admin-upload]', function(event) {
-						var $element = $(this);
-						var dataTransfer = event.originalEvent.dataTransfer;
-						var shouldAcceptDrag = getIsFileDrag(dataTransfer);
-						if (!shouldAcceptDrag) { return; }
-						event.stopPropagation();
-						acceptDropOperation(event.originalEvent, 'copy');
-						setActiveDropTarget($element);
-
-
-						function getIsFileDrag(dataTransfer) {
-							var mimeTypes = Array.prototype.slice.call(dataTransfer.types);
-							var isFileDrag = (mimeTypes.indexOf('Files') !== -1);
-							return isFileDrag;
-						}
-
-						function acceptDropOperation(event, dropEffect) {
-							event.dataTransfer.dropEffect = dropEffect;
-							event.preventDefault();
-						}
-					})
-					.on('dragleave', '[data-admin-upload]', function(event) {
-						event.stopPropagation();
-						setActiveDropTarget(null);
-					})
-					.on('drop', '[data-admin-upload]', function(event) {
-						var $element = $(this);
-						var dataTransfer = event.originalEvent.dataTransfer;
-						event.preventDefault();
-						event.stopPropagation();
-						setActiveDropTarget(null);
-						if (!dataTransfer) { return; }
-						var pathPrefix = $element.data('admin-upload') || '';
-						if (dataTransfer.items) {
-							loadDataTransferItems(dataTransfer.items, onFilesLoaded);
-						} else if (dataTransfer.files) {
-							loadDataTransferFiles(dataTransfer.files, onFilesLoaded);
-						}
-
-
-						function onFilesLoaded(files) {
-							var prefixedFiles = getPathPrefixedFiles(files, pathPrefix);
-							uploadCallback(prefixedFiles);
-
-
-							function getPathPrefixedFiles(files, pathPrefix) {
-								if (!pathPrefix) { return files; }
-								return files.map(function(file) {
-									return {
-										path: pathPrefix + file.path,
-										data: file.data
-									};
-								});
-							}
-						}
-					})
-					.on('dragend', function(event) {
-						setActiveDropTarget(null);
+			function initUploadHotspots($previewIframeElement, uploadCallback) {
+				var previewIframeElement = $previewIframeElement[0];
+				onIframeDomReady(previewIframeElement)
+					.then(function(previewDocument) {
+						var $previewDocument = $(previewDocument);
+						disableContextMenu($previewDocument);
+						addHotspotListeners($previewDocument, '[data-admin-upload]', uploadCallback);
 					});
 
 
-				function setActiveDropTarget($element) {
-					if ($activeDropTarget === $element) { return; }
-					if ($activeDropTarget) { $activeDropTarget.removeClass('dragging'); }
-					$activeDropTarget = $element;
-					if ($activeDropTarget) { $activeDropTarget.addClass('dragging'); }
+				function disableContextMenu($document) {
+					$document.on('contextmenu', function(event) {
+						event.preventDefault();
+					});
 				}
 
-				function loadDataTransferItems(itemsList, callback) {
-					var items = Array.prototype.slice.call(itemsList);
-					var entries = items.map(function(item) {
-						if (item.getAsEntry) { return item.getAsEntry(); }
-						if (item.webkitGetAsEntry) { return item.webkitGetAsEntry(); }
-						return item;
-					});
-					loadEntries(entries, callback);
+				function addHotspotListeners($element, selector, uploadCallback) {
+					var $activeDropTarget = null;
+					$element
+						.on('dragenter dragover', '[data-admin-upload]', function(event) {
+							var $element = $(this);
+							var dataTransfer = event.originalEvent.dataTransfer;
+							var shouldAcceptDrag = getIsFileDrag(dataTransfer);
+							if (!shouldAcceptDrag) { return; }
+							event.stopPropagation();
+							acceptDropOperation(event.originalEvent, 'copy');
+							setActiveDropTarget($element);
 
 
-					function loadEntries(entries, callback) {
-						if (entries.length === 0) { return callback([]); }
-						var numRemaining = entries.length;
-						var files = entries.map(function(entry, index) {
-							loadEntry(entry, function(result) {
-								files[index] = result;
-								if (--numRemaining === 0) {
-									var flattenedFiles = getFlattenedFiles(files);
-									callback(flattenedFiles);
-								}
-							});
-							return undefined;
-
-
-							function getFlattenedFiles(files) {
-								return files.reduce(function(flattenedFiles, file) {
-									return flattenedFiles.concat(file);
-								}, []);
+							function getIsFileDrag(dataTransfer) {
+								var mimeTypes = Array.prototype.slice.call(dataTransfer.types);
+								var isFileDrag = (mimeTypes.indexOf('Files') !== -1);
+								return isFileDrag;
 							}
+
+							function acceptDropOperation(event, dropEffect) {
+								event.dataTransfer.dropEffect = dropEffect;
+								event.preventDefault();
+							}
+						})
+						.on('dragleave', '[data-admin-upload]', function(event) {
+							event.stopPropagation();
+							setActiveDropTarget(null);
+						})
+						.on('drop', '[data-admin-upload]', function(event) {
+							var $element = $(this);
+							var dataTransfer = event.originalEvent.dataTransfer;
+							event.preventDefault();
+							event.stopPropagation();
+							setActiveDropTarget(null);
+							if (!dataTransfer) { return; }
+							var pathPrefix = $element.data('admin-upload') || '';
+							if (dataTransfer.items) {
+								loadDataTransferItems(dataTransfer.items, function(files) {
+									uploadCallback(files, { path: pathPrefix });
+								});
+							} else if (dataTransfer.files) {
+								var files = Array.prototype.slice.call(dataTransfer.files)
+									.map(function(file) {
+										return {
+											path: file.name,
+											data: file
+										};
+									});
+								uploadCallback(files, { path: pathPrefix });
+							}
+						})
+						.on('dragend', function(event) {
+							setActiveDropTarget(null);
 						});
 
 
-						function loadEntry(entry, callback) {
-							if (entry.isFile) {
-								loadFile(entry, callback);
-							} else if (entry.isDirectory) {
-								loadDirectory(entry, callback);
-							}
+					function setActiveDropTarget($element) {
+						if ($activeDropTarget === $element) { return; }
+						if ($activeDropTarget) { $activeDropTarget.removeClass('dragging'); }
+						$activeDropTarget = $element;
+						if ($activeDropTarget) { $activeDropTarget.addClass('dragging'); }
+					}
+
+					function loadDataTransferItems(itemsList, callback) {
+						var items = Array.prototype.slice.call(itemsList);
+						var entries = items.map(function(item) {
+							if (item.getAsEntry) { return item.getAsEntry(); }
+							if (item.webkitGetAsEntry) { return item.webkitGetAsEntry(); }
+							return item;
+						});
+						loadEntries(entries, callback);
 
 
-							function loadFile(entry, callback) {
-								entry.file(function(file) {
-									callback({
-										path: entry.fullPath,
-										data: file
+						function loadEntries(entries, callback) {
+							if (entries.length === 0) { return callback([]); }
+							var numRemaining = entries.length;
+							var files = entries.map(function(entry, index) {
+								loadEntry(entry, function(result) {
+									files[index] = result;
+									if (--numRemaining === 0) {
+										var flattenedFiles = getFlattenedFiles(files);
+										callback(flattenedFiles);
+									}
+								});
+								return undefined;
+
+
+								function getFlattenedFiles(files) {
+									return files.reduce(function(flattenedFiles, file) {
+										return flattenedFiles.concat(file);
+									}, []);
+								}
+							});
+
+
+							function loadEntry(entry, callback) {
+								if (entry.isFile) {
+									loadFile(entry, callback);
+								} else if (entry.isDirectory) {
+									loadDirectory(entry, callback);
+								}
+
+
+								function loadFile(entry, callback) {
+									entry.file(function(file) {
+										callback({
+											path: entry.fullPath,
+											data: file
+										});
 									});
-								});
-							}
+								}
 
-							function loadDirectory(entry, callback) {
-								var reader = entry.createReader();
-								reader.readEntries(function(entries) {
-									loadEntries(entries, callback);
-								});
+								function loadDirectory(entry, callback) {
+									var reader = entry.createReader();
+									reader.readEntries(function(entries) {
+										loadEntries(entries, callback);
+									});
+								}
 							}
 						}
 					}
 				}
-
-				function loadDataTransferFiles(fileList, callback) {
-					var files = Array.prototype.slice.call(fileList);
-					setTimeout(function() {
-						callback(files.map(function(file) {
-							return {
-								path: '/' + file.name,
-								data: file
-							};
-						}));
-					});
-				}
 			}
 		}
 
-		function onFilesSelected(files) {
+		function onUploadCancelRequested(event) {
+			if (activeUpload) { activeUpload.abort(); }
+		}
+
+		function uploadFiles(files, options) {
+			options = options || {};
+			var pathPrefix = options.path || '';
 			var filteredFiles = getFilteredFiles(files);
+			var prefixedFiles = filteredFiles.map(function(file) {
+				return {
+					path: pathPrefix + '/' + file.path,
+					data: file.data
+				};
+			});
+
 			var isUploadInProgress = Boolean(activeUpload);
 			if (isUploadInProgress) {
-				activeUpload.append(filteredFiles);
+				activeUpload.append(prefixedFiles);
 			} else {
-				activeUpload = uploadFiles(filteredFiles, filecanvasApi, adapterConfig);
+				activeUpload = startUpload(prefixedFiles, filecanvasApi, adapterConfig);
 				activeUpload.always(function() {
 					activeUpload = null;
 				});
@@ -780,7 +798,7 @@ function initLivePreview(callback) {
 				});
 			}
 
-			function uploadFiles(files, filecanvasApi, adapterConfig) {
+			function startUpload(files, filecanvasApi, adapterConfig) {
 				showUploadProgressIndicator();
 				var upload = filecanvasApi.uploadFiles(files, {
 					adapter: adapterConfig,
@@ -965,11 +983,8 @@ function initLivePreview(callback) {
 				}
 			}
 		}
-
-		function onUploadCancelRequested(event) {
-			if (activeUpload) { activeUpload.abort(); }
-		}
 	}
+
 }
 
 function startTour() {
