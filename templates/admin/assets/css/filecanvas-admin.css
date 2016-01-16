@@ -1147,10 +1147,7 @@ select.btn-toolbar {
 footer.content-footer {
 	bottom: 1px;
 }
-@media screen and (max-width: 480px) {
-	.footer-left .nav li:first-child {
-		display: none;
-	}
+@media screen and (max-width: 767px) {
 	.footer-left .nav a {
 		padding: 18px 5px;
 	}
