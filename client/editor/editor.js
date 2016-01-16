@@ -93,6 +93,7 @@ function initLivePreview(callback) {
 	var $previewElement = $('[data-editor-preview]');
 	var $previewDataElement = $('[data-editor-preview-data]');
 	var $themeOptionsPanelElement = $('#theme-options');
+	var $sidepanelElement = $('#editor-sidepanel');
 	var $controlsElement = $('[data-editor-controls]');
 	var $undoButtonElement = $('[data-editor-undo]');
 	var $redoButtonElement = $('[data-editor-redo]');
@@ -260,7 +261,7 @@ function initLivePreview(callback) {
 			currentThemeOverrides = null;
 			disableControls($controlsElement);
 			showLoadingIndicator($formElement);
-			showLoadingIndicator($themeOptionsPanelElement);
+			showLoadingIndicator($sidepanelElement);
 			showLoadingIndicator($previewElement);
 			updateTheme(currentSiteModel, themeOverrides, function(error, siteModel) {
 				if (error) {
@@ -278,7 +279,7 @@ function initLivePreview(callback) {
 						}
 					});
 				}
-				hideLoadingIndicator($themeOptionsPanelElement);
+				hideLoadingIndicator($sidepanelElement);
 				hideLoadingIndicator($previewElement);
 				hideLoadingIndicator($formElement);
 				enableControls($controlsElement);

@@ -181,15 +181,27 @@
 
 .editor-loading,
 .editor-error {
-	display: none;
-	background-color: #f0f0f0;
-}
-.editor.loading .editor-loading,
-.editor.error .editor-error {
 	display: block;
 	position: absolute;
 	width: 100%;
 	height: 100%;
+	background-color: #f0f0f0;
+}
+.editor-loading .info-message,
+.editor-error .info-message {
+	margin-top: 60px;
+}
+.editor-loading,
+.editor-error {
+	display: none;
+}
+.editor.loading .editor-loading,
+.editor.error .editor-error {
+	display: block;
+}
+.editor.loading .editor-preview,
+.editor.error .editor-preview {
+	display: none;
 }
 
 .editor-progress {
@@ -340,12 +352,6 @@
 		transition: left 0.3s ease;
 	}
 
-	.editor.loading .editor-sidepanel,
-	.editor.loading .editor-main,
-	.editor.error .editor-sidepanel,
-	.editor.error .editor-main {
-		visibility: hidden;
-	}
 }
 
 .theme-options-accordion {
