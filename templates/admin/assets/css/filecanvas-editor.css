@@ -206,6 +206,9 @@
 .editor.error .editor-progress {
 	display: none;
 }
+.editor-sidepanel.loading {
+	pointer-events: none;
+}
 
 .editor-progress {
 	position: absolute;
