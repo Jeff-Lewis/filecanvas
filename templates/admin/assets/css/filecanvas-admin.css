@@ -1352,20 +1352,24 @@ footer.content-footer {
 	height: 100%;
 }
 
-.input-group.web-address-control .input-group-addon {
-	border: none;
-	background-color: transparent;
-	padding-left: 6px;
-	padding-right: 2px;
-}
-.input-group.web-address-control.has-error .input-group-addon {
-	color: #616161;
-}
-.input-group.web-address-control .form-control {
-	padding-left: 2px;
-}
-.input-group.web-address-control .form-control-feedback.fa {
-	right: 5px;
+
+@media screen and (min-width: 768px) {
+	.input-group.web-address-control .input-group-addon {
+		border: none;
+		border-radius: 0;
+		background-color: transparent;
+		padding-right: 2px;
+	}
+	.input-group.web-address-control.has-error .input-group-addon {
+		color: #616161;
+	}
+	.input-group.web-address-control .form-control {
+		min-width: 120px;
+		padding-left: 2px;
+	}
+	.input-group.web-address-control .form-control-feedback.fa {
+		right: 5px;
+	}
 }
 
 .has-error .form-control-feedback.fa:before {

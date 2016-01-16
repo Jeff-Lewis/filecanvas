@@ -21,7 +21,7 @@
 									<label class="col-sm-3 control-label">Web address</label>
 									<div class="col-sm-9">
 										<div class="web-address-control input-group">
-											<span class="input-group-addon">{{ session.urls.webroot }}</span>
+											<div class="input-group-addon"><span class="hidden-xs">{{ session.urls.webroot }}</span><span class="visible-xs" title="{{ session.urls.webroot }}">…/</span></div>
 											<input type="text" class="form-control"
 												name="name"
 												value="{{ content.site.name }}"
