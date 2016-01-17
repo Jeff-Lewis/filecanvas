@@ -1012,6 +1012,10 @@ function startTour() {
 	tour.init();
 	tour.start();
 
+	$(document).on('click', '.tour-backdrop', function(event) {
+		tour.next();
+	});
+
 
 	function onWindowResized(event) {
 		var updatedTourSteps = getTourStepsForViewport(tourSteps, window);
