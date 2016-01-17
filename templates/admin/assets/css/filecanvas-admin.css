@@ -1,3 +1,6 @@
+@-webkit-keyframes loading-spinner { from { -webkit-transform: rotate(0); } to { -webkit-transform: rotate(360deg); } }
+@keyframes loading-spinner { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
 body {
 	background-color: #f0f0f0;
 	min-width: 320px;
@@ -1334,22 +1337,53 @@ footer.content-footer {
 .theme-gallery {
 	height: 100%;
 }
-.theme-gallery-main {
+
+.theme-preview {
 	position: absolute;
 	top: 55px;
 	left: 0;
 	right: 0;
 	bottom: 0;
 }
+
 @media screen and (max-width: 767px) {
-	.theme-gallery-main {
+	.theme-preview {
 		top: 109px;
 		bottom: 54px;
 	}
 }
-.theme-gallery-preview {
+
+.theme-preview-content {
 	width: 100%;
 	height: 100%;
+}
+
+.theme-preview.loading::before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-top: -16px;
+	margin-left: -16px;
+	width: 32px;
+	height: 32px;
+	background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D%2232px%22%20height%3D%2232px%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22xMidYMid%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22none%22%3E%3C%2Frect%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(0%2050%2050)%20translate(0%20-30)%22%20opacity%3D%221%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(30%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.08333333333333333%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(60%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.16666666666666666%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(90%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.25%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(120%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.3333333333333333%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(150%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.4166666666666667%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(180%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.5%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(210%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.5833333333333334%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(240%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.6666666666666666%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(270%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.75%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(300%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.8333333333333334%22%2F%3E%3Crect%20x%3D%2246%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2220%22%20rx%3D%225%22%20ry%3D%225%22%20fill%3D%22rgb(153%2C153%2C153)%22%20transform%3D%22rotate(330%2050%2050)%20translate(0%20-30)%22%20opacity%3D%220.9166666666666666%22%2F%3E%3C%2Fsvg%3E');
+	background-position: left center;
+	background-repeat: no-repeat;
+	-webkit-animation: loading-spinner 1s steps(12, end) infinite;
+	-moz-animation: loading-spinner 1s steps(12, end) infinite;
+	-ms-animation: loading-spinner 1s steps(12, end) infinite;
+	-o-animation: loading-spinner 1s steps(12, end) infinite;
+	animation: loading-spinner 1s steps(12, end) infinite;
+	-webkit-transform-origin: 16px 16px;
+	-moz-transform-origin: 16px 16px;
+	-ms-transform-origin: 16px 16px;
+	-o-transform-origin: 16px 16px;
+	transform-origin: 16px 16px;
+}
+.theme-preview.loading .theme-preview-content {
+	position: relative;
 }
 
 

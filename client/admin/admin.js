@@ -81,6 +81,7 @@ $(function() {
 	initModalAutofocus();
 	initModalForms();
 	initModalAutoload();
+	initThemePreview();
 	initLogout();
 });
 
@@ -1286,6 +1287,19 @@ function initModalForms() {
 
 function initModalAutoload() {
 	$('.modal[data-show="true"]').modal();
+}
+
+function initThemePreview() {
+	$('[data-theme-preview]').each(function(index, element) {
+		var $element = $(element);
+		$element.children('iframe')
+			.on('load', function(event) {
+				$element.removeClass('loading');
+			})
+			.on('error', function(event) {
+				$element.removeClass('loading').addClass('error');
+			});
+	});
 }
 
 function initLogout() {
