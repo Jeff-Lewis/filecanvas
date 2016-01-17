@@ -223,11 +223,18 @@
 .editor-progress {
 	position: absolute;
 	top: 0;
-	width: 50%;
-	left: 50%;
-	margin-left: -25%;
+	left: 20px;
+	right: 20px;
 	border-radius: 0 0 2px 2px;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+@media screen and (min-width: 480px) {
+	.editor-progress {
+		left: 50%;
+		right: auto;
+		width: 440px;
+		margin-left: -220px;
+	}
 }
 .editor-progress {
 	visibility: hidden;
