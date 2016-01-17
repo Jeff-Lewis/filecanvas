@@ -1083,7 +1083,7 @@ function startTour() {
 				},
 				backdrop: true,
 				title: 'Theme options',
-				content: '<p>Use the Theme Options panel to choose how your canvas looks</p>',
+				content: '<p>Use the Theme Options panel to change how your canvas looks</p>',
 				filter: [
 					TOUR_ID_DEMO_EDITOR,
 					TOUR_ID_SITE_EDITOR
