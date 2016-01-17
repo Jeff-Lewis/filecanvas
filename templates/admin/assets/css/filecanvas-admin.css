@@ -79,7 +79,6 @@ iframe {
 
 a {
 	text-decoration: none;
-	cursor: auto !important;
 }
 
 a:link,
@@ -88,6 +87,10 @@ a:focus,
 a:hover,
 a:visited {
 	text-decoration: underline;
+}
+
+a:not([href]) {
+	cursor: auto;
 }
 
 a.btn,
