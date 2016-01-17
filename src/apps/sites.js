@@ -214,6 +214,7 @@ module.exports = function(database, options) {
 			app.get('/:user/download/*', createDefaultSiteRedirectRoute('/download/*'));
 			app.get('/:user/preview/*', createDefaultSiteRedirectRoute('/preview/*'));
 			app.get('/:user/thumbnail/*', createDefaultSiteRedirectRoute('/thumbnail/*'));
+			app.get('/:user/redirect/*', createDefaultSiteRedirectRoute('/redirect/*'));
 
 
 			function createDefaultSiteRedirectRoute(pathSuffix) {
