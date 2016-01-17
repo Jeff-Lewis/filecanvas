@@ -1263,11 +1263,6 @@ footer.content-footer {
 	right: 15px;
 }
 
-.theme-previews {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
 .theme-preview-control {
 	display: inline-block;
 	width: auto;
