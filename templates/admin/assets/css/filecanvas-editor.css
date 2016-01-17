@@ -299,11 +299,11 @@
 	}
 	.editor-sidepanel-title,
 	.editor-sidepanel-collapsed-title {
-		-webkit-transition: width 0.3s ease;
-		-moz-transition: width 0.3s ease;
-		-ms-transition: width 0.3s ease;
-		-o-transition: width 0.3s ease;
-		transition: width 0.3s ease;
+		-webkit-transition: width 0.3s ease, opacity 0.3s ease;
+		-moz-transition: width 0.3s ease, opacity 0.3s ease;
+		-ms-transition: width 0.3s ease, opacity 0.3s ease;
+		-o-transition: width 0.3s ease, opacity 0.3s ease;
+		transition: width 0.3s ease, opacity 0.3s ease;
 	}
 	.editor-sidepanel {
 		-webkit-transition: width 0.3s ease, visibility 0.3s linear;
@@ -321,9 +321,6 @@
 	}
 	.editor-sidepanel.collapsed {
 		width: 43px;
-	}
-	.editor-sidepanel.collapsed + .editor-main {
-		left: 43px;
 	}
 	.editor-sidepanel-collapsed-title,
 	.editor-sidepanel.collapsed .editor-sidepanel-title,
@@ -364,12 +361,29 @@
 	.editor-sidepanel + .editor-main {
 		left: 300px;
 	}
+	.editor-sidepanel.collapsed + .editor-main {
+		left: 43px;
+	}
 	.editor-sidepanel + .editor-main {
 		-webkit-transition: left 0.3s ease;
 		-moz-transition: left 0.3s ease;
 		-ms-transition: left 0.3s ease;
 		-o-transition: left 0.3s ease;
 		transition: left 0.3s ease;
+	}
+	.editor.loading .editor-sidepanel {
+		display: none;
+	}
+	.editor.loading .editor-sidepanel + .editor-main {
+		margin-left: -300px;
+		-webkit-transition: none;
+		-moz-transition: none;
+		-ms-transition: none;
+		-o-transition: none;
+		transition: none;
+	}
+	.editor.loading .editor-sidepanel.collapsed + .editor-main {
+		margin-left: -43px;
 	}
 
 	.title-bar.controls-2 ~ .editor-main,

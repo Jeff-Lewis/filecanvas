@@ -132,6 +132,7 @@ function initLivePreview(callback) {
 		hideLoadingIndicator($previewElement);
 		hideLoadingIndicator($formElement);
 		enableControls($controlsElement);
+		initAccordions($themeOptionsPanelElement);
 		callback(error);
 	});
 	initLiveUpdates(function(formValues, options) {
@@ -283,6 +284,7 @@ function initLivePreview(callback) {
 				hideLoadingIndicator($previewElement);
 				hideLoadingIndicator($formElement);
 				enableControls($controlsElement);
+				initAccordions($themeOptionsPanelElement);
 				deferred.resolve();
 			});
 		} else {
@@ -353,19 +355,17 @@ function initLivePreview(callback) {
 				});
 				$parentElement.empty().append(themeOptionsHtml);
 				initColorpickers();
-				initAccordions($parentElement);
 			}
 
 			function loadThemeTemplate(themeTemplateUrl) {
 				return appendScriptElement(themeTemplateUrl, document.body);
 			}
-
-			function initAccordions($parentElement) {
-				$parentElement.collapse({ parent: true, toggle: true });
-				$('[data-fixed-accordion]').fixedAccordion();
-			}
 	}
 
+	function initAccordions($parentElement) {
+		$parentElement.collapse({ parent: true, toggle: true });
+		$('[data-fixed-accordion]').fixedAccordion();
+	}
 
 	function initLiveUpdates(updateCallback) {
 		var initialFormValues = getFormFieldValues($formElement);
