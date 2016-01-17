@@ -1106,6 +1106,7 @@ function startTour() {
 				element: '.title-bar-controls .title-bar-controls-container .editor-file-upload',
 				placement: 'top',
 				backdrop: true,
+				backdropContainer: '.title-bar-controls .title-bar-controls-container',
 				title: 'Upload files',
 				content: '<p>Click here to upload files to your canvas</p>',
 				filter: [
@@ -1121,6 +1122,7 @@ function startTour() {
 					desktop: 'bottom'
 				},
 				backdrop: true,
+				backdropContainer: '.title-bar-controls .title-bar-controls-container',
 				title: 'Add files',
 				content: '<p>Once you’re happy with how your canvas looks, click here to add some files</p>',
 				filter: [
@@ -1134,6 +1136,7 @@ function startTour() {
 					desktop: 'bottom'
 				},
 				backdrop: true,
+				backdropContainer: '.title-bar-controls .title-bar-controls-container',
 				title: 'Save your canvas',
 				content: '<p>Once you’re happy with how your canvas looks, click here to save it for publishing later</p>',
 				filter: [
@@ -1147,6 +1150,7 @@ function startTour() {
 					desktop: 'bottom'
 				},
 				backdrop: true,
+				backdropContainer: '.title-bar-controls .title-bar-controls-container',
 				title: 'Save changes',
 				content: '<p>Once you’re happy with how your canvas looks, click here to save your changes and leave the editor</p>',
 				filter: [

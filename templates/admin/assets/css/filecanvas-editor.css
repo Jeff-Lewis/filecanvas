@@ -8,6 +8,16 @@
 .tour-step-background + .popover + .bootstrap-select {
 	z-index: 1200;
 }
+.btn-primary.tour-step-backdrop,
+.btn-success.tour-step-backdrop {
+	transition: background-color 0.3s ease;
+}
+.btn-primary.tour-step-backdrop {
+	background-color: #09c;
+}
+.btn-success.tour-step-backdrop {
+	background-color: #2ecc71;
+}
 
 .popover {
 	min-width: 230px;

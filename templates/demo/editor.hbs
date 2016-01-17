@@ -2,7 +2,7 @@
 	{{#*inline 'styles'}}
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/css/bootstrap-select.min.css"/>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/css/bootstrap-colorpicker.min.css"/>
-		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css"/>
+		<link rel="stylesheet" href="{{ session.urls.assets }}bootstrap-tour/0.10.2/css/bootstrap-tour.css"/>
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/filecanvas-editor.css"/>
 		{{#if content.theme.fonts}}
 		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
@@ -15,7 +15,7 @@
 	{{#*inline 'scripts'}}
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/js/bootstrap-select.min.js"></script>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.0/js/bootstrap-colorpicker.js"></script>
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js"></script>
+		<script type="text/javascript" src="{{ session.urls.assets }}bootstrap-tour/0.10.2/js/bootstrap-tour.js"></script>
 		<script type="text/javascript" src="{{ session.urls.assets }}js/filecanvas-editor.js"></script>
 		<script type="text/javascript" src="{{ session.urls.templates }}/partials/theme-options.js"></script>
 		<script type="text/javascript" src="{{ session.urls.themes }}/{{ content.site.theme.id }}/template/index.js"></script>

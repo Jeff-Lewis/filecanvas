@@ -1009,10 +1009,12 @@ body.full-page .title-bar {
 .title-bar-controls .btn,
 .title-bar-controls .title-bar-close {
 	float: left;
-	margin-right: 5px;
+	margin-left: 5px;
 }
-.title-bar-controls .btn:last-child {
-	margin-right: 0;
+.title-bar-controls .btn:first-child,
+.title-bar-controls .btn:first-of-type,
+.title-bar-controls .visible-xs:first-child + .btn {
+	margin-left: 0;
 }
 .title-bar .title-bar-close {
 	float: right;
@@ -1137,10 +1139,10 @@ select.btn-toolbar {
 		margin-right: 0;
 		display: block;
 		width: 100%;
-		margin-bottom: 5px;
+		margin-top: 5px;
 	}
-	.title-bar-controls .btn:last-child {
-		margin-bottom: 0;
+	.title-bar-controls .btn:first-child {
+		margin-top: 0;
 	}
 	.title-bar-toolbar {
 		background-color: #495469;
