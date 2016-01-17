@@ -211,7 +211,9 @@
 	display: block;
 }
 .editor.loading .editor-preview,
-.editor.error .editor-preview,
+.editor.error .editor-preview {
+	visibility: hidden;
+}
 .editor.loading .editor-progress,
 .editor.error .editor-progress {
 	display: none;
@@ -266,7 +268,9 @@
 	height: 100%;
 	background-color: white;
 }
-.editor-preview.loading,
+.editor-preview.loading {
+	visibility: hidden;
+}
 .editor-preview.error {
 	display: none;
 }
