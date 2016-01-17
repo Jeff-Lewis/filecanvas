@@ -998,16 +998,51 @@ function startTour() {
 
 	var currentPath = document.location.pathname;
 	var tourId = getTourId(currentPath);
-	var tourSteps = addTourProgress(getFilteredTourSteps(tourId));
+	var tourSteps = getTourSteps(tourId);
+	var currentTourSteps = getTourStepsForViewport(tourSteps, window);
 	var isDemoTour = (tourId === TOUR_ID_DEMO_EDITOR) || (tourId === TOUR_ID_DEMO_ADD_FILES);
+
+	$(window).on('resize', onWindowResized);
+
 	var tour = new window.Tour({
 		name: tourId,
-		steps: tourSteps,
+		steps: currentTourSteps,
 		storage: (isDemoTour ? window.sessionStorage : window.localStorage)
 	});
 	tour.init();
 	tour.start();
 
+
+	function onWindowResized(event) {
+		var updatedTourSteps = getTourStepsForViewport(tourSteps, window);
+		if (isEqual(updatedTourSteps, currentTourSteps)) { return; }
+		Array.prototype.splice.apply(currentTourSteps, [0, currentTourSteps.length].concat(updatedTourSteps));
+	}
+
+	function getTourStepsForViewport(tourSteps, viewport) {
+		var viewportWidth = $(window).width();
+		var isMobile = (viewportWidth < 768);
+		var isDesktop = !isMobile;
+		return tourSteps
+			.filter(function(step) {
+				return !(isMobile && (step.mobile === false)) && !(isDesktop && (step.desktop === false));
+			})
+			.map(function(step, index, steps) {
+				var stepIndex = (index + 1);
+				var numSteps = steps.length;
+				var progress = stepIndex / steps.length;
+				var title = step.title + '<span class="pull-right">' + stepIndex + '/' + numSteps + '</span>';
+				var content = '<div class="popover-progress bg-default"><div class="popover-progress-bar bg-primary" style="width:' + (progress * 100) + '%;"></div></div>' + step.content;
+				var placement = ((typeof step.placement === 'object') ? (isDesktop ? step.placement.desktop : step.placement.mobile) : step.placement);
+				var hasChanged = (title !== step.title) || (content !== step.content) || (placement !== step.placement);
+				if (!hasChanged) { return step; }
+				return merge({}, step, {
+					title: title,
+					content: content,
+					placement: placement
+				});
+			});
+	}
 
 	function getTourId(pathname) {
 		if (getIsMatch(pathname, DEMO_EDITOR_PATH)) {
@@ -1038,7 +1073,7 @@ function startTour() {
 		}
 	}
 
-	function getFilteredTourSteps(tourId) {
+	function getTourSteps(tourId) {
 		var TOUR_STEPS = [
 			{
 				element: '#editor-sidepanel',
@@ -1064,10 +1099,23 @@ function startTour() {
 				filter: [
 					TOUR_ID_DEMO_ADD_FILES,
 					TOUR_ID_SITE_EDITOR
-				]
+				],
+				mobile: false
 			},
 			{
-				element: '.title-bar-controls .title-bar-controls-container',
+				element: '.title-bar-controls .title-bar-controls-container .editor-file-upload',
+				placement: 'top',
+				backdrop: true,
+				title: 'Upload files',
+				content: '<p>Click here to upload files to your canvas</p>',
+				filter: [
+					TOUR_ID_DEMO_ADD_FILES,
+					TOUR_ID_SITE_EDITOR
+				],
+				desktop: false
+			},
+			{
+				element: '.title-bar-controls .title-bar-controls-container button',
 				placement: {
 					mobile: 'top',
 					desktop: 'bottom'
@@ -1080,7 +1128,7 @@ function startTour() {
 				]
 			},
 			{
-				element: '.title-bar-controls .title-bar-controls-container',
+				element: '.title-bar-controls .title-bar-controls-container button[type="submit"]',
 				placement: {
 					mobile: 'top',
 					desktop: 'bottom'
@@ -1093,7 +1141,7 @@ function startTour() {
 				]
 			},
 			{
-				element: '.title-bar-controls .title-bar-controls-container',
+				element: '.title-bar-controls .title-bar-controls-container button[type="submit"]',
 				placement: {
 					mobile: 'top',
 					desktop: 'bottom'
@@ -1118,30 +1166,13 @@ function startTour() {
 				filter: [
 					TOUR_ID_DEMO_EDITOR,
 					TOUR_ID_SITE_EDITOR
-				]
+				],
+				mobile: false
 			}
 		];
 
-		return TOUR_STEPS.filter(function filter(step) {
+		return TOUR_STEPS.filter(function(step) {
 			return !step.filter || (step.filter.indexOf(tourId) !== -1);
-		}).map(function(step) {
-			if (typeof step.placement === 'object') {
-				var placement = step.placement;
-				step.placement = function() {
-					var viewportWidth = $(window).width();
-					return (viewportWidth >= 768 ? placement.desktop : placement.mobile);
-				};
-			}
-			return step;
-		});
-	}
-
-	function addTourProgress(steps) {
-		return steps.map(function(step, index, steps) {
-			step.title += '<span class="pull-right">' + (index + 1) + '/' + steps.length + '</span>';
-			var progress = (index + 1) / steps.length;
-			step.content = '<div class="popover-progress bg-default"><div class="popover-progress-bar bg-primary" style="width:' + (progress * 100) + '%;"></div></div>' + step.content;
-			return step;
 		});
 	}
 }
