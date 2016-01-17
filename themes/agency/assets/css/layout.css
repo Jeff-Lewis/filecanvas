@@ -154,9 +154,6 @@
 	}
 
 	.pattern {
-		background: url(../img/pattern.png);
-		width: 100%;
-		position: absolute;
 	}
 
 	header {
@@ -164,20 +161,23 @@
 		width: 100%;
 		overflow: hidden;
 		color: #fff;
-		background: #333 url(../img/header.png) no-repeat top center fixed;
-		background-size: 1280px;
+		background-color: #222;
+		background-image: radial-gradient(ellipse at bottom center, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+	}
+	@media screen and (min-width: 768px) {
+		header {
+			background-attachment: fixed;
+		}
 	}
 
-	header .pattern {
-		height: 100%;
-	}
 
-	header .header-bg {
-		height: 100%;
-		width: 100%;
-		background: url(../img/vignette.png) no-repeat center center fixed;
-		background-size: cover;
+	header::before {
+		content: '';
+		display: block;
 		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABpJREFUeNpiYmBg8P3//z8DE5DYDOQwAAQYAEDEBv/1qwCkAAAAAElFTkSuQmCC');
 	}
 
 	header .container {
