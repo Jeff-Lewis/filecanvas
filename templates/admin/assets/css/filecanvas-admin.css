@@ -1027,10 +1027,14 @@ body.full-page .title-bar {
 }
 .title-bar .title-bar-close {
 	float: right;
-	margin-left: 10px;
+	margin-left: 5px;
+	margin-right: -5px;
 }
 .title-bar-close {
-	padding: 7px;
+	width: 34px;
+	height: 34px;
+	line-height: 34px;
+	text-align: center;
     color: #b2b6be;
 }
 .title-bar-close:hover {
@@ -1054,19 +1058,6 @@ body.full-page .title-bar {
 }
 .title-bar-toolbar-container {
 	display: inline-block;
-}
-@media screen and (max-width: 767px) {
-	.title-bar .brand .brand-logo,
-	.title-bar-header-subtitle {
-		font-size: 20px;
-	}
-	.title-bar .brand .brand-logo {
-		margin-left: 0;
-		margin-right: 5px;
-	}
-	.title-bar-header-subtitle {
-		padding-left: 7px;
-	}
 }
 
 .btn-toolbar,
@@ -1144,8 +1135,32 @@ select.btn-toolbar {
 }
 
 @media screen and (max-width: 767px) {
+	.title-bar {
+		height: 50px;
+	}
 	.title-bar-close {
-		margin-top: 2px;
+		width: 30px;
+		height: 30px;
+		line-height: 30px;
+	}
+	.title-bar .title-bar-close {
+		margin-right: -2px;
+	}
+	.title-bar .brand {
+		height: 30px;
+	}
+	.title-bar-header-title .brand-logo,
+	.title-bar-header-subtitle {
+		height: 30px;
+		line-height: 30px;
+		font-size: 20px;
+	}
+	.title-bar .brand .brand-logo {
+		margin-left: 0;
+		margin-right: 5px;
+	}
+	.title-bar-header-subtitle {
+		padding-left: 7px;
 	}
 	.title-bar-controls {
 		position: absolute;
@@ -1164,14 +1179,16 @@ select.btn-toolbar {
 		width: 100%;
 		margin-top: 5px;
 	}
-	.title-bar-controls .btn:first-child {
+	.title-bar-controls .btn:first-child,
+	.title-bar-controls .btn:first-of-type,
+	.title-bar-controls .visible-xs:first-child + .btn {
 		margin-top: 0;
 	}
 	.title-bar-toolbar {
 		background-color: #495469;
 		position: relative;
 		z-index: 1;
-		margin: 45px -10px 0;
+		margin: 40px -10px 0;
 		padding: 10px;
 	}
 	.title-bar-toolbar .control-label {
@@ -1387,7 +1404,7 @@ footer.content-footer {
 
 @media screen and (max-width: 767px) {
 	.theme-preview {
-		top: 105px;
+		top: 100px;
 		bottom: 54px;
 	}
 }

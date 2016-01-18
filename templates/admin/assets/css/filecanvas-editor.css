@@ -80,7 +80,7 @@
 .editor-sidepanel {
 	position: absolute;
     width: 100%;
-    top: 55px;
+    top: 50px;
     bottom: 55px;
 	left: 0;
 	overflow: hidden;
@@ -168,7 +168,7 @@
 .editor-main {
 	display: none;
 	position: absolute;
-	top: 105px;
+	top: 100px;
 	left: 0;
 	bottom: 55px;
 	right: 0;
@@ -282,6 +282,7 @@
 @media screen and (min-width: 768px) {
 	.editor-sidepanel {
 		width: 300px;
+		top: 55px;
 		bottom: 0;
 	}
 	.editor-sidepanel.collapsed {
