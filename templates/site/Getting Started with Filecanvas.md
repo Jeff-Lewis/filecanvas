@@ -2,16 +2,16 @@
 
 This guide contains everything you need to make the most out of Filecanvas.
 
-For anything not explained here, try the **FAQ** and **Support** pages at [https://my.${host}/](https://my.${host}/).
+For anything not explained here, try the **FAQ** and **Support** pages at [${host.protocol}//my.${host.hostname}/](${host.protocol}//my.${host.hostname}/).
 
 ## Site details
 
 | Web address | Folder within ${site.root.adapter === 'dropbox' ? user.adapters.dropbox.firstName + ' ' + user.adapters.dropbox.lastName + '’s Dropbox' : 'Filecanvas server'} |
 | ----------- | ------------------------------------------------ |
-| [http://${user.username}.${host}/${site.name}](http://${user.username}.${host}/${site.name}) | `${site.root.path}` |
+| [${host.protocol}//${user.username}.${host.hostname}/${site.name}](${host.protocol}//${user.username}.${host.hostname}/${site.name}) | `${site.root.path}` |
 
 
-- This canvas's settings can be changed at any time by visiting its [settings page](https://my.${host}/canvases/${site.name}/settings).
+- This canvas's settings can be changed at any time by visiting its [settings page](${host.protocol}//my.${host.hostname}/canvases/${site.name}).
 
 
 ## Basic usage
@@ -20,7 +20,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 
 - Try putting some files and folders in the canvas's Dropbox folder. They should appear on the canvas as soon as they've finished syncing.
 
-- **IMPORTANT:** If you move the folder within your Dropbox, make sure to update the folder path in this canvas's [settings page](https://my.${host}/canvases/${site.name}/settings).
+- **IMPORTANT:** If you move the folder within your Dropbox, make sure to update the folder path in this canvas's [settings page](${host.protocol}//my.${host.hostname}/canvases/${site.name}).
 
 
 ## Changing the order of your files
@@ -59,7 +59,7 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 - You can protect this canvas by requiring users to log in with a username/password combination.
 
 - To enable password protection for this canvas:
-	1. Log into this canvas's [settings page](https://my.${host}/canvases/${site.name})
+	1. Log into this canvas's [settings page](${host.protocol}//my.${host.hostname}/canvases/${site.name})
 	2. Under the **Password protection** section, check the **Password protect this canvas** checkbox
 	3. Click the **Save changes** button to make the canvas private
 	4. Under the **Password protection** section, edit the **Registered users** to set the username/password combinations that allow access to the canvas
@@ -76,8 +76,8 @@ For anything not explained here, try the **FAQ** and **Support** pages at [https
 
 		| Type | Name | Value | TTL |
 		| ---- | ---- | ----- | --- |
-		| `CNAME` | `www` | `${site.name}.${user.username}.${host}` | `86400` |
+		| `CNAME` | `www` | `${site.name}.${user.username}.${host.hostname}` | `86400` |
 
 	3. (Optional) Set up your DNS provider to automatically redirect the root domain to the `www` subdomain
 
-- See the Filecanvas [FAQ](https://my.${host}/faq) page for more information about custom domain names.
+- See the Filecanvas [FAQ](${host.protocol}//my.${host.hostname}/faq) page for more information about custom domain names.
