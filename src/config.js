@@ -76,7 +76,7 @@ if (process.env.LOCAL) {
 		storage: {
 			adapterName: process.env.LOCAL_NAME || 'Filecanvas server',
 			adapterLabel: process.env.LOCAL_LABEL || 'Filecanvas server',
-			defaultSitesPath: '/',
+			defaultSitesPath: process.env.LOCAL_SITE_PATH || '/',
 			sitesRoot: process.env.LOCAL_SITE_ROOT || null,
 			upload: {
 				subdomain: 'upload',
@@ -142,7 +142,7 @@ if (process.env.DROPBOX_APP_KEY) {
 		storage: {
 			adapterName: 'Dropbox',
 			adapterLabel: '${user}’s Dropbox',
-			defaultSitesPath: '/Filecanvas/',
+			defaultSitesPath: process.env.DROPBOX_SITE_PATH || '/',
 			appKey: process.env.DROPBOX_APP_KEY || null,
 			appSecret: process.env.DROPBOX_APP_SECRET || null
 		}
