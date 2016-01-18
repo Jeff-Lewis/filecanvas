@@ -8,6 +8,8 @@ web:
     - "443:443"
   environment:
     - HOST
+    - HOST_PORT
+    - HOST_PROTOCOL
     - HTTPS
     - NEW_RELIC_LICENSE_KEY
     - DROPBOX_APP_KEY
