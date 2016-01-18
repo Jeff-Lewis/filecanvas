@@ -92,6 +92,9 @@ a:visited {
 a:not([href]) {
 	cursor: auto;
 }
+a:not([href]):hover {
+	text-decoration: none;
+}
 
 a.btn,
 a.btn:active,
