@@ -5,8 +5,6 @@ var getSubdomainUrl = require('./utils/getSubdomainUrl');
 
 var config = {};
 
-config.host = process.env.HOST || 'localhost';
-
 config.http = {};
 config.http.port = process.env.PORT || 80;
 
@@ -14,6 +12,11 @@ config.https = {};
 config.https.port = process.env.HTTPS === 'true' ? process.env.HTTPS_PORT || 443 : null;
 config.https.cert = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_CERT) : null;
 config.https.key = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_KEY) : null;
+
+config.host = {};
+config.host.hostname = process.env.HOST || 'localhost';
+config.host.protocol = process.env.HOST_PROTOCOL || (config.https.port ? 'https:' : 'http:');
+config.host.port = process.env.HOST_PORT || (config.https.port ? config.https.port : config.http.port);
 
 config.session = {};
 config.session.cookieSecret = process.env.COOKIE_SECRET || null;
@@ -79,8 +82,8 @@ if (process.env.LOCAL) {
 				subdomain: 'upload',
 				url: getSubdomainUrl({
 					subdomain: 'upload',
-					host: config.host,
-					protocol: config.https.port ? 'https' : 'http',
+					protocol: config.https.port ? 'https:' : 'http:',
+					hostname: config.host.hostname,
 					port: config.https.port || config.http.port
 				})
 			},
@@ -88,8 +91,8 @@ if (process.env.LOCAL) {
 				subdomain: 'download',
 				url: getSubdomainUrl({
 					subdomain: 'download',
-					host: config.host,
-					protocol: config.https.port ? 'https' : 'http',
+					protocol: config.https.port ? 'https:' : 'http:',
+					hostname: config.host.hostname,
 					port: config.https.port || config.http.port
 				})
 
@@ -98,8 +101,8 @@ if (process.env.LOCAL) {
 				subdomain: 'media',
 				url: getSubdomainUrl({
 					subdomain: 'media',
-					host: config.host,
-					protocol: config.https.port ? 'https' : 'http',
+					protocol: config.https.port ? 'https:' : 'http:',
+					hostname: config.host.hostname,
 					port: config.https.port || config.http.port
 				})
 
@@ -108,8 +111,8 @@ if (process.env.LOCAL) {
 				subdomain: 'thumbnail',
 				url: getSubdomainUrl({
 					subdomain: 'thumbnail',
-					host: config.host,
-					protocol: config.https.port ? 'https' : 'http',
+					protocol: config.https.port ? 'https:' : 'http:',
+					hostname: config.host.hostname,
 					port: config.https.port || config.http.port
 				}),
 				format: null,

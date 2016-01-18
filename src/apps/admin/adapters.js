@@ -9,7 +9,7 @@ module.exports = function(database, options) {
 	var host = options.host || null;
 	var adapters = options.adapters || null;
 
-	if (!host) { throw new Error('Missing host name'); }
+	if (!host) { throw new Error('Missing host details'); }
 	if (!adapters) { throw new Error('Missing adapters'); }
 
 	var siteService = new SiteService(database, {

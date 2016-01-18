@@ -26,7 +26,7 @@ function SiteService(database, options) {
 	var adapters = options.adapters;
 
 	if (!database) { throw new Error('Missing database'); }
-	if (!host) { throw new Error('Missing hostname'); }
+	if (!host) { throw new Error('Missing host details'); }
 	if (!adapters) { throw new Error('Missing adapters configuration'); }
 
 	this.database = database;

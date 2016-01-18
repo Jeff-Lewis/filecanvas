@@ -31,7 +31,7 @@ module.exports = function(database, options) {
 	var adaptersConfig = options.adapters;
 
 	if (!database) { throw new Error('Missing database'); }
-	if (!host) { throw new Error('Missing hostname'); }
+	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }

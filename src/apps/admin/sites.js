@@ -30,7 +30,7 @@ module.exports = function(database, options) {
 	var uploadAdapter = options.uploadAdapter || null;
 	var sessionMiddleware = options.sessionMiddleware || null;
 
-	if (!host) { throw new Error('Missing host name'); }
+	if (!host) { throw new Error('Missing host details'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }

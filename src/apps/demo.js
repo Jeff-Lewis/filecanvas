@@ -1,5 +1,6 @@
 'use strict';
 
+var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 var express = require('express');
 var composeMiddleware = require('compose-middleware').compose;
@@ -19,13 +20,14 @@ var loadLoginAdapters = require('../utils/loadLoginAdapters');
 var loadStorageAdapters = require('../utils/loadStorageAdapters');
 var loadUploadAdapter = require('../utils/loadUploadAdapter');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
+var parseLocation = require('../utils/parseLocation');
+var getSubdomainUrl = require('../utils/getSubdomainUrl');
 
 var handlebarsEngine = require('../engines/handlebars');
 
 var UserService = require('../services/UserService');
 var SiteService = require('../services/SiteService');
 var ThemeService = require('../services/ThemeService');
-var UrlService = require('../services/UrlService');
 var FileUploadService = require('../services/FileUploadService');
 var AdminPageService = require('../services/AdminPageService');
 
@@ -50,7 +52,7 @@ module.exports = function(database, options) {
 	var uploadAdapterConfig = options.uploadAdapter || null;
 
 	if (!database) { throw new Error('Missing database'); }
-	if (!host) { throw new Error('Missing host name'); }
+	if (!host) { throw new Error('Missing host details'); }
 	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
 	if (!sessionStore) { throw new Error('Missing session store URL'); }
 	if (!sessionDuration) { throw new Error('Missing session duration'); }
@@ -158,13 +160,19 @@ module.exports = function(database, options) {
 
 		function getSessionData(req) {
 			var userModel = req.user || null;
-			var urlService = new UrlService(req);
+			var currentSubdomain = (req.subdomains ? req.subdomains.join('.') : null);
+			var location = parseLocation(objectAssign({}, host, {
+				hostname: (currentSubdomain ? currentSubdomain + '.' : '') + host.hostname,
+				path: req.originalUrl
+			}));
+			var webrootUrl = (userModel ? getSubdomainUrl(objectAssign({}, host, { subdomain: userModel.username })) : null);
+			var domainUrlPattern = getSubdomainUrl(objectAssign({}, host, { subdomain: '$0' }));
 			return {
-				location: urlService.location,
+				location: location,
 				urls: {
-					root: urlService.location.protocol + '//' + urlService.location.host,
-					webroot: (userModel ? urlService.getSubdomainUrl(userModel.username) : null),
-					domain: urlService.getSubdomainUrl('$0'),
+					root: location.protocol + '//' + location.host,
+					webroot: webrootUrl,
+					domain: domainUrlPattern,
 					home: wwwUrl,
 					assets: adminAssetsUrl,
 					themeAssets: stripTrailingSlash(themeAssetsUrl),

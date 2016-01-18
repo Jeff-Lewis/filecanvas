@@ -12,13 +12,13 @@ var HttpError = require('../errors/HttpError');
 
 module.exports = function(destDir, options) {
 	options = options || {};
-	var host = options.host || null;
+	var hostname = options.hostname || null;
 
 	var app = express();
 
-	if (host) {
+	if (hostname) {
 		app.use(cors({
-			origin: new RegExp('^https?://(?:\\w+\\.)*' + host + '(?::\\d+)?$')
+			origin: new RegExp('^https?://(?:\\w+\\.)*' + hostname + '(?::\\d+)?$')
 		}));
 	}
 

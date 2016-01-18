@@ -17,7 +17,7 @@ var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 
 module.exports = function(options) {
 	options = options || {};
-	var host = options.host;
+	var hostname = options.hostname;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
 	var themeAssetsUrl = options.themeAssetsUrl;
@@ -26,7 +26,7 @@ module.exports = function(options) {
 	var thumbnailHeight = options.thumbnailHeight;
 	var thumbnailFormat = options.thumbnailFormat;
 
-	if (!host) { throw new Error('Missing host name'); }
+	if (!hostname) { throw new Error('Missing hostname'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
@@ -52,7 +52,7 @@ module.exports = function(options) {
 
 	function initCors(app) {
 		app.use(cors({
-			origin: new RegExp('^https?://\\w+\\.' + host + '(?::\\d+)?$')
+			origin: new RegExp('^https?://\\w+\\.' + hostname + '(?::\\d+)?$')
 		}));
 	}
 

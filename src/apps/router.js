@@ -26,9 +26,10 @@ var getSubdomainUrl = require('../utils/getSubdomainUrl');
 var generateTempPath = require('../utils/generateTempPath');
 
 module.exports = function(database, config) {
+	config = config || {};
 	var host = config.host;
 
-	if (!host) { throw new Error('Missing host name'); }
+	if (!host || !host.hostname) { throw new Error('Missing host name'); }
 
 	var tempPath = generateTempPath('filecanvas');
 	var thumbnailsPath = path.join(tempPath, 'thumbnails');
@@ -50,26 +51,26 @@ module.exports = function(database, config) {
 
 	var wwwSubdomainUrl = getSubdomainUrl({
 		subdomain: 'www',
-		host: config.host,
-		protocol: config.https.port ? 'https' : 'http',
+		hostname: host.hostname,
+		protocol: config.https.port ? 'https:' : 'http:',
 		port: config.https.port || config.http.port
 	});
 	var assetsSubdomainUrl = getSubdomainUrl({
 		subdomain: 'assets',
-		host: config.host,
-		protocol: config.https.port ? 'https' : 'http',
+		hostname: host.hostname,
+		protocol: config.https.port ? 'https:' : 'http:',
 		port: config.https.port || config.http.port
 	});
 	var themesSubdomainUrl = getSubdomainUrl({
 		subdomain: 'themes',
-		host: config.host,
-		protocol: config.https.port ? 'https' : 'http',
+		hostname: host.hostname,
+		protocol: config.https.port ? 'https:' : 'http:',
 		port: config.https.port || config.http.port
 	});
 	var adminSubdomainUrl = getSubdomainUrl({
 		subdomain: 'my',
-		host: config.host,
-		protocol: config.https.port ? 'https' : 'http',
+		hostname: host.hostname,
+		protocol: config.https.port ? 'https:' : 'http:',
 		port: config.https.port || config.http.port
 	});
 
@@ -94,7 +95,7 @@ module.exports = function(database, config) {
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'themes': themesApp({
-			host: config.host,
+			hostname: host.hostname,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
 			themeAssetsUrl: themeAssetsUrl,
@@ -104,7 +105,7 @@ module.exports = function(database, config) {
 			thumbnailFormat: config.themes.thumbnail.format
 		}),
 		'try': demoApp(database, {
-			host: config.host,
+			host: host,
 			cookieSecret: config.session.cookieSecret,
 			sessionStore: config.session.store,
 			sessionDuration: config.session.duration,
@@ -122,7 +123,7 @@ module.exports = function(database, config) {
 			uploadAdapter: config.uploaders.demo
 		}),
 		'my': adminApp(database, {
-			host: config.host,
+			host: host,
 			cookieSecret: config.session.cookieSecret,
 			sessionStore: config.session.store,
 			sessionDuration: config.session.duration,
@@ -141,7 +142,7 @@ module.exports = function(database, config) {
 			siteAuth: config.auth.site
 		}),
 		'sites': sitesApp(database, {
-			host: config.host,
+			host: host,
 			cookieSecret: config.session.cookieSecret,
 			sessionStore: config.session.store,
 			sessionDuration: config.session.duration,
@@ -157,7 +158,7 @@ module.exports = function(database, config) {
 	};
 
 	if (config.adapters.local) {
-		var localUploadMiddleware = uploader(config.adapters.local.storage.sitesRoot, { host: host });
+		var localUploadMiddleware = uploader(config.adapters.local.storage.sitesRoot, { hostname: host.hostname });
 		var localDownloadMiddleware = express.static(config.adapters.local.storage.sitesRoot, { redirect: false });
 		var localThumbnailMiddleware = thumbnailer(config.adapters.local.storage.sitesRoot, {
 			width: config.adapters.local.storage.thumbnail.width,
@@ -178,16 +179,15 @@ module.exports = function(database, config) {
 	}
 
 	initMiddleware(app, {
-		host: config.host,
-		https: Boolean(config.https.port)
+		host: host
 	});
 
 	initCustomDomains(app, {
-		host: config.host
+		host: host
 	});
 
 	initSubdomains(app, {
-		host: config.host,
+		hostname: host.hostname,
 		subdomains: subdomains
 	});
 
@@ -202,29 +202,34 @@ module.exports = function(database, config) {
 	function initMiddleware(app, options) {
 		options = options || {};
 		var host = options.host;
-		var https = options.https;
+		var hostname = host.hostname;
+		var useHttps = (host.protocol === 'https:');
 
 		app.use(stripTrailingSlash());
 		app.use(express.compress());
 
-		if (https) {
-			app.use(forceSsl({ host: host }));
+		if (useHttps) {
+			app.set('forceSSLOptions', {
+				httpsPort: host.port
+			});
+			app.use(forceSsl({ hostname: hostname }));
 		}
 	}
 
 	function initCustomDomains(app, options) {
 		options = options || {};
 		var host = options.host;
+		var hostname = host.hostname;
 
-		app.use(customDomain({ host: host }));
+		app.use(customDomain({ hostname: hostname }));
 	}
 
 	function initSubdomains(app, options) {
 		options = options || {};
-		var host = options.host;
+		var hostname = options.hostname;
 		var subdomains = options.subdomains;
 
-		app.set('subdomain offset', host.split('.').length);
+		app.set('subdomain offset', hostname.split('.').length);
 
 		var defaultSubdomainHandler = getSubdomainHandler('', subdomains);
 		var wildcardSubdomainHandler = getSubdomainHandler('*', subdomains);
