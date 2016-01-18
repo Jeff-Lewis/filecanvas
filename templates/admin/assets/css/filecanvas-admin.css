@@ -1260,6 +1260,19 @@ footer.content-footer {
 	border-radius: 0;
 }
 
+.wizard-progress-icon.fa::before {
+	content: "\f00c";
+	color: #2ecc71;
+}
+.panel.wizard-active .wizard-progress-icon.fa::before,
+.panel.wizard-active ~ .panel .wizard-progress-icon.fa::before {
+	content: "\f061";
+	color: #616161;
+}
+.panel.wizard-active ~ .panel .panel-heading {
+	opacity: 0.8;
+}
+
 .form-control::-webkit-input-placeholder {
 	color: rgba(135, 135, 135, 0.5);
 }

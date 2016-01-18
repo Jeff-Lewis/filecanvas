@@ -81,6 +81,7 @@ $(function() {
 	initModalAutofocus();
 	initModalForms();
 	initModalAutoload();
+	initWizards();
 	initThemePreview();
 	initLogout();
 });
@@ -1287,6 +1288,25 @@ function initModalForms() {
 
 function initModalAutoload() {
 	$('.modal[data-show="true"]').modal();
+}
+
+function initWizards() {
+	$('[data-wizard]').each(function(index, element) {
+		var $element = $(element);
+		$element.children('.panel').each(function(index, element) {
+			var activeClass = 'wizard-active';
+			var $panelElement = $(element);
+			var $contentElement = $panelElement.children('.panel-collapse');
+			$panelElement.toggleClass(activeClass, $contentElement.hasClass('in'));
+			$contentElement
+				.on('hide.bs.collapse', function(event) {
+					$panelElement.removeClass(activeClass);
+				})
+				.on('show.bs.collapse', function(event) {
+					$panelElement.addClass(activeClass);
+				});
+		});
+	});
 }
 
 function initThemePreview() {
