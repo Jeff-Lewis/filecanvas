@@ -4,4 +4,5 @@ set -e
 cd $(dirname $0)
 
 eval $(docker-machine env default)
+docker-machine start default | true
 docker-compose build
