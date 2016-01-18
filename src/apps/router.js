@@ -179,7 +179,8 @@ module.exports = function(database, config) {
 	}
 
 	initMiddleware(app, {
-		host: host
+		host: host,
+		forceHttps: Boolean(config.https.port)
 	});
 
 	initCustomDomains(app, {
@@ -202,17 +203,16 @@ module.exports = function(database, config) {
 	function initMiddleware(app, options) {
 		options = options || {};
 		var host = options.host;
-		var hostname = host.hostname;
-		var useHttps = (host.protocol === 'https:');
+		var forceHttps = options.forceHttps;
 
 		app.use(stripTrailingSlash());
 		app.use(express.compress());
 
-		if (useHttps) {
+		if (forceHttps) {
 			app.set('forceSSLOptions', {
 				httpsPort: host.port
 			});
-			app.use(forceSsl({ hostname: hostname }));
+			app.use(forceSsl({ hostname: host.hostname }));
 		}
 	}
 
