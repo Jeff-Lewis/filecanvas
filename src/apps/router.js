@@ -2,6 +2,7 @@
 
 var path = require('path');
 var express = require('express');
+var merge = require('lodash.merge');
 
 var pingApp = require('./ping');
 var assetsApp = require('./assets');
@@ -31,6 +32,16 @@ module.exports = function(database, config) {
 
 	if (!host || !host.hostname) { throw new Error('Missing host name'); }
 
+	if (config.adapters.local) {
+		config.adapters.local = getLocalStorageAdapterConfig(config.adapters.local, { host: host });
+		if (config.uploaders.admin.adapter === 'local') {
+			config.uploaders.admin = getLocalUploadAdapterConfig(config.uploaders.admin, { storage: config.adapters.local.storage });
+		}
+		if (config.uploaders.demo.adapter === 'local') {
+			config.uploaders.demo = getLocalUploadAdapterConfig(config.uploaders.demo, { storage: config.adapters.local.storage });
+		}
+	}
+
 	var tempPath = generateTempPath('filecanvas');
 	var thumbnailsPath = path.join(tempPath, 'thumbnails');
 
@@ -49,36 +60,25 @@ module.exports = function(database, config) {
 	var errorTemplatesPath = path.join(templatesPath, 'error');
 	var siteTemplatePath = path.join(templatesPath, 'site');
 
-	var wwwSubdomainUrl = getSubdomainUrl({
-		subdomain: 'www',
-		hostname: host.hostname,
-		protocol: config.https.port ? 'https:' : 'http:',
-		port: config.https.port || config.http.port
-	});
-	var assetsSubdomainUrl = getSubdomainUrl({
-		subdomain: 'assets',
-		hostname: host.hostname,
-		protocol: config.https.port ? 'https:' : 'http:',
-		port: config.https.port || config.http.port
-	});
-	var themesSubdomainUrl = getSubdomainUrl({
-		subdomain: 'themes',
-		hostname: host.hostname,
-		protocol: config.https.port ? 'https:' : 'http:',
-		port: config.https.port || config.http.port
-	});
-	var adminSubdomainUrl = getSubdomainUrl({
-		subdomain: 'my',
-		hostname: host.hostname,
-		protocol: config.https.port ? 'https:' : 'http:',
-		port: config.https.port || config.http.port
-	});
+	var wwwSubdomainUrl = getSubdomainUrl(merge({}, host, {
+		subdomain: 'www'
+	}));
+	var assetsSubdomainUrl = getSubdomainUrl(merge({}, host, {
+		subdomain: 'assets'
+	}));
+	var themesSubdomainUrl = getSubdomainUrl(merge({}, host, {
+		subdomain: 'themes'
+	}));
+	var adminSubdomainUrl = getSubdomainUrl(merge({}, host, {
+		subdomain: 'my'
+	}));
 
 	var wwwUrl = config.www.root || wwwSubdomainUrl;
 	var adminUrl = config.admin.root || adminSubdomainUrl;
 	var adminTemplatesUrl = adminUrl + 'templates/';
-	var adminAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'admin/';
-	var themeAssetsUrl = (config.assets.root || assetsSubdomainUrl) + 'themes/';
+	var assetsUrl = config.assets.root || assetsSubdomainUrl;
+	var adminAssetsUrl = assetsUrl + 'admin/';
+	var themeAssetsUrl = assetsUrl + 'themes/';
 	var themesUrl = config.themes.root || themesSubdomainUrl;
 
 	var subdomains = {
@@ -286,3 +286,43 @@ module.exports = function(database, config) {
 		}));
 	}
 };
+
+
+function getLocalStorageAdapterConfig(adapterConfig, options) {
+	options = options || {};
+	var host = options.host;
+	return merge({}, adapterConfig, {
+		storage: {
+			upload: {
+				url: getSubdomainUrl(merge({}, host, {
+					subdomain: adapterConfig.storage.upload.subdomain
+				}))
+			},
+			download: {
+				url: getSubdomainUrl(merge({}, host, {
+					subdomain: adapterConfig.storage.download.subdomain
+				}))
+			},
+			preview: {
+				url: getSubdomainUrl(merge({}, host, {
+					subdomain: adapterConfig.storage.preview.subdomain
+				}))
+			},
+			thumbnail: {
+				url: getSubdomainUrl(merge({}, host, {
+					subdomain: adapterConfig.storage.thumbnail.subdomain
+				}))
+			}
+		}
+	});
+}
+
+function getLocalUploadAdapterConfig(uploaderConfig, options) {
+	options = options || {};
+	var storageConfig = options.storage;
+	return merge({}, uploaderConfig, {
+		uploadUrl: storageConfig.upload.url + uploaderConfig.uploadPath,
+		downloadUrl: storageConfig.download.url + uploaderConfig.uploadPath
+	});
+}
+

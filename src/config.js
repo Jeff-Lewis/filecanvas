@@ -1,7 +1,6 @@
 'use strict';
 
 var fs = require('fs');
-var getSubdomainUrl = require('./utils/getSubdomainUrl');
 
 var config = {};
 
@@ -79,42 +78,16 @@ if (process.env.LOCAL) {
 			defaultSitesPath: process.env.LOCAL_SITE_PATH || '/',
 			sitesRoot: process.env.LOCAL_SITE_ROOT || null,
 			upload: {
-				subdomain: 'upload',
-				url: getSubdomainUrl({
-					subdomain: 'upload',
-					protocol: config.https.port ? 'https:' : 'http:',
-					hostname: config.host.hostname,
-					port: config.https.port || config.http.port
-				})
+				subdomain: 'upload'
 			},
 			download: {
-				subdomain: 'download',
-				url: getSubdomainUrl({
-					subdomain: 'download',
-					protocol: config.https.port ? 'https:' : 'http:',
-					hostname: config.host.hostname,
-					port: config.https.port || config.http.port
-				})
-
+				subdomain: 'download'
 			},
 			preview: {
-				subdomain: 'media',
-				url: getSubdomainUrl({
-					subdomain: 'media',
-					protocol: config.https.port ? 'https:' : 'http:',
-					hostname: config.host.hostname,
-					port: config.https.port || config.http.port
-				})
-
+				subdomain: 'media'
 			},
 			thumbnail: {
 				subdomain: 'thumbnail',
-				url: getSubdomainUrl({
-					subdomain: 'thumbnail',
-					protocol: config.https.port ? 'https:' : 'http:',
-					hostname: config.host.hostname,
-					port: config.https.port || config.http.port
-				}),
 				format: null,
 				width: 256,
 				height: 256
@@ -175,14 +148,12 @@ if (process.env.AWS_S3_BUCKET) {
 } else if (process.env.LOCAL_SITE_ROOT) {
 	config.uploaders.admin = {
 		adapter: 'local',
-		uploadUrl: config.adapters.local.storage.upload.url + 'editor-uploads/',
-		downloadUrl: config.adapters.local.storage.download.url + 'editor-uploads/'
+		uploadPath: 'editor-uploads/'
 	};
 
 	config.uploaders.demo = {
 		adapter: 'local',
-		uploadUrl: config.adapters.local.storage.upload.url + 'editor-uploads/',
-		downloadUrl: config.adapters.local.storage.download.url + 'editor-uploads/'
+		uploadPath: 'editor-uploads/'
 	};
 }
 
