@@ -1055,6 +1055,20 @@ body.full-page .title-bar {
 .title-bar-toolbar-container {
 	display: inline-block;
 }
+@media screen and (max-width: 767px) {
+	.title-bar .brand .brand-logo,
+	.title-bar-header-subtitle {
+		font-size: 20px;
+	}
+	.title-bar .brand .brand-logo {
+		margin-left: 0;
+		margin-right: 5px;
+	}
+	.title-bar-header-subtitle {
+		padding-left: 7px;
+	}
+}
+
 .btn-toolbar,
 a.btn-toolbar,
 a.btn-toolbar:link,
@@ -1131,7 +1145,7 @@ select.btn-toolbar {
 
 @media screen and (max-width: 767px) {
 	.title-bar-close {
-		display: none;
+		margin-top: 2px;
 	}
 	.title-bar-controls {
 		position: absolute;
@@ -1159,6 +1173,12 @@ select.btn-toolbar {
 		z-index: 1;
 		margin: 45px -10px 0;
 		padding: 10px;
+	}
+	.title-bar-toolbar .control-label {
+		line-height: 30px;
+	}
+	.title-bar-toolbar .form-control {
+		height: 30px;
 	}
 }
 
@@ -1367,7 +1387,7 @@ footer.content-footer {
 
 @media screen and (max-width: 767px) {
 	.theme-preview {
-		top: 109px;
+		top: 105px;
 		bottom: 54px;
 	}
 }
