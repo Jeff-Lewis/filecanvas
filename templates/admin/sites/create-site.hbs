@@ -14,7 +14,7 @@
 					</h4>
 				</div>
 				<form role="form" method="POST" action="{{ session.urls.admin.sites }}" autocomplete="off">
-					<div id="create-form" class="panel-group">
+					<div id="create-form" class="panel-group" data-wizard>
 						<div class="panel mb25">
 							<input type="hidden" name="_method" value="POST"/>
 							<input type="hidden"
@@ -37,7 +37,7 @@
 							{{/if}}
 							<div class="panel-heading">
 								<h4 class="no-margin text-uppercase">
-									<i class="fa fa-arrow-right mr10 hidden-xs"></i>Step 1: Choose a theme
+									<i class="wizard-progress-icon fa mr10 hidden-xs"></i>Step 1: Choose a theme
 								</h4>
 							</div>
 							<div id="create-form-theme" class="panel-collapse collapse{{#if (not content.site.theme.id)}} in{{/if}}">
@@ -74,7 +74,7 @@
 						<div class="panel">
 							<div class="panel-heading">
 								<h4 class="no-margin text-uppercase">
-									<i class="fa fa-arrow-right mr10 hidden-xs"></i>Step 2: Create canvas
+									<i class="wizard-progress-icon fa mr10 hidden-xs"></i>Step 2: Create canvas
 								</h4>
 							</div>
 							<div id="create-form-fields" class="panel-collapse collapse{{#if content.site.theme.id}} in{{/if}}">
