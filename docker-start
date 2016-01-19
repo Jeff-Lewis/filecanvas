@@ -3,10 +3,10 @@ set -e
 
 cd $(dirname $0)
 
-eval $(docker-machine env default)
 docker-machine start default | true
 
-trap "docker-compose stop && docker-compose rm -f" EXIT
+eval $(docker-machine env default)
 
 export $(cat docker-compose.env | xargs)
+trap "docker-compose stop && docker-compose rm -f" EXIT
 docker-compose up
