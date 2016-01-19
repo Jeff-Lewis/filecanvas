@@ -73,13 +73,13 @@ module.exports = function(database, config) {
 		subdomain: 'my'
 	}));
 
-	var wwwUrl = config.www.root || wwwSubdomainUrl;
-	var adminUrl = config.admin.root || adminSubdomainUrl;
+	var wwwUrl = config.www.url || wwwSubdomainUrl;
+	var adminUrl = config.admin.url || adminSubdomainUrl;
 	var adminTemplatesUrl = adminUrl + 'templates/';
-	var assetsUrl = config.assets.root || assetsSubdomainUrl;
+	var assetsUrl = config.assets.url || assetsSubdomainUrl;
 	var adminAssetsUrl = assetsUrl + 'admin/';
 	var themeAssetsUrl = assetsUrl + 'themes/';
-	var themesUrl = config.themes.root || themesSubdomainUrl;
+	var themesUrl = config.themes.url || themesSubdomainUrl;
 
 	var subdomains = {
 		'ping': pingApp({

@@ -28,16 +28,16 @@ config.db.url = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.e
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.www = {};
-config.www.root = process.env.WWW_ROOT || null;
+config.www.url = process.env.WWW_URL || null;
 
 config.assets = {};
-config.assets.root = process.env.ASSETS_ROOT || null;
+config.assets.url = process.env.ASSETS_URL || null;
 
 config.admin = {};
-config.admin.root = process.env.ADMIN_ROOT || null;
+config.admin.url = process.env.ADMIN_URL || null;
 
 config.themes = {};
-config.themes.root = process.env.THEMES_ROOT || null;
+config.themes.url = process.env.THEMES_URL || null;
 config.themes.thumbnail = {};
 config.themes.thumbnail.format = null;
 config.themes.thumbnail.width = 256;
