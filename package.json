@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@timkendrick/ember-htmlbars-helpers": "^0.1.1",
+    "@timkendrick/handlebars-core-helpers": "^0.1.1",
     "aws-sdk": "^2.2.30",
     "bcrypt": "^0.8.5",
     "blueimp-load-image": "^2.1.0",
