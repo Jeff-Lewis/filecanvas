@@ -1,9 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 trap "killall mongod" EXIT
 
 cd $(dirname $0)
+
+eval $(cat .env)
+
+HOSTNAME=$HOST
+PROTOCOL="${HOST_PROTOCOL:-$([ "$HTTPS" == "true" ] && echo "https:" || echo "http:")}"
+PORT="${HOST_PORT:-$([ "$PROTOCOL" == "https:" ] && echo "$HTTPS_PORT" || echo "$PORT")}"
+HOST=$HOST HOST_PROTOCOL=$PROTOCOL HOST_PORT=$PORT TEMPLATE_DIR=./templates/www OUTPUT_DIR=./data/www ./services/www/build
 
 (mongod --dbpath services/mongodb/data/db) &
 

@@ -19,7 +19,7 @@ router:
   environment:
     - HOST
   volumes:
-    - ./templates/www:/var/www/www
+    - ./data/www:/var/www/www
     - ./templates/admin/assets:/var/www/assets/admin
     - ./themes:/var/www/assets/themes
     - ./data/logs/nginx:/var/log/nginx
@@ -70,7 +70,17 @@ mongodb:
     - /data/db
 redis:
   image: redis
-init:
+www:
+  build: ./services/www
+  volumes:
+    - ./templates/www:/var/templates/www
+    - ./data/www:/var/www
+    - ./templates/admin/assets:/var/templates/admin/assets
+  environment:
+    - HOST
+    - HOST_PROTOCOL
+    - HOST_PORT
+init-mongodb:
   build: ./services/mongodb/worker
   links:
     - mongodb

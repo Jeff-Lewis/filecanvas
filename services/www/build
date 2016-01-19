@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+'use strict';
+
+var path = require('path');
+var del = require('del');
+var mkdirp = require('mkdirp');
+var build = require('./src/build');
+
+try {
+	if (!process.env.TEMPLATE_DIR) { throw new Error('Missing TEMPLATE_DIR environment variable'); }
+	if (!process.env.OUTPUT_DIR) { throw new Error('Missing OUTPUT_DIR environment variable'); }
+	if (!process.env.HOST) { throw new Error('Missing HOST environment variable'); }
+} catch(error) {
+	exit(error);
+}
+
+var source = process.env.TEMPLATE_DIR || null;
+var destination = process.env.OUTPUT_DIR || null;
+var context = {
+	host: {
+		hostname: process.env.HOST || null,
+		protocol: process.env.HOST_PROTOCOL || 'https:',
+		port: Number(process.env.HOST_PORT || ((process.env.HOST_PROTOCOL || 'https:') === 'https:' ? 443 : 80))
+	}
+};
+
+process.stdout.write('Generating static site...\n');
+process.stdout.write('Cleaning ' + destination + '\n');
+del(path.join(destination + '**/*'), { force: true })
+	.then(function() {
+		process.stdout.write('Creating output directory\n');
+		return ensureDirectoryExists(destination);
+	})
+	.then(function() {
+		process.stdout.write('Copying files from ' + source + '\n');
+		return build(source, destination, context)
+			.on('copyFileStart', function(copyOperation) {
+				process.stdout.write('Copying ' + copyOperation.src + '\n');
+			});
+	})
+	.then(function(results) {
+		process.stdout.write(results.length + ' ' + (results.length === 1 ? 'file' : 'files') + ' copied\n');
+	})
+	.catch(function(error) {
+		exit(error);
+	});
+
+
+function exit(error) {
+	if (error) {
+		process.stderr.write('\u001b[31m' + 'Error: ' + error.message + '\u001b[39m' + '\n');
+		process.exit(1);
+	} else {
+		process.exit();
+	}
+}
+
+function ensureDirectoryExists(path) {
+	return new Promise(function(resolve, reject) {
+		mkdirp(path, function(error) {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(error);
+			}
+		});
+	});
+}
