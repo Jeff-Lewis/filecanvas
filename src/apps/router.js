@@ -66,6 +66,7 @@ module.exports = function(database, config) {
 
 	var templatesPath = path.resolve(__dirname, '../../templates');
 	var themesPath = path.resolve(__dirname, '../../themes');
+	var wwwSiteRoot = config.www.siteRoot || path.join(templatesPath, 'www');
 
 	var tempPath = generateTempPath('filecanvas');
 
@@ -86,7 +87,7 @@ module.exports = function(database, config) {
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'www': wwwApp({
-			siteRoot: config.www.siteRoot,
+			siteRoot: wwwSiteRoot,
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'assets': assetsApp({
