@@ -37,6 +37,9 @@ config.assets.url = process.env.ASSETS_URL || null;
 config.admin = {};
 config.admin.url = process.env.ADMIN_URL || null;
 
+config.demo = {};
+config.demo.url = process.env.DEMO_URL || null;
+
 config.themes = {};
 config.themes.url = process.env.THEMES_URL || null;
 config.themes.thumbnail = {};

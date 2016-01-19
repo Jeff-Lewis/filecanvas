@@ -1,11 +1,11 @@
 'use strict';
 
-module.exports = function(options) {
+module.exports = function(subdomain, options) {
 	options = options || {};
-	var subdomain = options.subdomain || null;
-	var hostname = options.hostname || null;
-	var protocol = options.protocol || 'http:';
-	var port = options.port || (protocol === 'https:' ? 443 : 80);
+	var host = options.host;
 	var path = options.path || '/';
+	var hostname = host.hostname || null;
+	var protocol = host.protocol || 'http:';
+	var port = host.port || (protocol === 'https:' ? 443 : 80);
 	return protocol + '//' + (subdomain ? subdomain + '.' : '') + hostname + (port === (protocol === 'https:' ? 443 : 80) ? '' : ':' + port) + path;
 };

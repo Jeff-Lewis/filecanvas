@@ -32,23 +32,42 @@ module.exports = function(database, config) {
 
 	if (!host || !host.hostname) { throw new Error('Missing host name'); }
 
+	var wwwSubdomainUrl = getSubdomainUrl('www', { host: host });
+	var assetsSubdomainUrl = getSubdomainUrl('assets', { host: host });
+	var themesSubdomainUrl = getSubdomainUrl('themes', { host: host });
+	var adminSubdomainUrl = getSubdomainUrl('my', { host: host });
+	var demoSubdomainUrl = getSubdomainUrl('try', { host: host });
+
+	var wwwUrl = config.www.url || wwwSubdomainUrl;
+	var adminUrl = config.admin.url || adminSubdomainUrl;
+	var demoUrl = config.demo.url || demoSubdomainUrl;
+	var themesUrl = config.themes.url || themesSubdomainUrl;
+	var assetsUrl = config.assets.url || assetsSubdomainUrl;
+	var adminTemplatesUrl = adminUrl + 'templates/';
+	var adminAssetsUrl = assetsUrl + 'admin/';
+	var themeAssetsUrl = assetsUrl + 'themes/';
+
 	if (config.adapters.local) {
-		config.adapters.local = getLocalStorageAdapterConfig(config.adapters.local, { host: host });
+		config.adapters.local = getLocalAdapterConfig(config.adapters.local, { host: host });
 		if (config.uploaders.admin.adapter === 'local') {
-			config.uploaders.admin = getLocalUploadAdapterConfig(config.uploaders.admin, { storage: config.adapters.local.storage });
+			config.uploaders.admin = getLocalUploaderConfig(config.uploaders.admin, { storage: config.adapters.local.storage });
 		}
 		if (config.uploaders.demo.adapter === 'local') {
-			config.uploaders.demo = getLocalUploadAdapterConfig(config.uploaders.demo, { storage: config.adapters.local.storage });
+			config.uploaders.demo = getLocalUploaderConfig(config.uploaders.demo, { storage: config.adapters.local.storage });
 		}
 	}
 
-	var tempPath = generateTempPath('filecanvas');
-	var thumbnailsPath = path.join(tempPath, 'thumbnails');
-
-	var app = express();
+	if (config.adapters.dropbox) {
+		config.adapters.dropbox = getDropboxAdapterConfig(config.adapters.dropbox, {
+			adminUrl: adminUrl,
+			demoUrl: demoUrl
+		});
+	}
 
 	var templatesPath = path.resolve(__dirname, '../../templates');
 	var themesPath = path.resolve(__dirname, '../../themes');
+
+	var tempPath = generateTempPath('filecanvas');
 
 	var partialsPath = path.resolve(templatesPath, '_partials');
 	var adminTemplatesPath = path.join(templatesPath, 'admin');
@@ -58,27 +77,9 @@ module.exports = function(database, config) {
 	var faqPath = path.join(adminTemplatesPath, 'faq.json');
 	var errorTemplatesPath = path.join(templatesPath, 'error');
 	var siteTemplatePath = path.join(templatesPath, 'site');
+	var thumbnailsPath = path.join(tempPath, 'thumbnails');
 
-	var wwwSubdomainUrl = getSubdomainUrl(merge({}, host, {
-		subdomain: 'www'
-	}));
-	var assetsSubdomainUrl = getSubdomainUrl(merge({}, host, {
-		subdomain: 'assets'
-	}));
-	var themesSubdomainUrl = getSubdomainUrl(merge({}, host, {
-		subdomain: 'themes'
-	}));
-	var adminSubdomainUrl = getSubdomainUrl(merge({}, host, {
-		subdomain: 'my'
-	}));
-
-	var wwwUrl = config.www.url || wwwSubdomainUrl;
-	var adminUrl = config.admin.url || adminSubdomainUrl;
-	var adminTemplatesUrl = adminUrl + 'templates/';
-	var assetsUrl = config.assets.url || assetsSubdomainUrl;
-	var adminAssetsUrl = assetsUrl + 'admin/';
-	var themeAssetsUrl = assetsUrl + 'themes/';
-	var themesUrl = config.themes.url || themesSubdomainUrl;
+	var app = express();
 
 	var subdomains = {
 		'ping': pingApp({
@@ -287,36 +288,28 @@ module.exports = function(database, config) {
 };
 
 
-function getLocalStorageAdapterConfig(adapterConfig, options) {
+function getLocalAdapterConfig(adapterConfig, options) {
 	options = options || {};
 	var host = options.host;
 	return merge({}, adapterConfig, {
 		storage: {
 			upload: {
-				url: getSubdomainUrl(merge({}, host, {
-					subdomain: adapterConfig.storage.upload.subdomain
-				}))
+				url: getSubdomainUrl(adapterConfig.storage.upload.subdomain, { host: host })
 			},
 			download: {
-				url: getSubdomainUrl(merge({}, host, {
-					subdomain: adapterConfig.storage.download.subdomain
-				}))
+				url: getSubdomainUrl(adapterConfig.storage.download.subdomain, { host: host })
 			},
 			preview: {
-				url: getSubdomainUrl(merge({}, host, {
-					subdomain: adapterConfig.storage.preview.subdomain
-				}))
+				url: getSubdomainUrl(adapterConfig.storage.preview.subdomain, { host: host })
 			},
 			thumbnail: {
-				url: getSubdomainUrl(merge({}, host, {
-					subdomain: adapterConfig.storage.thumbnail.subdomain
-				}))
+				url: getSubdomainUrl(adapterConfig.storage.thumbnail.subdomain, { host: host })
 			}
 		}
 	});
 }
 
-function getLocalUploadAdapterConfig(uploaderConfig, options) {
+function getLocalUploaderConfig(uploaderConfig, options) {
 	options = options || {};
 	var storageConfig = options.storage;
 	return merge({}, uploaderConfig, {
@@ -325,3 +318,25 @@ function getLocalUploadAdapterConfig(uploaderConfig, options) {
 	});
 }
 
+function getDropboxAdapterConfig(adapterConfig, options) {
+	options = options || {};
+	var adminUrl = options.adminUrl;
+	var demoUrl = options.demoUrl;
+	var oauthCallbackPath = '/login/dropbox/oauth2/callback';
+	return merge({}, adapterConfig, {
+		login: {
+			admin: {
+				loginCallbackUrl: adapterConfig.login.admin.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
+			},
+			demo: {
+				loginCallbackUrl: adapterConfig.login.demo.loginCallbackUrl || (stripTrailingSlash(demoUrl) + oauthCallbackPath)
+			}
+		}
+	});
+
+
+	function stripTrailingSlash(string) {
+		var REGEXP_TRAILING_SLASH = /\/+$/;
+		return string.replace(REGEXP_TRAILING_SLASH, '');
+	}
+}

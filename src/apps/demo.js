@@ -165,8 +165,8 @@ module.exports = function(database, options) {
 				hostname: (currentSubdomain ? currentSubdomain + '.' : '') + host.hostname,
 				path: req.originalUrl
 			}));
-			var webrootUrl = (userModel ? getSubdomainUrl(objectAssign({}, host, { subdomain: userModel.username })) : null);
-			var domainUrlPattern = getSubdomainUrl(objectAssign({}, host, { subdomain: '$0' }));
+			var webrootUrl = (userModel ? getSubdomainUrl(userModel.username, { host: host }) : null);
+			var domainUrlPattern = getSubdomainUrl('$0', { host: host });
 			return {
 				location: location,
 				urls: {
