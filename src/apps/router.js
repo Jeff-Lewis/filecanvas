@@ -51,7 +51,6 @@ module.exports = function(database, config) {
 	var themesPath = path.resolve(__dirname, '../../themes');
 
 	var partialsPath = path.resolve(templatesPath, '_partials');
-	var wwwTemplatesPath = path.join(templatesPath, 'www');
 	var adminTemplatesPath = path.join(templatesPath, 'admin');
 	var demoTemplatesPath = path.join(templatesPath, 'demo');
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
@@ -86,7 +85,7 @@ module.exports = function(database, config) {
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'www': wwwApp({
-			templatesPath: wwwTemplatesPath,
+			siteRoot: config.www.siteRoot,
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'assets': assetsApp({

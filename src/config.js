@@ -29,6 +29,7 @@ config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.www = {};
 config.www.url = process.env.WWW_URL || null;
+config.www.siteRoot = process.env.WWW_SITE_ROOT || null;
 
 config.assets = {};
 config.assets.url = process.env.ASSETS_URL || null;

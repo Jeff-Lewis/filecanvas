@@ -7,15 +7,15 @@ var errorHandler = require('../middleware/errorHandler');
 
 module.exports = function(options) {
 	options = options || {};
-	var templatesPath = options.templatesPath;
+	var siteRoot = options.siteRoot;
 	var errorTemplatesPath = options.errorTemplatesPath;
 
-	if (!templatesPath) { throw new Error('Missing templates path'); }
+	if (!siteRoot) { throw new Error('Missing site root'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 
 	var app = express();
 
-	app.use(express.static(templatesPath, { redirect: false }));
+	app.use(express.static(siteRoot, { redirect: false }));
 	app.use(invalidRoute());
 	app.use(errorHandler({
 		templatesPath: errorTemplatesPath,
