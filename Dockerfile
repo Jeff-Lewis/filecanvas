@@ -2,8 +2,8 @@ FROM node:4
 
 ENV NODE_ENV=production
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p /var/app
+WORKDIR /var/app
 
 COPY package.json .
 RUN npm install
