@@ -35,13 +35,13 @@ web:
     - HTTPS_PORT=443
     - HTTPS_CERT=/opt/ssl/cert.pem
     - HTTPS_KEY=/opt/ssl/key.pem
-    - LOCAL_SITE_ROOT=/data/sites
+    - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis
   volumes:
-    - ${LOCAL_SITE_ROOT}:/data/sites
     - ${HTTPS_CERT}:/opt/ssl/cert.pem
     - ${HTTPS_KEY}:/opt/ssl/key.pem
+    - ${LOCAL_SITE_ROOT}:/var/sites
 mongodb:
   image: mongo
   volumes:

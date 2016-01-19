@@ -12,7 +12,7 @@ COPY . .
 
 RUN npm run-script postinstall --unsafe-perm
 
-VOLUME /opt/ssl/cert.pem /opt/ssl/key.pem /data/sites
+VOLUME /opt/ssl/cert.pem /opt/ssl/key.pem /var/sites
 
 EXPOSE 80
 EXPOSE 443
@@ -37,7 +37,7 @@ ENV GOOGLE=false
 ENV LOCAL=false
 ENV LOCAL_NAME=Filecanvas\ server
 ENV LOCAL_LABEL=Filecanvas\ server
-ENV LOCAL_SITE_ROOT=/data/sites
+ENV LOCAL_SITE_ROOT=/var/sites
 ENV LOCAL_BCRYPT_STRENGTH=10
 ENV COOKIE_SECRET=
 ENV WWW_ROOT=
