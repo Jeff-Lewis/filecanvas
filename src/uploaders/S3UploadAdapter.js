@@ -5,13 +5,13 @@ var mime = require('mime');
 
 function S3UploadAdapter(options) {
 	options = options || {};
+	var bucket = options.bucket || null;
 	var accessKey = options.accessKey || null;
 	var secretKey = options.secretKey || null;
-	var bucket = options.bucket || null;
 
-	if (!accessKey) { throw new Error('Missing access key'); }
-	if (!secretKey) { throw new Error('Missing secret key'); }
 	if (!bucket) { throw new Error('Missing bucket name'); }
+	if (secretKey && !accessKey) { throw new Error('Missing access key'); }
+	if (accessKey && !secretKey) { throw new Error('Missing secret key'); }
 
 	this.bucket = bucket;
 	this.accessKey = accessKey;
@@ -20,8 +20,16 @@ function S3UploadAdapter(options) {
 
 S3UploadAdapter.prototype.generateRequest = function(filePath) {
 	var bucketName = this.bucket;
+	var accessKey = this.accessKey;
+	var secretKey = this.secretKey;
 
 	return new Promise(function(resolve, reject) {
+		if (accessKey && secretKey) {
+			aws.config.update({
+				accessKeyId: accessKey,
+				secretAccessKey: secretKey
+			});
+		}
 		var mimeType = mime.lookup(filePath);
 		var s3 = new aws.S3();
 		var params = {
