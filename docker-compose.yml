@@ -1,16 +1,25 @@
 web:
+  build: ./services/nginx
+  links:
+    - app
+  ports:
+    - "8080"
+  environment:
+    - HOST
+  volumes:
+    - ./templates/www:/var/www
+    - ./data/logs/nginx:/var/log/nginx
+app:
   build: .
   links:
     - mongodb
     - redis
   ports:
-    - "80:80"
-    - "443:443"
+    - "8081"
   environment:
     - HOST
     - HOST_PROTOCOL
     - HOST_PORT
-    - HTTPS
     - NEW_RELIC_LICENSE_KEY
     - DROPBOX_APP_KEY
     - DROPBOX_APP_SECRET
@@ -32,18 +41,11 @@ web:
     - THEMES_URL
     - SITE_USER_BCRYPT_STRENGTH
     - SESSION_DURATION
-    - PORT=80
-    - HTTPS_PORT=443
-    - HTTPS_CERT=/opt/ssl/cert.pem
-    - HTTPS_KEY=/opt/ssl/key.pem
-    - WWW_SITE_ROOT=/var/www
+    - PORT=8081
     - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis
   volumes:
-    - ${HTTPS_CERT}:/opt/ssl/cert.pem
-    - ${HTTPS_KEY}:/opt/ssl/key.pem
-    - ${WWW_SITE_ROOT}:/var/www
     - ${LOCAL_SITE_ROOT}:/var/sites
 mongodb:
   image: mongo
