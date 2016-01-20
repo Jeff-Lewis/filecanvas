@@ -1268,8 +1268,14 @@ footer.content-footer {
 	.alert {
 		padding: 5px 10px;
 	}
+	.alert-xs {
+		padding: 6px 10px;
+	}
 	.alert > .fa {
 		margin: 10px 5px;
+	}
+	.alert-xs > .fa {
+		margin: 0 10px 0 2px;
 	}
 	.alert > .fa + * {
 		margin-left: 48px;
