@@ -1,4 +1,16 @@
-web:
+proxy:
+  image: nginx
+  links:
+    - router
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - ./services/proxy/nginx.conf:/etc/nginx/nginx.conf
+    - ${HTTPS_CERT}:/opt/ssl/cert.pem
+    - ${HTTPS_KEY}:/opt/ssl/key.pem
+    - ./data/logs/proxy:/var/log/nginx
+router:
   build: ./services/nginx
   links:
     - app
