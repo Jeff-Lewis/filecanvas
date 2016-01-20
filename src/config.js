@@ -139,14 +139,10 @@ if (process.env.GOOGLE === 'true') {
 if (process.env.AWS_S3_BUCKET) {
 	config.uploaders.admin = {
 		adapter: 's3',
-		accessKey: process.env.AWS_ACCESS_KEY_ID,
-		secretKey: process.env.AWS_SECRET_ACCESS_KEY,
 		bucket: process.env.AWS_S3_BUCKET
 	};
 	config.uploaders.demo = {
 		adapter: 's3',
-		accessKey: process.env.AWS_ACCESS_KEY_ID,
-		secretKey: process.env.AWS_SECRET_ACCESS_KEY,
 		bucket: process.env.AWS_S3_BUCKET
 	};
 } else if (process.env.LOCAL_SITE_ROOT) {

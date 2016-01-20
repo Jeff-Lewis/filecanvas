@@ -26,9 +26,9 @@ module.exports = function(adapterConfig) {
 
 	function createS3Adapter(adapterConfig) {
 		return new S3UploadAdapter({
+			bucket: adapterConfig.bucket,
 			accessKey: adapterConfig.accessKey,
-			secretKey: adapterConfig.secretKey,
-			bucket: adapterConfig.bucket
+			secretKey: adapterConfig.secretKey
 		});
 	}
 };
