@@ -23,6 +23,7 @@ web:
     - LOCAL
     - LOCAL_NAME
     - LOCAL_LABEL
+    - LOCAL_SITE_PATH
     - LOCAL_BCRYPT_STRENGTH
     - COOKIE_SECRET
     - WWW_URL
