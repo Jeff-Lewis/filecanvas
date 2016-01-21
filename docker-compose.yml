@@ -19,7 +19,9 @@ router:
   environment:
     - HOST
   volumes:
-    - ./templates/www:/var/www
+    - ./templates/www:/var/www/www
+    - ./templates/admin/assets:/var/www/assets/admin
+    - ./themes:/var/www/assets/themes
     - ./data/logs/nginx:/var/log/nginx
 app:
   build: .
