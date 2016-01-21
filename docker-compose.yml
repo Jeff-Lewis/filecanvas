@@ -58,10 +58,12 @@ app:
     - SITE_USER_BCRYPT_STRENGTH
     - SESSION_DURATION
     - PORT=8081
+    - WWW_SITE_ROOT=/var/www
     - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis
   volumes:
+    - ${WWW_SITE_ROOT}:/var/www
     - ${LOCAL_SITE_ROOT}:/var/sites
 mongodb:
   image: mongo
@@ -69,16 +71,6 @@ mongodb:
     - /data/db
 redis:
   image: redis
-www:
-  build: ./services/www
-  volumes:
-    - ./templates/www:/var/templates/www
-    - ./data/www:/var/www
-    - ./templates/admin/assets:/var/templates/admin/assets
-  environment:
-    - HOST
-    - HOST_PROTOCOL
-    - HOST_PORT
 init-mongodb:
   build: ./services/mongodb/worker
   links:

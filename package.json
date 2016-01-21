@@ -6,6 +6,7 @@
   "main": "server.js",
   "scripts": {
     "postinstall": "./install.sh",
+    "prestart": "./prestart.sh",
     "start": "node server.js"
   },
   "engines": {
@@ -68,10 +69,12 @@
     "passport-local": "^1.0.0",
     "plist": "^1.2.0",
     "promise-map-series": "^0.2.2",
+    "recursive-copy": "^2.0.2",
     "showdown": "^1.3.0",
     "simple-dom": "^0.2.7",
     "simple-mime": "^0.1.0",
     "slug": "^0.9.1",
+    "through2": "^2.0.0",
     "trace": "^1.2.0",
     "uuid": "^2.0.1",
     "vdom-virtualize": "^1.0.3",

@@ -5,11 +5,13 @@
 !src
 !templates
 !themes
+!www
 
 templates/admin/assets/js/*
 
 !install.sh
 !LICENSE.md
 !package.json
+!prestart.sh
 !README.md
 !server.js

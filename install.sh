@@ -1,20 +1,4 @@
-# Build www site
-if [ $WWW_SITE_ROOT ]; then
-	echo "Installing site generator npm packages..."
-	(cd services/www; npm install)
-
-	echo "Generating www site..."
-	HOSTNAME=$HOST
-	PROTOCOL="${HOST_PROTOCOL:-$([ "$HTTPS" == "true" ] && echo "https:" || echo "http:")}"
-	PORT="${HOST_PORT:-$([ "$PROTOCOL" == "https:" ] && echo "$HTTPS_PORT" || echo "$PORT")}"
-
-	HOST=$HOST \
-	HOST_PROTOCOL=$PROTOCOL \
-	HOST_PORT=$PORT \
-	TEMPLATE_DIR=./templates/www \
-	OUTPUT_DIR=$WWW_SITE_ROOT \
-		./services/www/build
-fi
+#!/usr/bin/env bash
 
 # Build client libraries
 echo "Building client libraries..."
