@@ -1,0 +1,88 @@
+{
+	"AWSEBDockerrunVersion": 2,
+	"volumes": [
+		{
+			"name": "assets-www",
+			"host": {
+				"sourcePath": "/var/app/current/data/www"
+			}
+		},
+		{
+			"name": "assets-admin",
+			"host": {
+				"sourcePath": "/var/app/current/templates/admin/assets"
+			}
+		},
+		{
+			"name": "assets-themes",
+			"host": {
+				"sourcePath": "/var/app/current/themes"
+			}
+		},
+		{
+			"name": "logs-nginx",
+			"host": {
+				"sourcePath": "/var/log/nginx"
+			}
+		}
+	],
+	"containerDefinitions": [
+		{
+			"name": "router",
+			"image": "296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:latest",
+			"essential": true,
+			"memory": 256,
+			"mountPoints": [
+				{
+					"sourceVolume": "assets-www",
+					"containerPath": "/var/www/subdomains/www"
+				},
+				{
+					"sourceVolume": "assets-admin",
+					"containerPath": "/var/www/subdomains/assets/admin"
+				},
+				{
+					"sourceVolume": "assets-themes",
+					"containerPath": "/var/www/subdomains/assets/themes"
+				},
+				{
+					"sourceVolume": "logs-nginx",
+					"containerPath": "/var/log/nginx"
+				}
+			],
+			"portMappings": [
+				{
+					"hostPort": 80,
+					"containerPort": 8080
+				}
+			],
+			"links": [
+				"app"
+			]
+		},
+		{
+			"name": "app",
+			"image": "296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest",
+			"essential": true,
+			"memory": 512,
+			"environment": [
+				{
+					"name": "PORT",
+					"value": "8081"
+				}
+			],
+			"mountPoints": [
+				{
+					"sourceVolume": "assets-www",
+					"containerPath": "/var/www"
+				}
+			],
+			"portMappings": [
+				{
+					"hostPort": 8081,
+					"containerPort": 8081
+				}
+			]
+		}
+	]
+}
