@@ -10,7 +10,7 @@ eval $(cat .env)
 HOSTNAME=$HOST
 PROTOCOL="${HOST_PROTOCOL:-$([ "$HTTPS" == "true" ] && echo "https:" || echo "http:")}"
 PORT="${HOST_PORT:-$([ "$PROTOCOL" == "https:" ] && echo "$HTTPS_PORT" || echo "$PORT")}"
-HOST=$HOST HOST_PROTOCOL=$PROTOCOL HOST_PORT=$PORT TEMPLATE_DIR=./templates/www OUTPUT_DIR=./data/www ./services/www/build
+HOST=$HOST HOST_PROTOCOL=$PROTOCOL HOST_PORT=$PORT TEMPLATE_DIR=./templates/www OUTPUT_DIR=$WWW_SITE_ROOT ./services/www/build
 
 (mongod --dbpath data/mongodb/db) &
 
