@@ -145,15 +145,20 @@ if (process.env.AWS_S3_BUCKET) {
 		adapter: 's3',
 		bucket: process.env.AWS_S3_BUCKET
 	};
-} else if (process.env.LOCAL_SITE_ROOT) {
+} else if (process.env.LOCAL_ASSET_ROOT) {
 	config.uploaders.admin = {
 		adapter: 'local',
-		uploadPath: 'editor-uploads/'
+		uploadPath: 'editor-uploads/',
+		uploadSubdomain: 'site-uploads',
+		downloadSubdomain: 'site-downloads',
+		assetRoot: process.env.LOCAL_ASSET_ROOT
 	};
-
 	config.uploaders.demo = {
 		adapter: 'local',
-		uploadPath: 'editor-uploads/'
+		uploadPath: 'editor-uploads/',
+		uploadSubdomain: 'demo-uploads',
+		downloadSubdomain: 'demo-downloads',
+		assetRoot: process.env.LOCAL_ASSET_ROOT
 	};
 }
 
