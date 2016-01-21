@@ -19,7 +19,7 @@ mongoexport \
 	--username $MONGODB_USER --password $MONGODB_PASS \
 	--collection users \
 	--jsonArray \
-	--out data/backup/users.json
+	--out ../../data/mongodb/backup/users.json
 
 echo "Exporting sites..."
 mongoexport \
@@ -29,4 +29,4 @@ mongoexport \
 	--username $MONGODB_USER --password $MONGODB_PASS \
 	--collection sites \
 	--jsonArray \
-	--out data/backup/sites.json
+	--out ../../data/mongodb/backup/sites.json

@@ -12,7 +12,7 @@ PROTOCOL="${HOST_PROTOCOL:-$([ "$HTTPS" == "true" ] && echo "https:" || echo "ht
 PORT="${HOST_PORT:-$([ "$PROTOCOL" == "https:" ] && echo "$HTTPS_PORT" || echo "$PORT")}"
 HOST=$HOST HOST_PROTOCOL=$PROTOCOL HOST_PORT=$PORT TEMPLATE_DIR=./templates/www OUTPUT_DIR=./data/www ./services/www/build
 
-(mongod --dbpath services/mongodb/data/db) &
+(mongod --dbpath data/mongodb/db) &
 
 (redis-server /usr/local/etc/redis.conf) &
 
