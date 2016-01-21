@@ -24,7 +24,6 @@ router:
     - ./themes:/var/www/assets/themes
     - ./data/logs/nginx:/var/log/nginx
     # HACK: Fix symlinked assets
-    - ./templates/admin/assets:/var/www/admin/assets
     - ./templates/admin/assets:/var/www/assets/templates/admin/assets
 app:
   build: .
