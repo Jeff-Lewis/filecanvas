@@ -19,12 +19,12 @@ router:
   environment:
     - HOST
   volumes:
-    - ./data/www:/var/www/www
-    - ./templates/admin/assets:/var/www/assets/admin
-    - ./themes:/var/www/assets/themes
+    - ./data/www:/var/www/subdomains/www
+    - ./templates/admin/assets:/var/www/subdomains/assets/admin
+    - ./themes:/var/www/subdomains/assets/themes
     - ./data/logs/nginx:/var/log/nginx
     # HACK: Fix symlinked assets
-    - ./templates/admin/assets:/var/www/assets/templates/admin/assets
+    - ./templates/admin/assets:/var/www/subdomains/assets/templates/admin/assets
 app:
   build: .
   links:
