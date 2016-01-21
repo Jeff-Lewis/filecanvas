@@ -1,6 +1,6 @@
 # Build www site
 if [ $WWW_SITE_ROOT ]; then
-	echo "Updating site generator npm packages..."
+	echo "Installing site generator npm packages..."
 	(cd services/www; npm install)
 
 	echo "Generating www site..."
