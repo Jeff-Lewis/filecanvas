@@ -58,7 +58,7 @@ config.uploaders = {};
 config.uploaders.admin = {};
 config.uploaders.demo = {};
 
-if (process.env.LOCAL) {
+if (process.env.LOCAL === 'true') {
 	config.adapters.local = {
 		login: {
 			admin: {
