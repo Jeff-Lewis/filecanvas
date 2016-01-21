@@ -12,7 +12,8 @@ COPY . .
 
 RUN npm run-script postinstall --unsafe-perm
 
-VOLUME /opt/ssl/cert.pem /opt/ssl/key.pem /var/sites
+VOLUME /opt/ssl/cert.pem /opt/ssl/key.pem
+VOLUME /var/sites
 
 EXPOSE 80
 EXPOSE 443
