@@ -19,6 +19,7 @@ eval $(docker-machine env default)
 # Prepare the deploy artifact
 mkdir -p .tmp/deploy
 cp -f ./Dockerrun.aws.json .tmp/deploy/Dockerrun.aws.json
+cp -rf .ebextensions/ .tmp/deploy/.ebextensions
 
 # Copy admin assets into artifact bundle
 mkdir -p .tmp/deploy/templates/admin/assets
@@ -29,7 +30,7 @@ mkdir -p .tmp/deploy/themes
 rsync -a -v -L --delete --exclude '.*' ./themes/ .tmp/deploy/themes
 
 # Pack the deploy artifact
-(cd .tmp/deploy; zip -FSr ../app.zip *)
+(cd .tmp/deploy; zip -FSr ../app.zip * .[^.]*)
 
 # Tag and upload local docker images
 docker tag -f filecanvas/app:latest 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest
