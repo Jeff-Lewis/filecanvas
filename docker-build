@@ -9,4 +9,46 @@ fi
 
 eval $(docker-machine env default)
 
-docker-compose build
+if [ $# -eq 0 ]; then
+	# No arguments, build all images
+	./$0 app
+	./$0 router
+
+	# Run a docker-compose build
+	docker-compose build
+else
+	# Build images named in arguments
+	for IMAGE_NAME in "$@"; do
+		IMAGE_PATH=""
+
+		if [ $IMAGE_NAME == "app" ]; then
+			IMAGE_PATH=.
+		elif [ $IMAGE_NAME == "router" ]; then
+			IMAGE_PATH=./services/nginx/
+		else
+			echo "Invalid image name: $IMAGE_NAME"
+			exit 1
+		fi
+
+		# Copy build context and resolve symlinks
+		mkdir -p .tmp/images/$IMAGE_NAME
+		rsync -a -v -L --delete \
+			--exclude /.tmp\
+			--exclude '*.env'\
+			--exclude /data\
+			--exclude /resources,\
+			--exclude /.elasticbeanstalk,\
+			--exclude /.ebextensions,\
+			--exclude .git/\
+			--exclude .gitignore\
+			--exclude node_modules\
+			--exclude .DS_Store\
+			--exclude .eslintrc\
+			$IMAGE_PATH .tmp/images/$IMAGE_NAME
+
+		# Build and tag the Docker image
+		docker build -t filecanvas/$IMAGE_NAME .tmp/images/$IMAGE_NAME
+	done
+fi
+
+
