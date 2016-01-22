@@ -11,7 +11,7 @@ proxy:
     - ${HTTPS_KEY}:/opt/ssl/key.pem
     - ./data/logs/proxy:/var/log/nginx
 router:
-  build: ./services/nginx
+  image: filecanvas/router
   links:
     - app
   ports:
@@ -26,7 +26,7 @@ router:
     # HACK: Fix symlinked assets
     - ./templates/admin/assets:/var/www/subdomains/assets/templates/admin/assets
 app:
-  build: .
+  image: filecanvas/app
   links:
     - mongodb
     - redis
@@ -72,11 +72,3 @@ mongodb:
     - /data/db
 redis:
   image: redis
-init-mongodb:
-  build: ./services/mongodb/worker
-  links:
-    - mongodb
-  volumes:
-    - ./services/mongodb/scripts/init.js:/opt/src/worker.js
-  environment:
-    - MONGODB_URL=mongodb://mongodb/${DB_NAME}
