@@ -12,10 +12,12 @@ fi
 
 eval $(docker-machine env default)
 
+# Tag and upload local docker images
 docker tag -f filecanvas/app:latest 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest
 docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest
 
 docker tag -f filecanvas/router:latest 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:latest
 docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:latest
 
+# Deploy to Elastic Beanstalk
 eb deploy
