@@ -23,6 +23,7 @@ else
 
 		if [ $IMAGE_NAME == "app" ]; then
 			IMAGE_PATH=.
+			./install.sh
 		elif [ $IMAGE_NAME == "router" ]; then
 			IMAGE_PATH=./services/nginx/
 		else
