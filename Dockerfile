@@ -10,8 +10,6 @@ RUN npm install
 
 COPY . .
 
-RUN npm run-script postinstall --unsafe-perm
-
 VOLUME \
 	/opt/ssl/cert.pem /opt/ssl/key.pem\
 	/var/sites\

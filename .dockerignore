@@ -7,7 +7,8 @@
 !themes
 !www
 
-templates/admin/assets/js/*
+templates/admin/assets
+themes/*/assets
 
 !install.sh
 !LICENSE.md

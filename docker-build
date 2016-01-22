@@ -35,9 +35,11 @@ else
 		rsync -a -v -L --delete \
 			--exclude '.*'\
 			--exclude '*.env'\
-			--exclude /data\
-			--exclude /resources,\
-			--exclude node_modules\
+			--exclude '/data'\
+			--exclude '/resources',\
+			--exclude '/node_modules'\
+			--exclude '/templates/admin/assets'\
+			--exclude '/themes/*/assets'\
 			$IMAGE_PATH .tmp/images/$IMAGE_NAME
 
 		# Build and tag the Docker image
