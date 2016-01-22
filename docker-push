@@ -13,6 +13,9 @@ eval $(docker-machine env default)
 # Build local docker images
 ./docker-build
 
+# Build client-side libraries
+./install.sh
+
 # Prepare the deploy artifact
 mkdir -p .tmp/deploy
 cp -f ./Dockerrun.aws.json .tmp/deploy/Dockerrun.aws.json
