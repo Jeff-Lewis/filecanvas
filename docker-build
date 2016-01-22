@@ -33,6 +33,7 @@ else
 		# Copy build context and resolve symlinks
 		mkdir -p .tmp/images/$IMAGE_NAME
 		rsync -a -v -L --delete \
+			--include '/.dockerignore'\
 			--exclude '.*'\
 			--exclude '*.env'\
 			--exclude '/data'\
