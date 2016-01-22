@@ -52,4 +52,4 @@ ENV \
 	SITE_USER_BCRYPT_STRENGTH=10\
 	SESSION_DURATION=3600
 
-CMD /bin/bash -c "npm start > >(tee /var/log/nodejs/nodejs.log) 2> >(tee /var/log/nodejs/error.log >&2)"
+CMD /bin/bash -c "npm start > >(tee /var/log/nodejs/nodejs.log) 2> >(tee /var/log/nodejs/nodejs-error.log >&2)"
