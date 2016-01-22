@@ -1,5 +1,6 @@
 *.env
 
+/.tmp
 /data
 /resources
 
