@@ -25,7 +25,7 @@
 			"name": "router",
 			"image": "296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:latest",
 			"essential": true,
-			"memory": 256,
+			"memory": 128,
 			"mountPoints": [
 				{
 					"sourceVolume": "assets-www",
@@ -58,7 +58,7 @@
 			"name": "app",
 			"image": "296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest",
 			"essential": true,
-			"memory": 512,
+			"memory": 768,
 			"environment": [
 				{
 					"name": "PORT",
