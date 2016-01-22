@@ -4,7 +4,9 @@ set -e
 
 cd $(dirname $0)
 
-docker-machine start default | true
+if [ $(docker-machine status default) != "Running" ]; then
+	docker-machine start default
+fi
 
 eval $(docker-machine env default)
 
