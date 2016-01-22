@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd $(dirname $0)
+
+docker-machine start default | true
+
+eval $(docker-machine env default)
+
+docker build -t filecanvas/app .
+docker tag -f filecanvas/app:latest 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest
+docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest
+
+docker build -t filecanvas/router ./services/nginx
+docker tag -f filecanvas/router:latest 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:latest
+docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:latest
+
+eb deploy
