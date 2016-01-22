@@ -12,41 +12,44 @@ COPY . .
 
 RUN npm run-script postinstall --unsafe-perm
 
-VOLUME /opt/ssl/cert.pem /opt/ssl/key.pem
-VOLUME /var/sites
-VOLUME /var/log/nodejs
+VOLUME \
+	/opt/ssl/cert.pem /opt/ssl/key.pem\
+	/var/sites\
+	/var/log/nodejs
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE \
+	80\
+	443
 
-ENV HOST=localhost
-ENV PORT=80
-ENV HTTPS=false
-ENV HTTPS_PORT=443
-ENV HTTPS_CERT=/opt/ssl/cert.pem
-ENV HTTPS_KEY=/opt/ssl/key.pem
-ENV MONGODB_URL=
-ENV REDIS_URL=
-ENV NEW_RELIC_LICENSE_KEY=
-ENV DROPBOX_APP_KEY=
-ENV DROPBOX_APP_SECRET=
-ENV DROPBOX_OAUTH2_LOGIN_CALLBACK=https://my.localhost/login/dropbox/oauth2/callback
-ENV DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK=https://try.localhost/login/dropbox/oauth2/callback
-ENV AWS_S3_BUCKET=
-ENV AWS_ACCESS_KEY_ID=
-ENV AWS_SECRET_ACCESS_KEY=
-ENV GOOGLE=false
-ENV LOCAL=false
-ENV LOCAL_NAME=Filecanvas\ server
-ENV LOCAL_LABEL=Filecanvas\ server
-ENV LOCAL_SITE_ROOT=/var/sites
-ENV LOCAL_BCRYPT_STRENGTH=10
-ENV COOKIE_SECRET=
-ENV WWW_ROOT=
-ENV ASSETS_ROOT=
-ENV ADMIN_ROOT=
-ENV THEMES_ROOT=
-ENV SITE_USER_BCRYPT_STRENGTH=10
-ENV SESSION_DURATION=3600
+ENV \
+	HOST=localhost\
+	PORT=80\
+	HTTPS=false\
+	HTTPS_PORT=443\
+	HTTPS_CERT=/opt/ssl/cert.pem\
+	HTTPS_KEY=/opt/ssl/key.pem\
+	MONGODB_URL=\
+	REDIS_URL=\
+	NEW_RELIC_LICENSE_KEY=\
+	DROPBOX_APP_KEY=\
+	DROPBOX_APP_SECRET=\
+	DROPBOX_OAUTH2_LOGIN_CALLBACK=https://my.localhost/login/dropbox/oauth2/callback\
+	DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK=https://try.localhost/login/dropbox/oauth2/callback\
+	AWS_S3_BUCKET=\
+	AWS_ACCESS_KEY_ID=\
+	AWS_SECRET_ACCESS_KEY=\
+	GOOGLE=false\
+	LOCAL=false\
+	LOCAL_NAME=Filecanvas\ server\
+	LOCAL_LABEL=Filecanvas\ server\
+	LOCAL_SITE_ROOT=/var/sites\
+	LOCAL_BCRYPT_STRENGTH=10\
+	COOKIE_SECRET=\
+	WWW_ROOT=\
+	ASSETS_ROOT=\
+	ADMIN_ROOT=\
+	THEMES_ROOT=\
+	SITE_USER_BCRYPT_STRENGTH=10\
+	SESSION_DURATION=3600
 
 CMD /bin/bash -c "npm start > >(tee /var/log/nodejs/nodejs.log) 2> >(tee /var/log/nodejs/error.log >&2)"
