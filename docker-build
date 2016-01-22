@@ -33,17 +33,11 @@ else
 		# Copy build context and resolve symlinks
 		mkdir -p .tmp/images/$IMAGE_NAME
 		rsync -a -v -L --delete \
-			--exclude /.tmp\
+			--exclude '.*'\
 			--exclude '*.env'\
 			--exclude /data\
 			--exclude /resources,\
-			--exclude /.elasticbeanstalk,\
-			--exclude /.ebextensions,\
-			--exclude .git/\
-			--exclude .gitignore\
 			--exclude node_modules\
-			--exclude .DS_Store\
-			--exclude .eslintrc\
 			$IMAGE_PATH .tmp/images/$IMAGE_NAME
 
 		# Build and tag the Docker image
