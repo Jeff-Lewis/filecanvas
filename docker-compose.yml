@@ -65,6 +65,7 @@ app:
   volumes:
     - ${WWW_SITE_ROOT}:/var/www
     - ${LOCAL_SITE_ROOT}:/var/sites
+    - ./data/logs/nodejs:/var/log/nodejs
 mongodb:
   image: mongo
   volumes:

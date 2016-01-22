@@ -18,12 +18,6 @@
 			"host": {
 				"sourcePath": "/var/app/current/themes"
 			}
-		},
-		{
-			"name": "logs-nginx",
-			"host": {
-				"sourcePath": "/var/log/nginx"
-			}
 		}
 	],
 	"containerDefinitions": [
@@ -46,7 +40,7 @@
 					"containerPath": "/var/www/subdomains/assets/themes"
 				},
 				{
-					"sourceVolume": "logs-nginx",
+					"sourceVolume": "awseb-logs-router",
 					"containerPath": "/var/log/nginx"
 				}
 			],
@@ -75,6 +69,10 @@
 				{
 					"sourceVolume": "assets-www",
 					"containerPath": "/var/www"
+				},
+				{
+					"sourceVolume": "awseb-logs-app",
+					"containerPath": "/var/log/nodejs"
 				}
 			],
 			"portMappings": [

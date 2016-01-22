@@ -14,6 +14,7 @@ RUN npm run-script postinstall --unsafe-perm
 
 VOLUME /opt/ssl/cert.pem /opt/ssl/key.pem
 VOLUME /var/sites
+VOLUME /var/log/nodejs
 
 EXPOSE 80
 EXPOSE 443
@@ -48,4 +49,4 @@ ENV THEMES_ROOT=
 ENV SITE_USER_BCRYPT_STRENGTH=10
 ENV SESSION_DURATION=3600
 
-CMD ["npm", "start"]
+CMD /bin/bash -c "npm start > >(tee /var/log/nodejs/nodejs.log) 2> >(tee /var/log/nodejs/error.log >&2)"
