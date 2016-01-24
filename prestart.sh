@@ -8,6 +8,6 @@ HOST_PORT=${HOST_PORT:-$([ "$HOST_PROTOCOL" == "https:" ] && echo "$HTTPS_PORT" 
 HOST=$HOST \
 HOST_PROTOCOL=$HOST_PROTOCOL \
 HOST_PORT=$HOST_PORT \
-TEMPLATE_DIR=./www/template \
+TEMPLATE_DIR=./templates/www \
 OUTPUT_DIR=$WWW_SITE_ROOT \
-	./www/build
+	./workers/www/build

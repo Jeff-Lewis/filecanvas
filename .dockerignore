@@ -5,7 +5,7 @@
 !src
 !templates
 !themes
-!www
+!workers/www
 
 templates/admin/assets
 themes/*/assets
