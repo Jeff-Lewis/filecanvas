@@ -28,6 +28,7 @@
 					"name": "pageHeader",
 					"type": "string",
 					"default": "Your company",
+					"preview": "Applied works",
 					"label": "Page header",
 					"editor": {
 						"name": "input",
@@ -42,6 +43,7 @@
 					"name": "pageSubtitle",
 					"type": "string",
 					"default": "Your company slogan",
+					"preview": "2016 Portfolio",
 					"label": "Page subtitle",
 					"editor": {
 						"name": "textarea",
@@ -56,6 +58,7 @@
 					"name": "introTitle",
 					"type": "string",
 					"default": "Welcome to your canvas",
+					"preview": "Our work",
 					"label": "Intro title",
 					"editor": {
 						"name": "input",
@@ -70,6 +73,7 @@
 					"name": "introText",
 					"type": "string",
 					"default": "Looks like you've created a brand new canvas! This page will automatically sync its contents to whatever's in the linked folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
+					"preview": "At Applied Works, we pride ourseslves on our wide range of diverse projects, spanning apps, print design, digital advertising and everything in between. Here's a taste what we've been up to recently.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
@@ -91,6 +95,7 @@
 					"name": "footerTitle",
 					"type": "string",
 					"default": "About us",
+					"preview": "About us",
 					"label": "Footer title",
 					"editor": {
 						"name": "input",
@@ -105,6 +110,7 @@
 					"name": "footerText",
 					"type": "string",
 					"default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+					"preview": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
 					"label": "Footer text",
 					"editor": {
 						"name": "textarea",
@@ -119,6 +125,7 @@
 					"name": "contactTitle",
 					"type": "string",
 					"default": "Contact us",
+					"preview": "Contact us",
 					"label": "Contact section title",
 					"editor": {
 						"name": "input",
@@ -133,6 +140,7 @@
 					"name": "contactEmail",
 					"type": "string",
 					"default": "info@example.com",
+					"preview": "info@example.com",
 					"label": "Contact: Email",
 					"editor": {
 						"name": "input",
@@ -147,6 +155,7 @@
 					"name": "contactWebsite",
 					"type": "url",
 					"default": "http://www.example.com/",
+					"preview": "http://www.example.com/",
 					"label": "Contact: Website",
 					"editor": {
 						"name": "input",
@@ -161,6 +170,7 @@
 					"name": "contactPhone",
 					"type": "string",
 					"default": "+44 (0)123 456 7890",
+					"preview": "+44 (0)123 456 7890",
 					"label": "Contact: Phone",
 					"editor": {
 						"name": "input",
@@ -175,6 +185,7 @@
 					"name": "contactAddress",
 					"type": "string",
 					"default": "123 Address St, London, E1 1AA",
+					"preview": "123 Address St, London, E1 1AA",
 					"label": "Contact: Address",
 					"editor": {
 						"name": "input",
@@ -196,6 +207,7 @@
 					"name": "brandColor",
 					"type": "color",
 					"default": "#aa0000",
+					"preview": "#aa0000",
 					"label": "Brand colour",
 					"editor": {
 						"name": "colorpicker",
@@ -210,6 +222,7 @@
 					"name": "navItemColor",
 					"type": "color",
 					"default": "#ffffff",
+					"preview": "#ffffff",
 					"label": "Navigation item",
 					"editor": {
 						"name": "colorpicker",
@@ -224,6 +237,7 @@
 					"name": "navItemRolloverColor",
 					"type": "color",
 					"default": "#ffcccc",
+					"preview": "#ffcccc",
 					"label": "Navigation item (rollover)",
 					"editor": {
 						"name": "colorpicker",
@@ -238,6 +252,7 @@
 					"name": "navItemSelectedColor",
 					"type": "color",
 					"default": "#000000",
+					"preview": "#000000",
 					"label": "Navigation item (selected)",
 					"editor": {
 						"name": "colorpicker",
@@ -259,6 +274,11 @@
 					"name": "pageHeader",
 					"type": "string",
 					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"preview": {
 						"font-family": "'Montserrat'",
 						"font-weight": "normal",
 						"text-transform": "uppercase"
@@ -336,6 +356,11 @@
 					"name": "pageSubtitle",
 					"type": "string",
 					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"preview": {
 						"font-family": "'Montserrat'",
 						"font-weight": "normal",
 						"text-transform": "uppercase"
@@ -417,6 +442,11 @@
 						"font-weight": "normal",
 						"text-transform": "uppercase"
 					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
 					"label": "Sub-headings",
 					"editor": {
 						"name": "font",
@@ -494,6 +524,11 @@
 						"font-weight": "normal",
 						"text-transform": "uppercase"
 					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
 					"label": "Section headings",
 					"editor": {
 						"name": "font",
@@ -567,6 +602,11 @@
 					"name": "body",
 					"type": "string",
 					"default": {
+						"font-family": "'Open Sans'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"preview": {
 						"font-family": "'Open Sans'",
 						"font-weight": "normal",
 						"text-transform": "none"
@@ -651,6 +691,7 @@
 					"name": "headerLogo",
 					"type": "string",
 					"default": "",
+					"preview": "",
 					"label": "Header logo",
 					"editor": {
 						"name": "file",
@@ -671,6 +712,7 @@
 					"name": "headerLogoCentered",
 					"type": "boolean",
 					"default": "true",
+					"preview": "true",
 					"label": "",
 					"editor": {
 						"name": "checkbox",
@@ -683,6 +725,7 @@
 					"name": "navLogo",
 					"type": "string",
 					"default": "",
+					"preview": "",
 					"label": "Navigation bar logo",
 					"editor": {
 						"name": "file",
@@ -710,6 +753,7 @@
 					"name": "title",
 					"type": "string",
 					"default": "",
+					"preview": "",
 					"label": "Tab title",
 					"editor": {
 						"name": "input",
@@ -731,6 +775,7 @@
 					"name": "css",
 					"type": "css",
 					"default": "",
+					"preview": "",
 					"label": "Custom CSS rules",
 					"editor": {
 						"name": "code",
