@@ -21,8 +21,7 @@ exports.THEME_TEMPLATES_DEFAULT = {
 		}
 	}
 };
-exports.THEME_PREVIEW_CONFIG_PATH = 'preview/config.json';
-exports.THEME_PREVIEW_FILES_PATH = 'preview/files';
+exports.THEME_PREVIEW_FILES_PATH = 'preview';
 
 exports.HANDLEBARS_DEFAULT_TEMPLATE_OPTIONS = {
 	helpers: undefined,

@@ -17,7 +17,6 @@ var HttpError = require('../errors/HttpError');
 var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
 var THEME_THUMBNAIL_DEFAULT = constants.THEME_THUMBNAIL_DEFAULT;
 var THEME_TEMPLATES_DEFAULT = constants.THEME_TEMPLATES_DEFAULT;
-var THEME_PREVIEW_CONFIG_PATH = constants.THEME_PREVIEW_CONFIG_PATH;
 var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
 
 
@@ -57,7 +56,7 @@ ThemeService.prototype.loadTheme = function(themeId) {
 	theme.thumbnail = parseThemeThumbnail(theme.thumbnail);
 	theme.defaults = parseThemeConfigDefaults(theme.config);
 	theme.templates = loadThemeTemplates(theme.templates, themePath);
-	theme.preview = parseThemePreview(themePath);
+	theme.preview = parseThemePreview(themePath, theme.config, theme.defaults);
 	this.themes[themeId] = theme;
 	return theme;
 
@@ -95,17 +94,35 @@ ThemeService.prototype.loadTheme = function(themeId) {
 		return template;
 	}
 
-	function parseThemePreview(themePath) {
-		var previewConfigPath = path.join(themePath, THEME_PREVIEW_CONFIG_PATH);
+	function parseThemePreview(themePath, themeConfig, themeDefaults) {
+		var previewConfig = extractPreviewConfig(themeConfig, themeDefaults);
 		var previewFilesPath = path.join(themePath, THEME_PREVIEW_FILES_PATH);
 		return {
-			config: readJson(previewConfigPath),
+			config: previewConfig,
 			files: loadFileMetadata(previewFilesPath, {
 				root: previewFilesPath,
 				contents: true,
 				sync: true
 			})
 		};
+
+		function extractPreviewConfig(themeConfig, themeDefaults) {
+			var previewConfig = themeConfig.reduce(function(configValueGroups, configGroup) {
+				var groupName = configGroup.name;
+				var groupFields = configGroup.fields;
+				var fieldValues = groupFields.reduce(function(fieldValues, configField) {
+					var fieldName = configField.name;
+					if ('preview' in configField) {
+						var fieldValue = configField.preview;
+						fieldValues[fieldName] = fieldValue;
+					}
+					return fieldValues;
+				}, {});
+				configValueGroups[groupName] = fieldValues;
+				return configValueGroups;
+			}, {});
+			return merge({}, themeDefaults, previewConfig);
+		}
 	}
 };
 
