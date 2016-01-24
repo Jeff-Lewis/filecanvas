@@ -22,7 +22,7 @@ module.exports = function(options) {
 	function initRoutes(app) {
 		app.get('/', ensureAuth, retrievePreviewRoute);
 		app.get('/:root/download/*', ensureAuth, retrieveDownloadRoute);
-		app.get('/:root/preview/*', ensureAuth, retrievePreviewRoute);
+		app.get('/:root/media/*', ensureAuth, retrievePreviewRoute);
 		app.get('/:root/thumbnail/*', ensureAuth, retrieveThumbnailRoute);
 		app.get('/:root/redirect/*', ensureAuth, retrieveShortcutRoute);
 

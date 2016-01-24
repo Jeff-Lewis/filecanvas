@@ -212,7 +212,7 @@ module.exports = function(database, options) {
 			app.post('/:user/login', createDefaultSiteRedirectRoute('/login'));
 			app.get('/:user/logout', createDefaultSiteRedirectRoute('/logout'));
 			app.get('/:user/download/*', createDefaultSiteRedirectRoute('/download/*'));
-			app.get('/:user/preview/*', createDefaultSiteRedirectRoute('/preview/*'));
+			app.get('/:user/media/*', createDefaultSiteRedirectRoute('/media/*'));
 			app.get('/:user/thumbnail/*', createDefaultSiteRedirectRoute('/thumbnail/*'));
 			app.get('/:user/redirect/*', createDefaultSiteRedirectRoute('/redirect/*'));
 
@@ -340,7 +340,7 @@ module.exports = function(database, options) {
 			app.get('/:user/:site/login', loginRoute);
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
-			app.get('/:user/:site/preview/*', ensureAuth, previewRoute);
+			app.get('/:user/:site/media/*', ensureAuth, previewRoute);
 			app.get('/:user/:site/thumbnail/*', ensureAuth, thumbnailRoute);
 			app.get('/:user/:site/redirect/*', ensureAuth, shortcutRoute);
 

@@ -19,7 +19,7 @@ module.exports['download'] = function(rootModel, file) {
 };
 module.exports['preview'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
-	return rootModel.metadata.siteRoot + 'preview' + file.path;
+	return rootModel.metadata.siteRoot + 'media' + file.path;
 };
 module.exports['thumbnail'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }

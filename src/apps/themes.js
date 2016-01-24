@@ -77,7 +77,7 @@ module.exports = function(options) {
 		app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
 		app.get('/:theme/preview', retrieveThemePreviewRoute);
 		app.get('/:theme/preview/download/*', rewritePreviewDownloadRequest, staticServer);
-		app.get('/:theme/preview/preview/*', rewritePreviewPreviewRequest, staticServer);
+		app.get('/:theme/preview/media/*', rewritePreviewPreviewRequest, staticServer);
 		app.get('/:theme/preview/thumbnail/*', rewritePreviewThumbnailRequest, thumbnailer(themesPath, {
 			width: thumbnailWidth,
 			height: thumbnailHeight,
