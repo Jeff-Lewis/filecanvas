@@ -662,7 +662,7 @@ module.exports = function(database, options) {
 			var themeConfigOverrides = req.body.theme && req.body.theme.config || null;
 
 			new Promise(function(resolve, reject) {
-				if (themeId || themeConfigOverrides) {
+				if (themeId || (themeId && themeConfigOverrides)) {
 					var theme = themeService.getTheme(themeId);
 					var themeConfigDefaults = theme.defaults;
 					var themeConfig = merge({}, themeConfigDefaults, themeConfigOverrides);
