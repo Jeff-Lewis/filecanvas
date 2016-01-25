@@ -53,14 +53,23 @@ ThemeService.prototype.themes = null;
 
 ThemeService.prototype.loadTheme = function(themePath, themeId) {
 	var themeManifestPath = path.join(themePath, THEME_MANIFEST_PATH);
-	var theme = readJson(themeManifestPath);
-	theme.path = themePath;
-	theme.thumbnail = parseThemeThumbnail(theme.thumbnail);
-	theme.defaults = parseThemeConfigDefaults(theme.config);
-	theme.templates = loadThemeTemplates(theme.templates, themePath);
-	theme.preview = parseThemePreview(themePath, theme.config, theme.defaults);
-	if (themeId) {
-		theme.id = themeId;
+	var themeData = readJson(themeManifestPath);
+	var themeName = themeData.name;
+	var themeThumbnail = parseThemeThumbnail(themeData.thumbnail);
+	var themeTemplates = loadThemeTemplates(themeData.templates, themePath);
+	var themeDefaults = parseThemeConfigDefaults(themeData.config);
+	var themePreview = parseThemePreview(themePath, themeData.config, themeData.defaults);
+	var themeFonts = themeData.fonts || null;
+	var theme = {
+		id: themeId || null,
+		name: themeName,
+		thumbnail: themeThumbnail,
+		templates: themeTemplates,
+		defaults: themeDefaults,
+		preview: themePreview,
+		fonts: themeFonts
+	};
+	if (theme.id) {
 		this.themes[themeId] = theme;
 	}
 	return theme;
