@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+'use strict';
+
+var bundle = require('./src/bundle');
+
+try {
+	if (!process.env.INPUT_DIR) { throw new Error('Missing INPUT_DIR environment variable'); }
+	if (!process.env.OUTPUT_DIR) { throw new Error('Missing OUTPUT_DIR environment variable'); }
+} catch(error) {
+	exit(error);
+}
+
+var inputPath = process.env.INPUT_DIR;
+var outputPath = process.env.OUTPUT_DIR;
+
+process.stdout.write('Loading theme bundle from ' + inputPath + '\n');
+bundle(inputPath, outputPath, function(error) {
+	if (error) { return exit(error); }
+	process.stdout.write('Created theme bundle at ' + outputPath + '\n');
+});
+
+function exit(error) {
+	if (error) {
+		process.stderr.write('\u001b[31m' + 'Error: ' + error.message + '\u001b[39m' + '\n');
+		process.exit(1);
+	} else {
+		process.exit();
+	}
+}
