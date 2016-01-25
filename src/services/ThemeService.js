@@ -55,16 +55,18 @@ ThemeService.prototype.loadTheme = function(themePath, themeId) {
 	var themeManifestPath = path.join(themePath, THEME_MANIFEST_PATH);
 	var themeData = readJson(themeManifestPath);
 	var themeName = themeData.name;
+	var themeConfig = themeData.config;
 	var themeThumbnail = parseThemeThumbnail(themeData.thumbnail);
 	var themeTemplates = loadThemeTemplates(themeData.templates, themePath);
-	var themeDefaults = parseThemeConfigDefaults(themeData.config);
-	var themePreview = parseThemePreview(themePath, themeData.config, themeData.defaults);
+	var themeDefaults = parseThemeConfigDefaults(themeConfig);
+	var themePreview = parseThemePreview(themePath, themeConfig, themeDefaults);
 	var themeFonts = themeData.fonts || null;
 	var theme = {
 		id: themeId || null,
 		name: themeName,
 		thumbnail: themeThumbnail,
 		templates: themeTemplates,
+		config: themeConfig,
 		defaults: themeDefaults,
 		preview: themePreview,
 		fonts: themeFonts
