@@ -13,11 +13,15 @@ try {
 var inputPath = process.env.INPUT_DIR;
 var outputPath = process.env.OUTPUT_DIR;
 
-process.stdout.write('Loading theme bundle from ' + inputPath + '\n');
-bundle(inputPath, outputPath, function(error) {
+log('Loading theme bundle from ' + inputPath);
+bundle(inputPath, outputPath, { log: log }, function(error) {
 	if (error) { return exit(error); }
-	process.stdout.write('Created theme bundle at ' + outputPath + '\n');
+	log('Created theme bundle at ' + outputPath);
 });
+
+function log(message) {
+	process.stdout.write(message + '\n');
+}
 
 function exit(error) {
 	if (error) {

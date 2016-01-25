@@ -38,7 +38,14 @@ var THUMBNAIL_EXTENSIONS = [
 	'.png'
 ];
 
-module.exports = function(inputPath, outputPath, callback) {
+module.exports = function(inputPath, outputPath, options, callback) {
+	if ((arguments.length === 3) && (typeof options === 'function')) {
+		callback = options;
+		options = null;
+	}
+	options = options || {};
+	var log = options.log || function(message) { };
+
 	var previewFilesPath = path.join(inputPath, THEME_PREVIEW_FILES_PATH);
 	var themeAssetsPath = path.join(inputPath, THEME_ASSETS_PATH);
 	var inputThumbnailPath = path.join(inputPath, THEME_THUMBNAIL_DEFAULT);
@@ -48,19 +55,19 @@ module.exports = function(inputPath, outputPath, callback) {
 
 	var themeService = new ThemeService();
 	var theme = loadTheme(inputPath);
-	process.stdout.write('Generating theme preview page...' + '\n');
+	log('Generating theme preview page...');
 	generateThemePreviewPage(theme, previewTemplateId, function(error, previewHtml) {
 		if (error) { return callback(error); }
-		process.stdout.write('Creating output directory at ' + outputPreviewPath + '\n');
+		log('Creating output directory at ' + outputPreviewPath);
 		createDirectory(outputPreviewPath, function(error) {
 			if (error) { return callback(error); }
-			process.stdout.write('Copying preview site files to ' + outputPreviewPath + '\n');
+			log('Copying preview site files to ' + outputPreviewPath);
 			savePreviewSite(previewHtml, previewFilesPath, themeAssetsPath, outputPreviewPath, function(error) {
 				if (error) { return callback(error); }
-				process.stdout.write('Adding site thumbnail...' + '\n');
+				log('Adding site thumbnail...');
 				createSiteThumbnail(inputThumbnailPath, outputPreviewPath, outputThumbnailPath, function(error) {
 					if (error) { return callback(error); }
-					process.stdout.write('Copying theme files to ' + outputPath + '\n');
+					log('Copying theme files to ' + outputPath);
 					copyThemeFiles(inputPath, outputPath, function(error) {
 						if (error) { return callback(error); }
 						callback(null);
@@ -170,12 +177,12 @@ module.exports = function(inputPath, outputPath, callback) {
 		server.listen(randomPort, function(error) {
 			if (error) { return callback(error); }
 			var url = 'http://localhost:' + server.address().port + '/';
-			process.stdout.write('Started PhantomJS server at ' + url + '\n');
+			log('Started PhantomJS server at ' + url);
 			saveUrlScreenshot(url, outputPath, function(error) {
 				if (error) { return callback(error); }
 				server.close(function(error) {
 					if (error) { return callback(error); }
-					process.stdout.write('Stopped PhantomJS server' + '\n');
+					log('Stopped PhantomJS server');
 					callback(null);
 				});
 			});
@@ -202,13 +209,13 @@ module.exports = function(inputPath, outputPath, callback) {
 		checkWhetherFileExists(inputThumbnailPath, function(error, hasThumbnail) {
 			if (error) { return callback(error); }
 			if (hasThumbnail) {
-				process.stdout.write('Copying thumbnail from ' + thumbnailPath + '\n');
+				log('Copying thumbnail from ' + thumbnailPath);
 				copyFile(inputThumbnailPath, outputThumbnailPath, function(error) {
 					callback(null);
 					return;
 				});
 			} else {
-				process.stdout.write('Saving theme screenshot' + '\n');
+				log('Saving theme screenshot');
 				savePreviewThumbnail(outputPreviewPath, outputThumbnailPath, function(error) {
 					if (error) { return callback(error); }
 					callback(null);
