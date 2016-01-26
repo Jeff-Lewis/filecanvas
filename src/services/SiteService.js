@@ -4,7 +4,6 @@ var path = require('path');
 var objectAssign = require('object-assign');
 var isTextOrBinary = require('istextorbinary');
 var template = require('es6-template-strings');
-var pdf = require('html-pdf');
 
 var parseShortcutUrl = require('../utils/parseShortcutUrl');
 
@@ -548,7 +547,7 @@ function deleteSiteUser(database, username, siteName, siteUsername) {
 function generateSiteFiles(siteTemplateFiles, context) {
 	var flattenedTemplateFiles = flattenPathHierarchy(siteTemplateFiles);
 	var expandedTemplateFiles = expandPlaceholders(flattenedTemplateFiles, context);
-	return convertMarkdownFiles(expandedTemplateFiles, { pdf: false });
+	return convertMarkdownFiles(expandedTemplateFiles);
 
 
 	function flattenPathHierarchy(tree, pathPrefix) {
@@ -597,10 +596,7 @@ function generateSiteFiles(siteTemplateFiles, context) {
 		}
 	}
 
-	function convertMarkdownFiles(files, options) {
-		options = options || {};
-		var shouldCreatePdf = Boolean(options.pdf);
-
+	function convertMarkdownFiles(files) {
 		var filePaths = Object.keys(files);
 		return Promise.all(filePaths.map(function(filePath) {
 			var filename = path.basename(filePath);
@@ -614,19 +610,10 @@ function generateSiteFiles(siteTemplateFiles, context) {
 			}
 			var markdownString = fileBuffer.toString();
 			var html = new MarkdownService().renderHtml(markdownString);
-			if (!shouldCreatePdf) {
-				return Promise.resolve({
-					path: replaceFileExtension(filePath, '.html'),
-					data: new Buffer(html)
-				});
-			}
-			return convertHtmlToPdf(html)
-				.then(function(pdfBuffer) {
-					return {
-						path: replaceFileExtension(filePath, '.pdf'),
-						data: pdfBuffer
-					};
-				});
+			return Promise.resolve({
+				path: replaceFileExtension(filePath, '.html'),
+				data: new Buffer(html)
+			});
 		})).then(function(files) {
 			var convertedFiles = files.reduce(function(convertedFiles, fileInfo) {
 				var filePath = fileInfo.path;
@@ -639,14 +626,6 @@ function generateSiteFiles(siteTemplateFiles, context) {
 
 		function getIsMarkdownFile(filename, file) {
 			return (path.extname(filename) === '.md');
-		}
-
-		function convertHtmlToPdf(html) {
-			return new Promise(function(resolve, reject) {
-				pdf.create(html).toBuffer(function(error, buffer) {
-					resolve(buffer);
-				});
-			});
 		}
 
 		function replaceFileExtension(filePath, extension) {
