@@ -54,7 +54,26 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var previewTemplateId = PREVIEW_TEMPLATE_ID;
 
 	var themeService = new ThemeService();
-	var theme = loadTheme(inputPath);
+	log('Loading theme configuration...');
+	var theme;
+	try {
+		theme = loadTheme(inputPath);
+	} catch(error) {
+		process.nextTick(function() {
+			callback(error);
+		});
+		return;
+	}
+	log('Validating theme configuration...');
+	var validationErrors = getThemeValidationErrors(theme);
+	if (validationErrors && (validationErrors.length > 0)) {
+		process.nextTick(function() {
+			var combinedErrorMessage = validationErrors.map(function(error) { return '- ' + error.message; }).join('\n');
+			var error = new Error('Validation failed:\n' + combinedErrorMessage);
+			callback(error);
+		});
+		return;
+	}
 	log('Generating theme preview page...');
 	generateThemePreviewPage(theme, previewTemplateId, function(error, previewHtml) {
 		if (error) { return callback(error); }
@@ -81,6 +100,51 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	function loadTheme(themePath) {
 		var theme = themeService.loadTheme(themePath);
 		return theme;
+	}
+
+	function getThemeValidationErrors(theme) {
+		var errors = [];
+		if (!theme.name) {
+			errors.push(new Error('Missing theme name'));
+		}
+		if (!theme.templates) {
+			errors.push(new Error('Missing theme templates'));
+		}
+		if (!theme.templates.index) {
+			errors.push(new Error('Missing index template'));
+		}
+		if (!theme.templates.login) {
+			errors.push(new Error('Missing login template'));
+		}
+		if (!theme.config) {
+			errors.push(new Error('Missing theme configuration'));
+		}
+		if (!theme.defaults) {
+			errors.push(new Error('Missing default configuration'));
+		}
+		if (!theme.preview) {
+			errors.push(new Error('Missing preview configuration'));
+		}
+		if (Boolean(theme.id)) {
+			errors.push(new Error('Invalid field: id'));
+		}
+		var ALLOWED_FIELDS = [
+			'id',
+			'name',
+			'templates',
+			'config',
+			'defaults',
+			'preview',
+			'thumbnail',
+			'fonts'
+		];
+		Object.keys(theme).forEach(function(fieldName) {
+			if (ALLOWED_FIELDS.indexOf(fieldName) === -1) {
+				errors.push(new Error('Invalid field: ' + fieldName));
+			}
+		});
+		// TODO: Verify theme config
+		return (errors.length > 0 ? errors : null);
 	}
 
 	function generateThemePreviewPage(theme, templateId, callback) {
