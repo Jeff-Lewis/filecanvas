@@ -10,16 +10,25 @@ fi
 
 eval $(docker-machine env default)
 
+if [[ -n $(git status -s) ]]; then
+	echo "ERROR: There are uncommitted changes"
+	exit 1
+fi
+
 # Build local docker images
 ./docker-build
 
-# Build client-side libraries
-./install.sh
+# Tag local docker images
+COMMIT_HASH=$(git rev-parse --short HEAD)
+docker tag filecanvas/app filecanvas/app:$COMMIT_HASH
+docker tag filecanvas/router filecanvas/router:$COMMIT_HASH
 
 # Prepare the deploy artifact
 mkdir -p .tmp/deploy
-cp -f ./Dockerrun.aws.json .tmp/deploy/Dockerrun.aws.json
+mkdir -p .tmp/deploy/themes
+rm -rf .tmp/deploy/themes/*
 cp -rf .ebextensions/ .tmp/deploy/.ebextensions
+sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
 # Copy admin assets into artifact bundle
 mkdir -p .tmp/deploy/templates/admin/assets
