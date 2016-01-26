@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+'use strict';
+
+var extract = require('./src/extract');
+
+var args = process.argv.slice(['node', 'script.js'].length);
+try {
+	if (args.length !== 2) { throw new Error('Usage: extract <inputFile> <outputDir>'); }
+} catch(error) {
+	exit(error);
+}
+var inputPath = args[0];
+var outputPath = args[1];
+
+log('Extracting theme bundle from ' + inputPath);
+extract(inputPath, outputPath, { log: log }, function(error) {
+	if (error) { return exit(error); }
+	log('Extracted theme bundle to ' + outputPath);
+});
+
+function log(message) {
+	process.stdout.write(message + '\n');
+}
+
+function exit(error) {
+	if (error) {
+		process.stderr.write('\u001b[31m' + 'Error: ' + error.toString() + '\u001b[39m' + '\n');
+		process.exit(1);
+	} else {
+		process.exit();
+	}
+}
