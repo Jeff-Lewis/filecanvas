@@ -254,9 +254,10 @@ module.exports = function(inputPath, outputPath, options, callback) {
 
 		function saveUrlScreenshot(url, outputPath, callback) {
 			webshot(url, {
-				windowSize: { width: 979, height: 734 },
+				windowSize: { width: 1280, height: 960 },
 				shotSize: { width: 'window', height: 'window' },
-				defaultWhiteBackground: true
+				defaultWhiteBackground: true,
+				timeout: 60 * 1000
 			})
 			.on('error', callback)
 			.pipe(imagemagick().resize('200x150').set('format', 'png'))
