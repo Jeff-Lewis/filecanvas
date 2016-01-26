@@ -73,7 +73,7 @@
 					"name": "introText",
 					"type": "string",
 					"default": "Looks like you've created a brand new canvas! This page will automatically sync its contents to whatever's in the linked folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
-					"preview": "At Applied Works, we pride ourseslves on our wide range of diverse projects, spanning apps, print design, digital advertising and everything in between. Here's a taste what we've been up to recently.",
+					"preview": "We believe the best creativity is born of curiosity; of a desire to question and understand. We help to identify opportunities for our clients, and realise them through the design and build of ground-breaking digital products. Here’s what’s been keeping us busy…",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
