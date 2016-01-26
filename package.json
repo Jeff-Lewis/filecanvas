@@ -82,7 +82,7 @@
     "vdom-virtualize": "^1.0.3",
     "virtual-dom": "^2.1.1",
     "webpack": "^1.12.11",
-    "webshot": "^0.17.0",
+    "webshot": "timkendrick/node-webshot",
     "xhr2": "^0.1.3"
   }
 }
