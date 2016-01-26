@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+trap "killall mongod" EXIT
+
+cd $(dirname $0)
+
+if [ $(docker-machine status default) != "Running" ]; then
+	docker-machine start default
+fi
+
+eval $(docker-machine env default)
+
+(mongod --dbpath data/mongodb/db) &
+
+(redis-server /usr/local/etc/redis.conf) &
+
+export $(cat ecs.env | xargs)
+eb local run
