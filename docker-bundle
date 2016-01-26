@@ -40,7 +40,10 @@ rsync -a -v -L --delete --exclude '.*' ./templates/admin/assets/ .tmp/deploy/tem
 
 # Copy theme assets into artifact bundle
 mkdir -p .tmp/deploy/themes
-rsync -a -v -L --delete --exclude '.*' ./themes/ .tmp/deploy/themes
+rm -rf .tmp/deploy/themes/*
+for theme in $(ls ./themes); do
+	./workers/theme/bundle ./themes/$theme .tmp/deploy/themes/$theme
+done
 
 # Pack the deploy artifact
 (cd .tmp/deploy; zip -FSr ../app.zip * .[^.]*)

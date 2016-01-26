@@ -58,11 +58,13 @@ app:
     - SESSION_DURATION
     - PORT=8081
     - WWW_SITE_ROOT=/var/www
+    - THEMES_ROOT=/var/themes
     - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis
   volumes:
     - ${WWW_SITE_ROOT}:/var/www
+    - ${THEMES_ROOT}:/var/themes
     - ${LOCAL_SITE_ROOT}:/var/sites
     - ./data/logs/nodejs:/var/log/nodejs
 mongodb:

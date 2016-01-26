@@ -4,11 +4,9 @@
 !lib
 !src
 !templates
-!themes
 !workers/www
 
 templates/admin/assets
-themes/*/assets
 
 !install.sh
 !LICENSE.md
