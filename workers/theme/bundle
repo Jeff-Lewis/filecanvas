@@ -25,7 +25,7 @@ function log(message) {
 
 function exit(error) {
 	if (error) {
-		process.stderr.write('\u001b[31m' + 'Error: ' + error.message + '\u001b[39m' + '\n');
+		process.stderr.write('\u001b[31m' + 'Error: ' + error.toString() + '\u001b[39m' + '\n');
 		process.exit(1);
 	} else {
 		process.exit();
