@@ -41,6 +41,7 @@ config.demo = {};
 config.demo.url = process.env.DEMO_URL || null;
 
 config.themes = {};
+config.themes.root = process.env.THEMES_ROOT || null;
 config.themes.url = process.env.THEMES_URL || null;
 config.themes.thumbnail = {};
 config.themes.thumbnail.format = null;

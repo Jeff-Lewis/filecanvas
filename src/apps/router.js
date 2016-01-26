@@ -65,8 +65,8 @@ module.exports = function(database, config) {
 	}
 
 	var templatesPath = path.resolve(__dirname, '../../templates');
-	var themesPath = path.resolve(__dirname, '../../themes');
-	var wwwSiteRoot = config.www.siteRoot || path.join(templatesPath, 'www');
+	var themesPath = config.themes.root;
+	var wwwSiteRoot = config.www.siteRoot;
 
 	var tempPath = generateTempPath('filecanvas');
 
@@ -99,11 +99,7 @@ module.exports = function(database, config) {
 			hostname: host.hostname,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
-			themeAssetsUrl: themeAssetsUrl,
-			thumbnailsPath: path.join(thumbnailsPath, 'theme'),
-			thumbnailWidth: config.themes.thumbnail.width,
-			thumbnailHeight: config.themes.thumbnail.height,
-			thumbnailFormat: config.themes.thumbnail.format
+			themeAssetsUrl: themeAssetsUrl
 		}),
 		'try': demoApp(database, {
 			host: host,
