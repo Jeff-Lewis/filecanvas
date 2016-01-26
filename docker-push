@@ -8,29 +8,8 @@ if [ $(docker-machine status default) != "Running" ]; then
 	docker-machine start default
 fi
 
-eval $(docker-machine env default)
-
-# Build local docker images
-./docker-build
-
-# Build client-side libraries
-./install.sh
-
-# Prepare the deploy artifact
-mkdir -p .tmp/deploy
-cp -f ./Dockerrun.aws.json .tmp/deploy/Dockerrun.aws.json
-cp -rf .ebextensions/ .tmp/deploy/.ebextensions
-
-# Copy admin assets into artifact bundle
-mkdir -p .tmp/deploy/templates/admin/assets
-rsync -a -v -L --delete --exclude '.*' ./templates/admin/assets/ .tmp/deploy/templates/admin/assets
-
-# Copy theme assets into artifact bundle
-mkdir -p .tmp/deploy/themes
-rsync -a -v -L --delete --exclude '.*' ./themes/ .tmp/deploy/themes
-
-# Pack the deploy artifact
-(cd .tmp/deploy; zip -FSr ../app.zip * .[^.]*)
+# Bundle application
+./docker-bundle
 
 # Tag and upload local docker images
 docker tag -f filecanvas/app:latest 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest
