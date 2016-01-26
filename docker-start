@@ -9,6 +9,8 @@ fi
 
 eval $(docker-machine env default)
 
+npm run postinstall
+
 export $(cat docker-compose.env | xargs)
 trap "docker-compose stop && docker-compose rm -f" EXIT
 docker-compose up
