@@ -71,6 +71,10 @@
 					"containerPath": "/var/www"
 				},
 				{
+					"sourceVolume": "assets-themes",
+					"containerPath": "/var/themes"
+				},
+				{
 					"sourceVolume": "awseb-logs-app",
 					"containerPath": "/var/log/nodejs"
 				}
