@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -e
+
+function realpath {
+	echo "$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
+}
+
+INPUT_FILE=$(realpath $1)
+OUTPUT_DIR=$(realpath $2)
+
+cd $(dirname $0)
+
+UUID=$(./uuid)
+OUTPUT_DIR="$OUTPUT_DIR/$UUID"
+TEMP_PATH="$TMPDIR$UUID"
+
+trap "rm -rf $TEMP_PATH" EXIT
+
+./extract $INPUT_FILE $TEMP_PATH
+./bundle $TEMP_PATH $OUTPUT_DIR
+
+rm -rf $TEMP_PATH

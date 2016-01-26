@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+'use strict';
+
+var uuid = require('uuid');
+
+process.stdout.write(uuid.v4());
