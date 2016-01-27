@@ -10,6 +10,11 @@ fi
 
 eval $(docker-machine env default)
 
+if [[ -n $(git status -s) ]]; then
+	echo "ERROR: There are uncommitted changes"
+	exit 1
+fi
+
 # Bundle application
 ./docker-bundle
 
