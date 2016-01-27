@@ -15,10 +15,10 @@ fi
 COMMIT_HASH=$(git rev-parse --short HEAD)
 
 # Tag and upload local docker images
-docker tag filecanvas/app:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH
+docker tag -f filecanvas/app:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH
 docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH
 
-docker tag filecanvas/router:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
+docker tag -f filecanvas/router:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
 docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
 
 # Deploy to Elastic Beanstalk

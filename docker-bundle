@@ -20,8 +20,8 @@ fi
 
 # Tag local docker images
 COMMIT_HASH=$(git rev-parse --short HEAD)
-docker tag filecanvas/app filecanvas/app:$COMMIT_HASH
-docker tag filecanvas/router filecanvas/router:$COMMIT_HASH
+docker tag -f filecanvas/app filecanvas/app:$COMMIT_HASH
+docker tag -f filecanvas/router filecanvas/router:$COMMIT_HASH
 
 # Prepare the deploy artifact
 rm -rf .tmp/deploy/*
