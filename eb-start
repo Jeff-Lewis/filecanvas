@@ -11,9 +11,19 @@ fi
 
 eval $(docker-machine env default)
 
-(mongod --dbpath data/mongodb/db) &
+# Get the current Git commit hash
+COMMIT_HASH=$(git rev-parse --short HEAD)
 
+# Tag local docker images
+docker tag -f filecanvas/app:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH
+docker tag -f filecanvas/router:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
+
+# Start background services
+(mongod --dbpath data/mongodb/db) &
 (redis-server /usr/local/etc/redis.conf) &
 
-export $(cat ecs.env | xargs)
-eb local run
+# Run bundled app from deploy folder
+mkdir -p .tmp/deploy/.elasticbeanstalk
+cp -f .elasticbeanstalk/config.yml .tmp/deploy/.elasticbeanstalk/config.yml
+cp -f .elasticbeanstalk/.localstate .tmp/deploy/.elasticbeanstalk/.localstate
+(cd .tmp/deploy; eb local run)
