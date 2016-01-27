@@ -19,10 +19,8 @@ docker tag -f filecanvas/app filecanvas/app:$COMMIT_HASH
 docker tag -f filecanvas/router filecanvas/router:$COMMIT_HASH
 
 # Prepare the deploy artifact
-rm -rf .tmp/deploy/*
+rm -rf .tmp/deploy
 mkdir -p .tmp/deploy
-mkdir -p .tmp/deploy/themes
-rm -rf .tmp/deploy/themes/*
 cp -rf .ebextensions/ .tmp/deploy/.ebextensions
 sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
