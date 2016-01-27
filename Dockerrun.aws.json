@@ -14,7 +14,7 @@
 			}
 		},
 		{
-			"name": "assets-themes",
+			"name": "themes",
 			"host": {
 				"sourcePath": "/var/app/current/themes"
 			}
@@ -36,8 +36,8 @@
 					"containerPath": "/var/www/subdomains/assets/admin"
 				},
 				{
-					"sourceVolume": "assets-themes",
-					"containerPath": "/var/www/subdomains/assets/themes"
+					"sourceVolume": "themes",
+					"containerPath": "/var/www/subdomains/themes"
 				},
 				{
 					"sourceVolume": "awseb-logs-router",
@@ -71,7 +71,7 @@
 					"containerPath": "/var/www"
 				},
 				{
-					"sourceVolume": "assets-themes",
+					"sourceVolume": "themes",
 					"containerPath": "/var/themes"
 				},
 				{

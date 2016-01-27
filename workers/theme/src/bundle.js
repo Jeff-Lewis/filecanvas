@@ -21,6 +21,7 @@ var THEME_MANIFEST_PATH = 'theme.json';
 var THEME_TEMPLATES_PATH = 'templates';
 
 var OUTPUT_PREVIEW_PATH = 'preview';
+var OUTPUT_TEMPLATE_PATH = 'templates/index.js';
 var OUTPUT_THUMBNAIL_PATH = 'thumbnail.png';
 
 var PREVIEW_TEMPLATE_ID = 'index';
@@ -50,6 +51,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var themeAssetsPath = path.join(inputPath, THEME_ASSETS_PATH);
 	var inputThumbnailPath = path.join(inputPath, THEME_THUMBNAIL_DEFAULT);
 	var outputPreviewPath = path.join(outputPath, OUTPUT_PREVIEW_PATH);
+	var outputTemplatePath = path.join(outputPath, OUTPUT_TEMPLATE_PATH);
 	var outputThumbnailPath = path.join(outputPath, OUTPUT_THUMBNAIL_PATH);
 	var previewTemplateId = PREVIEW_TEMPLATE_ID;
 
@@ -89,7 +91,11 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					log('Copying theme files to ' + outputPath);
 					copyThemeFiles(inputPath, outputPath, function(error) {
 						if (error) { return callback(error); }
-						callback(null);
+						log('Generating precompiled theme template...');
+						createPrecompiledThemeTemplate(theme, previewTemplateId, outputTemplatePath, function(error) {
+							if (error) { return callback(error); }
+							callback(null);
+						});
 					});
 				});
 			});
@@ -235,37 +241,25 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 	}
 
-	function savePreviewThumbnail(sitePath, outputPath, callback) {
-		var server = http.createServer(express.static(sitePath));
-		var randomPort = 0;
-		server.listen(randomPort, function(error) {
-			if (error) { return callback(error); }
-			var url = 'http://localhost:' + server.address().port + '/';
-			log('Started PhantomJS server at ' + url);
-			saveUrlScreenshot(url, outputPath, function(error) {
-				if (error) { return callback(error); }
-				server.close(function(error) {
-					if (error) { return callback(error); }
-					log('Stopped PhantomJS server');
-					callback(null);
-				});
-			});
-		});
-
-		function saveUrlScreenshot(url, outputPath, callback) {
-			webshot(url, {
-				windowSize: { width: 1280, height: 960 },
-				shotSize: { width: 'window', height: 'window' },
-				defaultWhiteBackground: true,
-				timeout: 60 * 1000
+	function createPrecompiledThemeTemplate(theme, templateId, outputPath, callback) {
+		themeService.serializeThemeTemplate(theme, templateId)
+			.then(function(templateString) {
+				return writeFile(outputPath, templateString);
 			})
-			.on('error', callback)
-			.pipe(imagemagick().resize('200x150').set('format', 'png'))
-			.on('error', callback)
-			.pipe(fs.createWriteStream(outputPath))
-			.on('error', callback)
-			.on('finish', function() {
+			.then(function() {
 				callback(null);
+			})
+			.catch(function(error) {
+				callback(error);
+			});
+
+
+		function writeFile(path, data) {
+			return new Promise(function(resolve, reject) {
+				fs.writeFile(path, data, function(error) {
+					if (error) { return reject(error); }
+					resolve();
+				});
 			});
 		}
 	}
@@ -287,6 +281,42 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				});
 			}
 		});
+
+
+		function savePreviewThumbnail(sitePath, outputPath, callback) {
+			var server = http.createServer(express.static(sitePath));
+			var randomPort = 0;
+			server.listen(randomPort, function(error) {
+				if (error) { return callback(error); }
+				var url = 'http://localhost:' + server.address().port + '/';
+				log('Started PhantomJS server at ' + url);
+				saveUrlScreenshot(url, outputPath, function(error) {
+					if (error) { return callback(error); }
+					server.close(function(error) {
+						if (error) { return callback(error); }
+						log('Stopped PhantomJS server');
+						callback(null);
+					});
+				});
+			});
+
+			function saveUrlScreenshot(url, outputPath, callback) {
+				webshot(url, {
+					windowSize: { width: 1280, height: 960 },
+					shotSize: { width: 'window', height: 'window' },
+					defaultWhiteBackground: true,
+					timeout: 60 * 1000
+				})
+				.on('error', callback)
+				.pipe(imagemagick().resize('200x150').set('format', 'png'))
+				.on('error', callback)
+				.pipe(fs.createWriteStream(outputPath))
+				.on('error', callback)
+				.on('finish', function() {
+					callback(null);
+				});
+			}
+		}
 	}
 
 	function copyThemeFiles(inputPath, outputPath, callback) {

@@ -62,11 +62,10 @@ module.exports = function(options) {
 	function initRoutes(app) {
 		var staticServer = express.static(path.resolve(themesPath), { redirect: false });
 
-		app.get('/:theme/metadata', rewriteManifestRequest, staticServer);
-		app.get('/:theme/metadata/defaults', retrieveThemeDefaultsRoute);
-		app.get('/:theme/metadata/thumbnail', rewriteThumbnailRequest, staticServer);
+		app.get('/:theme/theme.json', rewriteManifestRequest, staticServer);
+		app.get('/:theme/thumbnail.png', rewriteThumbnailRequest, staticServer);
 		app.get('/:theme/preview/*', rewriteThemePreviewRequest, staticServer);
-		app.get('/:theme/template/:template.js', retrievePrecompiledTemplateRoute);
+		app.get('/:theme/templates/:template.js', retrievePrecompiledTemplateRoute);
 
 		return app;
 
@@ -76,16 +75,6 @@ module.exports = function(options) {
 			try {
 				req.url = '/' + themeId + '/' + THEME_MANIFEST_PATH;
 				next();
-			} catch (error) {
-				next(error);
-			}
-		}
-
-		function retrieveThemeDefaultsRoute(req, res, next) {
-			var themeId = req.params.theme;
-			try {
-				var theme = themeService.getTheme(themeId);
-				res.json(theme.defaults);
 			} catch (error) {
 				next(error);
 			}
