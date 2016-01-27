@@ -8,6 +8,8 @@ if [ $(docker-machine status default) != "Running" ]; then
 	docker-machine start default
 fi
 
+eval $(docker-machine env default)
+
 # Bundle application
 ./docker-bundle
 
