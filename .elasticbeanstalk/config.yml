@@ -1,0 +1,15 @@
+branch-defaults:
+  feature-static-theme-previews:
+    environment: filecanvas-ecs
+  master:
+    environment: filecanvas-ecs
+deploy:
+  artifact: .tmp/app.zip
+global:
+  application_name: filecanvas-ecs
+  default_ec2_keyname: aws-eb
+  default_platform: 64bit Amazon Linux 2015.09 v2.0.6 running Multi-container Docker
+    1.7.1 (Generic)
+  default_region: us-east-1
+  profile: null
+  sc: git
