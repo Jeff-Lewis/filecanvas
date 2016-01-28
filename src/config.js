@@ -50,7 +50,7 @@ config.themes.thumbnail.height = 256;
 config.auth = {};
 config.auth.site = {};
 config.auth.site.strategy = 'bcrypt';
-config.auth.site.options = { strength: process.env.SITE_USER_BCRYPT_STRENGTH || 10 };
+config.auth.site.options = { strength: (process.env.SITE_USER_BCRYPT_STRENGTH ? Number(process.env.SITE_USER_BCRYPT_STRENGTH) : 10) };
 
 config.adapters = {};
 
@@ -65,14 +65,14 @@ if (process.env.LOCAL === 'true') {
 				persistent: true,
 				strategy: 'bcrypt',
 				options: {
-					strength: process.env.LOCAL_BCRYPT_STRENGTH || 10
+					strength: (process.env.LOCAL_BCRYPT_STRENGTH ? Number(process.env.LOCAL_BCRYPT_STRENGTH) : 10)
 				}
 			},
 			demo: {
 				persistent: false,
 				strategy: 'bcrypt',
 				options: {
-					strength: process.env.LOCAL_BCRYPT_STRENGTH || 10
+					strength: (process.env.LOCAL_BCRYPT_STRENGTH ? Number(process.env.LOCAL_BCRYPT_STRENGTH) : 10)
 				}
 			}
 		},
