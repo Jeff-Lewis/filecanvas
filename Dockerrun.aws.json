@@ -23,7 +23,7 @@
 	"containerDefinitions": [
 		{
 			"name": "router",
-			"image": "296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:latest",
+			"image": "filecanvas/router:latest",
 			"essential": true,
 			"memory": 128,
 			"mountPoints": [
@@ -56,7 +56,7 @@
 		},
 		{
 			"name": "app",
-			"image": "296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:latest",
+			"image": "filecanvas/app:latest",
 			"essential": true,
 			"memory": 768,
 			"environment": [

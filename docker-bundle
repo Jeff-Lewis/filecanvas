@@ -15,6 +15,7 @@ eval $(docker-machine env default)
 
 # Tag local docker images
 COMMIT_HASH=$(git rev-parse --short HEAD)
+if [[ -n $(git status -s) ]]; then COMMIT_HASH=$COMMIT_HASH-dev; fi
 docker tag -f filecanvas/app filecanvas/app:$COMMIT_HASH
 docker tag -f filecanvas/router filecanvas/router:$COMMIT_HASH
 
@@ -22,7 +23,12 @@ docker tag -f filecanvas/router filecanvas/router:$COMMIT_HASH
 rm -rf .tmp/deploy
 mkdir -p .tmp/deploy
 rsync -a -v -L --delete --exclude '.*' .ebextensions/ .tmp/deploy/.ebextensions
-sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
+if [ "$DOCKER_REGISTRY" ]; then
+	REGISTRY_REPLACEMENT=$DOCKER_REGISTRY'\/'
+else
+	REGISTRY_REPLACEMENT=
+fi
+sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/'$REGISTRY_REPLACEMENT'filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
 # Build client-side assets
 export NODE_ENV=production

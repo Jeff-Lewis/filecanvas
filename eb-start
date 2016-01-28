@@ -11,6 +11,7 @@ eval $(docker-machine env default)
 
 # Get the current Git commit hash
 COMMIT_HASH=$(git rev-parse --short HEAD)
+if [[ -n $(git status -s) ]]; then COMMIT_HASH=$COMMIT_HASH-dev; fi
 
 # Tag local docker images
 docker tag -f filecanvas/app:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH

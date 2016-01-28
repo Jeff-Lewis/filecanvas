@@ -16,16 +16,17 @@ if [[ -n $(git status -s) ]]; then
 fi
 
 # Bundle application
-./docker-bundle
+DOCKER_REGISTRY=296296715593.dkr.ecr.us-east-1.amazonaws.com
+DOCKER_REGISTRY=$DOCKER_REGISTRY ./docker-bundle
 
 # Get the current Git commit hash
 COMMIT_HASH=$(git rev-parse --short HEAD)
 
 # Tag and upload local docker images
-docker tag -f filecanvas/app:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH
-docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH
+docker tag -f filecanvas/app:$COMMIT_HASH $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH
+docker push $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH
 
-docker tag -f filecanvas/router:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
+docker tag -f filecanvas/router:$COMMIT_HASH $DOCKER_REGISTRY/filecanvas/router:$COMMIT_HASH
 docker push 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
 
 # Deploy to Elastic Beanstalk
