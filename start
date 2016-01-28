@@ -9,11 +9,8 @@ cd $(dirname $0)
 (redis-server /usr/local/etc/redis.conf) &
 
 export NODE_ENV=development
-
-npm run postinstall
-
 export $(cat .env | sed -e 's/#.*$//' | xargs)
 
+npm run postinstall
 npm run prestart
-
 foreman start -f Procfile.dev
