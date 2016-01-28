@@ -21,7 +21,7 @@ if [ "$NODE_ENV" != "production" ]; then
 	echo "Building theme previews..."
 	THEMES_DIR=./themes
 	THEMES_OUTPUT_DIR=${THEMES_ROOT:-./data/themes}
-	rm -rf $THEMES_OUTPUT_DIR/*
+	rm -rf $THEMES_OUTPUT_DIR
 	mkdir -p $THEMES_OUTPUT_DIR
 	for theme in $(ls $THEMES_DIR); do
 		./workers/theme/bundle $THEMES_DIR/$theme $THEMES_OUTPUT_DIR/$theme
