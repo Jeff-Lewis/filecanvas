@@ -5,15 +5,12 @@ trap "killall mongod" EXIT
 
 cd $(dirname $0)
 
-eval $(cat .env)
-
 (mongod --dbpath data/mongodb/db) &
 
 (redis-server /usr/local/etc/redis.conf) &
 
-(cd client/admin; webpack -d --watch) &
-(cd client/api; webpack -d --watch) &
-(cd client/editor; webpack -d --watch) &
-(cd client/overlay; webpack -d --watch) &
+DEBUG=true npm run postinstall
+
+eval $(cat .env)
 
 (. ./prestart.sh && NODE_ENV=development foreman start -f Procfile.dev)
