@@ -24,6 +24,9 @@ mkdir -p .tmp/deploy
 rsync -a -v -L --delete --exclude '.*' .ebextensions/ .tmp/deploy/.ebextensions
 sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
+# Build client-side assets
+./install.sh
+
 # Copy admin assets into artifact bundle
 mkdir -p .tmp/deploy/templates/admin/assets
 rsync -a -v -L --delete --exclude '.*' ./templates/admin/assets/ .tmp/deploy/templates/admin/assets
