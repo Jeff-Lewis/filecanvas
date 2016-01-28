@@ -25,6 +25,7 @@ rsync -a -v -L --delete --exclude '.*' .ebextensions/ .tmp/deploy/.ebextensions
 sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
 # Build client-side assets
+export NODE_ENV=production
 npm run postinstall
 
 # Copy admin assets into artifact bundle

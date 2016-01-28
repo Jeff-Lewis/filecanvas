@@ -4,7 +4,7 @@
 echo "Building client libraries..."
 rm -f ./templates/admin/assets/js/filecanvas-*.js
 rm -f ./templates/admin/assets/js/filecanvas-*.js.map
-if [ $NODE_ENV == 'production' ]; then
+if [ "$NODE_ENV" == 'production' ]; then
 	(cd client/admin; webpack -p)
 	(cd client/api; webpack -p)
 	(cd client/editor; webpack -p)
