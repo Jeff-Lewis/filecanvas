@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-trap "killall mongod" EXIT
-
 cd $(dirname $0)
 
 if [ $(docker-machine status default) != "Running" ]; then
@@ -19,8 +17,8 @@ docker tag -f filecanvas/app:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazona
 docker tag -f filecanvas/router:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
 
 # Start background services
-(mongod --dbpath data/mongodb/db) &
-(redis-server /usr/local/etc/redis.conf) &
+(docker run --rm -p 6379:6379 redis) &
+(docker run --rm -p 27017:27017 mongo) &
 
 # Run bundled app from deploy folder
 mkdir -p .tmp/deploy/.elasticbeanstalk
@@ -28,10 +26,10 @@ cp -f .elasticbeanstalk/config.yml .tmp/deploy/.elasticbeanstalk/config.yml
 cp -f .elasticbeanstalk/.localstate .tmp/deploy/.elasticbeanstalk/.localstate
 (cd .tmp/deploy; eb local run) &
 
+
 # Start SSL proxy
 sleep 5;
-docker run\
-	--rm\
+docker run --rm\
 	-p 443:443\
 	--link elasticbeanstalk_router_1:router\
 	-v $(pwd)/services/ssl/nginx.conf:/etc/nginx/nginx.conf\
