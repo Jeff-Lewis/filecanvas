@@ -30,19 +30,13 @@ else
 fi
 sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/'$REGISTRY_REPLACEMENT'filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
-# Build client-side assets
+# Build compiled assets
 export NODE_ENV=production
-npm run postinstall
+THEMES_ROOT=.tmp/deploy/themes npm run postinstall
 
 # Copy admin assets into artifact bundle
 mkdir -p .tmp/deploy/templates/admin/assets
 rsync -a -v -L --delete --exclude '.*' ./templates/admin/assets/ .tmp/deploy/templates/admin/assets
-
-# Copy theme assets into artifact bundle
-mkdir -p .tmp/deploy/themes
-for theme in $(ls ./themes); do
-	./workers/theme/bundle ./themes/$theme .tmp/deploy/themes/$theme
-done
 
 # Pack the deploy artifact
 (cd .tmp/deploy; zip -FSr ../app.zip * .[^.]*)
