@@ -26,4 +26,15 @@ docker tag -f filecanvas/router:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amaz
 mkdir -p .tmp/deploy/.elasticbeanstalk
 cp -f .elasticbeanstalk/config.yml .tmp/deploy/.elasticbeanstalk/config.yml
 cp -f .elasticbeanstalk/.localstate .tmp/deploy/.elasticbeanstalk/.localstate
-(cd .tmp/deploy; eb local run)
+(cd .tmp/deploy; eb local run) &
+
+# Start SSL proxy
+sleep 5;
+docker run\
+	-p 443:443\
+	--link elasticbeanstalk_router_1:router\
+	-v $(pwd)/services/ssl/nginx.conf:/etc/nginx/nginx.conf\
+	-v $(pwd)/services/ssl/certs/filecanvas.docker/cert.pem:/opt/ssl/cert.pem\
+	-v $(pwd)/services/ssl/certs/filecanvas.docker/key.pem:/opt/ssl/key.pem\
+	--name filecanvas_ssl\
+	nginx
