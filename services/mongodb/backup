@@ -5,6 +5,8 @@ cd $(dirname $0)
 
 export $(cat .env | xargs)
 
+EXPORT_DIR=../../backup
+
 echo "Clearing site cache..."
 mongo \
 	--username $MONGODB_USER --password $MONGODB_PASS \
@@ -19,7 +21,7 @@ mongoexport \
 	--username $MONGODB_USER --password $MONGODB_PASS \
 	--collection users \
 	--jsonArray \
-	--out ../../data/mongodb/backup/users.json
+	--out $EXPORT_DIR/users.json
 
 echo "Exporting sites..."
 mongoexport \
@@ -29,4 +31,4 @@ mongoexport \
 	--username $MONGODB_USER --password $MONGODB_PASS \
 	--collection sites \
 	--jsonArray \
-	--out ../../data/mongodb/backup/sites.json
+	--out $EXPORT_DIR/sites.json
