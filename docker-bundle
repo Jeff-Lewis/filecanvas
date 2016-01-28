@@ -21,7 +21,7 @@ docker tag -f filecanvas/router filecanvas/router:$COMMIT_HASH
 # Prepare the deploy artifact
 rm -rf .tmp/deploy
 mkdir -p .tmp/deploy
-cp -rf .ebextensions/ .tmp/deploy/.ebextensions
+rsync -a -v -L --delete --exclude '.*' .ebextensions/ .tmp/deploy/.ebextensions
 sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
 # Copy admin assets into artifact bundle
