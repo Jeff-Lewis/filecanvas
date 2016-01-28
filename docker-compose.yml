@@ -1,4 +1,4 @@
-proxy:
+ssl:
   image: nginx
   links:
     - router
@@ -6,10 +6,9 @@ proxy:
     - "80:80"
     - "443:443"
   volumes:
-    - ./services/proxy/nginx.conf:/etc/nginx/nginx.conf
+    - ./services/ssl/nginx.conf:/etc/nginx/nginx.conf
     - ${HTTPS_CERT}:/opt/ssl/cert.pem
     - ${HTTPS_KEY}:/opt/ssl/key.pem
-    - ./data/logs/proxy:/var/log/nginx
 router:
   image: filecanvas/router
   links:
