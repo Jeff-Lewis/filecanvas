@@ -10,19 +10,38 @@ var copy = require('recursive-copy');
 var imagemagick = require('imagemagick-stream');
 var webshot = require('webshot');
 var express = require('express');
+var merge = require('lodash.merge');
 
-var constants = require('../../../src/constants');
+var loadFileMetadata = require('../../../src/utils/loadFileMetadata');
+var parseThemeConfigDefaults = require('../../../src/utils/parseThemeConfigDefaults');
+var resolveThemePaths = require('../../../src/utils/resolveThemePaths');
+
 var ThemeService = require('../../../src/services/ThemeService');
 
-var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
-var THEME_THUMBNAIL_DEFAULT = constants.THEME_THUMBNAIL_DEFAULT;
-var THEME_ASSETS_PATH = 'assets';
 var THEME_MANIFEST_PATH = 'theme.json';
+var THEME_THUMBNAIL_DEFAULT = 'thumbnail.png';
+var THEME_TEMPLATES_DEFAULT = {
+	'index': {
+		engine: 'handlebars',
+		filename: 'templates/index.hbs',
+		options: {
+			partials: 'templates/partials'
+		}
+	},
+	'login': {
+		engine: 'handlebars',
+		filename: 'templates/login.hbs',
+		options: {
+			partials: 'templates/partials'
+		}
+	}
+};
 var THEME_TEMPLATES_PATH = 'templates';
-
+var THEME_PREVIEW_FILES_PATH = 'preview';
+var THEME_ASSETS_PATH = 'assets';
 var OUTPUT_PREVIEW_PATH = 'preview';
-var OUTPUT_TEMPLATE_PATH = 'templates/index.js';
 var OUTPUT_THUMBNAIL_PATH = 'thumbnail.png';
+var PRECOMPILED_INDEX_TEMPLATE_PATH = 'index.js';
 
 var PREVIEW_TEMPLATE_ID = 'index';
 var PREVIEW_PAGE_FILENAME = 'index.html';
@@ -49,10 +68,14 @@ module.exports = function(inputPath, outputPath, options, callback) {
 
 	var previewFilesPath = path.join(inputPath, THEME_PREVIEW_FILES_PATH);
 	var themeAssetsPath = path.join(inputPath, THEME_ASSETS_PATH);
+	var themeTemplatesPath = path.join(inputPath, THEME_TEMPLATES_PATH);
 	var inputThumbnailPath = path.join(inputPath, THEME_THUMBNAIL_DEFAULT);
 	var outputPreviewPath = path.join(outputPath, OUTPUT_PREVIEW_PATH);
-	var outputTemplatePath = path.join(outputPath, OUTPUT_TEMPLATE_PATH);
+	var outputAssetsPath = path.join(outputPath, THEME_ASSETS_PATH);
+	var outputTemplatesPath = path.join(outputPath, THEME_TEMPLATES_PATH);
 	var outputThumbnailPath = path.join(outputPath, OUTPUT_THUMBNAIL_PATH);
+	var outputThemeManifestPath = path.join(outputPath, THEME_MANIFEST_PATH);
+	var precompiledIndexTemplatePath = path.join(outputTemplatesPath, PRECOMPILED_INDEX_TEMPLATE_PATH);
 	var previewTemplateId = PREVIEW_TEMPLATE_ID;
 
 	var themeService = new ThemeService();
@@ -77,7 +100,8 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		return;
 	}
 	log('Generating theme preview page...');
-	generateThemePreviewPage(theme, previewTemplateId, function(error, previewHtml) {
+	var resolvedTheme = resolveThemePaths(theme, inputPath);
+	generateThemePreviewPage(resolvedTheme, previewTemplateId, function(error, previewHtml) {
 		if (error) { return callback(error); }
 		log('Creating output directory at ' + outputPreviewPath);
 		createDirectory(outputPreviewPath, function(error) {
@@ -89,10 +113,14 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				createSiteThumbnail(inputThumbnailPath, outputPreviewPath, outputThumbnailPath, function(error) {
 					if (error) { return callback(error); }
 					log('Copying theme files to ' + outputPath);
-					copyThemeFiles(inputPath, outputPath, function(error) {
+					async.parallel([
+						function(callback) { copyFiles(themeAssetsPath, outputAssetsPath, callback); },
+						function(callback) { copyFiles(themeTemplatesPath, outputTemplatesPath, callback); },
+						function(callback) { saveThemeManifest(theme, outputThemeManifestPath, callback); }
+					], function(error, results) {
 						if (error) { return callback(error); }
 						log('Generating precompiled theme template...');
-						createPrecompiledThemeTemplate(theme, previewTemplateId, outputTemplatePath, function(error) {
+						createPrecompiledThemeTemplate(resolvedTheme, previewTemplateId, precompiledIndexTemplatePath, function(error) {
 							if (error) { return callback(error); }
 							callback(null);
 						});
@@ -104,8 +132,97 @@ module.exports = function(inputPath, outputPath, options, callback) {
 
 
 	function loadTheme(themePath) {
-		var theme = themeService.loadTheme(themePath);
+		var themeId = path.basename(themePath);
+		var theme = parseTheme(themePath, themeId);
 		return theme;
+
+
+		function parseTheme(themePath, themeId) {
+			var themeManifestPath = path.join(themePath, THEME_MANIFEST_PATH);
+			var themeData = readJson(themeManifestPath);
+			var themeName = themeData.name;
+			var themeConfig = themeData.config;
+			var themeThumbnail = parseThemeThumbnail(themeData.thumbnail);
+			var themeTemplates = loadThemeTemplates(themeData.templates, themePath);
+			var themeDefaults = parseThemeConfigDefaults(themeConfig);
+			var themePreview = parseThemePreview(themePath, themeConfig, themeDefaults);
+			var themeFonts = themeData.fonts || null;
+			var theme = {
+				id: themeId,
+				name: themeName,
+				thumbnail: themeThumbnail,
+				templates: themeTemplates,
+				config: themeConfig,
+				defaults: themeDefaults,
+				preview: themePreview,
+				fonts: themeFonts
+			};
+			return theme;
+
+
+			function parseThemeThumbnail(thumbnailPath) {
+				return thumbnailPath || THEME_THUMBNAIL_DEFAULT;
+			}
+
+			function loadThemeTemplates(templates, themePath) {
+				templates = merge({}, THEME_TEMPLATES_DEFAULT, templates);
+				return Object.keys(templates).reduce(function(parsedTemplates, templateId) {
+					var templateConfig = templates[templateId];
+					var parsedTemplate = loadThemeTemplate(templateId, templateConfig, themePath);
+					parsedTemplates[templateId] = parsedTemplate;
+					return parsedTemplates;
+				}, {});
+			}
+
+			function loadThemeTemplate(templateId, templateConfig, themePath) {
+				templateConfig = merge({}, THEME_TEMPLATES_DEFAULT, templateConfig);
+				var templateFilename = templateConfig.filename;
+				var templateEngine = templateConfig.engine;
+				var templateOptions = templateConfig.options;
+				var template = {
+					id: templateId,
+					engine: templateEngine,
+					filename: templateFilename,
+					options: templateOptions
+				};
+				return template;
+			}
+
+			function parseThemePreview(themePath, themeConfig, themeDefaults) {
+				var previewConfig = extractPreviewConfig(themeConfig, themeDefaults);
+				var previewFilesPath = path.join(themePath, THEME_PREVIEW_FILES_PATH);
+				return {
+					config: previewConfig,
+					files: loadFileMetadata(previewFilesPath, {
+						root: previewFilesPath,
+						contents: true,
+						sync: true
+					})
+				};
+
+				function extractPreviewConfig(themeConfig, themeDefaults) {
+					var previewConfig = themeConfig.reduce(function(configValueGroups, configGroup) {
+						var groupName = configGroup.name;
+						var groupFields = configGroup.fields;
+						var fieldValues = groupFields.reduce(function(fieldValues, configField) {
+							var fieldName = configField.name;
+							if ('preview' in configField) {
+								var fieldValue = configField.preview;
+								fieldValues[fieldName] = fieldValue;
+							}
+							return fieldValues;
+						}, {});
+						configValueGroups[groupName] = fieldValues;
+						return configValueGroups;
+					}, {});
+					return merge({}, themeDefaults, previewConfig);
+				}
+			}
+
+			function readJson(filePath) {
+				return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8' }));
+			}
+		}
 	}
 
 	function getThemeValidationErrors(theme) {
@@ -130,9 +247,6 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 		if (!theme.preview) {
 			errors.push(new Error('Missing preview configuration'));
-		}
-		if (Boolean(theme.id)) {
-			errors.push(new Error('Invalid field: id'));
 		}
 		var ALLOWED_FIELDS = [
 			'id',
@@ -319,21 +433,9 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 	}
 
-	function copyThemeFiles(inputPath, outputPath, callback) {
-		var themeAssetsPath = path.join(inputPath, THEME_ASSETS_PATH);
-		var themeTemplatesPath = path.join(inputPath, THEME_TEMPLATES_PATH);
-		var themeManifestPath = path.join(inputPath, THEME_MANIFEST_PATH);
-		var outputAssetsPath = path.join(outputPath, THEME_ASSETS_PATH);
-		var outputTemplatesPath = path.join(outputPath, THEME_TEMPLATES_PATH);
-		var outputManifestPath = path.join(outputPath, THEME_MANIFEST_PATH);
-		async.parallel([
-			function(callback) { copyFiles(themeAssetsPath, outputAssetsPath, callback); },
-			function(callback) { copyFiles(themeTemplatesPath, outputTemplatesPath, callback); },
-			function(callback) { copyFile(themeManifestPath, outputManifestPath, callback); }
-		], function(error, results) {
-			if (error) { return callback(error); }
-			callback(null);
-		});
+	function saveThemeManifest(theme, filePath, callback) {
+		var json = JSON.stringify(theme, null, 2);
+		fs.writeFile(filePath, json, callback);
 	}
 
 	function checkWhetherFileExists(path, callback) {

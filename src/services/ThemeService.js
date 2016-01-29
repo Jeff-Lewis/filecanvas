@@ -2,145 +2,50 @@
 
 var fs = require('fs');
 var path = require('path');
-var merge = require('lodash.merge');
 var memoize = require('lodash.memoize');
 
-var constants = require('../constants');
 var engines = require('../engines');
 
-var loadFileMetadata = require('../utils/loadFileMetadata');
-var parseThemeConfigDefaults = require('../utils/parseThemeConfigDefaults');
-var resolvePartials = require('../utils/resolvePartials');
+var resolveThemePaths = require('../utils/resolveThemePaths');
 
 var HttpError = require('../errors/HttpError');
-
-var THEME_MANIFEST_PATH = constants.THEME_MANIFEST_PATH;
-var THEME_THUMBNAIL_DEFAULT = constants.THEME_THUMBNAIL_DEFAULT;
-var THEME_TEMPLATES_DEFAULT = constants.THEME_TEMPLATES_DEFAULT;
-var THEME_PREVIEW_FILES_PATH = constants.THEME_PREVIEW_FILES_PATH;
-
 
 function ThemeService(options) {
 	options = options || {};
 	var themesPath = options.themesPath;
 
-	this.themes = {};
-
-	if (themesPath) {
-		var self = this;
-		preloadThemes(themesPath);
-	}
+	this.themes = (themesPath ? preloadThemes(themesPath) : {});
 
 
 	function preloadThemes(themesPath) {
-		var themeIds = getThemeFolders(themesPath);
-		themeIds.forEach(function(themeId) {
-			var themePath = path.join(themesPath, themeId);
-			self.loadTheme(themePath, themeId);
-		});
+		var themePaths = getThemeFolders(themesPath);
+		return themePaths.reduce(function(themes, themePath) {
+			var themeManifestPath = path.resolve(themePath, 'theme.json');
+			var themeManifest = readJson(themeManifestPath);
+			var theme = resolveThemePaths(themeManifest, themePath);
+			themes[theme.id] = theme;
+			return themes;
+		}, {});
 
 
 		function getThemeFolders(themesPath) {
-			return fs.readdirSync(themesPath).filter(function(filename) {
-				return (filename.charAt(0) !== '.') && fs.statSync(path.join(themesPath, filename)).isDirectory();
-			});
+			return fs.readdirSync(themesPath)
+				.filter(function(filename) {
+					return (filename.charAt(0) !== '.') && fs.statSync(path.join(themesPath, filename)).isDirectory();
+				})
+				.map(function(filename) {
+					return path.join(themesPath, filename);
+				});
+		}
+
+		function readJson(filePath) {
+			return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8' }));
 		}
 	}
 }
 
 ThemeService.prototype.themesPath = null;
 ThemeService.prototype.themes = null;
-
-ThemeService.prototype.loadTheme = function(themePath, themeId) {
-	var themeManifestPath = path.join(themePath, THEME_MANIFEST_PATH);
-	var themeData = readJson(themeManifestPath);
-	var themeName = themeData.name;
-	var themeConfig = themeData.config;
-	var themeThumbnail = parseThemeThumbnail(themeData.thumbnail);
-	var themeTemplates = loadThemeTemplates(themeData.templates, themePath);
-	var themeDefaults = parseThemeConfigDefaults(themeConfig);
-	var themePreview = parseThemePreview(themePath, themeConfig, themeDefaults);
-	var themeFonts = themeData.fonts || null;
-	var theme = {
-		id: themeId || null,
-		name: themeName,
-		thumbnail: themeThumbnail,
-		templates: themeTemplates,
-		config: themeConfig,
-		defaults: themeDefaults,
-		preview: themePreview,
-		fonts: themeFonts
-	};
-	if (theme.id) {
-		this.themes[themeId] = theme;
-	}
-	return theme;
-
-
-	function parseThemeThumbnail(thumbnailPath) {
-		return thumbnailPath || THEME_THUMBNAIL_DEFAULT;
-	}
-
-	function loadThemeTemplates(templates, themePath) {
-		templates = merge({}, THEME_TEMPLATES_DEFAULT, templates);
-		return Object.keys(templates).reduce(function(parsedTemplates, templateId) {
-			var templateConfig = templates[templateId];
-			var parsedTemplate = loadThemeTemplate(templateId, templateConfig, themePath);
-			parsedTemplates[templateId] = parsedTemplate;
-			return parsedTemplates;
-		}, {});
-	}
-
-	function loadThemeTemplate(templateId, templateConfig, themePath) {
-		templateConfig = merge({}, THEME_TEMPLATES_DEFAULT, templateConfig);
-		var templateFilename = templateConfig.filename;
-		var templatePath = path.resolve(themePath, templateFilename);
-		var templateEngine = templateConfig.engine;
-		var templateOptions = templateConfig.options;
-		if (templateOptions.partials) {
-			var partialsRoot = path.resolve(themePath, templateOptions.partials);
-			templateOptions.partials = resolvePartials(partialsRoot);
-		}
-		var template = {
-			id: templateId,
-			engine: templateEngine,
-			path: templatePath,
-			options: templateOptions
-		};
-		return template;
-	}
-
-	function parseThemePreview(themePath, themeConfig, themeDefaults) {
-		var previewConfig = extractPreviewConfig(themeConfig, themeDefaults);
-		var previewFilesPath = path.join(themePath, THEME_PREVIEW_FILES_PATH);
-		return {
-			config: previewConfig,
-			files: loadFileMetadata(previewFilesPath, {
-				root: previewFilesPath,
-				contents: true,
-				sync: true
-			})
-		};
-
-		function extractPreviewConfig(themeConfig, themeDefaults) {
-			var previewConfig = themeConfig.reduce(function(configValueGroups, configGroup) {
-				var groupName = configGroup.name;
-				var groupFields = configGroup.fields;
-				var fieldValues = groupFields.reduce(function(fieldValues, configField) {
-					var fieldName = configField.name;
-					if ('preview' in configField) {
-						var fieldValue = configField.preview;
-						fieldValues[fieldName] = fieldValue;
-					}
-					return fieldValues;
-				}, {});
-				configValueGroups[groupName] = fieldValues;
-				return configValueGroups;
-			}, {});
-			return merge({}, themeDefaults, previewConfig);
-		}
-	}
-};
 
 ThemeService.prototype.getThemes = function() {
 	return this.themes;
@@ -218,10 +123,6 @@ ThemeService.prototype.serializeThemeTemplate = function(theme, templateId) {
 		);
 	});
 };
-
-function readJson(filePath) {
-	return JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8' }));
-}
 
 var uid = 1;
 module.exports = memoize(function(options) {

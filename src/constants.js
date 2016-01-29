@@ -3,26 +3,6 @@
 exports.DB_COLLECTION_SITES = 'sites';
 exports.DB_COLLECTION_USERS = 'users';
 
-exports.THEME_MANIFEST_PATH = 'theme.json';
-exports.THEME_THUMBNAIL_DEFAULT = 'thumbnail.png';
-exports.THEME_TEMPLATES_DEFAULT = {
-	'index': {
-		engine: 'handlebars',
-		filename: 'templates/index.hbs',
-		options: {
-			partials: 'templates/partials'
-		}
-	},
-	'login': {
-		engine: 'handlebars',
-		filename: 'templates/login.hbs',
-		options: {
-			partials: 'templates/partials'
-		}
-	}
-};
-exports.THEME_PREVIEW_FILES_PATH = 'preview';
-
 exports.HANDLEBARS_DEFAULT_TEMPLATE_OPTIONS = {
 	helpers: undefined,
 	partials: undefined,
