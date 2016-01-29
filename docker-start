@@ -9,6 +9,8 @@ fi
 
 eval $(docker-machine env default)
 
+export NODE_ENV=development
+export $(cat .env | sed -e 's/#.*$//' | xargs)
 npm run postinstall
 
 export $(cat docker-compose.env | xargs)
