@@ -807,7 +807,12 @@ function initUploadControls() {
 					};
 				}
 				var activeRequest = null;
-				updateSelection($inputElement.val());
+				var initialValue = $inputElement.val();
+				updateSelection(initialValue);
+
+				$inputElement.closest('form').on('reset', function(event) {
+					$inputElement.val(initialValue);
+				});
 
 				$inputElement.on('change', function(event) {
 					if (activeRequest) {

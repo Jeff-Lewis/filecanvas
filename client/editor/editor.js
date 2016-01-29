@@ -616,6 +616,7 @@ function initLivePreview(callback) {
 						};
 					});
 				$(fileInputElement).val('');
+				if (files.length === 0) { return; }
 				uploadCallback(files);
 			});
 		}
