@@ -64,11 +64,12 @@ DropboxLoginAdapter.prototype.middleware = function(passport, passportOptions, c
 			var passportValues = {
 				uid: profile.id,
 				token: accessToken,
+				refreshToken: refreshToken,
 				firstName: profile._json.name_details.given_name,
 				lastName: profile._json.name_details.surname,
 				email: profile.emails[0].value
 			};
-			var query = { 'uid': profile.id };
+			var query = { 'uid': passportValues.uid };
 			self.login(req, query, passportValues, callback);
 		}
 	));
@@ -104,7 +105,6 @@ DropboxLoginAdapter.prototype.getAdapterConfig = function(passportValues, existi
 		email: passportValues.email
 	});
 };
-
 
 
 function DropboxStorageAdapter(database, options) {
