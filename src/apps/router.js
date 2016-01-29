@@ -45,7 +45,6 @@ module.exports = function(database, config) {
 	var assetsUrl = config.assets.url || assetsSubdomainUrl;
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = assetsUrl + 'admin/';
-	var themeAssetsUrl = assetsUrl + 'themes/';
 
 	if (config.adapters.local) {
 		config.adapters.local = getLocalAdapterConfig(config.adapters.local, { host: host });
@@ -91,15 +90,13 @@ module.exports = function(database, config) {
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'assets': assetsApp({
-			themesPath: themesPath,
 			adminAssetsPath: adminAssetsPath,
 			errorTemplatesPath: errorTemplatesPath
 		}),
 		'themes': themesApp({
 			hostname: host.hostname,
 			errorTemplatesPath: errorTemplatesPath,
-			themesPath: themesPath,
-			themeAssetsUrl: themeAssetsUrl
+			themesPath: themesPath
 		}),
 		'try': demoApp(database, {
 			host: host,
@@ -110,7 +107,6 @@ module.exports = function(database, config) {
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
-			themeAssetsUrl: themeAssetsUrl,
 			adminUrl: adminUrl,
 			adminAssetsUrl: adminAssetsUrl,
 			adminTemplatesUrl: adminTemplatesUrl,
@@ -132,7 +128,6 @@ module.exports = function(database, config) {
 			faqPath: faqPath,
 			siteTemplatePath: siteTemplatePath,
 			adminAssetsUrl: adminAssetsUrl,
-			themeAssetsUrl: themeAssetsUrl,
 			themesUrl: themesUrl,
 			adapters: config.adapters,
 			uploadAdapter: config.uploaders.admin,
@@ -145,7 +140,7 @@ module.exports = function(database, config) {
 			sessionDuration: config.session.duration,
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
-			themeAssetsUrl: themeAssetsUrl,
+			themesUrl: themesUrl,
 			adapters: config.adapters
 		}),
 		'*': 'sites',

@@ -42,7 +42,6 @@ module.exports = function(database, options) {
 	var partialsPath = options.partialsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
-	var themeAssetsUrl = options.themeAssetsUrl;
 	var adminUrl = options.adminUrl;
 	var adminAssetsUrl = options.adminAssetsUrl;
 	var adminTemplatesUrl = options.adminTemplatesUrl;
@@ -60,7 +59,6 @@ module.exports = function(database, options) {
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
 	if (!adminUrl) { throw new Error('Missing admin URL'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!adminTemplatesUrl) { throw new Error('Missing admin templates URL'); }
@@ -175,7 +173,6 @@ module.exports = function(database, options) {
 					domain: domainUrlPattern,
 					home: wwwUrl,
 					assets: adminAssetsUrl,
-					themeAssets: stripTrailingSlash(themeAssetsUrl),
 					themes: stripTrailingSlash(themesUrl),
 					templates: stripTrailingSlash(adminTemplatesUrl),
 					demo: {
@@ -312,7 +309,7 @@ module.exports = function(database, options) {
 			new Promise(function(resolve, reject) {
 				var useDummyFiles = !siteRoot;
 				var theme = themeService.getTheme(themeId);
-				var themeAssetsRoot = themeAssetsUrl + themeId + '/';
+				var themeAssetsRoot = themesUrl + themeId + '/assets/';
 				var siteModel = {
 					name: siteName,
 					label: siteLabel,

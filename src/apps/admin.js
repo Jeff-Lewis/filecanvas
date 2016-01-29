@@ -48,7 +48,6 @@ module.exports = function(database, options) {
 	var faqPath = options.faqPath;
 	var siteTemplatePath = options.siteTemplatePath;
 	var adminAssetsUrl = options.adminAssetsUrl;
-	var themeAssetsUrl = options.themeAssetsUrl;
 	var themesUrl = options.themesUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
@@ -67,7 +66,6 @@ module.exports = function(database, options) {
 	if (!faqPath) { throw new Error('Missing FAQ path'); }
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
-	if (!themeAssetsUrl) { throw new Error('Missing theme asset root URL'); }
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
@@ -126,7 +124,6 @@ module.exports = function(database, options) {
 		themesPath: themesPath,
 		siteTemplatePath: siteTemplatePath,
 		siteAuthOptions: siteAuthOptions,
-		themeAssetsUrl: themeAssetsUrl,
 		adminAssetsUrl: adminAssetsUrl,
 		themesUrl: themesUrl,
 		adapters: storageAdapters,
@@ -137,7 +134,7 @@ module.exports = function(database, options) {
 		host: host,
 		errorTemplatesPath: errorTemplatesPath,
 		themesPath: themesPath,
-		themeAssetsUrl: themeAssetsUrl,
+		themesUrl: themesUrl,
 		adaptersConfig: adaptersConfig
 	});
 	initTemplates(app, {
@@ -245,7 +242,6 @@ module.exports = function(database, options) {
 		var themesPath = options.themesPath;
 		var siteTemplatePath = options.siteTemplatePath;
 		var siteAuthOptions = options.siteAuthOptions;
-		var themeAssetsUrl = options.themeAssetsUrl;
 		var adminAssetsUrl = options.adminAssetsUrl;
 		var themesUrl = options.themesUrl;
 		var adapters = options.adapters;
@@ -261,7 +257,6 @@ module.exports = function(database, options) {
 				themesPath: themesPath,
 				siteTemplatePath: siteTemplatePath,
 				siteAuthOptions: siteAuthOptions,
-				themeAssetsUrl: themeAssetsUrl,
 				adminAssetsUrl: adminAssetsUrl,
 				themesUrl: themesUrl,
 				adapters: adapters,
@@ -276,7 +271,7 @@ module.exports = function(database, options) {
 		var host = options.host;
 		var errorTemplatesPath = options.errorTemplatesPath;
 		var themesPath = options.themesPath;
-		var themeAssetsUrl = options.themeAssetsUrl;
+		var themesUrl = options.themesUrl;
 		var adaptersConfig = options.adaptersConfig;
 
 		app.use('/preview', composeMiddleware([
@@ -285,7 +280,7 @@ module.exports = function(database, options) {
 				host: host,
 				errorTemplatesPath: errorTemplatesPath,
 				themesPath: themesPath,
-				themeAssetsUrl: themeAssetsUrl,
+				themesUrl: themesUrl,
 				adaptersConfig: adaptersConfig
 			})
 		]));
@@ -396,7 +391,6 @@ module.exports = function(database, options) {
 							domain: domainUrlPattern,
 							home: '/',
 							assets: adminAssetsUrl,
-							themeAssets: stripTrailingSlash(themeAssetsUrl),
 							themes: stripTrailingSlash(themesUrl),
 							templates: '/templates',
 							admin: {

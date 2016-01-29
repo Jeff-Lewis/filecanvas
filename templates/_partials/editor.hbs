@@ -19,7 +19,7 @@
 <div class="editor-main">
 	<input type="hidden" value="{{ session.urls.themes }}/:theme/theme.json" data-editor-theme-metadata-url/>
 	<input type="hidden" value="{{ session.urls.themes }}/:theme/templates/index.js" data-editor-theme-template-url/>
-	<input type="hidden" value="{{ session.urls.themeAssets }}/:theme/" data-editor-theme-root-url/>
+	<input type="hidden" value="{{ session.urls.themes }}/:theme/assets/" data-editor-theme-root-url/>
 	<input type="hidden" value="{{ json content.adapter }}" data-editor-adapter-config/>
 	{{#if content.preview}}
 	<script type="application/json" data-editor-preview-data>

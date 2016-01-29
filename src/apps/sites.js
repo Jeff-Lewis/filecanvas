@@ -26,7 +26,7 @@ module.exports = function(database, options) {
 	var sessionDuration = options.sessionDuration;
 	var themesPath = options.themesPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
-	var themeAssetsUrl = options.themeAssetsUrl;
+	var themesUrl = options.themesUrl;
 	var isPreview = options.preview;
 	var adaptersConfig = options.adapters;
 
@@ -34,7 +34,7 @@ module.exports = function(database, options) {
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
-	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
+	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
 	if (!isPreview && !sessionStore) { throw new Error('Missing session store URL'); }
@@ -62,7 +62,7 @@ module.exports = function(database, options) {
 		});
 	}
 	initRoutes(app, passport, database, {
-		themeAssetsUrl: themeAssetsUrl,
+		themesUrl: themesUrl,
 		preview: isPreview
 	});
 	initErrorHandler(app, {
@@ -199,11 +199,11 @@ module.exports = function(database, options) {
 	function initRoutes(app, passport, database, options) {
 		options = options || {};
 		var isPreview = options.preview;
-		var themeAssetsUrl = options.themeAssetsUrl;
+		var themesUrl = options.themesUrl;
 
 		initDefaultSiteRedirectRoutes(app);
 		initAuthRoutes(app, passport, isPreview);
-		initSiteRoutes(app, themeAssetsUrl, isPreview);
+		initSiteRoutes(app, themesUrl, isPreview);
 
 
 		function initDefaultSiteRedirectRoutes(app) {
@@ -336,7 +336,7 @@ module.exports = function(database, options) {
 			}
 		}
 
-		function initSiteRoutes(app, themeAssetsUrl, isPreview) {
+		function initSiteRoutes(app, themesUrl, isPreview) {
 			app.get('/:user/:site/login', loginRoute);
 			app.get('/:user/:site', ensureAuth, siteRoute);
 			app.get('/:user/:site/download/*', ensureAuth, downloadRoute);
@@ -443,7 +443,7 @@ module.exports = function(database, options) {
 										var templateData = {
 											metadata: {
 												siteRoot: getSiteRootUrl(req, '/login'),
-												themeRoot: themeAssetsUrl + themeId + '/',
+												themeRoot: themesUrl + themeId + '/assets/',
 												theme: siteTheme,
 												retry: isRetryAttempt,
 												redirect: redirectUrl
@@ -504,7 +504,7 @@ module.exports = function(database, options) {
 										var templateData = {
 											metadata: {
 												siteRoot: getSiteRootUrl(req),
-												themeRoot: themeAssetsUrl + themeId + '/',
+												themeRoot: themesUrl + themeId + '/assets/',
 												theme: siteTheme
 											},
 											resource: {

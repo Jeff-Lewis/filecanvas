@@ -9,14 +9,14 @@ module.exports = function(database, options) {
 	var host = options.host || null;
 	var errorTemplatesPath = options.errorTemplatesPath || null;
 	var themesPath = options.themesPath || null;
-	var themeAssetsUrl = options.themeAssetsUrl || null;
+	var themesUrl = options.themesUrl || null;
 	var adaptersConfig = options.adaptersConfig || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
-	if (!themeAssetsUrl) { throw new Error('Missing themes root URL'); }
+	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 
 	var app = express();
@@ -27,7 +27,7 @@ module.exports = function(database, options) {
 		host: host,
 		errorTemplatesPath: errorTemplatesPath,
 		themesPath: themesPath,
-		themeAssetsUrl: themeAssetsUrl,
+		themesUrl: themesUrl,
 		adapters: adaptersConfig
 	}));
 
