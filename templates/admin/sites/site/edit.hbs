@@ -8,7 +8,7 @@
 		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
 		<link rel="stylesheet" href="{{ content.theme.fonts }}"/>
 		{{else}}
-		<link rel="stylesheet" href="{{ session.urls.theme }}/{{ content.theme.id }}/assets/{{ content.theme.fonts }}"/>
+		<link rel="stylesheet" href="{{ session.urls.themes }}/{{ content.theme.id }}/assets/{{ content.theme.fonts }}"/>
 		{{/if}}
 		{{/if}}
 	{{/inline}}
