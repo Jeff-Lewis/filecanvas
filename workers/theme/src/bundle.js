@@ -45,6 +45,7 @@ var PRECOMPILED_INDEX_TEMPLATE_PATH = 'index.js';
 
 var PREVIEW_TEMPLATE_ID = 'index';
 var PREVIEW_PAGE_FILENAME = 'index.html';
+var PREVIEW_DATA_FILENAME = 'index.json';
 var PREVIEW_DOWNLOADS_PATH = 'download';
 var PREVIEW_THUMBNAILS_PATH = 'thumbnail';
 var PREVIEW_MEDIA_PATH = 'media';
@@ -71,6 +72,8 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var themeTemplatesPath = path.join(inputPath, THEME_TEMPLATES_PATH);
 	var inputThumbnailPath = path.join(inputPath, THEME_THUMBNAIL_DEFAULT);
 	var outputPreviewPath = path.join(outputPath, OUTPUT_PREVIEW_PATH);
+	var outputPreviewPagePath = path.join(outputPreviewPath, PREVIEW_PAGE_FILENAME);
+	var outputPreviewDataPath = path.join(outputPreviewPath, PREVIEW_DATA_FILENAME);
 	var outputAssetsPath = path.join(outputPath, THEME_ASSETS_PATH);
 	var outputTemplatesPath = path.join(outputPath, THEME_TEMPLATES_PATH);
 	var outputThumbnailPath = path.join(outputPath, OUTPUT_THUMBNAIL_PATH);
@@ -101,15 +104,20 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	}
 	log('Generating theme preview page...');
 	var resolvedTheme = resolveThemePaths(theme, inputPath);
-	generateThemePreviewPage(resolvedTheme, previewTemplateId, function(error, previewHtml) {
+	var previewTemplateData = getPreviewTemplateData(theme);
+	generateThemePreviewPage(resolvedTheme, previewTemplateId, previewTemplateData, function(error, previewHtml) {
 		if (error) { return callback(error); }
 		log('Creating output directory at ' + outputPreviewPath);
 		createDirectory(outputPreviewPath, function(error) {
 			if (error) { return callback(error); }
 			log('Copying preview site files to ' + outputPreviewPath);
-			savePreviewSite(previewHtml, previewFilesPath, themeAssetsPath, outputPreviewPath, function(error) {
+			async.parallel([
+				function(callback) { fs.writeFile(outputPreviewPagePath, previewHtml, callback); },
+				function(callback) { fs.writeFile(outputPreviewDataPath, JSON.stringify(previewTemplateData, null, 2), callback); },
+				function(callback) { savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPreviewPath, callback); }
+			], function(error, results) {
 				if (error) { return callback(error); }
-				log('Adding site thumbnail...');
+				log('Creating site thumbnail...');
 				createSiteThumbnail(inputThumbnailPath, outputPreviewPath, outputThumbnailPath, function(error) {
 					if (error) { return callback(error); }
 					log('Copying theme files to ' + outputPath);
@@ -225,6 +233,23 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 	}
 
+	function getPreviewTemplateData(theme) {
+		return {
+			metadata: {
+				siteRoot: './',
+				themeRoot: './assets/',
+				theme: {
+					id: theme.id,
+					config: theme.preview.config
+				}
+			},
+			resource: {
+				private: false,
+				root: theme.preview.files
+			}
+		};
+	}
+
 	function getThemeValidationErrors(theme) {
 		var errors = [];
 		if (!theme.name) {
@@ -267,21 +292,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		return (errors.length > 0 ? errors : null);
 	}
 
-	function generateThemePreviewPage(theme, templateId, callback) {
-		var templateData = {
-			metadata: {
-				siteRoot: './',
-				themeRoot: './assets/',
-				theme: {
-					id: theme.id,
-					config: theme.preview.config
-				}
-			},
-			resource: {
-				private: false,
-				root: theme.preview.files
-			}
-		};
+	function generateThemePreviewPage(theme, templateId, templateData, callback) {
 		themeService.renderThemeTemplate(theme, templateId, templateData)
 			.then(function(html) {
 				callback(null, html);
@@ -310,14 +321,12 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		});
 	}
 
-	function savePreviewSite(previewHtml, previewFilesPath, themeAssetsPath, outputPath, callback) {
-		var outputPagePath = path.join(outputPath, PREVIEW_PAGE_FILENAME);
+	function savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPath, callback) {
 		var outputDownloadsPath = path.join(outputPath, PREVIEW_DOWNLOADS_PATH);
 		var outputThumbnailsPath = path.join(outputPath, PREVIEW_THUMBNAILS_PATH);
 		var outputMediaPath = path.join(outputPath, PREVIEW_MEDIA_PATH);
 		var outputAssetsPath = path.join(outputPath, PREVIEW_ASSETS_PATH);
 		async.parallel([
-			function(callback) { fs.writeFile(outputPagePath, previewHtml, callback); },
 			function(callback) { copyFiles(previewFilesPath, outputDownloadsPath, callback); },
 			function(callback) { copyMedia(previewFilesPath, outputMediaPath, callback); },
 			function(callback) { copyThumbnails(previewFilesPath, outputThumbnailsPath, callback); },
@@ -398,6 +407,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 
 
 		function savePreviewThumbnail(sitePath, outputPath, callback) {
+			log('Serving static files from ' + sitePath);
 			var server = http.createServer(express.static(sitePath));
 			var randomPort = 0;
 			server.listen(randomPort, function(error) {
