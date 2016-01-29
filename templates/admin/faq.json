@@ -52,7 +52,7 @@
 	{
 		"id": "existing-canvas-folder",
 		"title": "Can I use an existing folder as a canvas folder?",
-		"body": "<p>Yes. Make sure the folder is inside the <code>filecanvas</code> folder within your Dropbox, and then create a new canvas, making sure to set the <strong>Canvas name</strong> to the name of the folder.</p>"
+		"body": "<p>Yes. Make sure the folder is inside the <code>Filecanvas</code> folder within your Dropbox, and then create a new canvas, making sure to set the <strong>Canvas name</strong> to the name of the folder.</p>"
 	},
 	{
 		"id": "custom-domain",
