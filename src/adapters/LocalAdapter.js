@@ -17,7 +17,7 @@ var loadFileMetadata = require('../utils/loadFileMetadata');
 
 function LocalLoginAdapter(database, options) {
 	options = options || {};
-	var isPersistent = options.persistent || null;
+	var isTemporary = options.temporary || null;
 	var authStrategy = options.strategy || null;
 	var authOptions = options.options || null;
 
@@ -25,7 +25,7 @@ function LocalLoginAdapter(database, options) {
 	if (!authOptions) { throw new Error('Missing auth options'); }
 
 	LoginAdapter.call(this, database, {
-		persistent: isPersistent
+		temporary: isTemporary
 	});
 
 	this.authStrategy = authStrategy;

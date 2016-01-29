@@ -9,25 +9,25 @@ var HttpError = require('../errors/HttpError');
 
 function LoginAdapter(database, options) {
 	options = options || {};
-	var isPersistent = Boolean(options.persistent);
+	var isTemporary = Boolean(options.temporary);
 
 	if (!database) { throw new Error('Missing database'); }
 
 	this.database = database;
-	this.persistent = isPersistent;
+	this.temporary = isTemporary;
 }
 
 LoginAdapter.prototype.adapterName = null;
 LoginAdapter.prototype.database = null;
-LoginAdapter.prototype.persistent = false;
+LoginAdapter.prototype.temporary = false;
 
 LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
-	var isPersistent = this.persistent;
+	var isTemporary = this.temporary;
 	var self = this;
-	return (isPersistent ? loginExistingUser(req, query, passportValues) : createSessionUser(req, query, passportValues))
+	return (isTemporary ? createSessionUser(req, query, passportValues) : loginExistingUser(req, query, passportValues))
 		.then(function(userModel) {
 			if (userModel) {
-				if (!isPersistent) {
+				if (isTemporary) {
 					userModel.pending = true;
 				}
 				callback(null, userModel);
@@ -38,6 +38,7 @@ LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
 		.catch(function(error) {
 			callback(error);
 		});
+
 
 	function loginExistingUser() {
 		return self.processLogin(req, query, passportValues);
@@ -118,12 +119,12 @@ LoginAdapter.prototype.createUser = function(passportValues) {
 		this.getAdapterConfig(passportValues)
 	])
 		.then(function(values) {
-			var usreModel = values[0];
+			var userModel = values[0];
 			var adapterConfig = values[1];
-			usreModel.adapters = {};
-			usreModel.adapters[adapterName] = adapterConfig;
-			usreModel.adapters.default = adapterName;
-			return usreModel;
+			userModel.adapters = {};
+			userModel.adapters[adapterName] = adapterConfig;
+			userModel.adapters.default = adapterName;
+			return userModel;
 		});
 };
 

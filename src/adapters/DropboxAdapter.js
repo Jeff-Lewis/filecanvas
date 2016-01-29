@@ -18,7 +18,7 @@ var HttpError = require('../errors/HttpError');
 
 function DropboxLoginAdapter(database, options) {
 	options = options || {};
-	var isPersistent = options.persistent;
+	var isTemporary = options.temporary;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
@@ -28,7 +28,7 @@ function DropboxLoginAdapter(database, options) {
 	if (!loginCallbackUrl) { throw new Error('Missing login callback URL'); }
 
 	LoginAdapter.call(this, database, {
-		persistent: isPersistent
+		temporary: isTemporary
 	});
 
 	this.appKey = appKey;

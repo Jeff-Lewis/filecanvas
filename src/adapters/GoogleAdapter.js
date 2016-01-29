@@ -7,10 +7,10 @@ var LoginAdapter = require('./LoginAdapter');
 
 function GoogleLoginAdapter(database, options) {
 	options = options || {};
-	var isPersistent = options.persistent || null;
+	var isTemporary = options.temporary || null;
 
 	LoginAdapter.call(this, database, {
-		persistent: isPersistent
+		temporary: isTemporary
 	});
 }
 
