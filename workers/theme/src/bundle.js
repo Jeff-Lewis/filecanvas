@@ -403,18 +403,19 @@ module.exports = function(inputPath, outputPath, options, callback) {
 			server.listen(randomPort, function(error) {
 				if (error) { return callback(error); }
 				var url = 'http://localhost:' + server.address().port + '/';
-				log('Started PhantomJS server at ' + url);
+				log('Started preview server at ' + url);
 				saveUrlScreenshot(url, outputPath, function(error) {
 					if (error) { return callback(error); }
 					server.close(function(error) {
 						if (error) { return callback(error); }
-						log('Stopped PhantomJS server');
+						log('Stopped preview server');
 						callback(null);
 					});
 				});
 			});
 
 			function saveUrlScreenshot(url, outputPath, callback) {
+				log('Saving PhantomJS screenshot...');
 				webshot(url, {
 					windowSize: { width: 1280, height: 960 },
 					shotSize: { width: 'window', height: 'window' },
@@ -427,6 +428,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				.pipe(fs.createWriteStream(outputPath))
 				.on('error', callback)
 				.on('finish', function() {
+					log('Saved PhantomJS screenshot');
 					callback(null);
 				});
 			}
