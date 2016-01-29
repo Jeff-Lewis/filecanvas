@@ -126,7 +126,7 @@ function initLivePreview(callback) {
 	initPreview(currentSiteModel, null, previewUrl, engine, templateId, function(error, rerender) {
 		if (error) {
 			showErrorIndicator($formElement);
-			return;
+			throw error;
 		}
 		onPreviewLoaded(error, rerender);
 		hideLoadingIndicator($previewElement);
@@ -268,7 +268,7 @@ function initLivePreview(callback) {
 				if (error) {
 					showErrorIndicator($formElement);
 					deferred.reject(error);
-					return;
+					throw error;
 				}
 				currentThemeOverrides = siteModel.metadata.theme.config;
 				if (isUserInitiatedAction) {
