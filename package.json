@@ -5,7 +5,7 @@
   "license": "Copyright (c) Tim Kendrick Ltd",
   "main": "server.js",
   "scripts": {
-    "postinstall": "./install.sh",
+    "postinstall": "./postinstall.sh",
     "prestart": "./prestart.sh",
     "start": "node server.js"
   },
