@@ -556,6 +556,7 @@ function parseFileMetadata(fileMetadata, options) {
 	function createFileModel(fileData, rootPath) {
 		var isDirectory = (fileData.mimeType === MIME_TYPE_FOLDER);
 		return new FileModel({
+			id: fileData.id,
 			path: stripRootPrefix(fileData.path, rootPath) || '/',
 			mimeType: (isDirectory ? null : fileData.mimeType),
 			size: fileData.fileSize || 0,

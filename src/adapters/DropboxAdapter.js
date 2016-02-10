@@ -367,23 +367,18 @@ function parseStatModel(statModel, options) {
 
 
 	function createFileModel(statModel, rootPath) {
-		var fileMetadata = {
+		return new FileModel({
 			id: statModel.path,
 			path: stripRootPrefix(statModel.path, rootPath) || '/',
 			mimeType: statModel.mime_type || null,
 			size: statModel.bytes,
 			modified: new Date(statModel.modified).toISOString(),
-			thumbnail: statModel.thumb_exists
-		};
-		if (statModel.is_dir) {
-			fileMetadata.directory = true;
-			if (statModel.contents) {
-				fileMetadata.contents = statModel.contents.map(function(childStatModel) {
-					return createFileModel(childStatModel, rootPath);
-				});
-			}
-		}
-		return new FileModel(fileMetadata);
+			thumbnail: statModel.thumb_exists,
+			directory: statModel.is_dir,
+			contents: (statModel.contents ? statModel.contents.map(function(childStatModel) {
+				return createFileModel(childStatModel, rootPath);
+			}) : null)
+		});
 	}
 
 	function stripRootPrefix(filePath, rootPath) {

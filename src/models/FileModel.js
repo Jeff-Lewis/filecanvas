@@ -1,6 +1,7 @@
 'use strict';
 
 function FileModel(options) {
+	this.id = options.id;
 	this.path = options.path;
 	this.mimeType = options.mimeType;
 	this.size = options.size;
@@ -12,6 +13,7 @@ function FileModel(options) {
 	}
 }
 
+FileModel.prototype.id = null;
 FileModel.prototype.path = null;
 FileModel.prototype.mimeType = null;
 FileModel.prototype.size = 0;

@@ -91,15 +91,15 @@ function parseStatModel(stat, filePath) {
 	var mimeType = stat.isFile() ? mime.lookup(filePath) : null;
 	var hasThumbnail = Boolean(mimeType) && mimeType.split('/')[0] === 'image';
 	var isDirectory = stat.isDirectory();
-	var fileMetadata = {
+	return new FileModel({
+		id: filePath,
 		path: filePath,
 		mimeType: mimeType,
 		size: stat.size,
 		modified: stat.mtime.toISOString(),
 		thumbnail: hasThumbnail,
 		directory: isDirectory
-	};
-	return new FileModel(fileMetadata);
+	});
 }
 
 function getRelativePath(filePath, rootPath) {
