@@ -1,5 +1,6 @@
 'use strict';
 
+var objectAssign = require('object-assign');
 var isEqual = require('lodash.isequal');
 
 var UserService = require('../services/UserService');
@@ -93,10 +94,10 @@ LoginAdapter.prototype.processLogin = function(req, query, passportValues) {
 				.then(function(updatedAdapterConfig) {
 					var hasUpdatedUserDetails = !isEqual(updatedAdapterConfig, existingAdapterConfig);
 					if (hasUpdatedUserDetails) {
-						var username = userModel.username;
-						return userService.updateUserAdapterSettings(username, adapterName, updatedAdapterConfig)
+						var uid = existingAdapterConfig.uid;
+						return userService.updateUserAdapterSettings(adapterName, uid, updatedAdapterConfig)
 							.then(function() {
-								userModel.adapters[adapterName] = updatedAdapterConfig;
+								userModel.adapters[adapterName] = objectAssign({}, existingAdapterConfig, updatedAdapterConfig);
 								return userModel;
 							});
 					} else {

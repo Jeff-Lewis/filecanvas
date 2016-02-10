@@ -104,12 +104,12 @@ UserService.prototype.updateUser = function(username, updates) {
 		});
 };
 
-UserService.prototype.updateUserAdapterSettings = function(username, adapter, adapterSettings) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
+UserService.prototype.updateUserAdapterSettings = function(adapter, uid, adapterSettings) {
 	if (!adapter) { return Promise.reject(new Error('No adapter specified')); }
+	if (!uid) { return Promise.reject(new Error('No user ID specified')); }
 	if (!adapterSettings) { return Promise.reject(new Error('No adapter settings specified')); }
 	var database = this.database;
-	return updateUserAdapterSettings(database, username, adapter, adapterSettings);
+	return updateUserAdapterSettings(database, adapter, uid, adapterSettings);
 };
 
 UserService.prototype.deleteUser = function(username) {
@@ -217,11 +217,24 @@ function updateUser(database, username, fields) {
 		});
 }
 
-function updateUserAdapterSettings(database, username, adapter, adapterSettings) {
-	var fieldName = 'adapters.' + adapter;
-	var updates = {};
-	updates[fieldName] = adapterSettings;
-	return updateUser(database, username, updates);
+function updateUserAdapterSettings(database, adapter, uid, adapterSettings) {
+	var adapterSettingsNamespace = 'adapters.' + adapter + '.';
+	var filter = getNamespacedObject({ uid: uid }, adapterSettingsNamespace);
+	var fields = getNamespacedObject(adapterSettings, adapterSettingsNamespace);
+	var updates = { $set: fields };
+	return database.collection(DB_COLLECTION_USERS).updateOne(filter, updates)
+		.then(function(numRecords) {
+			if (numRecords === 0) { throw new HttpError(404); }
+			return;
+		});
+
+
+	function getNamespacedObject(object, namespace) {
+		return Object.keys(object).reduce(function(output, key) {
+			output[namespace + key] = object[key];
+			return output;
+		}, {});
+	}
 }
 
 function updateSitesUsername(database, oldUsername, newUsername) {
