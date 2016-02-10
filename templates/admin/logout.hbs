@@ -5,6 +5,9 @@
 			{{#if (eq content.adapter 'dropbox')}}
 			<iframe class="logout" src="https://www.dropbox.com/logout" frameborder="0" data-logout></iframe>
 			{{/if}}
+			{{#if (eq content.adapter 'google')}}
+			<iframe class="logout" src="https://accounts.google.com/logout" frameborder="0" data-logout></iframe>
+			{{/if}}
 		</div>
 	{{/inline}}
 {{/index}}

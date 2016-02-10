@@ -127,13 +127,46 @@ if (process.env.DROPBOX_APP_KEY) {
 	};
 }
 
-if (process.env.GOOGLE === 'true') {
+if (process.env.GOOGLE_CLIENT_ID) {
 	config.adapters.google = {
 		login: {
-			admin: {},
-			demo: {}
+			admin: {
+				temporary: false,
+				clientId: process.env.GOOGLE_CLIENT_ID || null,
+				clientSecret: process.env.GOOGLE_CLIENT_SECRET || null,
+				loginCallbackUrl: process.env.GOOGLE_OAUTH2_LOGIN_CALLBACK || null,
+				authOptions: {
+					accessType: 'offline',
+					prompt: 'select_account',
+					scope: [
+						'email',
+						'profile',
+						'https://www.googleapis.com/auth/drive'
+					]
+				}
+			},
+			demo: {
+				temporary: true,
+				clientId: process.env.GOOGLE_CLIENT_ID || null,
+				clientSecret: process.env.GOOGLE_CLIENT_SECRET || null,
+				loginCallbackUrl: process.env.GOOGLE_OAUTH2_DEMO_LOGIN_CALLBACK || null,
+				authOptions: {
+					prompt: 'select_account',
+					scope: [
+						'email',
+						'profile',
+						'https://www.googleapis.com/auth/drive'
+					]
+				}
+			}
 		},
-		storage: {}
+		storage: {
+			adapterLabel: 'Google Drive',
+			rootLabel: '${user}’s Drive',
+			defaultSitesPath: process.env.GOOGLE_SITE_PATH || '/',
+			clientId: process.env.GOOGLE_CLIENT_ID || null,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET || null
+		}
 	};
 }
 

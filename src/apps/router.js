@@ -63,6 +63,13 @@ module.exports = function(database, config) {
 		});
 	}
 
+	if (config.adapters.google) {
+		config.adapters.google = getGoogleAdapterConfig(config.adapters.google, {
+			adminUrl: adminUrl,
+			demoUrl: demoUrl
+		});
+	}
+
 	var templatesPath = path.resolve(__dirname, '../../templates');
 	var themesPath = config.themes.root;
 	var wwwSiteRoot = config.www.siteRoot;
@@ -329,6 +336,29 @@ function getDropboxAdapterConfig(adapterConfig, options) {
 	var adminUrl = options.adminUrl;
 	var demoUrl = options.demoUrl;
 	var oauthCallbackPath = '/login/dropbox/oauth2/callback';
+	return merge({}, adapterConfig, {
+		login: {
+			admin: {
+				loginCallbackUrl: adapterConfig.login.admin.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
+			},
+			demo: {
+				loginCallbackUrl: adapterConfig.login.demo.loginCallbackUrl || (stripTrailingSlash(demoUrl) + oauthCallbackPath)
+			}
+		}
+	});
+
+
+	function stripTrailingSlash(string) {
+		var REGEXP_TRAILING_SLASH = /\/+$/;
+		return string.replace(REGEXP_TRAILING_SLASH, '');
+	}
+}
+
+function getGoogleAdapterConfig(adapterConfig, options) {
+	options = options || {};
+	var adminUrl = options.adminUrl;
+	var demoUrl = options.demoUrl;
+	var oauthCallbackPath = '/login/google/oauth2/callback';
 	return merge({}, adapterConfig, {
 		login: {
 			admin: {
