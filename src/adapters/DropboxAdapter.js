@@ -109,42 +109,43 @@ DropboxLoginAdapter.prototype.getAdapterConfig = function(passportValues, existi
 
 function DropboxStorageAdapter(database, options) {
 	options = options || {};
-	var adapterName = options.adapterName || null;
 	var adapterLabel = options.adapterLabel || null;
+	var rootLabel = options.rootLabel || null;
 	var defaultSitesPath = options.defaultSitesPath || null;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 
 	if (!database) { throw new Error('Missing database'); }
-	if (!adapterName) { throw new Error('Missing adapter name'); }
 	if (!adapterLabel) { throw new Error('Missing adapter label'); }
+	if (!rootLabel) { throw new Error('Missing root label'); }
 	if (!defaultSitesPath) { throw new Error('Missing sites path'); }
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app appSecret'); }
 
 	this.database = database;
-	this.adapterName = adapterName;
 	this.adapterLabel = adapterLabel;
+	this.rootLabel = rootLabel;
 	this.defaultSitesPath = defaultSitesPath;
 	this.appKey = appKey;
 	this.appSecret = appSecret;
 }
 
+DropboxStorageAdapter.prototype.adapterName = 'dropbox';
 DropboxStorageAdapter.prototype.database = null;
-DropboxStorageAdapter.prototype.adapterName = null;
 DropboxStorageAdapter.prototype.adapterLabel = null;
+DropboxStorageAdapter.prototype.rootLabel = null;
 DropboxStorageAdapter.prototype.defaultSitesPath = null;
 DropboxStorageAdapter.prototype.appKey = null;
 DropboxStorageAdapter.prototype.appSecret = null;
 
 DropboxStorageAdapter.prototype.getMetadata = function(adapterConfig) {
-	var adapterName = this.adapterName;
 	var adapterLabel = this.adapterLabel;
+	var rootLabel = this.rootLabel;
 	var defaultSitesPath = this.defaultSitesPath;
 	var fullName = [adapterConfig.firstName, adapterConfig.lastName].join(' ');
 	return {
-		name: adapterName,
-		label: adapterLabel.replace(/\$\{\s*user\s*\}/g, fullName),
+		label: adapterLabel,
+		rootLabel: rootLabel.replace(/\$\{\s*user\s*\}/g, fullName),
 		path: defaultSitesPath
 	};
 };
@@ -323,7 +324,7 @@ DropboxStorageAdapter.prototype.retrieveFileMetadata = function(filePath, option
 
 DropboxStorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	return {
-		adapter: 'dropbox',
+		adapter: this.adapterName,
 		path: sitePath,
 		token: options.token
 	};
@@ -367,6 +368,7 @@ function parseStatModel(statModel, options) {
 
 	function createFileModel(statModel, rootPath) {
 		var fileMetadata = {
+			id: statModel.path,
 			path: stripRootPrefix(statModel.path, rootPath) || '/',
 			mimeType: statModel.mime_type || null,
 			size: statModel.bytes,

@@ -110,8 +110,8 @@ LocalLoginAdapter.prototype.getAdapterConfig = function(passportValues, existing
 
 function LocalStorageAdapter(database, options) {
 	options = options || {};
-	var adapterName = options.adapterName || null;
 	var adapterLabel = options.adapterLabel || null;
+	var rootLabel = options.rootLabel || null;
 	var defaultSitesPath = options.defaultSitesPath || null;
 	var sitesRoot = options.sitesRoot || null;
 	var downloadUrl = options.download && options.download.url || null;
@@ -119,8 +119,8 @@ function LocalStorageAdapter(database, options) {
 	var thumbnailUrl = options.thumbnail && options.thumbnail.url || null;
 
 	if (!database) { throw new Error('Missing database'); }
-	if (!adapterName) { throw new Error('Missing adapter name'); }
 	if (!adapterLabel) { throw new Error('Missing adapter label'); }
+	if (!rootLabel) { throw new Error('Missing adapter name'); }
 	if (!defaultSitesPath) { throw new Error('Missing default sites path'); }
 	if (!sitesRoot) { throw new Error('Missing local sites root'); }
 	if (!downloadUrl) { throw new Error('Missing local download URL'); }
@@ -128,8 +128,8 @@ function LocalStorageAdapter(database, options) {
 	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
 
 	this.database = database;
-	this.adapterName = adapterName;
 	this.adapterLabel = adapterLabel;
+	this.rootLabel = rootLabel;
 	this.defaultSitesPath = defaultSitesPath;
 	this.sitesRoot = sitesRoot;
 	this.downloadUrl = downloadUrl;
@@ -137,9 +137,10 @@ function LocalStorageAdapter(database, options) {
 	this.thumbnailUrl = thumbnailUrl;
 }
 
+LocalStorageAdapter.prototype.adapterName = 'local';
 LocalStorageAdapter.prototype.database = null;
-LocalStorageAdapter.prototype.adapterName = null;
 LocalStorageAdapter.prototype.adapterLabel = null;
+LocalStorageAdapter.prototype.rootLabel = null;
 LocalStorageAdapter.prototype.defaultSitesPath = null;
 LocalStorageAdapter.prototype.sitesRoot = null;
 LocalStorageAdapter.prototype.downloadUrl = null;
@@ -147,12 +148,12 @@ LocalStorageAdapter.prototype.previewUrl = null;
 LocalStorageAdapter.prototype.thumbnailUrl = null;
 
 LocalStorageAdapter.prototype.getMetadata = function(adapterConfig) {
-	var adapterName = this.adapterName;
 	var adapterLabel = this.adapterLabel;
+	var rootLabel = this.rootLabel;
 	var defaultSitesPath = this.defaultSitesPath;
 	return {
-		name: adapterName,
 		label: adapterLabel,
+		rootLabel: rootLabel,
 		path: defaultSitesPath
 	};
 };
@@ -313,7 +314,7 @@ LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options
 
 LocalStorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
 	return {
-		adapter: 'local',
+		adapter: this.adapterName,
 		path: sitePath
 	};
 };

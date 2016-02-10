@@ -116,7 +116,7 @@
 						</div>
 						<div class="modal-body">
 							<div class="mb20">
-								<p>Choose where to store this canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}:</p>
+								<p>Choose where to store this canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}:</p>
 							</div>
 							<div class="text-center">
 								<input type="hidden"
@@ -136,7 +136,7 @@
 									data-validate="path,notEmpty"
 								/>
 								<div class="path-control has-extra"
-									data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}"
+									data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'rootLabel' }}"
 								>
 									<input type="text" class="form-control"
 										readonly="readonly"

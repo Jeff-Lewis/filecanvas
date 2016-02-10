@@ -102,7 +102,7 @@
 															data-validate="path,notEmpty"
 														/>
 														<div class="path-control has-extra"
-															data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}"
+															data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'rootLabel' }}"
 														>
 															<input type="text" class="form-control"
 																readonly="readonly"
@@ -124,7 +124,7 @@
 															<span class="form-control-feedback fa" aria-hidden="true"></span>
 														</div>
 														<span class="form-control-feedback fa" aria-hidden="true"></span>
-														<p class="help-block">This is where Filecanvas will store the canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'name' }}.<br/>If this folder doesn't already exist, it will be created.</p>
+														<p class="help-block">This is where Filecanvas will store the canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}.<br/>If this folder doesn't already exist, it will be created.</p>
 													</div>
 												</div>
 												<div class="form-group">
