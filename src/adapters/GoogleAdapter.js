@@ -533,10 +533,13 @@ GoogleConnector.prototype.connect = function(uid, accessToken, tokenExpiryDate, 
 				refreshToken: refreshToken
 			};
 			var authDetailsHaveChanged = !isEqual(authDetails, existingDetails);
-			if (!authDetailsHaveChanged) { return authDetails; }
-			return userService.updateUserAdapterSettings(adapterName, uid, authDetails);
+			return (authDetailsHaveChanged ? userService.updateUserAdapterSettings(adapterName, uid, authDetails) : Promise.resolve())
+				.then(function() {
+					return authDetails;
+				});
 		})
 		.then(function(authDetails) {
+			var accessToken = authDetails.token;
 			return new GoogleClient(accessToken);
 		});
 
