@@ -219,106 +219,16 @@ GoogleStorageAdapter.prototype.getMetadata = function(adapterConfig) {
 	};
 };
 
-GoogleStorageAdapter.prototype.login = function(clientId, clientSecret, uid, authDetails) {
-	authDetails = authDetails || {};
-	var accessToken = authDetails.token || null;
-	var tokenExpiryDate = authDetails.tokenExpires || null;
-	var refreshToken = authDetails.refreshToken || null;
-
-	if (!clientId) { return Promise.reject(new Error('No client ID specified')); }
-	if (!clientSecret) { return Promise.reject(new Error('No client secret specified')); }
-	if (!uid) { return Promise.reject(new Error('No user ID specified')); }
-	if (!authDetails) { return Promise.reject(new Error('No auth details specified')); }
-	if (!accessToken) { return Promise.reject(new Error('No access token specified')); }
-	if (!tokenExpiryDate) { return Promise.reject(new Error('No token expiry date specified')); }
-	if (!refreshToken) { return Promise.reject(new Error('No refresh token specified')); }
-
-	var userService = new UserService(this.database);
-	var adapterName = this.adapterName;
-
-	return login(clientId, clientSecret, accessToken, tokenExpiryDate, refreshToken)
-		.then(function(authDetails) {
-			var existingDetails = {
-				token: accessToken,
-				tokenExpires: tokenExpiryDate,
-				refreshToken: refreshToken
-			};
-			var authDetailsHaveChanged = !isEqual(authDetails, existingDetails);
-			if (!authDetailsHaveChanged) { return authDetails; }
-			return userService.updateUserAdapterSettings(adapterName, uid, authDetails);
-		})
-		.then(function(authDetails) {
-			return new GoogleClient(accessToken);
-		});
-
-
-	function login(clientId, clientSecret, accessToken, tokenExpiryDate, refreshToken) {
-		return new Promise(function(resolve, reject) {
-			var isAccessTokenValid = getIsAccessTokenValid(accessToken, tokenExpiryDate);
-			if (isAccessTokenValid) {
-				resolve({
-					token: accessToken,
-					tokenExpires: tokenExpiryDate,
-					refreshToken: refreshToken
-				});
-			} else {
-				resolve(
-					renewAccessToken(clientId, clientSecret, accessToken, refreshToken)
-						.then(function(authDetails) {
-							var accessToken = authDetails.token;
-							var tokenExpiryDate = authDetails.tokenExpires;
-							var refreshToken = authDetails.refreshToken;
-							return {
-								token: accessToken,
-								tokenExpires: tokenExpiryDate,
-								refreshToken: refreshToken
-							};
-						})
-				);
-			}
-		});
-
-
-		function getIsAccessTokenValid(accessToken, tokenExpiryDate) {
-			if (!accessToken || !tokenExpiryDate) { return false; }
-			var tokenExpiryTimestamp = Math.floor(tokenExpiryDate.getTime() / 1000);
-			var currentTimestamp = Math.floor(new Date().getTime() / 1000);
-			return (tokenExpiryTimestamp - currentTimestamp) >= MIN_TOKEN_VALIDITY_DURATION;
-		}
-
-		function renewAccessToken(clientId, clientSecret, accessToken, refreshToken) {
-			return apiRequest({
-				token: null,
-				method: 'POST',
-				url: OAUTH2_TOKEN_URL,
-				params: {
-					'grant_type': 'refresh_token',
-					'client_id': clientId,
-					'client_secret': clientSecret,
-					'refresh_token': refreshToken
-				}
-			}).then(function(response) {
-				var accessToken = response['access_token'];
-				var tokenDuration = response['expires_in'];
-				var tokenExpiryDate = getTokenExpiryDate(tokenDuration);
-				return {
-					token: accessToken,
-					tokenExpires: tokenExpiryDate,
-					refreshToken: refreshToken
-				};
-			});
-		}
-	}
-};
-
 GoogleStorageAdapter.prototype.createFolder = function(folderPath, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(folderPath)
 				.catch(function(error) {
@@ -335,13 +245,15 @@ GoogleStorageAdapter.prototype.createFolder = function(folderPath, options) {
 };
 
 GoogleStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(sitePath)
 				.then(function(fileMetadata) {
@@ -429,6 +341,7 @@ GoogleStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, op
 };
 
 GoogleStorageAdapter.prototype.loadFolderContents = function(folderPath, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
@@ -436,7 +349,8 @@ GoogleStorageAdapter.prototype.loadFolderContents = function(folderPath, options
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
 	var cache = options.cache;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.loadFolderContents(folderPath, cache);
 		})
@@ -451,13 +365,15 @@ GoogleStorageAdapter.prototype.loadFolderContents = function(folderPath, options
 };
 
 GoogleStorageAdapter.prototype.readFile = function(filePath, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(filePath)
 				.then(function(fileMetadata) {
@@ -467,13 +383,15 @@ GoogleStorageAdapter.prototype.readFile = function(filePath, options) {
 };
 
 GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(filePath)
 				.then(function(fileMetadata) {
@@ -483,13 +401,15 @@ GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options
 };
 
 GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(filePath)
 				.then(function(fileMetadata) {
@@ -499,13 +419,15 @@ GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, options)
 };
 
 GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(filePath)
 				.then(function(fileMetadata) {
@@ -515,13 +437,15 @@ GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, option
 };
 
 GoogleStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
+	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
 	var tokenExpiryDate = options.tokenExpires;
 	var refreshToken = options.refreshToken;
-	return this.login(clientId, clientSecret, uid, { token: accessToken, tokenExpires: tokenExpiryDate, refreshToken: refreshToken })
+	return new GoogleConnector(database, clientId, clientSecret)
+		.connect(uid, accessToken, tokenExpiryDate, refreshToken)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(filePath)
 				.then(function(fileMetadata) {
@@ -574,6 +498,107 @@ function parseFileMetadata(fileMetadata, options) {
 	}
 }
 
+function GoogleConnector(database, clientId, clientSecret) {
+	if (!database) { throw new Error('Missing database'); }
+	if (!clientId) { throw new Error('Missing client ID'); }
+	if (!clientSecret) { throw new Error('Missing client secret'); }
+
+	this.database = database;
+	this.clientId = clientId;
+	this.clientSecret = clientSecret;
+}
+
+GoogleConnector.prototype.adapterName = 'google';
+GoogleConnector.prototype.database = null;
+GoogleConnector.prototype.clientId = null;
+GoogleConnector.prototype.clientSecret = null;
+
+GoogleConnector.prototype.connect = function(uid, accessToken, tokenExpiryDate, refreshToken) {
+	if (!uid) { return Promise.reject(new Error('Missing user ID')); }
+	if (!accessToken) { return Promise.reject(new Error('Missing access token')); }
+	if (!tokenExpiryDate) { return Promise.reject(new Error('Missing access token expiry date')); }
+	if (!refreshToken) { return Promise.reject(new Error('Missing refresh token')); }
+
+	var clientId = this.clientId;
+	var clientSecret = this.clientSecret;
+	var adapterName = this.adapterName;
+
+	var userService = new UserService(this.database);
+
+	return login(clientId, clientSecret, accessToken, tokenExpiryDate, refreshToken)
+		.then(function(authDetails) {
+			var existingDetails = {
+				token: accessToken,
+				tokenExpires: tokenExpiryDate,
+				refreshToken: refreshToken
+			};
+			var authDetailsHaveChanged = !isEqual(authDetails, existingDetails);
+			if (!authDetailsHaveChanged) { return authDetails; }
+			return userService.updateUserAdapterSettings(adapterName, uid, authDetails);
+		})
+		.then(function(authDetails) {
+			return new GoogleClient(accessToken);
+		});
+
+
+	function login(clientId, clientSecret, accessToken, tokenExpiryDate, refreshToken) {
+		return new Promise(function(resolve, reject) {
+			var isAccessTokenValid = getIsAccessTokenValid(accessToken, tokenExpiryDate);
+			if (isAccessTokenValid) {
+				resolve({
+					token: accessToken,
+					tokenExpires: tokenExpiryDate,
+					refreshToken: refreshToken
+				});
+			} else {
+				resolve(
+					renewAccessToken(clientId, clientSecret, accessToken, refreshToken)
+						.then(function(authDetails) {
+							var accessToken = authDetails.token;
+							var tokenExpiryDate = authDetails.tokenExpires;
+							var refreshToken = authDetails.refreshToken;
+							return {
+								token: accessToken,
+								tokenExpires: tokenExpiryDate,
+								refreshToken: refreshToken
+							};
+						})
+				);
+			}
+		});
+
+
+		function getIsAccessTokenValid(accessToken, tokenExpiryDate) {
+			if (!accessToken || !tokenExpiryDate) { return false; }
+			var tokenExpiryTimestamp = Math.floor(tokenExpiryDate.getTime() / 1000);
+			var currentTimestamp = Math.floor(new Date().getTime() / 1000);
+			return (tokenExpiryTimestamp - currentTimestamp) >= MIN_TOKEN_VALIDITY_DURATION;
+		}
+
+		function renewAccessToken(clientId, clientSecret, accessToken, refreshToken) {
+			return apiRequest({
+				token: null,
+				method: 'POST',
+				url: OAUTH2_TOKEN_URL,
+				params: {
+					'grant_type': 'refresh_token',
+					'client_id': clientId,
+					'client_secret': clientSecret,
+					'refresh_token': refreshToken
+				}
+			}).then(function(response) {
+				var accessToken = response['access_token'];
+				var tokenDuration = response['expires_in'];
+				var tokenExpiryDate = getTokenExpiryDate(tokenDuration);
+				return {
+					token: accessToken,
+					tokenExpires: tokenExpiryDate,
+					refreshToken: refreshToken
+				};
+			});
+		}
+	}
+};
 
 function GoogleClient(accessToken) {
 	this.accessToken = accessToken;

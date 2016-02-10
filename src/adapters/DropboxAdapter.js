@@ -155,7 +155,8 @@ DropboxStorageAdapter.prototype.createFolder = function(folderPath, options) {
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return checkWhetherFileExists(dropboxClient, folderPath)
 				.then(function(folderExists) {
@@ -192,7 +193,8 @@ DropboxStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, o
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return checkWhetherFileExists(dropboxClient, sitePath)
 				.then(function(folderExists) {
@@ -251,7 +253,8 @@ DropboxStorageAdapter.prototype.loadFolderContents = function(folderPath, option
 	var uid = options.uid;
 	var accessToken = options.token;
 	var cache = options.cache;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return dropboxClient.loadFolderContents(folderPath, cache);
 		})
@@ -269,7 +272,8 @@ DropboxStorageAdapter.prototype.readFile = function(filePath, options) {
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return dropboxClient.readFile(filePath);
 		});
@@ -280,7 +284,8 @@ DropboxStorageAdapter.prototype.retrieveDownloadLink = function(filePath, option
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return dropboxClient.generateDownloadLink(filePath);
 		});
@@ -291,7 +296,8 @@ DropboxStorageAdapter.prototype.retrievePreviewLink = function(filePath, options
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return dropboxClient.generatePreviewLink(filePath);
 		});
@@ -302,7 +308,8 @@ DropboxStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, optio
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return dropboxClient.generateThumbnailLink(filePath);
 		});
@@ -313,7 +320,8 @@ DropboxStorageAdapter.prototype.retrieveFileMetadata = function(filePath, option
 	var appSecret = this.appSecret;
 	var uid = options.uid;
 	var accessToken = options.token;
-	return new DropboxConnector().connect(appKey, appSecret, uid, accessToken)
+	return new DropboxConnector(appKey, appSecret)
+		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			return dropboxClient.retrieveFileMetadata(filePath)
 				.then(function(stat) {
@@ -331,14 +339,23 @@ DropboxStorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
 };
 
 
-function DropboxConnector() {
-}
-
-DropboxConnector.prototype.connect = function(appKey, appSecret, uid, accessToken) {
+function DropboxConnector(appKey, appSecret) {
 	if (!appKey) { return Promise.reject(new Error('No app key specified')); }
 	if (!appSecret) { return Promise.reject(new Error('No app secret specified')); }
+
+	this.appKey = appKey;
+	this.appSecret = appSecret;
+}
+
+DropboxConnector.prototype.appKey = null;
+DropboxConnector.prototype.appSecret = null;
+
+DropboxConnector.prototype.connect = function(uid, accessToken) {
 	if (!uid) { return Promise.reject(new Error('No user ID specified')); }
 	if (!accessToken) { return Promise.reject(new Error('No access token specified')); }
+
+	var appKey = this.appKey;
+	var appSecret = this.appSecret;
 
 	return new Promise(function(resolve, reject) {
 		new Dropbox.Client({
