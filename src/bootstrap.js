@@ -4,15 +4,15 @@ var config = require('./config');
 
 initAnalytics({ newRelic: config.newRelic });
 
-var DataService = require('./services/DataService');
+var DatabaseService = require('./services/DatabaseService');
 var routerApp = require('./apps/router');
 var serve = require('./serve');
 var captureErrors = require('./utils/captureErrors');
 
-var dataService = new DataService();
-dataService.connect(config.db.url)
+var databaseService = new DatabaseService();
+databaseService.connect(config.db.url)
 	.then(function(database) {
-		process.stdout.write('Database connected' + '\n');
+		process.stdout.write('MongoDB database connected' + '\n');
 		return database;
 	})
 	.then(function(database) {
