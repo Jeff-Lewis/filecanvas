@@ -5,18 +5,27 @@ var config = require('./config');
 initAnalytics({ newRelic: config.newRelic });
 
 var DatabaseService = require('./services/DatabaseService');
+var CacheService = require('./services/CacheService');
+
 var routerApp = require('./apps/router');
 var serve = require('./serve');
 var captureErrors = require('./utils/captureErrors');
 
 var databaseService = new DatabaseService();
-databaseService.connect(config.db.url)
-	.then(function(database) {
+var cacheService = new CacheService();
+Promise.all([
+	databaseService.connect(config.db.url),
+	cacheService.connect(config.cache.url)
+])
+	.then(function(connections) {
 		process.stdout.write('MongoDB database connected' + '\n');
-		return database;
+		process.stdout.write('Redis cache connected' + '\n');
+		return connections;
 	})
-	.then(function(database) {
-		return routerApp(database, config);
+	.then(function(connections) {
+		var database = connections[0];
+		var cache = connections[1];
+		return routerApp(database, cache, config);
 	})
 	.then(function(app) {
 		process.stdout.write('Express app initialized' + '\n');

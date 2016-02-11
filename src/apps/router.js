@@ -26,7 +26,7 @@ var thumbnailer = require('../middleware/thumbnailer');
 var getSubdomainUrl = require('../utils/getSubdomainUrl');
 var generateTempPath = require('../utils/generateTempPath');
 
-module.exports = function(database, config) {
+module.exports = function(database, cache, config) {
 	config = config || {};
 	var host = config.host;
 

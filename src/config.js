@@ -25,6 +25,9 @@ config.session.duration = process.env.SESSION_DURATION || 3600;
 config.db = {};
 config.db.url = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGODB_URL || null;
 
+config.cache = {};
+config.cache.url = process.env.REDISCLOUD_URL || process.env.REDIS_URL || null;
+
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.www = {};
