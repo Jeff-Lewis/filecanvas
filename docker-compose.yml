@@ -12,6 +12,7 @@ ssl:
 router:
   image: filecanvas/router
   links:
+    - redis
     - app
   ports:
     - "8080"
