@@ -23,6 +23,7 @@ module.exports['preview'] = function(rootModel, file) {
 };
 module.exports['thumbnail'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
+	if (typeof file.thumbnail === 'string') { return file.thumbnail; }
 	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;
 };
 module.exports['shortcut'] = function(rootModel, file) {

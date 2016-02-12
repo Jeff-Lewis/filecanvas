@@ -6,7 +6,7 @@ function FileModel(options) {
 	this.mimeType = options.mimeType;
 	this.size = options.size;
 	this.modified = options.modified;
-	this.thumbnail = Boolean(options.thumbnail);
+	this.thumbnail = (typeof options.thumbnail === 'string' ? options.thumbnail : Boolean(options.thumbnail));
 	this.directory = Boolean(options.directory);
 	if (options.directory) {
 		this.contents = options.contents ? options.contents.slice() : [];
