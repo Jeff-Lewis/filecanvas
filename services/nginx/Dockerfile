@@ -10,4 +10,4 @@ VOLUME /var/log/nginx
 
 EXPOSE 8080
 
-CMD ["/usr/src/init.sh"]
+CMD /usr/src/init.sh && nginx -g 'daemon off;'
