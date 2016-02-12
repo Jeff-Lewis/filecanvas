@@ -32,7 +32,7 @@ mkdir -p data/nginx/run
 mkdir -p data/logs/nginx
 ./data/nginx/init.sh
 
-(nginx -c $PWD/data/nginx/config/nginx.conf -g 'daemon off;') &
+(openresty -c $PWD/data/nginx/config/nginx.conf -g 'daemon off;') &
 trap "killall mongod" EXIT
 (mongod --dbpath data/mongodb/db) &
 (redis-server /usr/local/etc/redis.conf) &

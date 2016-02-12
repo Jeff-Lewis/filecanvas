@@ -1,9 +1,6 @@
-FROM nginx:latest
+FROM ficusio/openresty:latest
 
 COPY ./init.sh /usr/src/init.sh
-
-COPY ./config/nginx.conf /etc/nginx/nginx.conf
-COPY ./config/template.d /etc/nginx/template.d
 
 VOLUME /var/www
 VOLUME /var/log/nginx
