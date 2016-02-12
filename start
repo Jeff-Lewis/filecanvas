@@ -9,6 +9,30 @@ export $(cat .env | sed -e 's/#.*$//' | xargs)
 npm run postinstall
 npm run prestart
 
+rm -rf data/nginx
+mkdir -p data/nginx
+cp services/nginx/init.sh data/nginx/init.sh
+cp -r services/nginx/config/ data/nginx/config/
+NGINX_CONFIG_REPLACEMENTS=(
+	's/\/var\/www/'${PWD//\//\\\/}'\/data\/nginx\/www/g'
+	's/\/var\/run\/nginx.pid/'${PWD//\//\\\/}'\/data\/nginx\/run\/nginx.pid/g'
+	's/\/var\/log\/nginx\//'${PWD//\//\\\/}'\/data\/logs\/nginx\//g'
+	's/sed -i/sed -i '"''"'/g'
+)
+for replacement in "${NGINX_CONFIG_REPLACEMENTS[@]}"; do
+	sed -i '' "$replacement" data/nginx/init.sh data/nginx/config/nginx.conf data/nginx/config/template.d/*
+done
+ln -s /usr/local/etc/openresty/mime.types data/nginx/config/mime.types
+mkdir -p data/nginx/www/subdomains
+mkdir -p data/nginx/www/subdomains/assets
+ln -s ../../../www data/nginx/www/subdomains/www
+ln -s ../../../themes data/nginx/www/subdomains/themes
+ln -s ../../../../../templates/admin/assets data/nginx/www/subdomains/assets/admin
+mkdir -p data/nginx/run
+mkdir -p data/logs/nginx
+./data/nginx/init.sh
+
+(nginx -c $PWD/data/nginx/config/nginx.conf -g 'daemon off;') &
 trap "killall mongod" EXIT
 (mongod --dbpath data/mongodb/db) &
 (redis-server /usr/local/etc/redis.conf) &
