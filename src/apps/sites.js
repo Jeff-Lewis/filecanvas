@@ -18,7 +18,7 @@ var SiteService = require('../services/SiteService');
 var AuthenticationService = require('../services/AuthenticationService');
 var ThemeService = require('../services/ThemeService');
 
-module.exports = function(database, options) {
+module.exports = function(database, cache, options) {
 	options = options || {};
 	var host = options.host;
 	var cookieSecret = options.cookieSecret;
@@ -31,6 +31,7 @@ module.exports = function(database, options) {
 	var adaptersConfig = options.adapters;
 
 	if (!database) { throw new Error('Missing database'); }
+	if (!cache) { throw new Error('Missing key-value store'); }
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
@@ -40,7 +41,7 @@ module.exports = function(database, options) {
 	if (!isPreview && !sessionStore) { throw new Error('Missing session store URL'); }
 	if (!isPreview && !sessionDuration) { throw new Error('Missing session duration'); }
 
-	var storageAdapters = loadStorageAdapters(adaptersConfig, database);
+	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
 
 	var themeService = new ThemeService({
 		themesPath: themesPath

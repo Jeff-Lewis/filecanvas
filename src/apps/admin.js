@@ -34,7 +34,7 @@ var getSubdomainUrl = require('../utils/getSubdomainUrl');
 
 var UserService = require('../services/UserService');
 
-module.exports = function(database, options) {
+module.exports = function(database, cache, options) {
 	options = options || {};
 	var host = options.host;
 	var cookieSecret = options.cookieSecret;
@@ -54,6 +54,7 @@ module.exports = function(database, options) {
 	var uploadAdapterConfig = options.uploadAdapter;
 
 	if (!database) { throw new Error('Missing database'); }
+	if (!cache) { throw new Error('Missing key-value store'); }
 	if (!host) { throw new Error('Missing host details'); }
 	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
 	if (!sessionStore) { throw new Error('Missing session store URL'); }
@@ -72,7 +73,7 @@ module.exports = function(database, options) {
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
 	var loginAdapters = loadLoginAdapters('admin', adaptersConfig, database);
-	var storageAdapters = loadStorageAdapters(adaptersConfig, database);
+	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
 	var userService = new UserService(database);
@@ -130,7 +131,7 @@ module.exports = function(database, options) {
 		uploadAdapter: uploadAdapter,
 		sessionMiddleware: initAdminSession
 	});
-	initPreview(app, database, {
+	initPreview(app, database, cache, {
 		host: host,
 		errorTemplatesPath: errorTemplatesPath,
 		themesPath: themesPath,
@@ -266,7 +267,7 @@ module.exports = function(database, options) {
 		]));
 	}
 
-	function initPreview(app, database, options) {
+	function initPreview(app, database, cache, options) {
 		options = options || {};
 		var host = options.host;
 		var errorTemplatesPath = options.errorTemplatesPath;
@@ -276,7 +277,7 @@ module.exports = function(database, options) {
 
 		app.use('/preview', composeMiddleware([
 			ensureAuth('/login'),
-			previewApp(database, {
+			previewApp(database, cache, {
 				host: host,
 				errorTemplatesPath: errorTemplatesPath,
 				themesPath: themesPath,

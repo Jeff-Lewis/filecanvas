@@ -105,7 +105,7 @@ module.exports = function(database, cache, config) {
 			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath
 		}),
-		'try': demoApp(database, {
+		'try': demoApp(database, cache, {
 			host: host,
 			cookieSecret: config.session.cookieSecret,
 			sessionStore: config.session.store,
@@ -122,7 +122,7 @@ module.exports = function(database, cache, config) {
 			adapters: config.adapters,
 			uploadAdapter: config.uploaders.demo
 		}),
-		'my': adminApp(database, {
+		'my': adminApp(database, cache, {
 			host: host,
 			cookieSecret: config.session.cookieSecret,
 			sessionStore: config.session.store,
@@ -140,7 +140,7 @@ module.exports = function(database, cache, config) {
 			uploadAdapter: config.uploaders.admin,
 			siteAuth: config.auth.site
 		}),
-		'sites': sitesApp(database, {
+		'sites': sitesApp(database, cache, {
 			host: host,
 			cookieSecret: config.session.cookieSecret,
 			sessionStore: config.session.store,

@@ -4,7 +4,7 @@ var express = require('express');
 
 var sitesApp = require('../sites');
 
-module.exports = function(database, options) {
+module.exports = function(database, cache, options) {
 	options = options || {};
 	var host = options.host || null;
 	var errorTemplatesPath = options.errorTemplatesPath || null;
@@ -13,6 +13,7 @@ module.exports = function(database, options) {
 	var adaptersConfig = options.adaptersConfig || null;
 
 	if (!database) { throw new Error('Missing database'); }
+	if (!cache) { throw new Error('Missing key-value store'); }
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
@@ -22,7 +23,7 @@ module.exports = function(database, options) {
 	var app = express();
 
 	app.use(addUsernamePathPrefix);
-	app.use(sitesApp(database, {
+	app.use(sitesApp(database, cache, {
 		preview: true,
 		host: host,
 		errorTemplatesPath: errorTemplatesPath,

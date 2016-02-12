@@ -33,7 +33,7 @@ var AdminPageService = require('../services/AdminPageService');
 
 var HttpError = require('../errors/HttpError');
 
-module.exports = function(database, options) {
+module.exports = function(database, cache, options) {
 	var host = options.host;
 	var cookieSecret = options.cookieSecret;
 	var sessionStore = options.sessionStore;
@@ -51,6 +51,7 @@ module.exports = function(database, options) {
 	var uploadAdapterConfig = options.uploadAdapter || null;
 
 	if (!database) { throw new Error('Missing database'); }
+	if (!cache) { throw new Error('Missing key-value store'); }
 	if (!host) { throw new Error('Missing host details'); }
 	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
 	if (!sessionStore) { throw new Error('Missing session store URL'); }
@@ -68,7 +69,7 @@ module.exports = function(database, options) {
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
 	var loginAdapters = loadLoginAdapters('demo', adaptersConfig, database);
-	var storageAdapters = loadStorageAdapters(adaptersConfig, database);
+	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
 	var userService = new UserService(database);
