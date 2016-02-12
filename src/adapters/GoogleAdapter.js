@@ -426,7 +426,7 @@ GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, options)
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(filePath)
 				.then(function(fileMetadata) {
-					return googleClient.generatePreviewLink(fileMetadata.id);
+					return googleClient.generateDownloadLink(fileMetadata.id);
 				})
 				.then(function(previewUrl) {
 					return sanitizeUrl(previewUrl, cache, { filename: filename, inline: true });
@@ -747,11 +747,6 @@ GoogleClient.prototype.generateDownloadLink = function(fileId) {
 	return generateDownloadLink(fileId, accessToken);
 };
 
-GoogleClient.prototype.generatePreviewLink = function(fileId) {
-	var accessToken = this.accessToken;
-	return generatePreviewLink(fileId, accessToken);
-};
-
 GoogleClient.prototype.generateThumbnailLink = function(fileId, options) {
 	var accessToken = this.accessToken;
 	return generateThumbnailLink(fileId, options, accessToken);
@@ -1023,43 +1018,6 @@ function generateDownloadLink(fileId, accessToken) {
 		var downloadUrl = response.downloadUrl;
 		if (!downloadUrl) { return new HttpError(403); }
 		return appendQueryParams(downloadUrl, { 'access_token': accessToken });
-	});
-}
-
-function generatePreviewLink(fileId, accessToken) {
-	return apiRequest({
-		token: accessToken,
-		method: 'GET',
-		url: 'https://www.googleapis.com/drive/v2/files/' + fileId,
-		fields: {
-			'mimeType': true,
-			'thumbnailLink': true,
-			'downloadUrl': true
-		}
-	})
-	.then(function(response) {
-		var isImageFile = response.mimeType.split('/')[0] === 'image';
-		var thumbnailLink = response.thumbnailLink;
-		if (isImageFile && thumbnailLink) {
-			var resizedThumbnailLink = getResizedThumbnailLink(thumbnailLink, { size: null });
-			return resizedThumbnailLink;
-		}
-		var downloadUrl = response.downloadUrl;
-		if (!downloadUrl) { return new HttpError(403); }
-		var previewUrl = getPreviewUrl(downloadUrl, accessToken);
-		return previewUrl;
-
-
-		function getPreviewUrl(downloadUrl, accessToken) {
-			var parseQueryString = true;
-			var previewLocation = url.parse(downloadUrl, parseQueryString);
-			previewLocation.query['access_token'] = accessToken;
-			if (previewLocation.query['e'] === 'download') {
-				delete previewLocation.query['e'];
-				previewLocation.search = '?' + querystring.stringify(previewLocation.query);
-			}
-			return url.format(previewLocation);
-		}
 	});
 }
 
