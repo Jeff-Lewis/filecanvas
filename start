@@ -1,16 +1,16 @@
 #!/bin/bash
 set -e
 
-trap "killall mongod" EXIT
-
 cd $(dirname $0)
-
-(mongod --dbpath data/mongodb/db) &
-(redis-server /usr/local/etc/redis.conf) &
 
 export NODE_ENV=development
 export $(cat .env | sed -e 's/#.*$//' | xargs)
 
 npm run postinstall
 npm run prestart
+
+trap "killall mongod" EXIT
+(mongod --dbpath data/mongodb/db) &
+(redis-server /usr/local/etc/redis.conf) &
+
 foreman start -f Procfile.dev
