@@ -506,7 +506,7 @@ function parseFileMetadata(fileMetadata, options) {
 			mimeType: (isDirectory ? null : fileData.mimeType),
 			size: fileData.fileSize || 0,
 			modified: fileData.modifiedDate,
-			thumbnail: Boolean(fileData.thumbnailLink),
+			thumbnail: fileData.thumbnailLink,
 			directory: isDirectory,
 			contents: (fileData.children ? fileData.children.map(function(childFileMetadata) {
 				return createFileModel(childFileMetadata, rootPath);
