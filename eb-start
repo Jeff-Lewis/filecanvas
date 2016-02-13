@@ -13,6 +13,17 @@ eval $(docker-machine env default)
 COMMIT_HASH=$(git rev-parse --short HEAD)
 if [[ -n $(git status -s) ]]; then COMMIT_HASH=$COMMIT_HASH-dev; fi
 
+if [ ! $(docker images -q filecanvas/app:$COMMIT_HASH) ]; then
+	echo "Docker image not found: filecanvas/app:$COMMIT_HASH"
+	echo "Run \"./docker-bundle\" to create application bundle"
+	exit 1
+fi
+if [ ! $(docker images -q filecanvas/router:$COMMIT_HASH) ]; then
+	echo "Docker image not found: filecanvas/router:$COMMIT_HASH"
+	echo "Run \"./docker-bundle\" to create application bundle"
+	exit 1
+fi
+
 # Tag local docker images
 REPOSITORY_URL=296296715593.dkr.ecr.us-east-1.amazonaws.com
 if [ $(docker images -q $REPOSITORY_URL/filecanvas/app:$COMMIT_HASH) ]; then
