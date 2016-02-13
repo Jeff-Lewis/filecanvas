@@ -9,10 +9,10 @@ fi
 
 eval $(docker-machine env default)
 
+export $(cat docker-compose.env | sed -e 's/#.*$//' | xargs)
 export NODE_ENV=development
-export $(cat .env | sed -e 's/#.*$//' | xargs)
 npm run postinstall
 
-export $(cat docker-compose.env | xargs)
+export NODE_ENV=production
 trap "docker-compose stop && docker-compose rm -f" EXIT
 docker-compose up
