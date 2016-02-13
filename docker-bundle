@@ -16,8 +16,14 @@ eval $(docker-machine env default)
 # Tag local docker images
 COMMIT_HASH=$(git rev-parse --short HEAD)
 if [[ -n $(git status -s) ]]; then COMMIT_HASH=$COMMIT_HASH-dev; fi
-docker tag -f filecanvas/app filecanvas/app:$COMMIT_HASH
-docker tag -f filecanvas/router filecanvas/router:$COMMIT_HASH
+if [ $(docker images -q filecanvas/app:$COMMIT_HASH) ]; then
+	docker rmi filecanvas/app:$COMMIT_HASH
+fi
+if [ $(docker images -q filecanvas/router:$COMMIT_HASH) ]; then
+	docker rmi filecanvas/router:$COMMIT_HASH
+fi
+docker tag filecanvas/app filecanvas/app:$COMMIT_HASH
+docker tag filecanvas/router filecanvas/router:$COMMIT_HASH
 
 # Prepare the deploy artifact
 rm -rf .tmp/deploy

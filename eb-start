@@ -14,8 +14,15 @@ COMMIT_HASH=$(git rev-parse --short HEAD)
 if [[ -n $(git status -s) ]]; then COMMIT_HASH=$COMMIT_HASH-dev; fi
 
 # Tag local docker images
-docker tag -f filecanvas/app:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/app:$COMMIT_HASH
-docker tag -f filecanvas/router:$COMMIT_HASH 296296715593.dkr.ecr.us-east-1.amazonaws.com/filecanvas/router:$COMMIT_HASH
+REPOSITORY_URL=296296715593.dkr.ecr.us-east-1.amazonaws.com
+if [ $(docker images -q $REPOSITORY_URL/filecanvas/app:$COMMIT_HASH) ]; then
+	docker rmi $REPOSITORY_URL/filecanvas/app:$COMMIT_HASH
+fi
+if [ $(docker images -q $REPOSITORY_URL/filecanvas/router:$COMMIT_HASH) ]; then
+	docker rmi $REPOSITORY_URL/filecanvas/router:$COMMIT_HASH
+fi
+docker tag filecanvas/app:$COMMIT_HASH $REPOSITORY_URL/filecanvas/app:$COMMIT_HASH
+docker tag filecanvas/router:$COMMIT_HASH $REPOSITORY_URL/filecanvas/router:$COMMIT_HASH
 
 # Start background services
 (docker run --rm -p 6379:6379 redis) &
