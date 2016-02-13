@@ -6,7 +6,7 @@ prompt = no
 [req_distinguished_name]
 C = US
 O = Filecanvas
-CN = filecanvas.docker
+CN = filecanvas-dev.com
 
 [v3_req]
 subjectKeyIdentifier = hash
@@ -15,5 +15,5 @@ basicConstraints = CA:TRUE
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = filecanvas.docker
-DNS.2 = *.filecanvas.docker
+DNS.1 = filecanvas-dev.com
+DNS.2 = *.filecanvas-dev.com

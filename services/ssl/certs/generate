@@ -1,7 +1,4 @@
 cd $(dirname $0)
 
-mkdir -p filecanvas.localhost
-mkdir -p filecanvas.docker
-
-(cd filecanvas.localhost; openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf)
-(cd filecanvas.docker; openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf)
+(cd filecanvas-dev.com; openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf)
+(cd filecanvas-vm.com; openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf)
