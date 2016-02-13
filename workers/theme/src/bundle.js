@@ -2,12 +2,14 @@
 
 var fs = require('fs');
 var path = require('path');
+var stream = require('stream');
 var http = require('http');
+var objectAssign = require('object-assign');
 var async = require('async');
 var del = require('del');
 var mkdirp = require('mkdirp');
 var copy = require('recursive-copy');
-var imagemagick = require('imagemagick-stream');
+var imagemagick = require('imagemagick-native');
 var webshot = require('webshot');
 var express = require('express');
 var merge = require('lodash.merge');
@@ -357,7 +359,12 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					return isThumbnailEnabled;
 				},
 				transform: function(src, dest, stats) {
-					return imagemagick().resize('256x256').quality(80);
+					return createImageResizeStream({
+						width: 256,
+						height: 256,
+						resizeStyle: 'aspectfit',
+						quality: 80
+					});
 				}
 			};
 			return copy(sourcePath, outputPath, options, callback);
@@ -433,7 +440,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					timeout: 60 * 1000
 				})
 				.on('error', callback)
-				.pipe(imagemagick().resize('200x150').set('format', 'png'))
+				.pipe(createImageResizeStream({ width: 200, height: 150, format: 'PNG' }))
 				.on('error', callback)
 				.pipe(fs.createWriteStream(outputPath))
 				.on('error', callback)
@@ -475,5 +482,26 @@ module.exports = function(inputPath, outputPath, options, callback) {
 			.on('finish', function() {
 				callback(null);
 			});
+	}
+
+	function createImageResizeStream(options) {
+		return new stream.Transform({
+			transform: function(chunk, enc, done) {
+				if (!this.chunks) { this.chunks = []; }
+				this.chunks.push(chunk);
+				done();
+			},
+			flush: function(done) {
+				var self = this;
+				var chunks = this.chunks;
+				imagemagick.convert(objectAssign({
+					srcData: Buffer.concat(chunks)
+				}, options), function(error, data) {
+					if (error) { return done(error); }
+					self.push(new Buffer(data));
+					done();
+				});
+			}
+		});
 	}
 };
