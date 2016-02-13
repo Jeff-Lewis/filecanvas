@@ -12,8 +12,9 @@ npm run prestart
 rm -rf data/nginx
 mkdir -p data/nginx
 cp services/nginx/init.sh data/nginx/init.sh
-cp -r services/nginx/config/ data/nginx/config/
+cp -r services/nginx/nginx/conf/ data/nginx/config/
 NGINX_CONFIG_REPLACEMENTS=(
+	's/\/opt\/openresty\/nginx\/conf\//'${PWD//\//\\\/}'\/data\/nginx\/config\//g'
 	's/\/var\/www/'${PWD//\//\\\/}'\/data\/nginx\/www/g'
 	's/\/var\/run\/nginx.pid/'${PWD//\//\\\/}'\/data\/nginx\/run\/nginx.pid/g'
 	's/\/var\/log\/nginx\//'${PWD//\//\\\/}'\/data\/logs\/nginx\//g'
@@ -22,7 +23,6 @@ NGINX_CONFIG_REPLACEMENTS=(
 for replacement in "${NGINX_CONFIG_REPLACEMENTS[@]}"; do
 	sed -i '' "$replacement" data/nginx/init.sh data/nginx/config/nginx.conf data/nginx/config/template.d/*
 done
-ln -s /usr/local/etc/openresty/mime.types data/nginx/config/mime.types
 mkdir -p data/nginx/www/subdomains
 mkdir -p data/nginx/www/subdomains/assets
 ln -s ../../../www data/nginx/www/subdomains/www
