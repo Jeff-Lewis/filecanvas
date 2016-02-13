@@ -25,6 +25,17 @@ fi
 docker tag filecanvas/app filecanvas/app:$COMMIT_HASH
 docker tag filecanvas/router filecanvas/router:$COMMIT_HASH
 
+if [ "$DOCKER_REGISTRY" ]; then
+	if [ $(docker images -q $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH) ]; then
+		docker rmi $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH
+	fi
+	if [ $(docker images -q filecanvas/router:$COMMIT_HASH) ]; then
+		docker rmi $DOCKER_REGISTRY/filecanvas/router:$COMMIT_HASH
+	fi
+	docker tag filecanvas/app:$COMMIT_HASH $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH
+	docker tag filecanvas/router:$COMMIT_HASH $DOCKER_REGISTRY/filecanvas/router:$COMMIT_HASH
+fi
+
 # Prepare the deploy artifact
 rm -rf .tmp/deploy
 mkdir -p .tmp/deploy
