@@ -1161,22 +1161,6 @@ function startTour() {
 				filter: [
 					TOUR_ID_SITE_EDITOR
 				]
-			},
-			{
-				element: '#title-bar-toolbar .title-bar-toolbar-container',
-				placement: {
-					mobile: null,
-					desktop: 'bottom'
-				},
-				backdrop: true,
-				backdropPadding: 4,
-				title: 'Undo/redo',
-				content: 'Use the toolbar to undo any mistakes as you go along',
-				filter: [
-					TOUR_ID_DEMO_EDITOR,
-					TOUR_ID_SITE_EDITOR
-				],
-				mobile: false
 			}
 		];
 
