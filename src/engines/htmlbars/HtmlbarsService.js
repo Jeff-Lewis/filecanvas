@@ -5,7 +5,7 @@ var merge = require('lodash.merge');
 var SimpleDom = require('simple-dom');
 var DOMHelper = require('htmlbars/dist/cjs/dom-helper');
 var HtmlbarsRuntime = require('htmlbars/dist/cjs/htmlbars-runtime');
-var HtmlbarsCompiler = require('htmlbars/dist/cjs/htmlbars-compiler');
+var HtmlbarsCompiler = require('./lib/compiler');
 
 // HACK: Fix safe string output in Simple DOM
 // https://github.com/krisselden/morph-range/pull/7#issuecomment-145672955
