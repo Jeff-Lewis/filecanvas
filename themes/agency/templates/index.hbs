@@ -1,6 +1,6 @@
 <html lang="en">
 <head>
-	{{ partial 'head' title=(if metadata.theme.config.browser.title metadata.theme.config.browser.title metadata.theme.config.content.pageHeader) }}
+	{{> head title=(if metadata.theme.config.browser.title metadata.theme.config.browser.title metadata.theme.config.content.pageHeader) }}
 	{{#if metadata.redirect}}
 	<meta http-equiv="refresh" content="0;url={{ metadata.redirect }}"/>
 	{{/if}}
@@ -76,7 +76,7 @@
 							{{#if (files resource.root)}}
 							<div class="posts row isotope">
 								{{#each (files resource.root) key='path' as |file|}}
-								{{ partial 'file' file=file parent=subfolder }}
+								{{> file file=file parent=subfolder}}
 								{{/each}}
 							</div>
 							{{/if}}
@@ -105,11 +105,11 @@
 							{{/if}}
 							<div class="posts row isotope">
 								{{#each (files folder) key='path' as |file|}}
-								{{ partial 'file' file=file parent=subfolder }}
+								{{> file file=file parent=subfolder }}
 								{{/each}}
 								{{#each (folders folder) key='path' as |subfolder|}}
 								{{#each (flattenedFiles subfolder) key='path' as |file|}}
-								{{ partial 'file' file=file parent=subfolder }}
+								{{> file file=file parent=subfolder }}
 								{{/each}}
 								{{/each}}
 							</div>
@@ -156,7 +156,7 @@
 		</div>
 		{{/if}}
 		<footer>
-			{{ partial 'banner' }}
+			{{> banner }}
 		</footer>
 	</div>
 	{{ script src='//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js' }}
