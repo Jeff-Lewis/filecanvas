@@ -1,5 +1,5 @@
 'use strict';
 
-var Filecanvas = require('./lib/Filecanvas');
+var Api = require('./lib/Api');
 
-window.filecanvas = new Filecanvas();
+window.filecanvas = new Api();
