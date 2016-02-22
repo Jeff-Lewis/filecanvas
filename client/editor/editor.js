@@ -776,7 +776,7 @@ function initLivePreview(callback) {
 			var filteredFiles = getFilteredFiles(files);
 			var prefixedFiles = filteredFiles.map(function(file) {
 				return {
-					path: pathPrefix + '/' + file.path,
+					path: (pathPrefix ? pathPrefix + '/' : '') + file.path,
 					data: file.data
 				};
 			});
