@@ -20,6 +20,7 @@ var ThemeService = require('../../../src/services/ThemeService');
 
 var THEME_MANIFEST_PATH = 'theme.json';
 var THEME_THUMBNAIL_DEFAULT = 'thumbnail.png';
+var THEME_SCREENSHOT_DEFAULT = 'preview.png';
 var THEME_TEMPLATES_DEFAULT = {
 	'index': {
 		engine: 'handlebars',
@@ -41,6 +42,7 @@ var THEME_PREVIEW_FILES_PATH = 'preview';
 var THEME_ASSETS_PATH = 'assets';
 var OUTPUT_PREVIEW_PATH = 'preview';
 var OUTPUT_THUMBNAIL_FILENAME = 'thumbnail.png';
+var OUTPUT_SCREENSHOT_FILENAME = 'preview.png';
 var PRECOMPILED_INDEX_TEMPLATE_PATH = 'index.js';
 
 var PREVIEW_TEMPLATE_ID = 'index';
@@ -71,12 +73,14 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var themeAssetsPath = path.join(inputPath, THEME_ASSETS_PATH);
 	var themeTemplatesPath = path.join(inputPath, THEME_TEMPLATES_PATH);
 	var inputThumbnailPath = path.join(inputPath, THEME_THUMBNAIL_DEFAULT);
+	var inputScreenshotPath = path.join(inputPath, THEME_SCREENSHOT_DEFAULT);
 	var outputPreviewPath = path.join(outputPath, OUTPUT_PREVIEW_PATH);
 	var outputPreviewPagePath = path.join(outputPreviewPath, PREVIEW_PAGE_FILENAME);
 	var outputPreviewDataPath = path.join(outputPreviewPath, PREVIEW_DATA_FILENAME);
 	var outputAssetsPath = path.join(outputPath, THEME_ASSETS_PATH);
 	var outputTemplatesPath = path.join(outputPath, THEME_TEMPLATES_PATH);
 	var outputThumbnailFilename = path.basename(OUTPUT_THUMBNAIL_FILENAME, path.extname(OUTPUT_THUMBNAIL_FILENAME));
+	var outputScreenshotFilename = path.basename(OUTPUT_SCREENSHOT_FILENAME, path.extname(OUTPUT_SCREENSHOT_FILENAME));
 	var outputThemeManifestPath = path.join(outputPath, THEME_MANIFEST_PATH);
 	var precompiledIndexTemplatePath = path.join(outputTemplatesPath, PRECOMPILED_INDEX_TEMPLATE_PATH);
 	var previewTemplateId = PREVIEW_TEMPLATE_ID;
@@ -126,6 +130,11 @@ module.exports = function(inputPath, outputPath, options, callback) {
 							dimensions: { width: 1280, height: 960, scale: 200 / 1280 },
 							inputPath: inputThumbnailPath,
 							filename: outputThumbnailFilename
+						},
+						{
+							dimensions: { width: 1440, height: 900, scale: 1 },
+							inputPath: inputScreenshotPath,
+							filename: outputScreenshotFilename
 						}
 					]
 				}, function(error) {
