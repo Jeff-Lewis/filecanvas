@@ -4,10 +4,17 @@ body {
 	-webkit-font-smoothing: subpixel-antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: 'Lato', 'Helvetica', 'Arial', sans-serif;
+	font-variant-ligatures: none;
 }
 h2,
 .h2 {
 	font-size: 24px;
+}
+h5,
+.h5 {
+	font-size: 16px;
+	line-height: 1.42857143;
+	margin-bottom: 30px;
 }
 @media screen and (min-width: 768px) {
 	h2,
@@ -34,6 +41,142 @@ fieldset[disabled] .btn {
 .well {
 	box-shadow: none;
 	-webkit-box-shadow: none;
+	margin-bottom: 50px;
+}
+.well > h3:first-child,
+.well > .h3:first-child {
+	margin-bottom: 30px;
+}
+.well p {
+	font-size: 16px;
+}
+.anchor {
+	display: block;
+	position: relative;
+	top: -51px;
+}
+.anchor-offset {
+	top: -81px;
+}
+.anchor-section {
+	top: -91px;
+}
+@media screen and (min-width: 768px) {
+	.anchor-section {
+		top: -111px;
+	}
+}
+
+.equation {
+	margin-bottom: 20px;
+}
+.equation-input,
+.equation-operator,
+.equation-output {
+	display: inline-block;
+	vertical-align: top;
+}
+.equation-input-icon,
+.equation-input-label,
+.equation-output-icon,
+.equation-output-label {
+	display: block;
+}
+.equation-input-label,
+.equation-output-label {
+	font-weight: bold;
+	text-align: center;
+}
+.equation-operator {
+	position: relative;
+}
+.fa-equals::before {
+	content: "\f068";
+	position: absolute;
+	margin-top: -0.1em;
+}
+.fa-equals::after {
+	content: "\f068";
+	position: relative;
+	top: 0.2em;
+}
+.canvas-logo {
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-size: 100%;
+	vertical-align: top;
+}
+.equation-input-label,
+.equation-output-label {
+	padding-top: 2px;
+}
+.equation-input-icon,
+.equation-output-icon {
+	font-size: 2em;
+}
+.equation-operator {
+	font-size: 1.5em;
+	top: 4px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+.equation-output {
+	margin-left: 0;
+}
+.canvas-logo {
+	margin-top: -9px;
+	width: 48px;
+	height: 48px;
+	line-height: 48px;
+	background-image: url('images/logo-48x48-dark.svg');
+}
+@media screen and (min-width: 480px) {
+	.equation-input-label,
+	.equation-output-label {
+		padding-top: 3px;
+	}
+	.equation-input-icon,
+	.equation-output-icon {
+		font-size: 3em;
+	}
+	.equation-operator {
+		font-size: 2em;
+		top: 4px;
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+	.equation-output {
+		margin-left: -10px;
+	}
+	.canvas-logo {
+		margin-top: -12px;
+		width: 64px;
+		height: 64px;
+		line-height: 64px;
+		background-image: url('images/logo-64x64-dark.svg');
+	}
+}
+@media screen and (min-width: 768px) {
+	.equation-input-icon,
+	.equation-output-icon {
+		font-size: 4em;
+	}
+	.equation-operator {
+		font-size: 3em;
+		top: 6px;
+		margin-left: 20px;
+		margin-right: 20px;
+	}
+	.equation-output {
+		margin-left: -17px;
+	}
+	.canvas-logo {
+		margin-top: -18px;
+		width: 96px;
+		height: 96px;
+		line-height: 96px;
+		background-image: url('images/logo-96x96-dark.svg');
+	}
 }
 
 .navbar-static-top {
@@ -546,6 +689,9 @@ fieldset[disabled] .btn {
 .page-section-content > p.lead:first-child:last-child {
 	margin-top: 5px;
 	margin-bottom: 10px;
+}
+.page-section-content .well:first-child {
+	margin-top: -20px;
 }
 
 .page-splash {

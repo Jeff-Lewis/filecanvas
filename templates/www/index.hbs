@@ -15,7 +15,7 @@
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="/assets/css/filecanvas-www.css" />
 </head>
-<body data-spy="scroll" data-target="#navigation" data-offset="120">
+<body data-spy="scroll" data-target="#navigation" data-offset="70">
 	<nav class="navbar navbar-inverse navbar-static-top">
 		<div class="container-fluid">
 			<div class="navbar-header">
@@ -34,12 +34,13 @@
 			</div>
 		</div>
 	</nav>
-	<section class="page-splash" id="intro">
+	<section class="page-splash">
+		<a class="anchor" id="intro"></a>
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
 					<div class="jumbotron">
-						<h1>Your files. Redesigned.</h1>
+						<h1>Your files. Giftwrapped.</h1>
 						<p>Filecanvas is the quick, easy way to create a <strong>fully-branded web showcase</strong> for your files.</p>
 						<a class="btn btn-success btn-lg" href="#demo">Try it out</a>
 					</div>
@@ -47,7 +48,7 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-hero" id="hero">
+	<section class="page-hero">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
@@ -81,9 +82,24 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-section" id="about">
+	<section class="page-section">
+		<a class="anchor anchor-section" id="about"></a>
 		<div class="container">
 			<p class="lead text-center">Got some files you need to share? Want them to look their best? Try Filecanvas.</p>
+			<div class="row">
+				<div class="col-md-12" style="text-align: center">
+					<ul class="fa-ul" style="display: inline-block; text-align: left; font-size: 16px; line-height: 1.5;">
+						<li><span class="fa-li fa fa-check" style="top: 5px;"></span>Say goodbye to emailing zip attachments</li>
+						<li><span class="fa-li fa fa-check" style="top: 5px;"></span>More professional than an online dropbox</li>
+						<li><span class="fa-li fa fa-check" style="top: 5px;"></span>Pick a template, sync to a folder, and you're done</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section">
+		<a class="anchor anchor-section" id="benefits"></a>
+		<div class="container">
 			<div class="row">
 				<div class="info-panel col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-0">
 					<h3 class="info-panel-header">Time-saving</h3>
@@ -100,11 +116,12 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-section page-examples" id="examples">
+	<section class="page-section">
+		<a class="anchor anchor-section" id="examples"></a>
 		<div class="container">
 			<div class="row">
 				<div class="page-section-content col-md-12">
-					<h2 class="page-section-title">How Filecanvas can help you</h2>
+					<h2 class="page-section-title">See it in action</h2>
 					<p class="page-section-subtitle">Filecanvas can be used to present anything from showreels, to prototypes, to finance reports. Here's a few examples:</p>
 					<form class="examples row">
 						<div class="col-lg-6 col-lg-offset-1">
@@ -247,13 +264,35 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-section" id="how-it-works">
+	<section class="page-section">
+		<a class="anchor anchor-section" id="how-it-works"></a>
 		<div class="container">
 			<div class="row">
 				<div class="page-section-content col-md-12">
 					<h2 class="page-section-title">How it works</h2>
 					<div class="row">
+						<a id="canvas" class="anchor anchor-offset"></a>
 						<div class="col-md-10 col-md-offset-1">
+							<div class="well text-center">
+								<h3>What's a canvas?</h3>
+								<div class="equation">
+									<div class="equation-input">
+										<span class="equation-input-icon fa fa-4x fa-folder-open"></span>
+										<span class="equation-input-label">Folder</span>
+									</div>
+									<span class="equation-operator fa fa-plus"></span>
+									<div class="equation-input">
+										<span class="equation-input-icon fa fa-magic"></span>
+										<span class="equation-input-label">Template</span>
+									</div>
+									<span class="equation-operator fa fa-equals"></span>
+									<div class="equation-output">
+										<span class="equation-output-icon canvas-logo"></span>
+										<span class="equation-output-label">Canvas</span>
+									</div>
+								</div>
+								<p>Each canvas is synced to the contents of a specific folder, and has its own personalised template and web address.</p>
+							</div>
 							<div class="row">
 								<div class="instructions-panel col-sm-4">
 									<h4 class="instructions-panel-heading">Step 1: Design your canvas</h4>
@@ -281,7 +320,7 @@
 										<img src="/assets/images/instructions-link.png"/>
 									</div>
 									<div class="instructions-panel-body">
-										<p>Share the web link to allow users to view your canvas and download your synced files</p>
+										<p>Share the web link with others to allow them to view the synced files – no account needed</p>
 										<aside>Links can be password-protected to prevent unauthorised access</aside>
 									</div>
 								</div>
@@ -292,7 +331,8 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-section" id="features">
+	<section class="page-section">
+		<a class="anchor anchor-section" id="features"></a>
 		<div class="container">
 			<div class="row">
 				<div class="page-section-content col-md-12">
@@ -305,7 +345,7 @@
 								</div>
 								<div class="media-body">
 									<p class="media-heading">Interactive canvas editor</p>
-									<p>Customise logos, colours, fonts and more to create your personalised canvas</p>
+									<p>Customise logos, colours, headings and more to create your personalised canvas</p>
 								</div>
 							</div>
 						</div>
@@ -375,7 +415,7 @@
 								</div>
 								<div class="media-body">
 									<p class="media-heading">Password protection</p>
-									<p>Optionally restrict access to your canvases by adding password protection</p>
+									<p>You can restrict access to your canvases by adding password protection</p>
 								</div>
 							</div>
 						</div>
@@ -407,7 +447,8 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-section" id="demo">
+	<section class="page-section">
+		<a class="anchor anchor-section" id="demo"></a>
 		<div class="container">
 			<div class="row">
 				<div class="page-section-content col-md-12">
@@ -451,12 +492,13 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-section" id="pricing">
+	<section class="page-section">
+		<a class="anchor anchor-section" id="pricing"></a>
 		<div class="container">
 			<div class="row">
 				<div class="page-section-content col-md-12">
 					<h2 class="page-section-title">Pricing</h2>
-					<a id="sign-up" style="display: block; position: relative; top: -30px;"></a>
+					<a id="sign-up" class="anchor anchor-offset"></a>
 					<div class="row">
 						<div class="col-sm-6 col-md-3">
 							<div class="panel panel-warning panel-pricing">
@@ -469,7 +511,7 @@
 								<ul class="list-group panel-pricing-limits">
 									<li class="list-group-item">
 										<span>1 canvas</span>
-										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+										<aside><a href="#canvas">What's a canvas?</a></aside>
 									</li>
 								</ul>
 								<ul class="list-group panel-pricing-features">
@@ -497,7 +539,7 @@
 								<ul class="list-group panel-pricing-limits">
 									<li class="list-group-item">
 										<span>Up to 3 canvases</span>
-										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+										<aside><a href="#canvas">What's a canvas?</a></aside>
 									</li>
 								</ul>
 								<ul class="list-group panel-pricing-features">
@@ -525,7 +567,7 @@
 								<ul class="list-group panel-pricing-limits">
 									<li class="list-group-item">
 										<span>Unlimited canvases</span>
-										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+										<aside><a href="#canvas">What's a canvas?</a></aside>
 									</li>
 								</ul>
 								<ul class="list-group panel-pricing-features">
@@ -553,7 +595,7 @@
 								<ul class="list-group panel-pricing-limits">
 									<li class="list-group-item">
 										<span>Unlimited canvases</span>
-										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+										<aside><a href="#canvas">What's a canvas?</a></aside>
 									</li>
 								</ul>
 								<ul class="list-group panel-pricing-features">
@@ -575,7 +617,8 @@
 			</div>
 		</div>
 	</section>
-	<section class="page-section" id="contact">
+	<section class="page-section">
+		<a class="anchor anchor-section" id="contact"></a>
 		<div class="container">
 			<div class="row">
 				<div class="page-section-content col-md-12">
@@ -607,66 +650,6 @@
 	</footer>
 	<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
-	<script type="text/javascript">
-		$(function() {
-			initScrollAnchors('#navigation,#footer-navigation,#intro', { offset: -51, duration: 500 });
-			initTooltips();
-			initExamples('.examples');
-		});
-
-		function initScrollAnchors(navSelector, options) {
-			options = options || {};
-			var duration = options.duration || 300;
-			var scrollOffset = options.offset || 0;
-
-			var $navElement = $(navSelector);
-			var $navLinkElements = $navElement.find('a[href^="#"]');
-			$navLinkElements.on('click', function(event) {
-				event.preventDefault();
-				var targetHash = this.hash;
-				var $targetElement = $(targetHash);
-				var targetOffset = $targetElement.offset().top + scrollOffset;
-				$('html, body').animate({ scrollTop: targetOffset }, duration, function() {
-					window.location.hash = targetHash;
-				});
-			});
-		}
-
-		function initTooltips() {
-			$('[data-toggle="tooltip"]').tooltip({
-				animation: false
-			});
-			$('[data-toggle="popover"]').popover({
-				animation: false
-			}).on('click', function(event) {
-				event.preventDefault();
-			});
-		}
-
-		function initExamples(selector) {
-			$(selector).each(function(index, element) {
-				var $formElement = $(element);
-				var $carouselElement = $formElement.find('.examples-carousel');
-				var $radioElements = $formElement.find('input[type="radio"]');
-				var $optionElements = $formElement.find('.examples-option');
-				var optionValues = $radioElements.map(function(index, element) {
-					var $radioElement = $(element);
-					return $radioElement.val();
-				}).get();
-				$formElement.on('change', function(event) {
-					var targetElement = event.target;
-					var value = targetElement.value;
-					var selectedIndex = optionValues.indexOf(value);
-					$optionElements.each(function(index, element) {
-						var $optionElement = $(element);
-						var optionIndex = $optionElement.index();
-						var isSelected = (optionIndex === selectedIndex);
-						$optionElement.toggleClass('selected', isSelected);
-					});
-					$carouselElement.carousel(selectedIndex);
-				});
-			});
-		}
-	</script>
+	<script src="/assets/js/filecanvas-www.js"></script>
 </body>
 </html>
