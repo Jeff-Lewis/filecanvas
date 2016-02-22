@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.5.2 (25235) - http://www.bohemiancoding.com/sketch -->
+    <title>32x32</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="32x32" sketch:type="MSArtboardGroup" fill="#FFFFFF">
+            <path d="M6,23 L26,23 L26,24.5 L22,24.5 L23.5,30.25 L20,31 L19,24.5 L13,24.5 L12,31 L8.5,30.25 L10,24.5 L6,24.5 L6,23 Z" id="Stand" sketch:type="MSShapeGroup"></path>
+            <path d="M8,5 L18,5 L18,11 L24,11 L24,22 L8,22 L8,5 Z" id="File-body" sketch:type="MSShapeGroup"></path>
+            <path d="M19,5 L19,10 L24,10 L19,5 Z" id="File-corner" sketch:type="MSShapeGroup"></path>
+            <path d="M14,4 L18,4 L17.25,1 L14.75,1 L14,4 Z" id="Top" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

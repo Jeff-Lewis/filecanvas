@@ -1,24 +1,672 @@
 <!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8"/>
-			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta name="description" content=""/>
-			<meta name="author" content=""/>
-			<link rel="shortcut icon" href="/favicon.ico"/>
-			<link rel="stylesheet" href="/assets/css/app.min.css"/>
-			<link rel="stylesheet" href="/assets/css/filecanvas-www.css"/>
-			<title>Filecanvas</title>
-		</head>
-		<body class="home">
-			<h1 class="text-center">File<strong>canvas</strong></h1>
-			<h2 class="text-center">The easiest way to showcase your files.</h2>
-			<div class="text-center">
-				<div class="mb15">
-					<a class="btn btn-primary btn-lg" href="{{ subdomain host=host subdomain='try' }}">Try the Beta</a>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta name="description" content=""/>
+	<meta name="author" content=""/>
+	<link rel="shortcut icon" href="/assets/favicon.png"/>
+	<title>Filecanvas</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css" />
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700" />
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Bree+Serif" />
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/assets/css/filecanvas-www.css" />
+</head>
+<body data-spy="scroll" data-target="#navigation" data-offset="120">
+	<nav class="navbar navbar-inverse navbar-static-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="/" class="navbar-brand navbar-link">Filecanvas</a>
+				<button data-toggle="collapse" data-target="#navigation" class="navbar-toggle collapsed"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+			</div>
+			<div class="collapse navbar-collapse" id="navigation">
+				<ul class="nav navbar-nav navbar-right">
+					<li role="presentation" class="active"><a href="#intro">Home</a></li>
+					<li role="presentation"><a href="#examples">Examples</a></li>
+					<li role="presentation"><a href="#demo">Demo</a></li>
+					<li role="presentation"><a href="#pricing">Pricing</a></li>
+					<li role="presentation"><a href="#sign-up">Sign up</a></li>
+					<li role="presentation"><a href="{{ subdomain host=host subdomain='my' }}">Log in</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<section class="page-splash" id="intro">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="jumbotron">
+						<h1>Your files. Redesigned.</h1>
+						<p>Filecanvas is the quick, easy way to create a <strong>fully-branded web showcase</strong> for your files.</p>
+						<a class="btn btn-success btn-lg" href="#demo">Try it out</a>
+					</div>
 				</div>
 			</div>
-		</body>
-	</html>
-</div>
+		</div>
+	</section>
+	<section class="page-hero" id="hero">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="device-preview device-preview-laptop">
+						<div class="device-preview-content">
+							<div class="carousel slide" id="hero-carousel" data-ride="carousel">
+								<ol class="carousel-indicators">
+									<li data-target="#hero-carousel" data-slide-to="0" class="active"></li>
+									<li data-target="#hero-carousel" data-slide-to="1"></li>
+									<li data-target="#hero-carousel" data-slide-to="2"></li>
+								</ol>
+								<div class="carousel-inner" role="listbox">
+									<div class="item active"><img src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/></div>
+									<div class="item"><img src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/></div>
+									<div class="item"><img src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/></div>
+									<div class="item"><img src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/></div>
+									<div class="item"><img src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/></div>
+								</div>
+								<div class="carousel-controls">
+									<a class="carousel-control left" role="button" data-slide="prev" href="#hero-carousel">
+										<span class="glyphicon glyphicon-chevron-left"></span><span class="sr-only">Previous</span>
+									</a>
+									<a class="carousel-control right" role="button" data-slide="next" href="#hero-carousel">
+										<span class="glyphicon glyphicon-chevron-right"></span><span class="sr-only">Next</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section" id="about">
+		<div class="container">
+			<p class="lead text-center">Got some files you need to share? Want them to look their best? Try Filecanvas.</p>
+			<div class="row">
+				<div class="info-panel col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-0">
+					<h3 class="info-panel-header">Time-saving</h3>
+					<p>Create online press kits, galleries, portfolios, asset drops, document bundles and more – <strong>in minutes, not days</strong> – giving you more time to spend on the things that matter most</p>
+				</div>
+				<div class="info-panel col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-0">
+					<h3 class="info-panel-header">Great-looking</h3>
+					<p>Choose from a selection of <strong>professionally-designed templates</strong> that can be extensively personalised and custom-branded to make sure your content looks its best</p>
+				</div>
+				<div class="info-panel col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-0">
+					<h3 class="info-panel-header">Easy to use</h3>
+					<p>Automatic folder syncing <strong>takes the hassle out of uploading files</strong>, integrating with your Dropbox or Google Drive to ensure everyone's always seeing the latest version</p>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section page-examples" id="examples">
+		<div class="container">
+			<div class="row">
+				<div class="page-section-content col-md-12">
+					<h2 class="page-section-title">How Filecanvas can help you</h2>
+					<p class="page-section-subtitle">Filecanvas can be used to present anything from showreels, to prototypes, to finance reports. Here's a few examples:</p>
+					<form class="examples row">
+						<div class="col-lg-6 col-lg-offset-1">
+							<div class="examples-header navbar navbar-default">
+								<ul class="radio-icons list-unstyled">
+									<li class="radio-icon examples-option selected">
+										<label>
+											<span class="radio-icon-image fa fa-2x fa-pencil"></span>
+											<span class="radio-icon-label">Designer</span>
+											<input type="radio" class="radio-icon-input" name="example" value="designer" checked/>
+										</label>
+									</li>
+									<li class="radio-icon examples-option">
+										<label>
+											<span class="radio-icon-image fa fa-2x fa-photo"></span>
+											<span class="radio-icon-label">Photographer</span>
+											<input type="radio" class="radio-icon-input" name="example" value="photographer"/>
+										</label>
+									</li>
+									<li class="radio-icon examples-option">
+										<label>
+											<span class="radio-icon-image fa fa-2x fa-desktop"></span>
+											<span class="radio-icon-label">Digital agency</span>
+											<input type="radio" class="radio-icon-input" name="example" value="digital-agency"/>
+										</label>
+									</li>
+									<li class="radio-icon examples-option">
+										<label>
+											<span class="radio-icon-image fa fa-2x fa-flask"></span>
+											<span class="radio-icon-label">Startup</span>
+											<input type="radio" class="radio-icon-input" name="example" value="startup"/>
+										</label>
+									</li>
+									<li class="radio-icon examples-option">
+										<label>
+											<span class="radio-icon-image fa fa-2x fa-building"></span>
+											<span class="radio-icon-label">Business</span>
+											<input type="radio" class="radio-icon-input" name="example" value="business"/>
+										</label>
+									</li>
+								</ul>
+								<div class="examples-header-label visible-xs">
+								   <div class="examples-option selected">Designer</div>
+								   <div class="examples-option">Photographer</div>
+								   <div class="examples-option">Digital agency</div>
+								   <div class="examples-option">Startup</div>
+								   <div class="examples-option">Business</div>
+								</div>
+							</div>
+							<div class="examples-body col-md-7 col-md-offset-0 col-lg-12 clearfix">
+								<ul class="examples-checklist fa-ul examples-option selected">
+									<li><span class="fa-li fa fa-check"></span>Create online portfolios in minutes</li>
+									<li><span class="fa-li fa fa-check"></span>Upload latest designs by dragging files into a synced folder</li>
+									<li><span class="fa-li fa fa-check"></span>Portfolios containing non-public work can be password-protected</li>
+								</ul>
+								<ul class="examples-checklist fa-ul examples-option">
+									<li><span class="fa-li fa fa-check"></span>Create online photo galleries in seconds</li>
+									<li><span class="fa-li fa fa-check"></span>Upload albums by dragging photos into a synced folder</li>
+									<li><span class="fa-li fa fa-check"></span>Albums can be individually password-protected</li>
+								</ul>
+								<ul class="examples-checklist fa-ul examples-option">
+									<li><span class="fa-li fa fa-check"></span>Create branded asset bundles for client deliveries</li>
+									<li><span class="fa-li fa fa-check"></span>Synced to a shared folder to ensure latest versions of assets</li>
+									<li><span class="fa-li fa fa-check"></span>Pages can be password-protected to restrict access to individual clients</li>
+								</ul>
+								<ul class="examples-checklist fa-ul examples-option">
+									<li><span class="fa-li fa fa-check"></span>Create fully-branded press kits in minutes</li>
+									<li><span class="fa-li fa fa-check"></span>Synced to a shared folder to ensure latest versions of assets</li>
+									<li><span class="fa-li fa fa-check"></span>Press kits can be password-protected to restrict access</li>
+								</ul>
+								<ul class="examples-checklist fa-ul examples-option">
+									<li><span class="fa-li fa fa-check"></span>Create fully-branded document archives in seconds</li>
+									<li><span class="fa-li fa fa-check"></span>Shared folder syncing takes the hassle out of uploading documents</li>
+									<li><span class="fa-li fa fa-check"></span>Archives containing sensitive documents can be password-protected</li>
+								</ul>
+								<div class="hidden-xs hidden-sm">
+									<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+									<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+									<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+									<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+									<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-0 col-lg-4 col-lg-offset-0">
+							<div class="examples-body clearfix">
+								<div class="col-xs-10 col-xs-offset-1 col-sm-12 col-sm-offset-0">
+									<div class="examples-preview">
+										<div class="device-preview device-preview-desktop">
+											<div class="device-preview-content">
+												<div class="examples-carousel carousel slide" data-interval="false">
+													<div class="carousel-inner" role="listbox">
+														<a class="examples-carousel-item item active" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">
+															<img class="examples-carousel-item-image" src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/>
+															<div class="examples-carousel-item-icon">
+																<i class="fa fa-search-plus"></i>
+															</div>
+														</a>
+														<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">
+															<img class="examples-carousel-item-image" src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/>
+															<div class="examples-carousel-item-icon">
+																<i class="fa fa-search-plus"></i>
+															</div>
+														</a>
+														<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">
+															<img class="examples-carousel-item-image" src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/>
+															<div class="examples-carousel-item-icon">
+																<i class="fa fa-search-plus"></i>
+															</div>
+														</a>
+														<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">
+															<img class="examples-carousel-item-image" src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/>
+															<div class="examples-carousel-item-icon">
+																<i class="fa fa-search-plus"></i>
+															</div>
+														</a>
+														<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">
+															<img class="examples-carousel-item-image" src="{{ subdomain host=host subdomain='themes' path='/agency/preview.png' }}"/>
+															<div class="examples-carousel-item-icon">
+																<i class="fa fa-search-plus"></i>
+															</div>
+														</a>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="text-center visible-xs visible-sm">
+											<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+											<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+											<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+											<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+											<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/agency/preview/' }}" target="_blank">See an example</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section" id="how-it-works">
+		<div class="container">
+			<div class="row">
+				<div class="page-section-content col-md-12">
+					<h2 class="page-section-title">How it works</h2>
+					<div class="row">
+						<div class="col-md-10 col-md-offset-1">
+							<div class="row">
+								<div class="instructions-panel col-sm-4">
+									<h4 class="instructions-panel-heading">Step 1: Design your canvas</h4>
+									<div class="instructions-panel-illustration">
+										<img src="/assets/images/instructions-editor.png"/>
+									</div>
+									<div class="instructions-panel-body">
+										<p>Pick from a selection of professionally-designed templates and customise to match your brand</p>
+										<aside>Custom CSS styling is also supported for advanced personalisation</aside>
+									</div>
+								</div>
+								<div class="instructions-panel col-sm-4">
+									<h4 class="instructions-panel-heading">Step 2: Sync to a folder</h4>
+									<div class="instructions-panel-illustration">
+										<img src="/assets/images/instructions-folder.png"/>
+									</div>
+									<div class="instructions-panel-body">
+										<p>Sync to a Dropbox or Google Drive folder to automatically upload files to your canvas</p>
+										<aside>Folders can be shared with coworkers for collaborative editing</aside>
+									</div>
+								</div>
+								<div class="instructions-panel col-sm-4">
+									<h4 class="instructions-panel-heading">Step 3: Share link</h4>
+									<div class="instructions-panel-illustration">
+										<img src="/assets/images/instructions-link.png"/>
+									</div>
+									<div class="instructions-panel-body">
+										<p>Share the web link to allow users to view your canvas and download your synced files</p>
+										<aside>Links can be password-protected to prevent unauthorised access</aside>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section" id="features">
+		<div class="container">
+			<div class="row">
+				<div class="page-section-content col-md-12">
+					<h2 class="page-section-title">Features</h2>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-paint-brush"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Interactive canvas editor</p>
+									<p>Customise logos, colours, fonts and more to create your personalised canvas</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-refresh"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Folder sync</p>
+									<p>Sync to a Dropbox or Google Drive folder to ensure files are always up to date</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-users"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Collaborative editing</p>
+									<p>Share synced folders to allow multiple contributors to upload files to your canvas</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-globe"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Custom domain names</p>
+									<p>Use custom domain names to maintain brand identity and integrate with your existing site</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-search-plus"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Media file previews</p>
+									<p>The inbuilt file preview feature allows users to preview media files before downloading</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-tags"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Simple file organisation</p>
+									<p>Drag files into sub-folders to create groups, and use filenames to control the display order</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-lock"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Password protection</p>
+									<p>Optionally restrict access to your canvases by adding password protection</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-mobile"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Mobile friendly</p>
+									<p>All templates come with a built-in mobile layout for accessing files on the go</p>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="media">
+								<div class="media-left">
+									<div class="media-object"><span class="fa fa-fw fa-2x fa-shield"></span></div>
+								</div>
+								<div class="media-body">
+									<p class="media-heading">Safe and secure</p>
+									<p>Filecanvas is solidly built around security best practices to keep your data safe at all times</p>
+									<a href="/security" target="_blank">Read about our security measures</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section" id="demo">
+		<div class="container">
+			<div class="row">
+				<div class="page-section-content col-md-12">
+					<h2 class="page-section-title">Try it out</h2>
+					<p class="page-section-subtitle lead">No signup needed. Choose a template to launch an interactive demo:</p>
+					<div class="preview-group row">
+						<div class="preview-panel col-sm-6 col-md-3">
+							<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=agency' }}" target="_blank">
+								<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/agency/thumbnail.png' }}">
+								<div class="preview-panel-thumbnail-icon">
+									<i class="fa fa-play"></i>
+								</div>
+							</a>
+						</div>
+						<div class="preview-panel preview col-sm-6 col-md-3">
+							<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=agency' }}" target="_blank">
+								<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/agency/thumbnail.png' }}">
+								<div class="preview-panel-thumbnail-icon">
+									<i class="fa fa-play"></i>
+								</div>
+							</a>
+						</div>
+						<div class="preview-panel col-sm-6 col-md-3">
+							<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=agency' }}" target="_blank">
+								<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/agency/thumbnail.png' }}">
+								<div class="preview-panel-thumbnail-icon">
+									<i class="fa fa-play"></i>
+								</div>
+							</a>
+						</div>
+						<div class="preview-panel col-sm-6 col-md-3">
+							<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=agency' }}" target="_blank">
+								<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/agency/thumbnail.png' }}">
+								<div class="preview-panel-thumbnail-icon">
+									<i class="fa fa-play"></i>
+								</div>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section" id="pricing">
+		<div class="container">
+			<div class="row">
+				<div class="page-section-content col-md-12">
+					<h2 class="page-section-title">Pricing</h2>
+					<a id="sign-up" style="display: block; position: relative; top: -30px;"></a>
+					<div class="row">
+						<div class="col-sm-6 col-md-3">
+							<div class="panel panel-warning panel-pricing">
+								<div class="panel-heading">
+									<h3 class="panel-title">Personal</h3>
+								</div>
+								<div class="panel-body">
+									<p class="lead">£4 / month</p>
+								</div>
+								<ul class="list-group panel-pricing-limits">
+									<li class="list-group-item">
+										<span>1 canvas</span>
+										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+									</li>
+								</ul>
+								<ul class="list-group panel-pricing-features">
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Personalised templates</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+									<li class="list-group-item hidden-xs">&nbsp;</li>
+									<li class="list-group-item hidden-xs">&nbsp;</li>
+									<li class="list-group-item hidden-xs">&nbsp;</li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+								</ul>
+								<div class="panel-footer">
+									<button class="btn btn-default" type="button" disabled>Coming soon</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3">
+							<div class="panel panel-success panel-pricing">
+								<div class="panel-heading">
+									<h3 class="panel-title">Startup</h3>
+								</div>
+								<div class="panel-body">
+									<p class="lead">£14 / month</p>
+								</div>
+								<ul class="list-group panel-pricing-limits">
+									<li class="list-group-item">
+										<span>Up to 3 canvases</span>
+										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+									</li>
+								</ul>
+								<ul class="list-group panel-pricing-features">
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Personalised templates</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Password-protected canvases</span></li>
+									<li class="list-group-item hidden-xs">&nbsp;</li>
+									<li class="list-group-item hidden-xs">&nbsp;</li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+								</ul>
+								<div class="panel-footer">
+									<button class="btn btn-default" type="button" disabled>Coming soon</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3">
+							<div class="panel panel-info panel-pricing">
+								<div class="panel-heading">
+									<h3 class="panel-title">Business</h3>
+								</div>
+								<div class="panel-body">
+									<p class="lead">£45 / month</p>
+								</div>
+								<ul class="list-group panel-pricing-limits">
+									<li class="list-group-item">
+										<span>Unlimited canvases</span>
+										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+									</li>
+								</ul>
+								<ul class="list-group panel-pricing-features">
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Personalised templates</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Password-protected canvases</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Upload your own templates</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Google Drive folder sync</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+								</ul>
+								<div class="panel-footer">
+									<button class="btn btn-default" type="button" disabled>Coming soon</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-6 col-md-3">
+							<div class="panel panel-primary panel-pricing">
+								<div class="panel-heading">
+									<h3 class="panel-title">Beta trial</h3>
+								</div>
+								<div class="panel-body">
+									<p class="lead">Free</p>
+								</div>
+								<ul class="list-group panel-pricing-limits">
+									<li class="list-group-item">
+										<span>Unlimited canvases</span>
+										<aside><a href="javascript:;" data-toggle="popover" data-content="" data-placement="bottom" data-trigger="focus">What's a canvas?</a></aside>
+									</li>
+								</ul>
+								<ul class="list-group panel-pricing-features">
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Personalised templates</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Password-protected canvases</span></li>
+									<li class="list-group-item disabled" data-toggle="tooltip" data-placement="top" title="Coming soon to beta"><span class="glyphicon glyphicon-hourglass"></span><span>Upload your own templates</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Google Drive folder sync</span></li>
+									<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+								</ul>
+								<div class="panel-footer">
+									<a class="btn btn-success" href="{{ subdomain host=host subdomain='my' }}">Sign up</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="page-section" id="contact">
+		<div class="container">
+			<div class="row">
+				<div class="page-section-content col-md-12">
+					<p class="lead text-center">Any questions? <a href="mailto:info@filecanvas.com">Drop us a line</a> and we&#39;ll be happy to help.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+	<footer class="page-footer">
+		<div class="container">
+			<div class="row">
+				<div class="page-footer-navigation col-sm-6 col-md-4" id="footer-navigation">
+					<ul class="list-unstyled">
+						<li><a href="#sign-up">Sign up</a></li>
+						<li><a href="{{ subdomain host=host subdomain='my' }}">Log in</a></li>
+						<li><a href="/terms" target="_blank">Terms &amp; Conditions</a></li>
+						<li><a href="/privacy" target="_blank">Privacy Policy</a></li>
+					</ul>
+				</div>
+				<div class="page-footer-contact col-sm-6 col-md-3 col-md-offset-5">
+					<ul class="list-unstyled">
+						<li>For all enquiries, contact <a href="mailto:info@filecanvas.com">info@filecanvas.com</a></li>
+						<li>&nbsp;</li>
+						<li>© Filecanvas 2016</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			initScrollAnchors('#navigation,#footer-navigation,#intro', { offset: -51, duration: 500 });
+			initTooltips();
+			initExamples('.examples');
+		});
+
+		function initScrollAnchors(navSelector, options) {
+			options = options || {};
+			var duration = options.duration || 300;
+			var scrollOffset = options.offset || 0;
+
+			var $navElement = $(navSelector);
+			var $navLinkElements = $navElement.find('a[href^="#"]');
+			$navLinkElements.on('click', function(event) {
+				event.preventDefault();
+				var targetHash = this.hash;
+				var $targetElement = $(targetHash);
+				var targetOffset = $targetElement.offset().top + scrollOffset;
+				$('html, body').animate({ scrollTop: targetOffset }, duration, function() {
+					window.location.hash = targetHash;
+				});
+			});
+		}
+
+		function initTooltips() {
+			$('[data-toggle="tooltip"]').tooltip({
+				animation: false
+			});
+			$('[data-toggle="popover"]').popover({
+				animation: false
+			}).on('click', function(event) {
+				event.preventDefault();
+			});
+		}
+
+		function initExamples(selector) {
+			$(selector).each(function(index, element) {
+				var $formElement = $(element);
+				var $carouselElement = $formElement.find('.examples-carousel');
+				var $radioElements = $formElement.find('input[type="radio"]');
+				var $optionElements = $formElement.find('.examples-option');
+				var optionValues = $radioElements.map(function(index, element) {
+					var $radioElement = $(element);
+					return $radioElement.val();
+				}).get();
+				$formElement.on('change', function(event) {
+					var targetElement = event.target;
+					var value = targetElement.value;
+					var selectedIndex = optionValues.indexOf(value);
+					$optionElements.each(function(index, element) {
+						var $optionElement = $(element);
+						var optionIndex = $optionElement.index();
+						var isSelected = (optionIndex === selectedIndex);
+						$optionElement.toggleClass('selected', isSelected);
+					});
+					$carouselElement.carousel(selectedIndex);
+				});
+			});
+		}
+	</script>
+</body>
+</html>
