@@ -34,6 +34,15 @@ Api.prototype.purgeSiteCache = function(siteAlias) {
 };
 
 Api.prototype.validateFolder = function(adapter, path) {
+	return this.retrieveFileMetadata(adapter, path)
+		.then(function(data) {
+			var isValidFolder = Boolean(data && data.directory);
+			return isValidFolder;
+		});
+};
+
+
+Api.prototype.retrieveFileMetadata = function(adapter, path) {
 	if (!path || (path.charAt(0) !== '/')) {
 		return new $.Deferred().resolve(false).promise();
 	}
@@ -44,8 +53,7 @@ Api.prototype.validateFolder = function(adapter, path) {
 	};
 	return $.ajax(url, settings)
 		.then(function(data, textStatus, jqXHR) {
-			var isValidFolder = Boolean(data && data.directory);
-			return isValidFolder;
+			return data;
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			return new $.Deferred().reject(new Error(errorThrown)).promise();
