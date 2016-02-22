@@ -1,5 +1,7 @@
 'use strict';
 
+var appendQueryParams = require('../../src/utils/appendQueryParams');
+
 module.exports.upload = function(options) {
 	var isUpload = true;
 	return load(options, isUpload);
@@ -15,13 +17,14 @@ function load(options, isUpload) {
 	options = options || {};
 	var method = options.method || (isUpload ? 'POST' : 'GET');
 	var url = options.url || null;
+	var params = options.params || {};
 	var headers = options.headers || {};
 	var body = options.body || null;
 
 	var deferred = new $.Deferred();
 	var xhr = new XMLHttpRequest();
 	var async = true;
-	xhr.open(method, url, async);
+	xhr.open(method, appendQueryParams(url, params), async);
 	for (var key in headers) {
 		xhr.setRequestHeader(key, headers[key]);
 	}
