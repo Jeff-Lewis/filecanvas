@@ -67,6 +67,23 @@ fieldset[disabled] .btn {
 	}
 }
 
+.intro-checklist {
+	display: inline-block;
+	font-size: 16px;
+	line-height: 1.5;
+}
+.intro-checklist .fa-li {
+	top: 5px;
+}
+.intro-checklist li {
+	margin-bottom: 10px;
+}
+@media screen and (min-width: 768px) {
+	.intro-checklist li {
+		margin-bottom: 5px;
+	}
+}
+
 .equation {
 	margin-bottom: 20px;
 }
