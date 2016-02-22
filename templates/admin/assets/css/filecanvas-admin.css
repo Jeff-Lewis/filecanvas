@@ -1368,8 +1368,13 @@ footer.content-footer {
     text-align: center;
 }
 .theme-preview-control-thumbnail-icon i {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+	line-height: 0;
 	font-size: 64px;
-	line-height: 150px;
 }
 .theme-preview-control-thumbnail > .theme-preview-control-thumbnail-icon {
 	opacity: 0;
