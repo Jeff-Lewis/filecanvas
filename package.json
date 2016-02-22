@@ -88,6 +88,6 @@
   "devDependencies": {
     "adm-zip": "^0.4.7",
     "imagemagick-native": "^1.9.1",
-    "webshot": "^0.18.0"
+    "pageres": "^4.1.0"
   }
 }

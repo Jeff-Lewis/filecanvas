@@ -8,7 +8,7 @@ var del = require('del');
 var mkdirp = require('mkdirp');
 var copy = require('recursive-copy');
 var imagemagick = require('imagemagick-native');
-var webshot = require('webshot');
+var Pageres = require('pageres');
 var express = require('express');
 var merge = require('lodash.merge');
 
@@ -40,7 +40,7 @@ var THEME_TEMPLATES_PATH = 'templates';
 var THEME_PREVIEW_FILES_PATH = 'preview';
 var THEME_ASSETS_PATH = 'assets';
 var OUTPUT_PREVIEW_PATH = 'preview';
-var OUTPUT_THUMBNAIL_PATH = 'thumbnail.png';
+var OUTPUT_THUMBNAIL_FILENAME = 'thumbnail.png';
 var PRECOMPILED_INDEX_TEMPLATE_PATH = 'index.js';
 
 var PREVIEW_TEMPLATE_ID = 'index';
@@ -76,7 +76,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var outputPreviewDataPath = path.join(outputPreviewPath, PREVIEW_DATA_FILENAME);
 	var outputAssetsPath = path.join(outputPath, THEME_ASSETS_PATH);
 	var outputTemplatesPath = path.join(outputPath, THEME_TEMPLATES_PATH);
-	var outputThumbnailPath = path.join(outputPath, OUTPUT_THUMBNAIL_PATH);
+	var outputThumbnailFilename = path.basename(OUTPUT_THUMBNAIL_FILENAME, path.extname(OUTPUT_THUMBNAIL_FILENAME));
 	var outputThemeManifestPath = path.join(outputPath, THEME_MANIFEST_PATH);
 	var precompiledIndexTemplatePath = path.join(outputTemplatesPath, PRECOMPILED_INDEX_TEMPLATE_PATH);
 	var previewTemplateId = PREVIEW_TEMPLATE_ID;
@@ -117,8 +117,18 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				function(callback) { savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPreviewPath, callback); }
 			], function(error, results) {
 				if (error) { return callback(error); }
-				log('Creating site thumbnail...');
-				createSiteThumbnail(inputThumbnailPath, outputPreviewPath, outputThumbnailPath, function(error) {
+				log('Creating site thumbnails...');
+				createSiteThumbnails({
+					siteRoot: outputPreviewPath,
+					outputPath: outputPath,
+					resolutions: [
+						{
+							dimensions: { width: 1280, height: 960, scale: 200 / 1280 },
+							inputPath: inputThumbnailPath,
+							filename: outputThumbnailFilename
+						}
+					]
+				}, function(error) {
 					if (error) { return callback(error); }
 					log('Copying theme files to ' + outputPath);
 					async.parallel([
@@ -392,59 +402,111 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 	}
 
-	function createSiteThumbnail(thumbnailPath, previewPath, outputPath, callback) {
-		checkWhetherFileExists(inputThumbnailPath, function(error, hasThumbnail) {
-			if (error) { return callback(error); }
-			if (hasThumbnail) {
-				log('Copying thumbnail from ' + thumbnailPath);
-				copyFile(inputThumbnailPath, outputThumbnailPath, function(error) {
-					callback(null);
-					return;
+	function createSiteThumbnails(options, callback) {
+		options = options || {};
+		var siteRoot = options.siteRoot;
+		var outputPath = options.outputPath;
+		var resolutions = options.resolutions;
+
+		Promise.all(
+			resolutions.map(function(resolution) {
+				var inputPath = resolution.inputPath;
+				return new Promise(function(resolve, reject) {
+					checkWhetherFileExists(inputPath, function(error, fileExists) {
+						if (error) { return reject(error); }
+						resolve(fileExists);
+					});
 				});
-			} else {
-				log('Saving theme screenshot');
-				savePreviewThumbnail(outputPreviewPath, outputThumbnailPath, function(error) {
-					if (error) { return callback(error); }
-					callback(null);
-				});
-			}
+			})
+		)
+		.then(function(filesExist) {
+			var existingResolutions = resolutions.filter(function(resolution, index) {
+				return filesExist[index];
+			});
+			var pendingResolutions = resolutions.filter(function(resolution, index) {
+				return !filesExist[index];
+			});
+			return Promise.all(
+				existingResolutions.map(function(resolution) {
+					var inputPath = resolution.inputPath;
+					var outputFilePath = path.join(outputPath, resolution.filename);
+
+					return new Promise(function(resolve, reject) {
+						log('Copying screenshot from ' + inputPath);
+						copyFile(inputPath, outputFilePath, function(error) {
+							if (error) { return reject(error); }
+							resolve();
+						});
+					});
+				})
+				.concat(
+					createScreenshots({
+						siteRoot: siteRoot,
+						outputPath: outputPath,
+						resolutions: pendingResolutions
+					})
+				)
+			);
+		})
+		.then(function(results) {
+			callback(null);
+		})
+		.catch(function(error) {
+			callback(error);
 		});
 
+		function createScreenshots(options) {
+			options = options || {};
+			var siteRoot = options.siteRoot;
+			var outputPath = options.outputPath;
+			var resolutions = options.resolutions;
 
-		function savePreviewThumbnail(sitePath, outputPath, callback) {
-			log('Serving static files from ' + sitePath);
-			var server = http.createServer(express.static(sitePath));
-			var randomPort = 0;
-			server.listen(randomPort, function(error) {
-				if (error) { return callback(error); }
-				var url = 'http://localhost:' + server.address().port + '/';
-				log('Started preview server at ' + url);
-				saveUrlScreenshot(url, outputPath, function(error) {
-					if (error) { return callback(error); }
-					server.close(function(error) {
-						if (error) { return callback(error); }
-						log('Stopped preview server');
-						callback(null);
+			log('Saving ' + resolutions.length + ' ' + (resolutions === 1 ? 'screenshot' : 'screenshots'));
+			return new Promise(function(resolve, reject) {
+				log('Serving static files from ' + siteRoot);
+				var server = http.createServer(express.static(siteRoot));
+				var randomPort = 0;
+				server.listen(randomPort, function(error) {
+					if (error) { return reject(error); }
+					var url = 'http://localhost:' + server.address().port + '/';
+					log('Started preview server at ' + url);
+					saveUrlScreenshots({
+						url: url,
+						outputPath: outputPath,
+						resolutions: resolutions
+					}, function(error) {
+						if (error) { return reject(error); }
+						server.close(function(error) {
+							if (error) { return reject(error); }
+							log('Stopped preview server');
+							resolve(null);
+						});
 					});
 				});
 			});
 
-			function saveUrlScreenshot(url, outputPath, callback) {
-				log('Saving PhantomJS screenshot...');
-				webshot(url, {
-					windowSize: { width: 1280, height: 960 },
-					shotSize: { width: 'window', height: 'window' },
-					defaultWhiteBackground: true,
-					timeout: 60 * 1000
-				})
-				.on('error', callback)
-				.pipe(imagemagick.streams.convert({ width: 200, height: 150, format: 'PNG' }))
-				.on('error', callback)
-				.pipe(fs.createWriteStream(outputPath))
-				.on('error', callback)
-				.on('finish', function() {
+			function saveUrlScreenshots(options, callback) {
+				options = options || {};
+				var url = options.url;
+				var outputPath = options.outputPath;
+				var resolutions = options.resolutions;
+				log('Saving PhantomJS screenshots...');
+				var pageres = new Pageres({ crop: true });
+				resolutions.reduce(function(pageres, resolution) {
+					return pageres.src(url, [resolution.dimensions.width + 'x' + resolution.dimensions.height], {
+						scale: resolution.dimensions.scale,
+						filename: resolution.filename
+					});
+				}, pageres)
+				.dest(outputPath)
+				.run()
+				.then(function() {
 					log('Saved PhantomJS screenshot');
 					callback(null);
+				})
+				.catch(function(error) {
+					console.log(error.stack);
+					callback(error);
 				});
 			}
 		}
