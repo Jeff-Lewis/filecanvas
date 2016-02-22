@@ -535,6 +535,10 @@ fieldset[disabled] .btn {
 	font-size: 14px;
 }
 @media screen and (min-width: 768px) {
+	.page-section {
+		padding-top: 60px;
+		padding-bottom: 60px;
+	}
 	.page-section-subtitle {
 		font-size: 18px;
 	}
@@ -576,6 +580,7 @@ fieldset[disabled] .btn {
 .page-hero + .page-section:nth-child(even),
 .page-hero + .page-section:nth-child(odd) {
 	border-top: none;
+	padding-top: 20px;
 }
 .page-hero .device-preview {
 	position: relative;
