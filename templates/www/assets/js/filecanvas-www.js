@@ -2,6 +2,7 @@
 
 $(function() {
 	initScrollAnchors('body', { duration: 500 });
+	initScrollSpy('body', { target: '#navigation', offset: 70 });
 	initTooltips();
 	initExamples('.examples');
 });
@@ -22,6 +23,10 @@ function initScrollAnchors(navSelector, options) {
 			window.location.hash = targetHash;
 		});
 	});
+}
+
+function initScrollSpy(scrollSelector, options) {
+	$(scrollSelector).scrollspy(options);
 }
 
 function initTooltips() {
