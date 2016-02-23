@@ -19,7 +19,7 @@
 				<p class="lead">{{ error.description }}</p>
 				{{/if}}
 			</div>
-			{{#if (and debug (or (not error.status) (and (gte error.status 500) (not-eq error.status 501))))}}<pre>{{ error.stack }}</pre>{{/if}}
+			{{#if (and debug (not-eq error.status 501))}}<pre>{{ error.stack }}</pre>{{/if}}
 		</div>
 		<div class="text-center">
 			<a class="btn btn-primary" href="javascript:history.go(-1);">
