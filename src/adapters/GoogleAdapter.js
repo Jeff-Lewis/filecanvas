@@ -566,31 +566,27 @@ GoogleConnector.prototype.connect = function(uid, accessToken, tokenExpires, ref
 
 
 	function login(clientId, clientSecret, accessToken, tokenExpires, refreshToken) {
-		return new Promise(function(resolve, reject) {
-			var tokenExpiryDate = new Date(tokenExpires);
-			var isAccessTokenValid = getIsAccessTokenValid(accessToken, tokenExpiryDate);
-			if (isAccessTokenValid) {
-				resolve({
-					token: accessToken,
-					tokenExpires: tokenExpires,
-					refreshToken: refreshToken
+		var tokenExpiryDate = new Date(tokenExpires);
+		var isAccessTokenValid = getIsAccessTokenValid(accessToken, tokenExpiryDate);
+		if (isAccessTokenValid) {
+			return Promise.resolve({
+				token: accessToken,
+				tokenExpires: tokenExpires,
+				refreshToken: refreshToken
+			});
+		} else {
+			return renewAccessToken(clientId, clientSecret, accessToken, refreshToken)
+				.then(function(authDetails) {
+					var accessToken = authDetails.token;
+					var tokenExpires = authDetails.tokenExpires;
+					var refreshToken = authDetails.refreshToken;
+					return {
+						token: accessToken,
+						tokenExpires: tokenExpires,
+						refreshToken: refreshToken
+					};
 				});
-			} else {
-				resolve(
-					renewAccessToken(clientId, clientSecret, accessToken, refreshToken)
-						.then(function(authDetails) {
-							var accessToken = authDetails.token;
-							var tokenExpires = authDetails.tokenExpires;
-							var refreshToken = authDetails.refreshToken;
-							return {
-								token: accessToken,
-								tokenExpires: tokenExpires,
-								refreshToken: refreshToken
-							};
-						})
-				);
-			}
-		});
+		}
 
 
 		function getIsAccessTokenValid(accessToken, tokenExpiryDate) {
