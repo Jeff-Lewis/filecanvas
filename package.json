@@ -77,7 +77,6 @@
     "simple-dom": "^0.2.7",
     "simple-mime": "^0.1.0",
     "slug": "^0.9.1",
-    "through2": "^2.0.1",
     "trace": "^1.2.0",
     "uuid": "^2.0.1",
     "vdom-virtualize": "^1.0.5",

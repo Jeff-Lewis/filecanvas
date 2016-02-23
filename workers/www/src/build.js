@@ -2,7 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var through = require('through2');
+var stream = require('stream');
 var copy = require('recursive-copy');
 var Handlebars = require('handlebars');
 
@@ -25,49 +25,61 @@ module.exports = function(source, destination, context, callback) {
 
 	function transform(src, dest, stats) {
 		if (isTemplatePath(src)) {
-			return processTemplate(src, dest, stats);
+			return createTemplateTransformStream(src, dest, stats);
 		} else if (isStylesheetPath(src) && !isMinifiedPath(src)) {
-			return processStylesheet(src, dest, stats);
+			return createStylesheetTransformStream(src, dest, stats);
 		} else {
 			return null;
 		}
 
 
-		function processTemplate(src, dest, stats) {
-			return through(function(chunk, enc, done) {
-				var templateSource = chunk.toString();
-				var output = renderHandlebarsTemplate(templateSource, handlebarsHelpers, context);
-				done(null, output);
+		function createTemplateTransformStream(src, dest, stats) {
+			return createAtomicTextTransformStream(function(source) {
+				return renderHandlebarsTemplate(source, handlebarsHelpers, context);
 			});
 		}
 
-
-		function processStylesheet(src, dest, stats) {
+		function createStylesheetTransformStream(src, dest, stats) {
 			var parentPath = path.dirname(src);
-			return through(function(chunk, enc, done) {
-				var css = chunk.toString();
-				var output = inlineSvgImages(css, parentPath);
-				done(null, output);
+			return createAtomicTextTransformStream(function(css) {
+				return inlineSvgImages(css, parentPath);
+			});
 
-				function inlineSvgImages(css, parentPath) {
-					var RELATIVE_SVG_URL_REGEXP = /url\(['"]?(?!(?:\w+:))([^/'"].*?\.svg)['"]?\)/g;
-					return css.replace(RELATIVE_SVG_URL_REGEXP, function(match, url) {
-						var svgPath = path.resolve(parentPath, url);
-						try {
-							var svgContents = getSvgContents(svgPath);
-							return 'url(\'' + getSvgDataUri(svgContents) + '\')';
-						} catch (error) {
-							return match;
-						}
-					});
-				}
 
-				function getSvgContents(filePath) {
-					return fs.readFileSync(filePath, { encoding: 'utf8' });
-				}
+			function inlineSvgImages(css, parentPath) {
+				var RELATIVE_SVG_URL_REGEXP = /url\(['"]?(?!(?:\w+:))([^/'"].*?\.svg)['"]?\)/g;
+				return css.replace(RELATIVE_SVG_URL_REGEXP, function(match, url) {
+					var svgPath = path.resolve(parentPath, url);
+					try {
+						var svgContents = getSvgContents(svgPath);
+						return 'url(\'' + getSvgDataUri(svgContents) + '\')';
+					} catch (error) {
+						return match;
+					}
+				});
+			}
 
-				function getSvgDataUri(svgData) {
-					return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+			function getSvgContents(filePath) {
+				return fs.readFileSync(filePath, { encoding: 'utf8' });
+			}
+
+			function getSvgDataUri(svgData) {
+				return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+			}
+		}
+
+		function createAtomicTextTransformStream(transformFn) {
+			var buffer = '';
+			return new stream.Transform({
+				encoding: 'utf8',
+				transform: function(chunk, enc, done) {
+					buffer += chunk.toString();
+					done();
+				},
+				flush: function(done) {
+					var output = transformFn(buffer);
+					this.push(output);
+					done();
 				}
 			});
 		}
