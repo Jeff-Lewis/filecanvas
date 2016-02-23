@@ -1,7 +1,11 @@
 'use strict';
 
-var xhr = require('../../utils/xhr');
+var path = require('path');
 
+var xhr = require('../../utils/xhr');
+var GoogleUploader = require('./GoogleUploader');
+
+var FileModel = require('../../../src/models/FileModel');
 var TransferBatch = require('./TransferBatch');
 
 var DROPBOX_UPLOAD_API_METHOD = 'PUT';
@@ -68,6 +72,7 @@ Api.prototype.uploadFiles = function(files, options) {
 		return new $.Deferred().resolve().promise();
 	}
 	var deferred = new $.Deferred();
+	var self = this;
 	var queue = new TransferBatch(files);
 	var currentIndex = -1;
 	var activeTransfer = loadNextFile();
@@ -170,6 +175,8 @@ Api.prototype.uploadFiles = function(files, options) {
 		switch (adapterConfig.adapter) {
 			case 'dropbox':
 				return uploadDropboxFile(file, adapterConfig);
+			case 'google':
+				return uploadGoogleFile(file, adapterConfig);
 			case 'local':
 				return uploadLocalFile(file, adapterConfig);
 			default:
@@ -195,6 +202,66 @@ Api.prototype.uploadFiles = function(files, options) {
 				headers: headers,
 				body: file.data
 			});
+		}
+
+		function uploadGoogleFile(file, options) {
+			var sitePath = options.path;
+			var accessToken = options.token;
+			var fullPath = path.join(sitePath, file.path);
+			var parentPath = path.dirname(fullPath);
+			var filename = path.basename(file.path);
+			return loadGoogleFolderMetadata(parentPath)
+				.then(function(folderMetadata) {
+					var parentFolderId = folderMetadata.id;
+					return writeFile(filename, parentFolderId, file.data, accessToken)
+						.then(function(fileMetadata) {
+							return new FileModel({
+								id: fileMetadata.id,
+								path: file.path,
+								mimeType: fileMetadata.mimeType,
+								size: fileMetadata.fileSize || 0,
+								modified: fileMetadata.modifiedDate,
+								thumbnail: fileMetadata.thumbnailLink
+							});
+						});
+				});
+
+
+			function loadGoogleFolderMetadata(folderPath) {
+				return self.retrieveFileMetadata('google', folderPath);
+			}
+
+			function writeFile(filename, parentFolderId, data, accessToken) {
+				var mimeType = data.type;
+				var fileMetadata = {
+					title: filename,
+					mimeType: mimeType,
+					parents: [
+						{ id: parentFolderId }
+					]
+				};
+				var deferred = new $.Deferred();
+				var uploader = new GoogleUploader({
+					token: accessToken,
+					metadata: fileMetadata,
+					file: data,
+					onProgress: function(event) {
+						if (!event.lengthComputable) { return; }
+						deferred.notify({
+							bytesLoaded: event.loaded,
+							bytesTotal: event.total
+						});
+					},
+					onComplete: function(response) {
+						deferred.resolve(response);
+					},
+					onError: function(error) {
+						deferred.reject(error);
+					}
+				});
+				uploader.upload();
+				return deferred.promise();
+			}
 		}
 
 		function uploadLocalFile(file, options) {
