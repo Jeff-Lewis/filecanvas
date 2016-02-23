@@ -4,7 +4,6 @@ var objectAssign = require('object-assign');
 var express = require('express');
 var composeMiddleware = require('compose-middleware').compose;
 
-var legalApp = require('./admin/legal');
 var faqApp = require('./admin/faq');
 var supportApp = require('./admin/support');
 var accountApp = require('./admin/account');
@@ -44,11 +43,11 @@ module.exports = function(database, cache, options) {
 	var partialsPath = options.partialsPath;
 	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
-	var legalTemplatesPath = options.legalTemplatesPath;
 	var faqPath = options.faqPath;
 	var siteTemplatePath = options.siteTemplatePath;
 	var adminAssetsUrl = options.adminAssetsUrl;
 	var themesUrl = options.themesUrl;
+	var wwwUrl = options.wwwUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
 	var uploadAdapterConfig = options.uploadAdapter;
@@ -62,12 +61,12 @@ module.exports = function(database, cache, options) {
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
-	if (!legalTemplatesPath) { throw new Error('Missing legal templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!faqPath) { throw new Error('Missing FAQ path'); }
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
+	if (!wwwUrl) { throw new Error('Missing www URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
@@ -98,9 +97,6 @@ module.exports = function(database, cache, options) {
 	});
 	initHome(app, {
 		redirect: '/canvases'
-	});
-	initLegal(app, {
-		templatesPath: legalTemplatesPath
 	});
 	initFaq(app, {
 		templatesPath: templatesPath,
@@ -163,15 +159,6 @@ module.exports = function(database, cache, options) {
 		var redirectUrl = options.redirect;
 
 		app.get('/', ensureAuth('/login'), redirect(redirectUrl));
-	}
-
-	function initLegal(app, options) {
-		options = options || {};
-		var templatesPath = options.templatesPath;
-
-		app.use('/', legalApp({
-			templatesPath: templatesPath
-		}));
 	}
 
 	function initFaq(app, options) {
@@ -405,9 +392,12 @@ module.exports = function(database, cache, options) {
 								sites: '/canvases',
 								sitesCreate: '/canvases/create-canvas',
 								sitesCreateThemes: '/canvases/create-canvas/themes',
-								preview: '/preview',
-								terms: '/terms',
-								privacy: '/privacy'
+								preview: '/preview'
+							},
+							www: {
+								root: wwwUrl,
+								terms: stripTrailingSlash(wwwUrl) + '/terms',
+								privacy: stripTrailingSlash(wwwUrl) + '/privacy'
 							}
 						},
 						sites: sortedSiteModels

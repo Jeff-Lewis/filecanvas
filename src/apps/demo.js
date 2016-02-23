@@ -187,8 +187,12 @@ module.exports = function(database, cache, options) {
 						sites: '/editor/canvases'
 					},
 					admin: {
-						root: adminUrl,
-						terms: stripTrailingSlash(adminUrl) + '/terms'
+						root: adminUrl
+					},
+					www: {
+						root: wwwUrl,
+						terms: stripTrailingSlash(wwwUrl) + '/terms',
+						privacy: stripTrailingSlash(wwwUrl) + '/privacy'
 					}
 				}
 			};

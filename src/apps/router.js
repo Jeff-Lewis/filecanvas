@@ -80,7 +80,6 @@ module.exports = function(database, cache, config) {
 	var adminTemplatesPath = path.join(templatesPath, 'admin');
 	var demoTemplatesPath = path.join(templatesPath, 'demo');
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
-	var legalTemplatesPath = path.join(templatesPath, 'legal');
 	var faqPath = path.join(adminTemplatesPath, 'faq.json');
 	var errorTemplatesPath = path.join(templatesPath, 'error');
 	var siteTemplatePath = path.join(templatesPath, 'site');
@@ -130,12 +129,12 @@ module.exports = function(database, cache, config) {
 			templatesPath: adminTemplatesPath,
 			partialsPath: partialsPath,
 			errorTemplatesPath: errorTemplatesPath,
-			legalTemplatesPath: legalTemplatesPath,
 			themesPath: themesPath,
 			faqPath: faqPath,
 			siteTemplatePath: siteTemplatePath,
 			adminAssetsUrl: adminAssetsUrl,
 			themesUrl: themesUrl,
+			wwwUrl: wwwUrl,
 			adapters: config.adapters,
 			uploadAdapter: config.uploaders.admin,
 			siteAuth: config.auth.site
