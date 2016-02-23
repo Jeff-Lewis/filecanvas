@@ -5,22 +5,29 @@ var path = require('path');
 var stream = require('stream');
 var copy = require('recursive-copy');
 var Handlebars = require('handlebars');
+var objectAssign = require('object-assign');
+var frontMatter = require('front-matter');
 
 var handlebarsHelpers = require('./helpers');
 
 var HANDLEBARS_TEMPLATE_EXTENSIONS = ['.hbs', '.handlebars'];
+var MARKDOWN_TEMPLATE_EXTENSIONS = ['.md', '.markdown'];
 var STYLESHEET_EXTENSIONS = ['.css'];
 
 var HANDLEBARS_PARTIALS_DIRECTORY_NAME = '_partials';
+var HANDLEBARS_TEMPLATES_DIRECTORY_NAME = '_templates';
 
 module.exports = function(source, destination, context, callback) {
 	var handlebarsPartialsPath = path.resolve(source, HANDLEBARS_PARTIALS_DIRECTORY_NAME);
+	var handlebarsTemplatesPath = path.resolve(source, HANDLEBARS_TEMPLATES_DIRECTORY_NAME);
 	var handlebarsOptions = {
 		helpers: handlebarsHelpers,
 		partials: loadHandlebarsTemplates(handlebarsPartialsPath, {
 			helpers: handlebarsHelpers
 		})
 	};
+	var handlebarsTemplates = loadHandlebarsTemplates(handlebarsTemplatesPath, handlebarsOptions);
+
 	return copy(source, destination, {
 		rename: rename,
 		transform: transform,
@@ -49,12 +56,14 @@ module.exports = function(source, destination, context, callback) {
 	}
 
 	function rename(filePath) {
-		return (isTemplatePath(filePath) ? swapExtension(filePath, '.html') : filePath);
+		return (isTemplatePath(filePath) || isMarkdownPath(filePath) ? swapExtension(filePath, '.html') : filePath);
 	}
 
 	function transform(src, dest, stats) {
 		if (isTemplatePath(src)) {
 			return createTemplateTransformStream(src, dest, stats);
+		} else if (isMarkdownPath(src)) {
+			return createMarkdownTransformStream(src, dest, stats);
 		} else if (isStylesheetPath(src) && !isMinifiedPath(src)) {
 			return createStylesheetTransformStream(src, dest, stats);
 		} else {
@@ -65,6 +74,18 @@ module.exports = function(source, destination, context, callback) {
 		function createTemplateTransformStream(src, dest, stats) {
 			return createAtomicTextTransformStream(function(source) {
 				return renderHandlebarsTemplate(source, context, handlebarsOptions);
+			});
+		}
+
+		function createMarkdownTransformStream(src, dest, stats) {
+			var markdownTemplate = handlebarsTemplates['markdown'];
+			return createAtomicTextTransformStream(function(markdown) {
+				var article = frontMatter(markdown);
+				var templateData = {
+					title: article.attributes.title,
+					content: article.body
+				};
+				return renderHandlebarsTemplate(markdownTemplate, objectAssign(templateData, context), handlebarsOptions);
 			});
 		}
 
@@ -117,6 +138,12 @@ module.exports = function(source, destination, context, callback) {
 	function isTemplatePath(filePath) {
 		var fileExtension = path.extname(filePath);
 		var isTemplate = (HANDLEBARS_TEMPLATE_EXTENSIONS.indexOf(fileExtension) !== -1);
+		return isTemplate;
+	}
+
+	function isMarkdownPath(filePath) {
+		var fileExtension = path.extname(filePath);
+		var isTemplate = (MARKDOWN_TEMPLATE_EXTENSIONS.indexOf(fileExtension) !== -1);
 		return isTemplate;
 	}
 

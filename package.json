@@ -86,6 +86,7 @@
   },
   "devDependencies": {
     "adm-zip": "^0.4.7",
+    "front-matter": "^2.0.6",
     "imagemagick-native": "^1.9.1",
     "pageres": "^4.1.0"
   }

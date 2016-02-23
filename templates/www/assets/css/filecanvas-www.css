@@ -887,3 +887,16 @@ fieldset[disabled] .btn {
 		margin-bottom: 25px;
 	}
 }
+
+.article-markdown {
+	margin-top: 20px;
+	margin-bottom: 60px;
+}
+.article-markdown .h1,
+.article-markdown h1,
+.article-markdown .h2,
+.article-markdown h2,
+.article-markdown .h3,
+.article-markdown h3 {
+    margin-top: 40px;
+}
