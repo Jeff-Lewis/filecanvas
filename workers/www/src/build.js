@@ -11,13 +11,42 @@ var handlebarsHelpers = require('./helpers');
 var HANDLEBARS_TEMPLATE_EXTENSIONS = ['.hbs', '.handlebars'];
 var STYLESHEET_EXTENSIONS = ['.css'];
 
+var HANDLEBARS_PARTIALS_DIRECTORY_NAME = '_partials';
+
 module.exports = function(source, destination, context, callback) {
+	var handlebarsPartialsPath = path.resolve(source, HANDLEBARS_PARTIALS_DIRECTORY_NAME);
+	var handlebarsOptions = {
+		helpers: handlebarsHelpers,
+		partials: loadHandlebarsTemplates(handlebarsPartialsPath, {
+			helpers: handlebarsHelpers
+		})
+	};
 	return copy(source, destination, {
 		rename: rename,
 		transform: transform,
+		filter: [
+			'**/*',
+			'!_*',
+			'!_*/**/*'
+		],
 		expand: true
 	});
 
+
+	function loadHandlebarsTemplates(templatesDir, handlebarsOptions) {
+		return fs.readdirSync(templatesDir)
+			.filter(function(filename) {
+				return isTemplatePath(filename);
+			})
+			.reduce(function(templates, filename) {
+				var templateId = path.basename(filename, path.extname(filename));
+				var templatePath = path.join(templatesDir, filename);
+				var templateSource = fs.readFileSync(templatePath, { encoding: 'utf8' });
+				var templateTemplate = compileHandlebarsTemplate(templateSource, handlebarsOptions);
+				templates[templateId] = templateTemplate;
+				return templates;
+			}, {});
+	}
 
 	function rename(filePath) {
 		return (isTemplatePath(filePath) ? swapExtension(filePath, '.html') : filePath);
@@ -35,7 +64,7 @@ module.exports = function(source, destination, context, callback) {
 
 		function createTemplateTransformStream(src, dest, stats) {
 			return createAtomicTextTransformStream(function(source) {
-				return renderHandlebarsTemplate(source, handlebarsHelpers, context);
+				return renderHandlebarsTemplate(source, context, handlebarsOptions);
 			});
 		}
 
@@ -83,18 +112,6 @@ module.exports = function(source, destination, context, callback) {
 				}
 			});
 		}
-
-		function renderHandlebarsTemplate(template, helpers, context) {
-			var compiler = Handlebars.create();
-			compiler.registerHelper(helpers);
-			if (typeof template === 'string') {
-				template = compiler.compile(template, {
-					knownHelpers: helpers,
-					knownHelpersOnly: true
-				});
-			}
-			return template(context);
-		}
 	}
 
 	function isTemplatePath(filePath) {
@@ -116,5 +133,26 @@ module.exports = function(source, destination, context, callback) {
 
 	function swapExtension(filePath, extension) {
 		return path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)) + extension);
+	}
+
+	function compileHandlebarsTemplate(source, options) {
+		options = options || {};
+		var helpers = options.helpers || {};
+		var partials = options.partials || {};
+		var compiler = Handlebars.create();
+		compiler.registerHelper(helpers);
+		compiler.registerPartial(partials);
+		var template = compiler.compile(source, {
+			knownHelpers: helpers,
+			knownHelpersOnly: true
+		});
+		return template;
+	}
+
+	function renderHandlebarsTemplate(template, context, options) {
+		if (typeof template === 'string') {
+			template = compileHandlebarsTemplate(template, options);
+		}
+		return template(context);
 	}
 };
