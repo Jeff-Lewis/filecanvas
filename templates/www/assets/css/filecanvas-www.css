@@ -6,22 +6,7 @@ body {
 	font-family: 'Lato', 'Helvetica', 'Arial', sans-serif;
 	font-variant-ligatures: none;
 }
-h2,
-.h2 {
-	font-size: 24px;
-}
-h5,
-.h5 {
-	font-size: 16px;
-	line-height: 1.42857143;
-	margin-bottom: 30px;
-}
-@media screen and (min-width: 768px) {
-	h2,
-	.h2 {
-		font-size: 40px;
-	}
-}
+
 .btn {
 	text-transform: uppercase;
 }
@@ -33,11 +18,13 @@ h5,
 fieldset[disabled] .btn {
 	cursor: default;
 }
+
 .tooltip,
 .popover {
 	font-family: inherit;
 	font-size: 14px;
 }
+
 .well {
 	box-shadow: none;
 	-webkit-box-shadow: none;
@@ -50,6 +37,7 @@ fieldset[disabled] .btn {
 .well p {
 	font-size: 16px;
 }
+
 .anchor {
 	display: block;
 	position: relative;
@@ -674,6 +662,22 @@ fieldset[disabled] .btn {
 .page-section {
 	padding-top: 40px;
 	padding-bottom: 40px;
+}
+.page-section h2,
+.page-section .h2 {
+	font-size: 24px;
+}
+.page-section h5,
+.page-section .h5 {
+	font-size: 16px;
+	line-height: 1.42857143;
+	margin-bottom: 30px;
+}
+@media screen and (min-width: 768px) {
+	.page-section h2,
+	.page-section .h2 {
+		font-size: 40px;
+	}
 }
 .page-section:nth-child(even) {
 	background-color: #fefefe;
