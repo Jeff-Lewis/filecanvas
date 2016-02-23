@@ -776,7 +776,7 @@ function initLivePreview(callback) {
 			var filteredFiles = getFilteredFiles(files);
 			var prefixedFiles = filteredFiles.map(function(file) {
 				return {
-					path: (pathPrefix ? pathPrefix + '/' : '') + file.path,
+					path: path.join(pathPrefix, file.path),
 					data: file.data
 				};
 			});
@@ -863,7 +863,7 @@ function initLivePreview(callback) {
 
 
 					function insertFile(file, filePath, rootFolder) {
-						var pathSegments = filePath.substr('/'.length).split('/');
+						var pathSegments = filePath.replace(/^\//, '').split('/');
 						if (pathSegments.length > 1) {
 							var parentFilename = pathSegments[0];
 							var childPath = pathSegments.slice(1).join('/');
