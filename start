@@ -11,8 +11,8 @@ npm run prestart
 
 rm -rf data/nginx
 mkdir -p data/nginx
-cp services/nginx/init.sh data/nginx/init.sh
-cp -r services/nginx/nginx/conf/ data/nginx/config/
+cp services/router/init.sh data/nginx/init.sh
+cp -r services/router/nginx/conf/ data/nginx/config/
 NGINX_CONFIG_REPLACEMENTS=(
 	's/\/opt\/openresty\/nginx\/conf\//'${PWD//\//\\\/}'\/data\/nginx\/config\//g'
 	's/\/var\/www/'${PWD//\//\\\/}'\/data\/nginx\/www/g'

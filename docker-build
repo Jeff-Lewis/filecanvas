@@ -24,7 +24,7 @@ else
 		if [ $IMAGE_NAME == "app" ]; then
 			IMAGE_PATH=.
 		elif [ $IMAGE_NAME == "router" ]; then
-			IMAGE_PATH=./services/nginx/
+			IMAGE_PATH=./services/router/
 		else
 			echo "Invalid image name: $IMAGE_NAME"
 			exit 1
