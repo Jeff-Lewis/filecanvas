@@ -1,4 +1,9 @@
 {{#>index title=title host=host}}
+	{{#*inline 'navigation'}}
+		<li role="presentation"><a href="/">Home</a></li>
+		<li role="presentation"><a href="/#sign-up">Sign up</a></li>
+		<li role="presentation"><a href="{{ subdomain host=host subdomain='my' }}">Log in</a></li>
+	{{/inline}}
 	{{#*inline 'content'}}
 		<article class="article-markdown container">
 			{{ markdown content }}
