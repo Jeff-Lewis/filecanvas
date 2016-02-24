@@ -191,6 +191,7 @@ module.exports = function(database, cache, options) {
 					},
 					www: {
 						root: wwwUrl,
+						security: stripTrailingSlash(wwwUrl) + '/security',
 						terms: stripTrailingSlash(wwwUrl) + '/terms',
 						privacy: stripTrailingSlash(wwwUrl) + '/privacy'
 					}
