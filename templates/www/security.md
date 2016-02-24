@@ -49,7 +49,7 @@ This means Filecanvas needs some method of authenticating with your cloud storag
 
 The cloud storage provider handles this by granting Filecanvas an *access token*. This provides a much safer alternative than sharing your login details. It's effectively like granting guest access to Filecanvas.
 
-- In the extremely unlikely event that an attacker manages to intercept this access token, the token can be instantly revoked, rendering it useless to the attacker
+- In the extremely unlikely event that an attacker manages to intercept this access token, the token can be instantly revoked, making it useless to the attacker
 	- Even if an access token is somehow compromised, your cloud storage account username and password are still completely safe
 	- There is no way an attacker can use your access token to lock you out of your account
 - You can choose to revoke your access token at any time from your cloud storage provider's account settings area, however this will prevent Filecanvas from being able to list your files and therefore your canvases will suddenly appear empty
@@ -70,7 +70,7 @@ When you create a canvas, Filecanvas automatically creates a synced folder for y
 
 ### Why does Filecanvas need to access my cloud storage when I'm not logged in?
 
-Filecanvas needs this for its automatic folder syncing. Whenever you update a file within a synced folder, this needs to be reflected in your canvas. Seeing as you may or may not be logged into the Filecanvas admin area at this point, offline API access ensures that your canvases are always up to date regardless of when you last logged in.
+Filecanvas needs this for its automatic folder syncing. Whenever you update a file within a synced folder, this needs to be reflected in your canvas. Seeing as you may or may not be logged into the Filecanvas admin area at this point, offline API access ensures that your canvases are kept up to date regardless of when you last logged in.
 
 ### Why does Filecanvas need access to the files outside its own folder?
 
@@ -94,27 +94,27 @@ Once you've authorised the Filecanvas app, the Filecanvas service is given an ac
 
 This communication happens via their web API (Application Programming Interface) – a service that allows the Filecanvas servers to communicate with your cloud storage provider's servers.
 
-Filecanvas uses your cloud storage provider's API to perform the following functions:
+Filecanvas uses your cloud storage provider's API to perform the following functions (where "synced folder" refers to a folder created by Filecanvas):
 
-- List folder contents and file metadata
+- **List folder hierarchy and file metadata within your synced folders**
 	- This is necessary so that Filecanvas can display the contents of your synced folders when a user visits your canvas
 	- Rather than loading the contents of the file themselves, Filecanvas just uses file "metadata" (e.g. filename, filesize, size, etc) to display the files to the user
-- Display file preview thumbnails
+- **Display file preview thumbnails within your synced folders**
 	- When a user visits your canvas, Filecanvas shows file preview thumbnails for various file types
 	- These thumbnails are created by your cloud storage provider – Filecanvas just passes them on to the user as-is, without storing them
-- Download files from your synced folders
+- **Download files from your synced folders**
 	- When a user chooses to download a file from your canvas, Filecanvas creates a temporary download link that allows the user to download the file
 	- These links expire within several hours, and contain a randomly generated unique ID to prevent unauthorised access
 	- In order to prevent leaking your access token to the end user, these links may be proxied through a Filecanvas server. Filecanvas performs this proxying service solely to shield your sensitive information from the end user, and does not sniff or store the contents of the file during transfer
 	- This technique is also used to allow users to preview files within your canvas, and to allow users to visit web links that have been saved as shortcut files
-- Create a folder
+- **Create a folder**
 	- When you create a canvas, Filecanvas automatically creates a synced folder for you to put your files in
 	- This folder may contain example content, e.g. a "Getting Started" guide or an album of placeholder photos
 	- Filecanvas will never create a folder within your cloud storage without your express authorisation
-- Upload files to your synced folders
+- **Upload files to your synced folders**
 	- This is necessary to allow you to upload files to your canvases via the web interface
 	- Filecanvas will never upload files to your cloud storage without your express authorisation
-- Delete a folder
+- **Delete a synced folder**
 	- When you delete a canvas, Filecanvas may ask you if you also want to delete the synced folder
 	- Filecanvas will never delete a folder within your cloud storage without your express authorisation
 
@@ -123,13 +123,12 @@ Filecanvas uses your cloud storage provider's API to perform the following funct
 
 You can choose to restrict access to your canvases by adding password protection, so that users have to log in before they are able to access the contents of the canvas.
 
-Unlike your account login, these passwords _are_ handled by the Filecanvas servers. We take the following steps to ensure these passwords are kept safe:
+Unlike your account login, these passwords _are_ handled by the Filecanvas servers. We use the following best practices to ensure these passwords are kept safe:
 
-- Passwords are combined with a randomly-generated per-password salt and hashed, and the resulting hash is stored to a database.
-- This means that the password itself is never stored in the database, only the hash.
+- Passwords are combined with a randomly-generated per-password salt and hashed using the **bcrypt** algorithm, and the resulting hash is stored to a database.
+- This means that the password itself is never stored in the database, only the salted hash.
 - The password cannot be derived from the hash. Even if an attacker were to obtain the hash it would be computationally infeasible to trace that back to the original password.
-- The **bcrypt** algorithm is used for the hashing process.
-- This means that for by design, we have no way of retrieving a lost password for a password-protected canvas. If you lose a canvas user's password, you'll have to create a new password for that user in the canvas's settings page.
+- This means that by design, we have no way of retrieving a lost password for a password-protected canvas. If you lose a canvas user's password, you'll have to create a new password for that user in the canvas's settings page.
 
 
 ## Get in touch
