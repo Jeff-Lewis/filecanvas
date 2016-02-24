@@ -530,6 +530,20 @@ button.bg-bluegrey:hover :not(:disabled) {
 	}
 }
 
+.security-banner {
+	padding: 10px 15px;
+	background-color: rgba(0, 0, 0, 0.1);
+}
+.security-banner-message {
+	color: white;
+	margin-bottom: 0;
+	margin-left: 45px;
+}
+.security-banner-link {
+	display: block;
+	margin-left: 45px;
+}
+
 @media screen and (max-width: 767px) {
 	.xs-no-margin { margin: 0!important }
 	.xs-mn { margin-right: -15px; margin-left: -15px }
