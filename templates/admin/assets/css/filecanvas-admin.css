@@ -533,15 +533,36 @@ button.bg-bluegrey:hover :not(:disabled) {
 .security-banner {
 	padding: 10px 15px;
 	background-color: rgba(0, 0, 0, 0.1);
+	text-align: center;
+}
+.security-banner-icon {
+	display: block;
+	text-align: center;
+	margin-bottom: 5px;
 }
 .security-banner-message {
 	color: white;
 	margin-bottom: 0;
-	margin-left: 45px;
 }
 .security-banner-link {
 	display: block;
-	margin-left: 45px;
+}
+@media screen and (min-width: 480px) {
+	.security-banner {
+		text-align: left;
+	}
+	.security-banner-icon {
+		display: inline;
+		float: left;
+		margin-bottom: 0;
+	}
+	.security-banner-message {
+		margin-left: 45px;
+	}
+	.security-banner-link {
+		display: block;
+		margin-left: 45px;
+	}
 }
 
 @media screen and (max-width: 767px) {
