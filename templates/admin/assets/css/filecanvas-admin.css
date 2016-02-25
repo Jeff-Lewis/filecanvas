@@ -506,13 +506,23 @@ button.bg-bluegrey:hover :not(:disabled) {
 	}
 }
 
+.login-panel h4 {
+	font-size: 15px;
+}
+
+@media screen and (min-width:360px) {
+	.login-panel h4 {
+		font-size: 18px;
+	}
+}
+
 @media screen and (min-width:768px) {
 	.register-panel {
 		margin-top: 100px;
 	}
 
 	.login-panel {
-		margin-top: 130px;
+		margin-top: 60px;
 	}
 
 	.form-centered {
@@ -937,17 +947,38 @@ blockquote::before {
 }
 
 .brand-logo {
-	font-weight: 200;
+	font-family: 'Lato', 'Helvetica', 'Arial', sans-serif;
+	font-weight: normal;
+	-webkit-font-smoothing: subpixel-antialiased;
 }
-.brand-logo strong {
-	font-weight: 500;
+.brand-logo::before {
+	content: '';
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	vertical-align: top;
+	margin-top: -3px;
+	margin-right: 2px;
+	background-image: url('images/logo-32x32-white.svg');
 }
 .brand-logo a {
 	text-decoration: none;
 }
+.brand .brand-logo {
+	float: none;
+	opacity: 1;
+}
 .login-panel .brand-logo {
 	font-size: 48px;
-	color: #e3e5e8;
+	color: white;
+	opacity: 0.9;
+}
+.login-panel .brand-logo::before {
+	display: block;
+	width: 96px;
+	height: 96px;
+	margin: 0 auto;
+	background-image: url('images/logo-96x96-white.svg');
 }
 
 .navbar .brand-logo,
@@ -991,7 +1022,22 @@ blockquote::before {
 .sidebar-panel > nav li.open > a > span {
 	text-indent: 3px;
 }
-
+.sidebar-panel > .brand .brand-logo {
+	padding-left: 20px;
+	margin-top: 15px;
+}
+.sidebar-panel > .brand a {
+	display: block;
+	text-decoration: none;
+	color: white;
+	opacity: 0.6;
+}
+.sidebar-panel > .brand a:hover,
+.sidebar-panel > .brand a:active,
+.sidebar-panel > .brand a:focus {
+	color: white;
+	opacity: 1;
+}
 .title-bar {
 	height: 55px;
 	padding: 10px;
@@ -1006,10 +1052,15 @@ body.full-page .title-bar {
 	height: 35px;
 }
 .title-bar .brand a {
-    color: #b2b6be;
+	text-decoration: none;
+	display: block;
+    color: white;
+	opacity: 0.6;
 }
-.title-bar .brand a:hover {
-    color: #c0c3ca;
+.title-bar .brand a:hover,
+.title-bar .brand a:active,
+.title-bar .brand a:focus {
+	opacity: 1;
 }
 .title-bar-header {
 	float: left;
@@ -1019,8 +1070,13 @@ body.full-page .title-bar {
 }
 .title-bar-header-title .brand-logo {
 	margin: 0 10px;
-	line-height: 35px;
-	padding: 0;
+	line-height: 34px;
+	padding: 0 0 1px;
+}
+.title-bar-header-title .brand-logo::before {
+	margin-top: 1px;
+	margin-bottom: 2px;
+	margin-right: 3px;
 }
 .title-bar-header-subtitle {
 	float: left;

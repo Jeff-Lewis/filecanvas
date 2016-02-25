@@ -9,6 +9,7 @@
 		<link rel="shortcut icon" href="/favicon.ico"/>
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/app.min.css"/>
 		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/filecanvas-admin.css"/>
 		{{#>styles}}{{/styles}}
 		<title>{{#if title}}{{ title }} | {{/if}}Filecanvas</title>
@@ -18,7 +19,7 @@
 			{{#if navigation}}
 			<div class="sidebar-panel offscreen-left">
 				<div class="brand">
-					<h3 class="brand-logo"><a href="{{ session.urls.home }}">File<strong>canvas</strong></a></h3>
+					<a href="{{ session.urls.home }}"><h3 class="brand-logo">Filecanvas</h3></a>
 				</div>
 				<nav role="navigation">
 					<ul class="nav">
@@ -52,7 +53,7 @@
 								<span></span><span></span><span></span>
 							</a>
 						</div>
-						<h3 class="brand-logo"><a href="{{ session.urls.home }}">File<strong>canvas</strong></a></h3>
+						<a href="{{ session.urls.home }}"><h3 class="brand-logo">Filecanvas</h3></a>
 					</div>
 					{{#>navbar}}{{/navbar}}
 					<ul class="nav navbar-nav navbar-right hidden-xs">
@@ -81,7 +82,7 @@
 						<div class="title-bar-header">
 							<div class="title-bar-header-title">
 								<div class="brand">
-									<h3 class="brand-logo"><a href="{{ session.urls.home }}">File<strong>canvas</strong></a></h3>
+									<a href="{{ session.urls.home }}"><h3 class="brand-logo">Filecanvas</h3></a>
 								</div>
 							</div>
 							{{#if headerTitle}}
