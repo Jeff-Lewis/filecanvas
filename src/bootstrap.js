@@ -32,7 +32,7 @@ Promise.all([
 		return app;
 	})
 	.then(function(app) {
-		captureErrors();
+		captureErrors({ external: true });
 		return app;
 	})
 	.then(function(app) {

@@ -1,9 +1,12 @@
 'use strict';
 
-module.exports = function() {
+module.exports = function(options) {
+	options = options || {};
+	var shouldShowExternalModuleStackTraces = Boolean(options.external);
+
 	captureFullStackTraces({ limit: 256 });
 	hideNodeCoreStackTraces();
-	hideExternalModuleStackTraces();
+	if (!shouldShowExternalModuleStackTraces) { hideExternalModuleStackTraces(); }
 
 
 	function captureFullStackTraces(options) {
