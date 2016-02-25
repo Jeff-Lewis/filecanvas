@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta name="description" content="A better-looking web dropbox for your files"/>
+		<meta name="author" content=""/>
+		<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAYFJREFUOBGNU7Fqg1AUfT5Cp65+gA5Zil2iP9Ch0DEkbo7FUOjUD+nUUgiFfkAkGQsd8gNxqnRUIYMpWHBopw6ae17eAzWWeuHl3nfOPTfe61VjLXMc56yqqms6l9Pp1AQdBEGiadobnefNZvNRl2jq4rruSZqm9yS8IYxblsXm87mgfd9nURQhLqnIk2EYd4vF4heAKABxkiSvdL8ACBuPx0zXdRHnec5Wq5WI5c/aNM0rFBkAwD+TE+IwDGXOwc1mMzYajRoYcqXmlsue8dh/GlrAqRtahZZjYETwOtkVdxQR2gGm3SVQ2HA4ZGijy6DVqL9vIk9VQnsGClfetm0Vwv/8++j17K4YBbZdRE9sy7FhPZOP0sR24lWUZflOLG+/qiOFBOSGlpzzcwHRYB5omDTUfoZcaCAWQ8RuU7zGhD3PE0WLomC44yCGgcOdbC01hwLYaew29fQ4mUwqZMRxDCdMxeCQo74DxTf8brd7ybLsc7lcfmFHcBADA9dIpsseB6fOhTygFsYAAAAASUVORK5CYII="/>
+		<title>{{error.status}} {{error.message}} | Filecanvas</title>
+		<style type="text/css">
+			body {
+				min-width: 320px;
+				font-size: 13px;
+				line-height: 1.53846154;
+				background-color: #f0f0f0;
+				color: #616161;
+				direction: ltr;
+				font-family: "Helvetica Neue",Helvetica,Arial,Roboto,sans-serif,sans-serif;
+				-webkit-font-smoothing: antialiased;
+			}
+			.error-message {
+				margin-top: 40px;
+				text-align: center;
+				padding-top: 212px;
+				background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22192%22%20height%3D%22192%22%20viewBox%3D%220%200%20192%20192%22%3E%3Cg%20fill%3D%22%23616161%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20d%3D%22M36%20135h120v9h-24l10.5%2037.5-18%204.5-9-42h-39l-9%2042-18-4.5L60%20144H36v-9zM48%2033h66s1.5%205.25%201.5%2013.5S114%2063%20114%2063h31.5v69H48V33zm53%2068.71v-7.42c0-.366-.124-.672-.37-.92-.248-.246-.54-.37-.88-.37h-7.5c-.34%200-.632.124-.88.37-.246.248-.37.554-.37.92v7.42c0%20.366.124.672.37.92.248.246.54.37.88.37h7.5c.34%200%20.632-.124.88-.37.246-.248.37-.554.37-.92zm.25-13.564l.75-17.033c0-.297-.14-.532-.417-.705-.36-.272-.694-.408-1-.408h-9.166c-.306%200-.64.136-1%20.408-.278.173-.417.433-.417.78l.708%2016.958c0%20.248.14.452.417.613.278.16.61.24%201%20.24h7.708c.39%200%20.716-.08.98-.24.263-.162.41-.366.437-.614zm26.143%2017.04c.832%201.514.81%203.028-.07%204.542-.406.697-.96%201.25-1.66%201.66-.702.408-1.457.612-2.265.612H68.602c-.808%200-1.563-.204-2.265-.613-.7-.41-1.254-.962-1.66-1.66-.88-1.513-.902-3.027-.07-4.542l27.398-50.77c.404-.744.963-1.333%201.676-1.766.715-.434%201.488-.65%202.32-.65.832%200%201.605.216%202.32.65.712.432%201.27%201.02%201.675%201.766l27.398%2050.77z%22%2F%3E%3Cpath%20d%3D%22M117%2033s1.5%206.75%201.5%2013.5S117%2060%20117%2060h27l-27-27zM84%2030h24l-4.5-21h-15L84%2030z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E');
+				background-position: center top;
+				background-repeat: no-repeat;
+			}
+			.error-message h1,
+			.error-message h2 {
+				display: inline;
+				font-size: 3em;
+				font-weight: 300;
+				margin: 0 0 10px;
+				padding: 0;
+			}
+			.error-message h1 {
+				padding-right: 5px;
+			}
+			.error-message p {
+				font-size: 1.5em;
+				font-weight: 300;
+				margin: 0;
+				padding: 0;
+			}
+			@media screen and (min-width: 768px) {
+				.error-message p {
+					max-width: 50%;
+					margin: auto;
+				}
+			}
+			.error-message-actions {
+				margin-top: 20px;
+			}
+			.error-message-actions a {
+				display: inline-block;
+				font-size: 1.25em;
+				line-height: 1;
+				padding: 10px;
+				min-width: 60px;
+				background-color: #616161;
+				color: #f0f0f0;
+				text-decoration: none;
+				border-radius: 5px;
+				margin-right: 10px;
+			}
+			.error-message-actions a:last-child {
+				margin-right: 0;
+			}
+			.error-message-actions a:hover,
+			.error-message-actions a:active {
+				background-color: #333;
+			}
+			pre {
+				width: 50%;
+				max-height: 200px;
+				margin: auto;
+				overflow: auto;
+				background-color: white;
+				border-radius: 4px;
+				padding: 10px;
+				margin-top: 40px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="error-message">
+			<h1>{{ error.status }}</h1>
+			<h2>{{ error.message }}</h2>
+			{% if error.stack then %}
+			<p>{{ error.description }}</p>
+			{% end %}
+			<div class="error-message-actions">
+				<a href="javascript:history.go(-1);">Back</a>
+				<a href="/">Home</a>
+				<a href="mailto:info@filecanvas.com?subject=Bug%20report&body=Sorry%20that%20something%20went%20wrong.%20We'll%20do%20our%20best%20to%20fix%20the%20problem%20as%20quickly%20as%20possible.%0A%0ACan%20you%20remember%20what%20you%20clicked%20immediately%20before%20you%20saw%20the%20error%20page%3F%0A%0A%5Btype%20here%5D%0A%0AThanks%20for%20the%20assistance%2C%20we'll%20try%20to%20fix%20this%20straight%20away!%0A%0AFilecanvas" data-report>Report bug</a>
+			</div>
+		</div>
+		{% if error.stack then %}
+		<pre>{{ error.stack }}</pre>
+		{% end %}
+		<script type="text/javascript">
+			setTimeout(function() {
+				(function(q) {(typeof document.querySelectorAll === 'function' ? Array.prototype.slice.call(document.querySelectorAll('a[href*="' + q + '"]')) : Array.prototype.filter.call(document.getElementsByTagName('A'), function(e) { return e.getAttribute('href').indexOf(q) !== -1; })).forEach(function(e) { var u = e.href; e.setAttribute('href', u + encodeURIComponent('\n\n---\n\n' + 'URL: ' + document.location.href + '\n' + 'Referrer: ' + (document.referrer || 'N/A') + '\n' + 'User agent: ' + navigator.userAgent + '\n')); });})('subject=Bug%20report');
+			});
+		</script>
+	</body>
+</html>

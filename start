@@ -22,7 +22,7 @@ NGINX_CONFIG_REPLACEMENTS=(
 	's/sed -i/sed -i '"''"'/g'
 )
 for replacement in "${NGINX_CONFIG_REPLACEMENTS[@]}"; do
-	sed -i '' "$replacement" data/nginx/init.sh data/nginx/config/nginx.conf data/nginx/config/template.d/*
+	sed -i '' "$replacement" data/nginx/init.sh data/nginx/config/nginx.conf data/nginx/config/error.conf data/nginx/config/template.d/*
 done
 mkdir -p data/nginx/www/subdomains
 mkdir -p data/nginx/www/subdomains/assets
