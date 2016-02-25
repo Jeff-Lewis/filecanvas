@@ -37,12 +37,16 @@ Promise.all([
 	})
 	.then(function(app) {
 		var httpPort = config.http.port;
+		var httpTimeout = config.http.timeout;
 		var httpsPort = config.https.port;
+		var httpsTimeout = config.https.timeout;
 		var httpsOptions = config.https;
 
 		serve(app, {
 			httpPort: httpPort,
+			httpTimeout: httpTimeout,
 			httpsPort: httpsPort,
+			httpsTimeout: httpsTimeout,
 			httpsOptions: httpsOptions
 		});
 

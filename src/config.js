@@ -6,11 +6,13 @@ var config = {};
 
 config.http = {};
 config.http.port = Number(process.env.PORT || 80);
+config.http.timeout = Number(process.env.HTTP_TIMEOUT || 20000);
 
 config.https = {};
 config.https.port = process.env.HTTPS === 'true' ? Number(process.env.HTTPS_PORT || 443) : null;
 config.https.cert = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_CERT) : null;
 config.https.key = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_KEY) : null;
+config.https.timeout = Number(process.env.HTTPS_TIMEOUT || config.http.timeout);
 
 config.host = {};
 config.host.hostname = process.env.HOST || 'localhost';
