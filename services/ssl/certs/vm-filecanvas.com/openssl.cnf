@@ -6,7 +6,7 @@ prompt = no
 [req_distinguished_name]
 C = US
 O = Filecanvas
-CN = filecanvas-dev.com
+CN = vm-filecanvas.com
 
 [v3_req]
 subjectKeyIdentifier = hash
@@ -15,5 +15,5 @@ basicConstraints = CA:TRUE
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = filecanvas-dev.com
-DNS.2 = *.filecanvas-dev.com
+DNS.1 = vm-filecanvas.com
+DNS.2 = *.vm-filecanvas.com

@@ -41,6 +41,6 @@ docker run --rm\
 	-p 443:443\
 	--link elasticbeanstalk_router_1:router\
 	-v $(pwd)/services/ssl/nginx.conf:/etc/nginx/nginx.conf\
-	-v $(pwd)/services/ssl/certs/filecanvas-vm.com/cert.pem:/opt/ssl/cert.pem\
-	-v $(pwd)/services/ssl/certs/filecanvas-vm.com/key.pem:/opt/ssl/key.pem\
+	-v $(pwd)/services/ssl/certs/vm-filecanvas.com/cert.pem:/opt/ssl/cert.pem\
+	-v $(pwd)/services/ssl/certs/vm-filecanvas.com/key.pem:/opt/ssl/key.pem\
 	nginx
