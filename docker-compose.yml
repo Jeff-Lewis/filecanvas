@@ -23,6 +23,7 @@ router:
     - ${WWW_SITE_ROOT}:/var/www/subdomains/www
     - ${THEMES_ROOT}:/var/www/subdomains/themes
     - ./templates/admin/assets:/var/www/subdomains/assets/admin
+    - ./templates/router:/var/www/templates
     - ./data/logs/nginx:/var/log/nginx
 app:
   image: filecanvas/app

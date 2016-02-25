@@ -1,0 +1,3 @@
+[submodule "services/router/plugins/lua-resty-template"]
+	path = services/router/plugins/lua-resty-template
+	url = https://github.com/bungle/lua-resty-template

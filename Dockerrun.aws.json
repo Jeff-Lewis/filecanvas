@@ -14,6 +14,12 @@
 			}
 		},
 		{
+			"name": "templates-router",
+			"host": {
+				"sourcePath": "/var/app/current/templates/router"
+			}
+		},
+		{
 			"name": "themes",
 			"host": {
 				"sourcePath": "/var/app/current/themes"
@@ -34,6 +40,10 @@
 				{
 					"sourceVolume": "assets-admin",
 					"containerPath": "/var/www/subdomains/assets/admin"
+				},
+				{
+					"sourceVolume": "templates-router",
+					"containerPath": "/var/www/templates"
 				},
 				{
 					"sourceVolume": "themes",

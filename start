@@ -15,6 +15,7 @@ cp services/router/init.sh data/nginx/init.sh
 cp -r services/router/nginx/conf/ data/nginx/config/
 NGINX_CONFIG_REPLACEMENTS=(
 	's/\/opt\/openresty\/nginx\/conf\//'${PWD//\//\\\/}'\/data\/nginx\/config\//g'
+	's/\/opt\/openresty\/lua-resty-template\//'${PWD//\//\\\/}'\/services\/router\/plugins\/lua-resty-template\/lib\//g'
 	's/\/var\/www/'${PWD//\//\\\/}'\/data\/nginx\/www/g'
 	's/\/var\/run\/nginx.pid/'${PWD//\//\\\/}'\/data\/nginx\/run\/nginx.pid/g'
 	's/\/var\/log\/nginx\//'${PWD//\//\\\/}'\/data\/logs\/nginx\//g'
@@ -28,6 +29,7 @@ mkdir -p data/nginx/www/subdomains/assets
 ln -s ../../../www data/nginx/www/subdomains/www
 ln -s ../../../themes data/nginx/www/subdomains/themes
 ln -s ../../../../../templates/admin/assets data/nginx/www/subdomains/assets/admin
+ln -s ../../../templates/router data/nginx/www/templates
 mkdir -p data/nginx/run
 mkdir -p data/logs/nginx
 ./data/nginx/init.sh
