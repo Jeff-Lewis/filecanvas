@@ -46,7 +46,7 @@ SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
 			return createSite(database, siteModel)
 				.catch(function(error) {
 					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
-						throw new HttpError(409, 'A site already exists at that path');
+						throw new HttpError(409, 'A canvas already exists at that path');
 					}
 					throw error;
 				});
