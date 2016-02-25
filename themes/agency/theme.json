@@ -28,7 +28,7 @@
 					"name": "pageHeader",
 					"type": "string",
 					"default": "Your company",
-					"preview": "Applied works",
+					"preview": "Acme, Inc",
 					"label": "Page header",
 					"editor": {
 						"name": "input",
