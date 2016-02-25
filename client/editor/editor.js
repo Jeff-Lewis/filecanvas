@@ -377,10 +377,13 @@ function initLivePreview(callback) {
 			var previousState = initialFormValues;
 			var isUpdating = false;
 			var throttleTimeout = null;
+			var $activeElements = null;
 			undoHistory.add(initialFormValues);
 			$formElement.on('reset', onFormReset);
 			$formElement.on('input', onFormFieldChanged);
 			$formElement.on('change', onFormFieldChanged);
+			$formElement.on('focusin', '[name^="theme."]', onFormFieldFocused);
+			$formElement.on('focusout', '[name^="theme."]', onFormFieldBlurred);
 			preventEnterKeyFormSubmission($formElement);
 			$undoButtonElement.on('click', onUndoButtonClicked);
 			$redoButtonElement.on('click', onRedoButtonClicked);
@@ -440,6 +443,28 @@ function initLivePreview(callback) {
 				if (hasChanged) {
 					updateCallback(formValues, { userInitiated: true });
 				}
+			}
+
+			function onFormFieldFocused(event) {
+				var inputElement = event.target;
+				var fieldName = inputElement.name;
+				var previewDocument = $previewElement[0].contentDocument;
+				var $fieldElements = $(previewDocument).find('[data-admin-field="' + fieldName + '"]');
+				highlightPreviewElements($fieldElements);
+			}
+			function highlightPreviewElements($fieldElements) {
+				if ($activeElements) { $activeElements.removeClass('admin-active'); }
+				$activeElements = $fieldElements;
+				if (!$activeElements || ($activeElements.length === 0)) { return; }
+				$activeElements.addClass('admin-active');
+				var previewDocument = $previewElement[0].contentDocument;
+				var scrollOffset = Math.max(0, $activeElements.offset().top - 120);
+				$(previewDocument).find('html, body').animate({
+					scrollTop: scrollOffset
+				}, 300);
+			}
+			function onFormFieldBlurred(event) {
+				highlightPreviewElements(null);
 			}
 
 			function preventEnterKeyFormSubmission($formElement) {
