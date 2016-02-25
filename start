@@ -34,6 +34,22 @@ mkdir -p data/nginx/run
 mkdir -p data/logs/nginx
 ./data/nginx/init.sh
 
+rm -rf data/ssl
+mkdir -p data/ssl
+mkdir -p data/ssl/config
+cp services/ssl/nginx.conf data/ssl/config/nginx.conf
+NGINX_CONFIG_REPLACEMENTS=(
+	's/\/opt\/ssl\//'${PWD//\//\\\/}'\/data\/ssl\/certs\//g'
+	's/listen 80;/listen 8000;/g'
+	's/listen 443 ssl;/listen 4443 ssl;/g'
+	's/X-Forwarded-Port 443;/X-Forwarded-Port 4443;/g'
+)
+for replacement in "${NGINX_CONFIG_REPLACEMENTS[@]}"; do
+	sed -i '' "$replacement" data/ssl/config/nginx.conf
+done
+ln -s ../../services/ssl/certs/dev-filecanvas.com data/ssl/certs
+
+(nginx -c $PWD/data/ssl/config/nginx.conf -g 'daemon off;') &
 (openresty -c $PWD/data/nginx/config/nginx.conf -g 'daemon off;') &
 trap "killall mongod" EXIT
 (mongod --dbpath data/mongodb/db) &
