@@ -5,7 +5,7 @@
 <meta name="description" content=""/>
 <meta name="author" content=""/>
 <link rel="shortcut icon" href="{{ asset @root 'favicon.ico' }}"/>
-{{#if title}}<title>{{ title }}</title>{{else}}<title></title>{{/if}}
+<title>{{ if metadata.theme.config.browser.title metadata.theme.config.browser.title metadata.theme.config.content.pageHeader }}</title>
 <link rel="stylesheet" type="text/css" href="{{ asset @root 'css/filecanvas-overlay.css' }}"/>
 <link rel="stylesheet" type="text/css" href="{{ asset @root 'css/fonts.css' }}"/>
 <!--[if lt IE 10]><style type="text/css">header .header-bg { background: none; }</style><![endif]-->
