@@ -76,7 +76,7 @@
 							{{#if (files resource.root)}}
 							<div class="posts row isotope">
 								{{#each (files resource.root) key='path' as |file|}}
-								{{> file file=file parent=subfolder}}
+								{{ partial 'file' file=file parent=subfolder }}
 								{{/each}}
 							</div>
 							{{/if}}
@@ -105,11 +105,11 @@
 							{{/if}}
 							<div class="posts row isotope">
 								{{#each (files folder) key='path' as |file|}}
-								{{> file file=file parent=subfolder }}
+								{{ partial 'file' file=file parent=subfolder }}
 								{{/each}}
 								{{#each (folders folder) key='path' as |subfolder|}}
 								{{#each (flattenedFiles subfolder) key='path' as |file|}}
-								{{> file file=file parent=subfolder }}
+								{{ partial 'file' file=file parent=subfolder }}
 								{{/each}}
 								{{/each}}
 							</div>
