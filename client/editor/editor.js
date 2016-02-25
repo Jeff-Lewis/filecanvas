@@ -452,17 +452,25 @@ function initLivePreview(callback) {
 				var $fieldElements = $(previewDocument).find('[data-admin-field="' + fieldName + '"]');
 				highlightPreviewElements($fieldElements);
 			}
+
 			function highlightPreviewElements($fieldElements) {
 				if ($activeElements) { $activeElements.removeClass('admin-active'); }
 				$activeElements = $fieldElements;
 				if (!$activeElements || ($activeElements.length === 0)) { return; }
 				$activeElements.addClass('admin-active');
-				var previewDocument = $previewElement[0].contentDocument;
-				var scrollOffset = Math.max(0, $activeElements.offset().top - 120);
-				$(previewDocument).find('html, body').animate({
-					scrollTop: scrollOffset
-				}, 300);
+				var isMobile = getIsMobile();
+				if (!isMobile) { scrollPreviewToElement($activeElements.eq(0)); }
+
+
+				function scrollPreviewToElement($element) {
+					var previewDocument = $previewElement[0].contentDocument;
+					var scrollOffset = Math.max(0, $element.offset().top - 120);
+					$(previewDocument).find('html, body').animate({
+						scrollTop: scrollOffset
+					}, 300);
+				}
 			}
+
 			function onFormFieldBlurred(event) {
 				highlightPreviewElements(null);
 			}
