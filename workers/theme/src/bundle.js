@@ -173,6 +173,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 			var themeTemplates = loadThemeTemplates(themeData.templates, themePath);
 			var themeDefaults = parseThemeConfigDefaults(themeConfig);
 			var themePreview = parseThemePreview(themePath, themeConfig, themeDefaults);
+			var themeDemo = parseThemeDemo(themePath, themeConfig, themeDefaults);
 			var themeFonts = themeData.fonts || null;
 			var theme = {
 				id: themeId,
@@ -182,6 +183,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				config: themeConfig,
 				defaults: themeDefaults,
 				preview: themePreview,
+				demo: themeDemo,
 				fonts: themeFonts
 			};
 			return theme;
@@ -216,7 +218,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 			}
 
 			function parseThemePreview(themePath, themeConfig, themeDefaults) {
-				var previewConfig = extractPreviewConfig(themeConfig, themeDefaults);
+				var previewConfig = extractConfigVersion(themeConfig, 'preview', themeDefaults);
 				var previewFilesPath = path.join(themePath, THEME_PREVIEW_FILES_PATH);
 				return {
 					config: previewConfig,
@@ -226,24 +228,32 @@ module.exports = function(inputPath, outputPath, options, callback) {
 						sync: true
 					})
 				};
+			}
 
-				function extractPreviewConfig(themeConfig, themeDefaults) {
-					var previewConfig = themeConfig.reduce(function(configValueGroups, configGroup) {
-						var groupName = configGroup.name;
-						var groupFields = configGroup.fields;
-						var fieldValues = groupFields.reduce(function(fieldValues, configField) {
-							var fieldName = configField.name;
-							if ('preview' in configField) {
-								var fieldValue = configField.preview;
-								fieldValues[fieldName] = fieldValue;
-							}
-							return fieldValues;
-						}, {});
-						configValueGroups[groupName] = fieldValues;
-						return configValueGroups;
+			function parseThemeDemo(themePath, themeConfig, themeDefaults) {
+				var demoConfig = extractConfigVersion(themeConfig, 'demo', themeDefaults);
+				return {
+					config: demoConfig,
+					files: null
+				};
+			}
+
+			function extractConfigVersion(themeConfig, key, themeDefaults) {
+				var config = themeConfig.reduce(function(configValueGroups, configGroup) {
+					var groupName = configGroup.name;
+					var groupFields = configGroup.fields;
+					var fieldValues = groupFields.reduce(function(fieldValues, configField) {
+						var fieldName = configField.name;
+						if (key in configField) {
+							var fieldValue = configField[key];
+							fieldValues[fieldName] = fieldValue;
+						}
+						return fieldValues;
 					}, {});
-					return merge({}, themeDefaults, previewConfig);
-				}
+					configValueGroups[groupName] = fieldValues;
+					return configValueGroups;
+				}, {});
+				return merge({}, themeDefaults, config);
 			}
 
 			function readJson(filePath) {
@@ -299,6 +309,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 			'config',
 			'defaults',
 			'preview',
+			'demo',
 			'thumbnail',
 			'fonts'
 		];
@@ -514,7 +525,6 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					callback(null);
 				})
 				.catch(function(error) {
-					console.log(error.stack);
 					callback(error);
 				});
 			}

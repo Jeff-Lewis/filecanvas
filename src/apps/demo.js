@@ -301,7 +301,7 @@ module.exports = function(database, cache, options) {
 					label: siteLabel,
 					theme: {
 						id: themeId,
-						config: merge({}, theme.preview.config, themeConfigOverrides)
+						config: merge({}, theme.demo.config, themeConfigOverrides)
 					},
 					root: siteRoot,
 					private: false,
@@ -317,7 +317,7 @@ module.exports = function(database, cache, options) {
 					};
 				}
 				resolve(
-					(useDummyFiles ? Promise.resolve(theme.preview.files) : loadFolderContents(siteRoot, storageAdapters, userModel))
+					(useDummyFiles ? Promise.resolve(null) : loadFolderContents(siteRoot, storageAdapters, userModel))
 						.then(function(siteContent) {
 							var adapterConfig = (useDummyFiles ? null : getSiteUploadConfig(siteRoot, storageAdapters, userModel));
 							var sitePreviewUrl = (
