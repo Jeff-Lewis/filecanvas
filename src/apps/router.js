@@ -18,10 +18,10 @@ var redirectToSubdomain = require('../middleware/redirectToSubdomain');
 var stripTrailingSlash = require('../middleware/stripTrailingSlash');
 var forceSsl = require('../middleware/forceSsl');
 var useSubdomainAsPathPrefix = require('../middleware/useSubdomainAsPathPrefix');
-var invalidRoute = require('../middleware/invalidRoute');
-var errorHandler = require('../middleware/errorHandler');
 var uploader = require('../middleware/uploader');
 var thumbnailer = require('../middleware/thumbnailer');
+var invalidRoute = require('../middleware/invalidRoute');
+var errorHandler = require('../middleware/errorHandler');
 
 var getSubdomainUrl = require('../utils/getSubdomainUrl');
 var generateTempPath = require('../utils/generateTempPath');
@@ -81,27 +81,21 @@ module.exports = function(database, cache, config) {
 	var demoTemplatesPath = path.join(templatesPath, 'demo');
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
 	var faqPath = path.join(adminTemplatesPath, 'faq.json');
-	var errorTemplatesPath = path.join(templatesPath, 'error');
 	var siteTemplatePath = path.join(templatesPath, 'site');
 	var thumbnailsPath = path.join(tempPath, 'thumbnails');
 
 	var app = express();
 
 	var subdomains = {
-		'ping': pingApp({
-			errorTemplatesPath: errorTemplatesPath
-		}),
+		'ping': pingApp(),
 		'www': wwwApp({
-			siteRoot: wwwSiteRoot,
-			errorTemplatesPath: errorTemplatesPath
+			siteRoot: wwwSiteRoot
 		}),
 		'assets': assetsApp({
-			adminAssetsPath: adminAssetsPath,
-			errorTemplatesPath: errorTemplatesPath
+			adminAssetsPath: adminAssetsPath
 		}),
 		'themes': themesApp({
 			hostname: host.hostname,
-			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath
 		}),
 		'try': demoApp(database, cache, {
@@ -111,7 +105,6 @@ module.exports = function(database, cache, config) {
 			sessionDuration: config.session.duration,
 			templatesPath: demoTemplatesPath,
 			partialsPath: partialsPath,
-			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
 			adminUrl: adminUrl,
 			adminAssetsUrl: adminAssetsUrl,
@@ -128,7 +121,6 @@ module.exports = function(database, cache, config) {
 			sessionDuration: config.session.duration,
 			templatesPath: adminTemplatesPath,
 			partialsPath: partialsPath,
-			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
 			faqPath: faqPath,
 			siteTemplatePath: siteTemplatePath,
@@ -144,7 +136,6 @@ module.exports = function(database, cache, config) {
 			cookieSecret: config.session.cookieSecret,
 			sessionStore: config.session.store,
 			sessionDuration: config.session.duration,
-			errorTemplatesPath: errorTemplatesPath,
 			themesPath: themesPath,
 			themesUrl: themesUrl,
 			adapters: config.adapters
@@ -202,10 +193,7 @@ module.exports = function(database, cache, config) {
 		subdomains: subdomains
 	});
 
-	initErrorHandler(app, {
-		templatesPath: errorTemplatesPath,
-		template: 'error'
-	});
+	initErrorHandler(app);
 
 	return app;
 
@@ -284,16 +272,9 @@ module.exports = function(database, cache, config) {
 		}
 	}
 
-	function initErrorHandler(app, options) {
-		options = options || {};
-		var template = options.template;
-		var templatesPath = options.templatesPath;
-
+	function initErrorHandler(app) {
 		app.use(invalidRoute());
-		app.use(errorHandler({
-			templatesPath: templatesPath,
-			template: template
-		}));
+		app.use(errorHandler());
 	}
 };
 

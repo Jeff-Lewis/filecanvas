@@ -2,25 +2,15 @@
 
 var express = require('express');
 
-var invalidRoute = require('../middleware/invalidRoute');
-var errorHandler = require('../middleware/errorHandler');
-
 module.exports = function(options) {
 	options = options || {};
 	var siteRoot = options.siteRoot;
-	var errorTemplatesPath = options.errorTemplatesPath;
 
 	if (!siteRoot) { throw new Error('Missing site root'); }
-	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 
 	var app = express();
 
 	app.use(express.static(siteRoot, { redirect: false }));
-	app.use(invalidRoute());
-	app.use(errorHandler({
-		templatesPath: errorTemplatesPath,
-		template: 'error'
-	}));
 
 	return app;
 };

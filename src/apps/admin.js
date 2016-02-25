@@ -19,8 +19,6 @@ var session = require('../middleware/session');
 var forms = require('../middleware/forms');
 var sessionState = require('../middleware/sessionState');
 var redirect = require('../middleware/redirect');
-var invalidRoute = require('../middleware/invalidRoute');
-var errorHandler = require('../middleware/errorHandler');
 var handlebarsEngine = require('../engines/handlebars');
 
 var loadLoginAdapters = require('../utils/loadLoginAdapters');
@@ -41,7 +39,6 @@ module.exports = function(database, cache, options) {
 	var sessionDuration = options.sessionDuration;
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
-	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
 	var faqPath = options.faqPath;
 	var siteTemplatePath = options.siteTemplatePath;
@@ -60,7 +57,6 @@ module.exports = function(database, cache, options) {
 	if (!sessionDuration) { throw new Error('Missing session duration'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!faqPath) { throw new Error('Missing FAQ path'); }
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
@@ -129,7 +125,6 @@ module.exports = function(database, cache, options) {
 	});
 	initPreview(app, database, cache, {
 		host: host,
-		errorTemplatesPath: errorTemplatesPath,
 		themesPath: themesPath,
 		themesUrl: themesUrl,
 		adaptersConfig: adaptersConfig
@@ -142,10 +137,6 @@ module.exports = function(database, cache, options) {
 		host: host,
 		adapters: storageAdapters,
 		sessionMiddleware: initAdminSession
-	});
-	initErrorHandler(app, {
-		templatesPath: errorTemplatesPath,
-		template: 'error'
 	});
 	initViewEngine(app, {
 		templatesPath: templatesPath
@@ -257,7 +248,6 @@ module.exports = function(database, cache, options) {
 	function initPreview(app, database, cache, options) {
 		options = options || {};
 		var host = options.host;
-		var errorTemplatesPath = options.errorTemplatesPath;
 		var themesPath = options.themesPath;
 		var themesUrl = options.themesUrl;
 		var adaptersConfig = options.adaptersConfig;
@@ -266,7 +256,6 @@ module.exports = function(database, cache, options) {
 			ensureAuth('/login'),
 			previewApp(database, cache, {
 				host: host,
-				errorTemplatesPath: errorTemplatesPath,
 				themesPath: themesPath,
 				themesUrl: themesUrl,
 				adaptersConfig: adaptersConfig
@@ -321,18 +310,6 @@ module.exports = function(database, cache, options) {
 		app.engine('hbs', handlebarsEngine);
 		app.set('views', templatesPath);
 		app.set('view engine', 'hbs');
-	}
-
-	function initErrorHandler(app, options) {
-		options = options || {};
-		var template = options.template;
-		var templatesPath = options.templatesPath;
-
-		app.use(invalidRoute());
-		app.use(errorHandler({
-			template: template,
-			templatesPath: templatesPath
-		}));
 	}
 
 	function ensureAuth(loginUrl) {

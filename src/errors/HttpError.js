@@ -2,17 +2,14 @@
 
 var http = require('http');
 
-function HttpError(status, description, url) {
+function HttpError(status, message) {
 	status = status || 500;
-	description = description || null;
-	var message = http.STATUS_CODES[status];
-	var error = new Error(message);
+	message = message || null;
+	var error = new Error(message || '');
 	error.name = 'HttpError';
 	error.status = status;
-	error.description = description;
-	error.url = null;
 	error.toString = function() {
-		return this.name + ': ' + this.status + ' ' + this.message + (this.description ? ' - ' + this.description : '') + (this.url ? ' - ' + this.url : '');
+		return this.name + ': ' + this.status + ' ' + http.STATUS_CODES[this.status] + (this.message ? ' - ' + this.message : '');
 	};
 	return error;
 }

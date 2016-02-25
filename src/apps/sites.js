@@ -6,8 +6,6 @@ var LocalStrategy = require('passport-local').Strategy;
 var merge = require('lodash.merge');
 
 var session = require('../middleware/session');
-var invalidRoute = require('../middleware/invalidRoute');
-var errorHandler = require('../middleware/errorHandler');
 
 var loadStorageAdapters = require('../utils/loadStorageAdapters');
 
@@ -25,7 +23,6 @@ module.exports = function(database, cache, options) {
 	var sessionStore = options.sessionStore;
 	var sessionDuration = options.sessionDuration;
 	var themesPath = options.themesPath;
-	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesUrl = options.themesUrl;
 	var isPreview = options.preview;
 	var adaptersConfig = options.adapters;
@@ -34,7 +31,6 @@ module.exports = function(database, cache, options) {
 	if (!cache) { throw new Error('Missing key-value store'); }
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
@@ -65,10 +61,6 @@ module.exports = function(database, cache, options) {
 	initRoutes(app, passport, database, {
 		themesUrl: themesUrl,
 		preview: isPreview
-	});
-	initErrorHandler(app, {
-		templatesPath: errorTemplatesPath,
-		template: 'error'
 	});
 
 	return app;
@@ -183,18 +175,6 @@ module.exports = function(database, cache, options) {
 				});
 			})
 		);
-	}
-
-	function initErrorHandler(app, options) {
-		options = options || {};
-		var template = options.template;
-		var templatesPath = options.templatesPath;
-
-		app.use(invalidRoute());
-		app.use(errorHandler({
-			template: template,
-			templatesPath: templatesPath
-		}));
 	}
 
 	function initRoutes(app, passport, database, options) {

@@ -7,7 +7,6 @@ var sitesApp = require('../sites');
 module.exports = function(database, cache, options) {
 	options = options || {};
 	var host = options.host || null;
-	var errorTemplatesPath = options.errorTemplatesPath || null;
 	var themesPath = options.themesPath || null;
 	var themesUrl = options.themesUrl || null;
 	var adaptersConfig = options.adaptersConfig || null;
@@ -16,7 +15,6 @@ module.exports = function(database, cache, options) {
 	if (!cache) { throw new Error('Missing key-value store'); }
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 
@@ -26,7 +24,6 @@ module.exports = function(database, cache, options) {
 	app.use(sitesApp(database, cache, {
 		preview: true,
 		host: host,
-		errorTemplatesPath: errorTemplatesPath,
 		themesPath: themesPath,
 		themesUrl: themesUrl,
 		adapters: adaptersConfig

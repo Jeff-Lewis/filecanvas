@@ -89,7 +89,7 @@
 		<div class="error-message">
 			<h1>{{ error.status }}</h1>
 			<h2>{{ error.message }}</h2>
-			{% if error.stack then %}
+			{% if error.description then %}
 			<p>{{ error.description }}</p>
 			{% end %}
 			<div class="error-message-actions">
@@ -98,8 +98,8 @@
 				<a href="mailto:info@filecanvas.com?subject=Bug%20report&body=Sorry%20that%20something%20went%20wrong.%20We'll%20do%20our%20best%20to%20fix%20the%20problem%20as%20quickly%20as%20possible.%0A%0ACan%20you%20remember%20what%20you%20clicked%20immediately%20before%20you%20saw%20the%20error%20page%3F%0A%0A%5Btype%20here%5D%0A%0AThanks%20for%20the%20assistance%2C%20we'll%20try%20to%20fix%20this%20straight%20away!%0A%0AFilecanvas" data-report>Report bug</a>
 			</div>
 		</div>
-		{% if error.stack then %}
-		<pre>{{ error.stack }}</pre>
+		{% if error.debug then %}
+		<pre>{{ error.debug }}</pre>
 		{% end %}
 		<script type="text/javascript">
 			setTimeout(function() {

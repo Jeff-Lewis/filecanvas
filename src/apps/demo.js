@@ -11,8 +11,6 @@ var session = require('../middleware/session');
 var forms = require('../middleware/forms');
 var sessionState = require('../middleware/sessionState');
 var redirect = require('../middleware/redirect');
-var invalidRoute = require('../middleware/invalidRoute');
-var errorHandler = require('../middleware/errorHandler');
 
 var demoAuth = require('./demo/middleware/demoAuth');
 
@@ -40,7 +38,6 @@ module.exports = function(database, cache, options) {
 	var sessionDuration = options.sessionDuration;
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
-	var errorTemplatesPath = options.errorTemplatesPath;
 	var themesPath = options.themesPath;
 	var adminUrl = options.adminUrl;
 	var adminAssetsUrl = options.adminAssetsUrl;
@@ -58,7 +55,6 @@ module.exports = function(database, cache, options) {
 	if (!sessionDuration) { throw new Error('Missing session duration'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!errorTemplatesPath) { throw new Error('Missing error templates path'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!adminUrl) { throw new Error('Missing admin URL'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
@@ -105,10 +101,6 @@ module.exports = function(database, cache, options) {
 	initSitePreview(app, {
 		adapters: storageAdapters
 	});
-	initErrorHandler(app, {
-		templatesPath: errorTemplatesPath,
-		template: 'error'
-	});
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -124,18 +116,6 @@ module.exports = function(database, cache, options) {
 			adapters: adapters,
 			login: '/login',
 			failure: '/login'
-		}));
-	}
-
-	function initErrorHandler(app, options) {
-		options = options || {};
-		var template = options.template;
-		var templatesPath = options.templatesPath;
-
-		app.use(invalidRoute());
-		app.use(errorHandler({
-			templatesPath: templatesPath,
-			template: template
 		}));
 	}
 

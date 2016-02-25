@@ -1,29 +1,21 @@
 'use strict';
 
-var path = require('path');
-
-var handlebarsEngine = require('../engines/handlebars');
-
-module.exports = function(options) {
-	options = options || {};
-	var template = options.template;
-	var templatesPath = options.templatesPath;
+module.exports = function() {
 	var isProduction = process.env.NODE_ENV === 'production';
 
-	if (!template) { throw new Error('Missing default error template'); }
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-
 	return function(err, req, res, next) {
-		var templatePath = path.join(templatesPath, template + '.hbs');
-		var context = {
-			error: err,
-			debug: !isProduction
+		var url = req.method + ' ' + req.protocol + '://' + req.get('host') + req.originalUrl;
+		var status = err.status || 500;
+		var shouldHideErrorMessage = (status === 500) && isProduction;
+		var errorHeader = {
+			message: (shouldHideErrorMessage ? null : err.message)
 		};
-		err.url = req.method + ' ' + req.protocol + '://' + req.get('host') + req.originalUrl;
-		handlebarsEngine(templatePath, context, function(error, output) {
-			if (error) { return next(error); }
-			res.status(err.status || 500);
-			res.send(output);
-		});
+		if (!isProduction) {
+			errorHeader.url = url;
+			errorHeader.debug = err.stack;
+		}
+		res.status(status);
+		res.set('X-Error', JSON.stringify(errorHeader));
+		res.send(status);
 	};
 };
