@@ -11,8 +11,13 @@ var TransferBatch = require('./TransferBatch');
 var DROPBOX_UPLOAD_API_METHOD = 'PUT';
 var DROPBOX_UPLOAD_API_ENDPOINT = 'https://content.dropboxapi.com/1/files_put/auto';
 
+var GOOGLE_CREATE_FOLDER_API_METHOD = 'POST';
+var GOOGLE_CREATE_FOLDER_API_ENDPOINT = 'https://www.googleapis.com/drive/v2/files';
+
 var LOCAL_UPLOAD_API_METHOD = 'POST';
 var LOCAL_UPLOAD_API_ENDPOINT = document.location.protocol + '//upload.' + document.location.host.split('.').slice(1).join('.');
+
+var MIME_TYPE_GOOGLE_FOLDER = 'application/vnd.google-apps.folder';
 
 function Api() {
 }
@@ -160,6 +165,7 @@ Api.prototype.uploadFiles = function(files, options) {
 			}
 
 			function onFileError(error) {
+				logError(error);
 				if (numRetriesRemaining > 0) {
 					numRetriesRemaining--;
 					fileUpload = startUpload(queueItem);
@@ -167,6 +173,14 @@ Api.prototype.uploadFiles = function(files, options) {
 				}
 				queueItem.error = error;
 				deferred.reject(error);
+			}
+		}
+
+		function logError(error) {
+			try {
+				window.console.error(error);
+			} catch (e) {
+				window.console.log(error);
 			}
 		}
 	}
@@ -210,28 +224,67 @@ Api.prototype.uploadFiles = function(files, options) {
 			var fullPath = path.join(sitePath, file.path);
 			var parentPath = path.dirname(fullPath);
 			var filename = path.basename(file.path);
-			return loadGoogleFolderMetadata(parentPath)
+			return ensureGoogleFolderExists(parentPath)
 				.then(function(folderMetadata) {
 					var parentFolderId = folderMetadata.id;
-					return writeFile(filename, parentFolderId, file.data, accessToken)
+					return writeGoogleFile(filename, parentFolderId, file.data, accessToken)
 						.then(function(fileMetadata) {
-							return new FileModel({
-								id: fileMetadata.id,
-								path: file.path,
-								mimeType: fileMetadata.mimeType,
-								size: fileMetadata.fileSize || 0,
-								modified: fileMetadata.modifiedDate,
-								thumbnail: fileMetadata.thumbnailLink
-							});
+							var fileModel = parseGoogleFileMetadata(fileMetadata, parentPath);
+							return fileModel;
 						});
 				});
 
 
-			function loadGoogleFolderMetadata(folderPath) {
-				return self.retrieveFileMetadata('google', folderPath);
+			function ensureGoogleFolderExists(folderPath) {
+				return self.retrieveFileMetadata('google', folderPath)
+					.then(function(fileModel) {
+						if (fileModel) {
+							var isDirectory = fileModel.directory;
+							if (!isDirectory) {
+								return new $.Deferred().reject(new Error('File exists at ' + folderPath)).promise();
+							}
+							return fileModel;
+						}
+						return createFolderAtPath(folderPath);
+					});
+
+
+				function createFolderAtPath(folderPath) {
+					var folderName = path.basename(folderPath);
+					var parentPath = path.dirname(folderPath);
+					return ensureGoogleFolderExists(parentPath)
+						.then(function(folderMetadata) {
+							var parentFolderId = folderMetadata.id;
+							return createGoogleFolder(folderName, parentFolderId, { token: accessToken })
+								.then(function(folderMetadata) {
+									var fileModel = parseGoogleFileMetadata(folderMetadata, parentPath);
+									return fileModel;
+								});
+						});
+				}
 			}
 
-			function writeFile(filename, parentFolderId, data, accessToken) {
+			function createGoogleFolder(folderName, parentFolderId, options) {
+				options = options || {};
+				var accessToken = options.token;
+				return $.ajax(GOOGLE_CREATE_FOLDER_API_ENDPOINT, {
+					type: GOOGLE_CREATE_FOLDER_API_METHOD,
+					headers: {
+						'Authorization': 'Bearer ' + accessToken
+					},
+					contentType: 'application/json',
+					data: JSON.stringify({
+						title: folderName,
+						mimeType: MIME_TYPE_GOOGLE_FOLDER,
+						parents: [
+							{ id: parentFolderId }
+						]
+					}),
+					dataType: 'json'
+				});
+			}
+
+			function writeGoogleFile(filename, parentFolderId, data, accessToken) {
 				var mimeType = data.type;
 				var fileMetadata = {
 					title: filename,
@@ -261,6 +314,23 @@ Api.prototype.uploadFiles = function(files, options) {
 				});
 				uploader.upload();
 				return deferred.promise();
+			}
+
+			function parseGoogleFileMetadata(fileMetadata, parentPath) {
+				var isDirectory = getIsGoogleDirectory(fileMetadata);
+				return new FileModel({
+					id: fileMetadata.id,
+					path: path.join(parentPath, fileMetadata.title),
+					directory: isDirectory,
+					mimeType: isDirectory ? null : fileMetadata.mimeType,
+					size: fileMetadata.fileSize || 0,
+					modified: fileMetadata.modifiedDate,
+					thumbnail: fileMetadata.thumbnailLink
+				});
+			}
+
+			function getIsGoogleDirectory(fileMetadata) {
+				return (fileMetadata.mimeType === MIME_TYPE_GOOGLE_FOLDER);
 			}
 		}
 
