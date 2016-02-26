@@ -18,6 +18,27 @@ body {
 fieldset[disabled] .btn {
 	cursor: default;
 }
+.btn-reset {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	padding: 0;
+	margin: 0;
+	border: none;
+	outline: none;
+	overflow: visible;
+	line-height: normal;
+	font: inherit;
+	color: inherit;
+	background: none;
+	cursor: pointer;
+}
+.btn-reset:disabled {
+	cursor: default;
+}
+.btn-reset::-moz-focus-inner {
+	border: 0;
+	padding: 0;
+}
 
 .tooltip,
 .popover {
