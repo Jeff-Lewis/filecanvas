@@ -77,7 +77,7 @@
 					"type": "string",
 					"default": "Looks like you've created a brand new canvas! This page will automatically sync its contents to whatever's in the linked folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
 					"preview": null,
-					"demo": "Let's create a new canvas! Here are some tips to help personalise your canvas template to your liking:\n\n- Use the **Theme Options** panel to change text, colours, logos and more – the live preview will instantly reflect any changes you make.\n\n- Once you're familiar with the Theme Options panel, you can add some files to this canvas at any point by clicking the **Add files** button. Once you've added some files, they'll show up in the preview below this section.\n\n- All the text you see in this site preview can be edited in the Theme Options panel.\n\nGood luck!\n\n– Filecanvas",
+					"demo": "Let's create a new canvas!\n\n- Use the **Theme Options** panel to change text, colours, logos and more – the live preview will instantly reflect any changes you make, allowing you to personalise your canvas to your liking.\n\n- Once you've got the hang of things, you can click the **Add files** button to see how your canvas looks with some files in it.",
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
