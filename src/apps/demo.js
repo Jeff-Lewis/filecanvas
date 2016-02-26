@@ -11,6 +11,7 @@ var session = require('../middleware/session');
 var forms = require('../middleware/forms');
 var sessionState = require('../middleware/sessionState');
 var redirect = require('../middleware/redirect');
+var invalidRoute = require('../middleware/invalidRoute');
 
 var demoAuth = require('./demo/middleware/demoAuth');
 
@@ -101,6 +102,7 @@ module.exports = function(database, cache, options) {
 	initSitePreview(app, {
 		adapters: storageAdapters
 	});
+	initErrorHandler(app);
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -117,6 +119,10 @@ module.exports = function(database, cache, options) {
 			login: '/login',
 			failure: '/login'
 		}));
+	}
+
+	function initErrorHandler(app) {
+		app.use(invalidRoute());
 	}
 
 	function initViewEngine(app, options) {

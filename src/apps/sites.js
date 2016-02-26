@@ -6,6 +6,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var merge = require('lodash.merge');
 
 var session = require('../middleware/session');
+var invalidRoute = require('../middleware/invalidRoute');
 
 var loadStorageAdapters = require('../utils/loadStorageAdapters');
 
@@ -62,9 +63,14 @@ module.exports = function(database, cache, options) {
 		themesUrl: themesUrl,
 		preview: isPreview
 	});
+	initErrorHandler(app);
 
 	return app;
 
+
+	function initErrorHandler(app) {
+		app.use(invalidRoute());
+	}
 
 	function initAuth(app, passport, database, options) {
 		options = options || {};

@@ -19,6 +19,8 @@ var session = require('../middleware/session');
 var forms = require('../middleware/forms');
 var sessionState = require('../middleware/sessionState');
 var redirect = require('../middleware/redirect');
+var invalidRoute = require('../middleware/invalidRoute');
+
 var handlebarsEngine = require('../engines/handlebars');
 
 var loadLoginAdapters = require('../utils/loadLoginAdapters');
@@ -138,6 +140,7 @@ module.exports = function(database, cache, options) {
 		adapters: storageAdapters,
 		sessionMiddleware: initAdminSession
 	});
+	initErrorHandler(app);
 	initViewEngine(app, {
 		templatesPath: templatesPath
 	});
@@ -301,6 +304,10 @@ module.exports = function(database, cache, options) {
 			adapters: adapters,
 			sessionMiddleware: sessionMiddleware
 		}));
+	}
+
+	function initErrorHandler(app) {
+		app.use(invalidRoute());
 	}
 
 	function initViewEngine(app, options) {
