@@ -7,7 +7,7 @@ module.exports.upload = function(options) {
 	return load(options, isUpload);
 };
 
-module.exports.download = function(options) {
+module.exports.send = function(options) {
 	var isUpload = false;
 	return load(options, isUpload);
 };

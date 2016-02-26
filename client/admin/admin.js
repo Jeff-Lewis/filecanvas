@@ -1065,7 +1065,7 @@ function initUploadControls() {
 					options = options || {};
 					var url = options.url + '/' + file.name;
 					var method = options.method;
-					return xhr.download({ url: url, method: method });
+					return xhr.send({ url: url, method: method });
 				}
 
 				function uploadFile(file, options) {
