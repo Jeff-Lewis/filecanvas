@@ -253,7 +253,7 @@ Api.prototype.uploadFiles = function(files, options) {
 						});
 					},
 					onComplete: function(response) {
-						deferred.resolve(response);
+						deferred.resolve(JSON.parse(response));
 					},
 					onError: function(error) {
 						deferred.reject(error);
