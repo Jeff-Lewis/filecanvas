@@ -235,6 +235,12 @@
 
 	header .logo-container.centered {
 		text-align: center;
+		margin-bottom: -60px;
+	}
+	@media (max-width: 767px) {
+		header .logo-container.centered {
+			margin-bottom: -30px;
+		}
 	}
 
 	header .logo {
