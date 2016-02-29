@@ -23,9 +23,18 @@ function log(message) {
 	process.stdout.write(message + '\n');
 }
 
+function logError(message) {
+	process.stderr.write(formatErrorMessage(message) + '\n');
+
+
+	function formatErrorMessage(message) {
+		return '\u001b[31m' + message + '\u001b[39m';
+	}
+}
+
 function exit(error) {
 	if (error) {
-		process.stderr.write('\u001b[31m' + 'Error: ' + error.toString() + '\u001b[39m' + '\n');
+		logError(error.stack);
 		process.exit(1);
 	} else {
 		process.exit();
