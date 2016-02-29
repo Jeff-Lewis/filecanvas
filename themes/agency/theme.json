@@ -1,6 +1,5 @@
 {
 	"name": "Agency",
-	"thumbnail": "thumbnail.png",
 	"fonts": "css/fonts.css",
 	"templates": {
 		"index": {
