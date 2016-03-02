@@ -14,12 +14,7 @@
 				<img src="{{ thumbnail @root file }}"/>
 			</div>
 			{{else}}
-			<svg class="profile-icon" xmlns="http://www.w3.org/2000/svg" version="1.1" width="69" height="112" viewBox="0 0 69 112">
-				<path class="profile-icon-page" fill-rule="evenodd" d="M0 88h69v24H0zM69 0v86H0V0h69zM0 0h26v24H0V0zm22 4v16H6L22 4z"/>
-				<path class="profile-icon-content" d="M12 71h45v3H12v-3zm0-10h45v3H12v-3zm0-10h45v3H12v-3zm0-10h45v3H12v-3zm0-10h45v3H12v-3zm18-10h27v3H30v-3z"/>
-				<rect class="profile-icon-title" x="0" y="88" width="69" height="24"/>
-				<text class="profile-icon-text" x="34" y="105" text-anchor="middle">.{{ extension file }}</text>
-			</svg>
+			{{ partial 'file-icon' file=file }}
 			{{/if}}
 			<div class="profile-rollover">
 				<i class="fa {{ if (is-shortcut file) 'fa-arrow-circle-up' (if (has-preview file) 'fa-search-plus' 'fa-download') }}"></i>
