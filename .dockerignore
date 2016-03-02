@@ -8,7 +8,6 @@
 
 templates/admin/assets
 
-!install.sh
 !LICENSE.md
 !package.json
 !prestart.sh
