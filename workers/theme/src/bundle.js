@@ -43,7 +43,6 @@ var THEME_ASSETS_PATH = 'assets';
 var OUTPUT_PREVIEW_PATH = 'preview';
 var OUTPUT_THUMBNAIL_FILENAME = 'thumbnail.png';
 var OUTPUT_SCREENSHOT_FILENAME = 'preview.png';
-var PRECOMPILED_INDEX_TEMPLATE_PATH = 'index.js';
 
 var PREVIEW_TEMPLATE_ID = 'index';
 var PREVIEW_PAGE_FILENAME = 'index.html';
@@ -82,7 +81,6 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var outputThumbnailFilename = path.basename(OUTPUT_THUMBNAIL_FILENAME, path.extname(OUTPUT_THUMBNAIL_FILENAME));
 	var outputScreenshotFilename = path.basename(OUTPUT_SCREENSHOT_FILENAME, path.extname(OUTPUT_SCREENSHOT_FILENAME));
 	var outputThemeManifestPath = path.join(outputPath, THEME_MANIFEST_PATH);
-	var precompiledIndexTemplatePath = path.join(outputTemplatesPath, PRECOMPILED_INDEX_TEMPLATE_PATH);
 	var previewTemplateId = PREVIEW_TEMPLATE_ID;
 
 	var themeService = new ThemeService();
@@ -146,8 +144,8 @@ module.exports = function(inputPath, outputPath, options, callback) {
 						function(callback) { saveThemeManifest(theme, outputThemeManifestPath, callback); }
 					], function(error, results) {
 						if (error) { return callback(error); }
-						log('Generating precompiled theme template...');
-						createPrecompiledThemeTemplate(resolvedTheme, previewTemplateId, precompiledIndexTemplatePath, function(error) {
+						log('Generating precompiled theme templates...');
+						createPrecompiledThemeTemplates(resolvedTheme, outputTemplatesPath, function(error) {
 							if (error) { return callback(error); }
 							callback(null);
 						});
@@ -399,11 +397,16 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 	}
 
-	function createPrecompiledThemeTemplate(theme, templateId, outputPath, callback) {
-		themeService.serializeThemeTemplate(theme, templateId)
-			.then(function(templateString) {
-				return writeFile(outputPath, templateString);
+	function createPrecompiledThemeTemplates(theme, templatesOutputPath, callback) {
+		return Promise.all(
+			Object.keys(theme.templates).map(function(templateId) {
+				return themeService.serializeThemeTemplate(theme, templateId)
+					.then(function(templateString) {
+						var templateOutputPath = path.join(templatesOutputPath, templateId + '.js');
+						return writeFile(templateOutputPath, templateString);
+					});
 			})
+		)
 			.then(function() {
 				callback(null);
 			})
