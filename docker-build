@@ -41,6 +41,7 @@ else
 			--exclude '/node_modules'\
 			--exclude '/templates/admin/assets'\
 			--exclude '/themes/*/assets'\
+			--exclude '/themes/_common'\
 			$IMAGE_PATH .tmp/images/$IMAGE_NAME
 
 		# Build and tag the Docker image
