@@ -31,7 +31,7 @@ function ThemeService(options) {
 		function getThemeFolders(themesPath) {
 			return fs.readdirSync(themesPath)
 				.filter(function(filename) {
-					return (filename.charAt(0) !== '.') && fs.statSync(path.join(themesPath, filename)).isDirectory();
+					return (filename.charAt(0) !== '.') && (filename.charAt(0) !== '_') && fs.statSync(path.join(themesPath, filename)).isDirectory();
 				})
 				.map(function(filename) {
 					return path.join(themesPath, filename);
