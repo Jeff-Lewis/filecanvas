@@ -32,17 +32,11 @@ module.exports = function(database, cache, config) {
 
 	if (!host || !host.hostname) { throw new Error('Missing host name'); }
 
-	var wwwSubdomainUrl = getSubdomainUrl('www', { host: host });
-	var assetsSubdomainUrl = getSubdomainUrl('assets', { host: host });
-	var themesSubdomainUrl = getSubdomainUrl('themes', { host: host });
-	var adminSubdomainUrl = getSubdomainUrl('my', { host: host });
-	var demoSubdomainUrl = getSubdomainUrl('try', { host: host });
-
-	var wwwUrl = config.www.url || wwwSubdomainUrl;
-	var adminUrl = config.admin.url || adminSubdomainUrl;
-	var demoUrl = config.demo.url || demoSubdomainUrl;
-	var themesUrl = config.themes.url || themesSubdomainUrl;
-	var assetsUrl = config.assets.url || assetsSubdomainUrl;
+	var wwwUrl = config.www.url || getSubdomainUrl('www', { host: host });
+	var adminUrl = config.admin.url || getSubdomainUrl('my', { host: host });
+	var demoUrl = config.demo.url || getSubdomainUrl('try', { host: host });
+	var themesUrl = config.themes.url || getSubdomainUrl('themes', { host: host });
+	var assetsUrl = config.assets.url || getSubdomainUrl('assets', { host: host });
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = assetsUrl + 'admin/';
 
@@ -74,7 +68,6 @@ module.exports = function(database, cache, config) {
 	var themesPath = config.themes.root;
 	var wwwSiteRoot = config.www.siteRoot;
 
-	var tempPath = generateTempPath('filecanvas');
 
 	var partialsPath = path.resolve(templatesPath, '_partials');
 	var adminTemplatesPath = path.join(templatesPath, 'admin');
@@ -82,7 +75,6 @@ module.exports = function(database, cache, config) {
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
 	var faqPath = path.join(adminTemplatesPath, 'faq.json');
 	var siteTemplatePath = path.join(templatesPath, 'site');
-	var thumbnailsPath = path.join(tempPath, 'thumbnails');
 
 	var app = express();
 
@@ -147,6 +139,8 @@ module.exports = function(database, cache, config) {
 	};
 
 	if (config.adapters.local) {
+		var tempPath = generateTempPath('filecanvas');
+		var thumbnailsPath = path.join(tempPath, 'thumbnails');
 		var localUploadMiddleware = uploader(config.adapters.local.storage.sitesRoot, { hostname: host.hostname });
 		var localDownloadMiddleware = express.static(config.adapters.local.storage.sitesRoot, { redirect: false });
 		var localThumbnailMiddleware = thumbnailer(config.adapters.local.storage.sitesRoot, {
