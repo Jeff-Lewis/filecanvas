@@ -1,12 +1,8 @@
 *
 
-!client
 !lib
 !src
-!templates
 !scripts/www
-
-templates/admin/assets
 
 !config.js
 !LICENSE.md
