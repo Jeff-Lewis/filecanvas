@@ -1,7 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -e
-
-cd $(dirname $0)
 
 if [ $(docker-machine status default) != "Running" ]; then
 	docker-machine start default
@@ -30,12 +28,12 @@ else
 				'+ lib/***'
 				'+ src/***'
 				'+ scripts/'
+				'+ scripts/prestart'
 				'+ scripts/www/***'
 				'+ config.js'
 				'+ Dockerfile'
 				'+ LICENSE.md'
 				'+ package.json'
-				'+ prestart.sh'
 				'+ README.md'
 				'+ server.js'
 				'- *'

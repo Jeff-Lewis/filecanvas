@@ -2,11 +2,11 @@
 
 !lib
 !src
+!scripts/prestart
 !scripts/www
 
 !config.js
 !LICENSE.md
 !package.json
-!prestart.sh
 !README.md
 !server.js

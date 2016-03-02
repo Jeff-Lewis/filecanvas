@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-
 set -e
-
-cd $(dirname $0)
 
 if [[ -n $(git status -s) ]]; then
 	echo "ERROR: There are uncommitted changes"
@@ -21,7 +18,7 @@ COMMIT_HASH=$(git rev-parse --short HEAD)
 # Bundle application
 DOCKER_REGISTRY=296296715593.dkr.ecr.us-east-1.amazonaws.com
 DOCKER_REGISTRY=$DOCKER_REGISTRY \
-	./docker-bundle
+	npm run docker-bundle
 
 # Upload local docker images
 docker push $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-
 set -e
-
-cd $(dirname $0)
 
 if [ $(docker-machine status default) != "Running" ]; then
 	docker-machine start default
@@ -11,7 +8,7 @@ fi
 eval $(docker-machine env default)
 
 # Build local docker images
-./docker-build
+npm run docker-build
 
 # Tag local docker images
 COMMIT_HASH=$(git rev-parse --short HEAD)

@@ -5,9 +5,15 @@
   "license": "Copyright (c) Tim Kendrick Ltd",
   "main": "server.js",
   "scripts": {
-    "postinstall": "./postinstall.sh",
-    "prestart": "./prestart.sh",
-    "start": "node server.js"
+    "postinstall": "./scripts/postinstall",
+    "prestart": "./scripts/prestart",
+    "start": "node server.js",
+    "local": "./scripts/local",
+    "eb-local": "./scripts/eb-local",
+    "docker-build": "./scripts/docker-build",
+    "docker-bundle": "./scripts/docker-bundle",
+    "docker-push": "./scripts/docker-push",
+    "docker-start": "./scripts/docker-start"
   },
   "engines": {
     "node": "0.12.x"

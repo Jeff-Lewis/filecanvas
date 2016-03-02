@@ -1,7 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
 set -e
-
-cd $(dirname $0)
 
 if [ $(docker-machine status default) != "Running" ]; then
 	docker-machine start default

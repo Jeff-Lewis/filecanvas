@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Build www site
 echo "Generating www site..."

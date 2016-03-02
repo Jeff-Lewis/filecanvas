@@ -1,7 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
-
-cd $(dirname $0)
 
 DATA_DIR="$PWD/.tmp/data"
 export NODE_ENV=development
