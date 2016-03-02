@@ -3,24 +3,23 @@
 var merge = require('lodash.merge');
 var memoize = require('lodash.memoize');
 
-var constants = require('../../constants');
-
 var helpers = require('./helpers');
 
 var HandlebarsService = require('./HandlebarsService');
 
-var COMPILER_OPTIONS = constants.HANDLEBARS_COMPILER_OPTIONS;
-var DEFAULT_TEMPLATE_OPTIONS = constants.HANDLEBARS_DEFAULT_TEMPLATE_OPTIONS;
-var SERIALIZED_TEMPLATES_NAMESPACE = constants.HANDLEBARS_SERIALIZED_TEMPLATES_NAMESPACE;
-var SERIALIZED_PARTIALS_NAMESPACE = constants.HANDLEBARS_SERIALIZED_PARTIALS_NAMESPACE;
-
-var templatesNamespace = SERIALIZED_TEMPLATES_NAMESPACE;
-var partialsNamespace = SERIALIZED_PARTIALS_NAMESPACE;
-var defaultTemplateOptions = DEFAULT_TEMPLATE_OPTIONS;
+var templatesNamespace = 'Handlebars.templates';
+var partialsNamespace = 'Handlebars.partials';
+var defaultTemplateOptions = {
+	helpers: undefined,
+	partials: undefined,
+	data: undefined
+};
 
 var templateService = new HandlebarsService({
 	helpers: helpers,
-	compiler: COMPILER_OPTIONS
+	compiler: {
+		knownHelpersOnly: true
+	}
 });
 
 function engine(templatePath, context, callback) {
