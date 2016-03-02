@@ -48,10 +48,6 @@ config.demo.url = process.env.DEMO_URL || null;
 config.themes = {};
 config.themes.root = process.env.THEMES_ROOT || null;
 config.themes.url = process.env.THEMES_URL || null;
-config.themes.thumbnail = {};
-config.themes.thumbnail.format = null;
-config.themes.thumbnail.width = 256;
-config.themes.thumbnail.height = 256;
 
 config.auth = {};
 config.auth.site = {};
@@ -99,8 +95,8 @@ if (process.env.LOCAL === 'true') {
 			thumbnail: {
 				subdomain: 'thumbnail',
 				format: null,
-				width: 256,
-				height: 256
+				width: 360,
+				height: 360
 			}
 		}
 	};

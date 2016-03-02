@@ -388,8 +388,8 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				},
 				transform: function(src, dest, stats) {
 					return imagemagick.streams.convert({
-						width: 256,
-						height: 256,
+						width: 360,
+						height: 360,
 						resizeStyle: 'aspectfit',
 						quality: 80
 					});

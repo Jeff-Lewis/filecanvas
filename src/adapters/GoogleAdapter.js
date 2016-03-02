@@ -29,6 +29,8 @@ var DOWNLOAD_LINK_DURATION = 60 * 60;
 // on the current access token, request a refreshed token
 var MIN_TOKEN_VALIDITY_DURATION = 30;
 
+var THUMBNAIL_SIZE = 360;
+
 var OAUTH2_AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 var OAUTH2_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
 
@@ -449,7 +451,7 @@ GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, option
 		.then(function(googleClient) {
 			return googleClient.retrieveFileMetadataAtPath(filePath)
 				.then(function(fileMetadata) {
-					return googleClient.generateThumbnailLink(fileMetadata.id);
+					return googleClient.generateThumbnailLink(fileMetadata.id, { size: THUMBNAIL_SIZE });
 				})
 				.then(function(thumbnailUrl) {
 					return sanitizeUrl(thumbnailUrl, cache, { filename: filename, inline: true });
@@ -506,7 +508,7 @@ function parseFileMetadata(fileMetadata, options) {
 			mimeType: (isDirectory ? null : fileData.mimeType),
 			size: fileData.fileSize || 0,
 			modified: fileData.modifiedDate,
-			thumbnail: fileData.thumbnailLink,
+			thumbnail: fileData.thumbnailLink && getResizedThumbnailLink(fileData.thumbnailLink, { size: 's' + THUMBNAIL_SIZE }),
 			directory: isDirectory,
 			contents: (fileData.children ? fileData.children.map(function(childFileMetadata) {
 				return createFileModel(childFileMetadata, rootPath);
