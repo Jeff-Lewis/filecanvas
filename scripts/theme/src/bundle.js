@@ -44,9 +44,6 @@ var OUTPUT_PREVIEW_PATH = 'preview';
 var OUTPUT_THUMBNAIL_FILENAME = 'thumbnail.png';
 var OUTPUT_SCREENSHOT_FILENAME = 'preview.png';
 
-var PREVIEW_TEMPLATE_ID = 'index';
-var PREVIEW_PAGE_FILENAME = 'index.html';
-var PREVIEW_DATA_FILENAME = 'index.json';
 var PREVIEW_DOWNLOADS_PATH = 'download';
 var PREVIEW_THUMBNAILS_PATH = 'thumbnail';
 var PREVIEW_MEDIA_PATH = 'media';
@@ -74,20 +71,18 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var inputThumbnailPath = path.join(inputPath, THEME_THUMBNAIL_DEFAULT);
 	var inputScreenshotPath = path.join(inputPath, THEME_SCREENSHOT_DEFAULT);
 	var outputPreviewPath = path.join(outputPath, OUTPUT_PREVIEW_PATH);
-	var outputPreviewPagePath = path.join(outputPreviewPath, PREVIEW_PAGE_FILENAME);
-	var outputPreviewDataPath = path.join(outputPreviewPath, PREVIEW_DATA_FILENAME);
 	var outputAssetsPath = path.join(outputPath, THEME_ASSETS_PATH);
 	var outputTemplatesPath = path.join(outputPath, THEME_TEMPLATES_PATH);
 	var outputThumbnailFilename = path.basename(OUTPUT_THUMBNAIL_FILENAME, path.extname(OUTPUT_THUMBNAIL_FILENAME));
 	var outputScreenshotFilename = path.basename(OUTPUT_SCREENSHOT_FILENAME, path.extname(OUTPUT_SCREENSHOT_FILENAME));
 	var outputThemeManifestPath = path.join(outputPath, THEME_MANIFEST_PATH);
-	var previewTemplateId = PREVIEW_TEMPLATE_ID;
 
 	var themeService = new ThemeService();
 	log('Loading theme configuration...');
 	var theme;
 	try {
 		theme = loadTheme(inputPath);
+		theme = resolveThemePaths(theme, inputPath);
 	} catch(error) {
 		process.nextTick(function() {
 			callback(error);
@@ -105,19 +100,37 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		return;
 	}
 	log('Generating theme preview page...');
-	var resolvedTheme = resolveThemePaths(theme, inputPath);
-	var previewTemplateData = getPreviewTemplateData(theme);
-	generateThemePreviewPage(resolvedTheme, previewTemplateId, previewTemplateData, function(error, previewHtml) {
-		if (error) { return callback(error); }
+	Promise.all(Object.keys(theme.templates).map(function(templateId) {
+		var templateData = getPreviewTemplateData(theme, templateId);
+		return generateThemePreviewPage(theme, templateId, templateData).then(function(html) {
+			return {
+				id: templateId,
+				data: templateData,
+				output: html
+			};
+		});
+	}))
+	.then(function(pagePreviews) {
 		log('Creating output directory at ' + outputPreviewPath);
 		createDirectory(outputPreviewPath, function(error) {
 			if (error) { return callback(error); }
 			log('Copying preview site files to ' + outputPreviewPath);
-			async.parallel([
-				function(callback) { fs.writeFile(outputPreviewPagePath, previewHtml, callback); },
-				function(callback) { fs.writeFile(outputPreviewDataPath, JSON.stringify(previewTemplateData, null, 2), callback); },
-				function(callback) { savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPreviewPath, callback); }
-			], function(error, results) {
+			async.parallel(
+				pagePreviews.reduce(function(operations, pagePreview) {
+					var templateId = pagePreview.id;
+					var outputHtmlPath = path.join(outputPreviewPath, templateId + '.html');
+					var outputJsonPath = path.join(outputPreviewPath, templateId + '.json');
+					var previewHtml = pagePreview.output;
+					var previewJson = JSON.stringify(pagePreview.data, null, 2);
+					return operations.concat([
+						function(callback) { fs.writeFile(outputHtmlPath, previewHtml, callback); },
+						function(callback) { fs.writeFile(outputJsonPath, previewJson, callback); }
+					]);
+				}, [])
+				.concat(
+					function(callback) { savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPreviewPath, callback); }
+				)
+			, function(error, results) {
 				if (error) { return callback(error); }
 				log('Creating site thumbnails...');
 				createSiteThumbnails({
@@ -145,7 +158,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					], function(error, results) {
 						if (error) { return callback(error); }
 						log('Generating precompiled theme templates...');
-						createPrecompiledThemeTemplates(resolvedTheme, outputTemplatesPath, function(error) {
+						createPrecompiledThemeTemplates(theme, outputTemplatesPath, function(error) {
 							if (error) { return callback(error); }
 							callback(null);
 						});
@@ -153,6 +166,9 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				});
 			});
 		});
+	})
+	.catch(function(error) {
+		callback(error);
 	});
 
 
@@ -260,7 +276,13 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 	}
 
-	function getPreviewTemplateData(theme) {
+	function getPreviewTemplateData(theme, templateId) {
+		var data = {
+			private: false
+		};
+		if (templateId === 'index') {
+			data.root = theme.preview.files;
+		}
 		return {
 			metadata: {
 				siteRoot: './',
@@ -270,10 +292,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					config: theme.preview.config
 				}
 			},
-			resource: {
-				private: false,
-				root: theme.preview.files
-			}
+			resource: data
 		};
 	}
 
@@ -320,14 +339,8 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		return (errors.length > 0 ? errors : null);
 	}
 
-	function generateThemePreviewPage(theme, templateId, templateData, callback) {
-		themeService.renderThemeTemplate(theme, templateId, templateData)
-			.then(function(html) {
-				callback(null, html);
-			})
-			.catch(function(error) {
-				callback(error);
-			});
+	function generateThemePreviewPage(theme, templateId, templateData) {
+		return themeService.renderThemeTemplate(theme, templateId, templateData);
 	}
 
 	function createDirectory(path, callback) {
