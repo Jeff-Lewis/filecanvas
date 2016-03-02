@@ -10,4 +10,4 @@ HOST_PROTOCOL=$HOST_PROTOCOL \
 HOST_PORT=$HOST_PORT \
 TEMPLATE_DIR=./templates/www \
 OUTPUT_DIR=$WWW_SITE_ROOT \
-	./workers/www/build
+	./scripts/www/build
