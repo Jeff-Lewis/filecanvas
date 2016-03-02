@@ -1,5 +1,7 @@
 'use strict';
 
+var escapeHtml = require('escape-html');
+
 (function($) {
 	var KEYCODE_ESCAPE = 27;
 	var KEYCODE_LEFT = 37;
@@ -90,7 +92,7 @@
 
 	Overlay.prototype.show = function(options) {
 		var title = options.title;
-		var description = options.description;
+		var escapedDescription = formatHtml(options.description);
 		var downloadUrl = options.download || null;
 		var previousItem = (options.collection && (options.collection.length > 1) ? getPreviousItem(options.collection, options) : null);
 		var nextItem = (options.collection && (options.collection.length > 1) ? getNextItem(options.collection, options) : null);
@@ -103,7 +105,7 @@
 		});
 		this.$contentElement.empty().append(contentElement);
 		this.$titleElement.text(title);
-		this.$descriptionElement.html(description);
+		this.$descriptionElement.html(escapedDescription);
 		if (downloadUrl) {
 			this.$downloadButtonElement.attr('href', downloadUrl);
 		} else {
@@ -119,6 +121,11 @@
 
 		$(document).off('keydown', this.onKeyPressed).on('keydown', this.onKeyPressed);
 
+
+		function formatHtml(value) {
+			if (!value) { return ''; }
+			return value.split(/\r\n|\n|\r/g).map(function(line) { return escapeHtml(line); }).join('<br/>');
+		}
 
 		function getPreviousItem(collection, item) {
 			var currentIndex = collection.indexOf(item);

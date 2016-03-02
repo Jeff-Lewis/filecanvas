@@ -38,6 +38,7 @@
     "del": "^2.2.0",
     "dot-object": "^1.4.1",
     "es6-template-strings": "^2.0.0",
+    "escape-html": "^1.0.3",
     "escape-regexp": "0.0.1",
     "express": "^3.21.2",
     "express-force-ssl": "^0.3.0",
