@@ -1,6 +1,6 @@
 'use strict';
 
-var config = require('./src/config');
+var config = require('./config');
 
 if (config.newRelic) { require('newrelic'); }
 

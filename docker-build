@@ -31,6 +31,7 @@ else
 				'+ src/***'
 				'+ scripts/'
 				'+ scripts/www/***'
+				'+ config.js'
 				'+ Dockerfile'
 				'+ LICENSE.md'
 				'+ package.json'
