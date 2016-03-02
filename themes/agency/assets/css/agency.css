@@ -211,12 +211,16 @@ footer a:hover {
 	right: 0;
 	bottom: 0;
 	color: white;
-	line-height: 170px;
 	text-align: center;
 }
 .profile-rollover i {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+	line-height: 0;
 	font-size: 64px;
-	line-height: 150px;
 }
 .project-wrp .profile-rollover {
 	opacity: 0;
