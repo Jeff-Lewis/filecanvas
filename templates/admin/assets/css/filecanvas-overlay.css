@@ -139,6 +139,7 @@ html.overlay-active body {
 }
 .overlay-download:link {
 	display: block;
+	text-decoration: none;
 }
 .overlay-download:hover,
 .overlay-download:focus {
