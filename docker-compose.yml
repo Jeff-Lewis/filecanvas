@@ -24,7 +24,7 @@ router:
     - ${THEMES_ROOT}:/var/www/subdomains/themes
     - ${TEMPLATES_ROOT}/admin/assets:/var/www/subdomains/assets/admin
     - ${TEMPLATES_ROOT}/router:/var/www/templates
-    - ./data/logs/nginx:/var/log/nginx
+    - ${LOGS_ROOT}/nginx:/var/log/nginx
 app:
   image: filecanvas/app
   links:
@@ -70,7 +70,7 @@ app:
     - ${WWW_SITE_ROOT}:/var/www
     - ${THEMES_ROOT}:/var/themes
     - ${LOCAL_SITE_ROOT}:/var/sites
-    - ./data/logs/nodejs:/var/log/nodejs
+    - ${LOGS_ROOT}/nodejs:/var/log/nodejs
 mongodb:
   image: mongo
   volumes:
