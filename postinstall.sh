@@ -20,7 +20,7 @@ fi
 
 echo "Building theme previews..."
 THEMES_DIR=./themes
-THEMES_OUTPUT_DIR=${THEMES_ROOT:-./data/themes}
+THEMES_OUTPUT_DIR=${THEMES_ROOT:-./.tmp/data/themes}
 rm -rf $THEMES_OUTPUT_DIR
 mkdir -p $THEMES_OUTPUT_DIR
 for theme in $(ls $THEMES_DIR | grep -v ^_); do

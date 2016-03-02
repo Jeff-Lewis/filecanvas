@@ -3,56 +3,58 @@ set -e
 
 cd $(dirname $0)
 
+DATA_DIR="$PWD/.tmp/data"
 export NODE_ENV=development
 export $(cat .env | sed -e 's/#.*$//' | xargs)
 
 npm run postinstall
 npm run prestart
 
-rm -rf data/nginx
-mkdir -p data/nginx
-cp services/router/init.sh data/nginx/init.sh
-cp -r services/router/nginx/conf/ data/nginx/config/
+rm -rf $DATA_DIR/nginx
+mkdir -p $DATA_DIR/nginx
+cp services/router/init.sh $DATA_DIR/nginx/init.sh
+cp -r services/router/nginx/conf/ $DATA_DIR/nginx/config/
 NGINX_CONFIG_REPLACEMENTS=(
-	's/\/opt\/openresty\/nginx\/conf\//'${PWD//\//\\\/}'\/data\/nginx\/config\//g'
+	's/\/opt\/openresty\/nginx\/conf\//'${DATA_DIR//\//\\\/}'\/nginx\/config\//g'
 	's/\/opt\/openresty\/lua-resty-template\//'${PWD//\//\\\/}'\/services\/router\/plugins\/lua-resty-template\/lib\//g'
-	's/\/var\/www/'${PWD//\//\\\/}'\/data\/nginx\/www/g'
-	's/\/var\/run\/nginx.pid/'${PWD//\//\\\/}'\/data\/nginx\/run\/nginx.pid/g'
-	's/\/var\/log\/nginx\//'${PWD//\//\\\/}'\/data\/logs\/nginx\//g'
+	's/\/var\/www/'${DATA_DIR//\//\\\/}'\/nginx\/www/g'
+	's/\/var\/run\/nginx.pid/'${DATA_DIR//\//\\\/}'\/nginx\/run\/nginx.pid/g'
+	's/\/var\/log\/nginx\//'${DATA_DIR//\//\\\/}'\/logs\/nginx\//g'
 	's/sed -i/sed -i '"''"'/g'
 )
 for replacement in "${NGINX_CONFIG_REPLACEMENTS[@]}"; do
-	sed -i '' "$replacement" data/nginx/init.sh data/nginx/config/nginx.conf data/nginx/config/error.conf data/nginx/config/template.d/*
+	sed -i '' "$replacement" $DATA_DIR/nginx/init.sh $DATA_DIR/nginx/config/nginx.conf $DATA_DIR/nginx/config/error.conf $DATA_DIR/nginx/config/template.d/*
 done
-mkdir -p data/nginx/www/subdomains
-mkdir -p data/nginx/www/subdomains/assets
-ln -s ../../../www data/nginx/www/subdomains/www
-ln -s ../../../themes data/nginx/www/subdomains/themes
-ln -s ../../../../../templates/admin/assets data/nginx/www/subdomains/assets/admin
-ln -s ../../../templates/router data/nginx/www/templates
-mkdir -p data/nginx/run
-mkdir -p data/logs/nginx
-./data/nginx/init.sh
+mkdir -p $DATA_DIR/nginx/www/subdomains
+mkdir -p $DATA_DIR/nginx/www/subdomains/assets
+ln -s ../../../www $DATA_DIR/nginx/www/subdomains/www
+ln -s ../../../themes $DATA_DIR/nginx/www/subdomains/themes
+ln -s ../../../../../../templates/admin/assets $DATA_DIR/nginx/www/subdomains/assets/admin
+ln -s ../../../../templates/router $DATA_DIR/nginx/www/templates
+mkdir -p $DATA_DIR/nginx/run
+mkdir -p $DATA_DIR/logs/nginx
+$DATA_DIR/nginx/init.sh
 
-rm -rf data/ssl
-mkdir -p data/ssl
-mkdir -p data/ssl/config
-cp services/ssl/nginx.conf data/ssl/config/nginx.conf
+rm -rf $DATA_DIR/ssl
+mkdir -p $DATA_DIR/ssl
+mkdir -p $DATA_DIR/ssl/config
+cp services/ssl/nginx.conf $DATA_DIR/ssl/config/nginx.conf
 NGINX_CONFIG_REPLACEMENTS=(
-	's/\/opt\/ssl\//'${PWD//\//\\\/}'\/data\/ssl\/certs\//g'
+	's/\/opt\/ssl\//'${DATA_DIR//\//\\\/}'\/ssl\/certs\//g'
 	's/listen 80;/listen 8000;/g'
 	's/listen 443 ssl;/listen 4443 ssl;/g'
 	's/X-Forwarded-Port 443;/X-Forwarded-Port 4443;/g'
 )
 for replacement in "${NGINX_CONFIG_REPLACEMENTS[@]}"; do
-	sed -i '' "$replacement" data/ssl/config/nginx.conf
+	sed -i '' "$replacement" $DATA_DIR/ssl/config/nginx.conf
 done
-ln -s ../../services/ssl/certs/dev-filecanvas.com data/ssl/certs
+ln -s ../../../services/ssl/certs/dev-filecanvas.com $DATA_DIR/ssl/certs
 
-(nginx -c $PWD/data/ssl/config/nginx.conf -g 'daemon off;') &
-(openresty -c $PWD/data/nginx/config/nginx.conf -g 'daemon off;') &
+(nginx -c $DATA_DIR/ssl/config/nginx.conf -g 'daemon off;') &
+(openresty -c $DATA_DIR/nginx/config/nginx.conf -g 'daemon off;') &
+mkdir -p $DATA_DIR/mongodb/db
 trap "killall mongod" EXIT
-(mongod --dbpath data/mongodb/db) &
+(mongod --dbpath $DATA_DIR/mongodb/db) &
 (redis-server /usr/local/etc/redis.conf) &
 
 foreman start -f Procfile.dev
