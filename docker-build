@@ -29,8 +29,6 @@ else
 				'- .*'
 				'+ lib/***'
 				'+ src/***'
-				'- templates/admin/assets'
-				'+ templates/***'
 				'+ scripts/'
 				'+ scripts/www/***'
 				'+ Dockerfile'

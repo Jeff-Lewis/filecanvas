@@ -22,8 +22,8 @@ router:
   volumes:
     - ${WWW_SITE_ROOT}:/var/www/subdomains/www
     - ${THEMES_ROOT}:/var/www/subdomains/themes
-    - ./templates/admin/assets:/var/www/subdomains/assets/admin
-    - ./templates/router:/var/www/templates
+    - ${TEMPLATES_ROOT}/admin/assets:/var/www/subdomains/assets/admin
+    - ${TEMPLATES_ROOT}/router:/var/www/templates
     - ./data/logs/nginx:/var/log/nginx
 app:
   image: filecanvas/app
@@ -59,12 +59,14 @@ app:
     - SITE_USER_BCRYPT_STRENGTH
     - SESSION_DURATION
     - PORT=8081
+    - TEMPLATES_ROOT=/var/templates
     - WWW_SITE_ROOT=/var/www
     - THEMES_ROOT=/var/themes
     - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis
   volumes:
+    - ${TEMPLATES_ROOT}:/var/templates
     - ${WWW_SITE_ROOT}:/var/www
     - ${THEMES_ROOT}:/var/themes
     - ${LOCAL_SITE_ROOT}:/var/sites

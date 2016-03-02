@@ -14,6 +14,12 @@
 			}
 		},
 		{
+			"name": "templates",
+			"host": {
+				"sourcePath": "/var/app/current/templates"
+			}
+		},
+		{
 			"name": "templates-router",
 			"host": {
 				"sourcePath": "/var/app/current/templates/router"
@@ -76,6 +82,10 @@
 				}
 			],
 			"mountPoints": [
+				{
+					"sourceVolume": "templates",
+					"containerPath": "/var/templates"
+				},
 				{
 					"sourceVolume": "assets-www",
 					"containerPath": "/var/www"

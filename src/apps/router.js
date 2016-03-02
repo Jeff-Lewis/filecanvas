@@ -64,10 +64,9 @@ module.exports = function(database, cache, config) {
 		});
 	}
 
-	var templatesPath = path.resolve(__dirname, '../../templates');
+	var templatesPath = config.templates.root;
 	var themesPath = config.themes.root;
 	var wwwSiteRoot = config.www.siteRoot;
-
 
 	var partialsPath = path.resolve(templatesPath, '_partials');
 	var adminTemplatesPath = path.join(templatesPath, 'admin');

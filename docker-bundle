@@ -51,13 +51,9 @@ sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/'$REGISTRY_REPLACEMENT'filecanvas\
 export NODE_ENV=production
 THEMES_ROOT=.tmp/deploy/themes npm run postinstall
 
-# Copy router templates into artifact bundle
-mkdir -p .tmp/deploy/templates/router
-rsync -a -v -L --delete --exclude '.*' ./templates/router/ .tmp/deploy/templates/router
-
-# Copy admin assets into artifact bundle
-mkdir -p .tmp/deploy/templates/admin/assets
-rsync -a -v -L --delete --exclude '.*' ./templates/admin/assets/ .tmp/deploy/templates/admin/assets
+# Copy templates into artifact bundle
+mkdir -p .tmp/deploy/templates
+rsync -a -v -L --delete --exclude '.*' ./templates/ .tmp/deploy/templates
 
 # Pack the deploy artifact
 (cd .tmp/deploy; zip -FSr ../app.zip * .[^.]*)
