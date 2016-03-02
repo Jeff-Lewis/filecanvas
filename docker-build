@@ -20,11 +20,29 @@ else
 	# Build images named in arguments
 	for IMAGE_NAME in "$@"; do
 		IMAGE_PATH=""
+		IMAGE_SRC_FILTERS=()
 
 		if [ $IMAGE_NAME == "app" ]; then
-			IMAGE_PATH=.
+			IMAGE_PATH="."
+			IMAGE_SRC_FILTERS=(
+				'+ .dockerignore'
+				'- .*'
+				'+ lib/***'
+				'+ src/***'
+				'- templates/admin/assets'
+				'+ templates/***'
+				'+ scripts/'
+				'+ scripts/www/***'
+				'+ Dockerfile'
+				'+ LICENSE.md'
+				'+ package.json'
+				'+ prestart.sh'
+				'+ README.md'
+				'+ server.js'
+				'- *'
+			)
 		elif [ $IMAGE_NAME == "router" ]; then
-			IMAGE_PATH=./services/router/
+			IMAGE_PATH="./services/router/"
 		else
 			echo "Invalid image name: $IMAGE_NAME"
 			exit 1
@@ -32,17 +50,9 @@ else
 
 		# Copy build context and resolve symlinks
 		mkdir -p .tmp/images/$IMAGE_NAME
-		rsync -a -v -L --delete \
-			--include '/.dockerignore'\
-			--exclude '.*'\
-			--exclude '*.env'\
-			--exclude '/data'\
-			--exclude '/resources',\
-			--exclude '/node_modules'\
-			--exclude '/templates/admin/assets'\
-			--exclude '/themes/*/assets'\
-			--exclude '/themes/_common'\
-			$IMAGE_PATH .tmp/images/$IMAGE_NAME
+		filters=""
+		for filter in "${IMAGE_SRC_FILTERS[@]}"; do filters="$filters --filter='$filter'"; done
+		eval "rsync -a -v -L --delete --delete-excluded $filters $IMAGE_PATH .tmp/images/$IMAGE_NAME"
 
 		# Build and tag the Docker image
 		docker build -t filecanvas/$IMAGE_NAME .tmp/images/$IMAGE_NAME
