@@ -3,8 +3,6 @@
 var fs = require('fs');
 var path = require('path');
 var http = require('http');
-var async = require('async');
-var del = require('del');
 var mkdirp = require('mkdirp');
 var copy = require('recursive-copy');
 var imagemagick = require('imagemagick-native');
@@ -82,7 +80,6 @@ module.exports = function(inputPath, outputPath, options, callback) {
 	var theme;
 	try {
 		theme = loadTheme(inputPath);
-		theme = resolveThemePaths(theme, inputPath);
 	} catch(error) {
 		process.nextTick(function() {
 			callback(error);
@@ -99,77 +96,53 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		});
 		return;
 	}
-	log('Generating theme preview page...');
-	Promise.all(Object.keys(theme.templates).map(function(templateId) {
-		var templateData = getPreviewTemplateData(theme, templateId);
-		return generateThemePreviewPage(theme, templateId, templateData).then(function(html) {
-			return {
-				id: templateId,
-				data: templateData,
-				output: html
-			};
-		});
-	}))
-	.then(function(pagePreviews) {
-		log('Creating output directory at ' + outputPreviewPath);
-		createDirectory(outputPreviewPath, function(error) {
-			if (error) { return callback(error); }
-			log('Copying preview site files to ' + outputPreviewPath);
-			async.parallel(
-				pagePreviews.reduce(function(operations, pagePreview) {
-					var templateId = pagePreview.id;
-					var outputHtmlPath = path.join(outputPreviewPath, templateId + '.html');
-					var outputJsonPath = path.join(outputPreviewPath, templateId + '.json');
-					var previewHtml = pagePreview.output;
-					var previewJson = JSON.stringify(pagePreview.data, null, 2);
-					return operations.concat([
-						function(callback) { fs.writeFile(outputHtmlPath, previewHtml, callback); },
-						function(callback) { fs.writeFile(outputJsonPath, previewJson, callback); }
-					]);
-				}, [])
-				.concat(
-					function(callback) { savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPreviewPath, callback); }
-				)
-			, function(error, results) {
-				if (error) { return callback(error); }
-				log('Creating site thumbnails...');
-				createSiteThumbnails({
-					siteRoot: outputPreviewPath,
-					outputPath: outputPath,
-					resolutions: [
-						{
-							dimensions: { width: 1280, height: 960, scale: 200 / 1280 },
-							inputPath: inputThumbnailPath,
-							filename: outputThumbnailFilename
-						},
-						{
-							dimensions: { width: 1440, height: 900, scale: 1 },
-							inputPath: inputScreenshotPath,
-							filename: outputScreenshotFilename
-						}
-					]
-				}, function(error) {
-					if (error) { return callback(error); }
-					log('Copying theme files to ' + outputPath);
-					async.parallel([
-						function(callback) { copyFiles(themeAssetsPath, outputAssetsPath, callback); },
-						function(callback) { copyFiles(themeTemplatesPath, outputTemplatesPath, callback); },
-						function(callback) { saveThemeManifest(theme, outputThemeManifestPath, callback); }
-					], function(error, results) {
-						if (error) { return callback(error); }
-						log('Generating precompiled theme templates...');
-						createPrecompiledThemeTemplates(theme, outputTemplatesPath, function(error) {
-							if (error) { return callback(error); }
-							callback(null);
-						});
+	log('Creating output directory at ' + outputPreviewPath);
+	ensureEmptyDirectoryExists(outputPreviewPath)
+		.then(function() {
+			log('Generating theme preview pages...');
+			return renderThemeTemplates(theme, inputPath);
+		})
+		.then(function(pagePreviews) {
+			log('Copying theme files to ' + outputPath);
+			return ensureEmptyDirectoryExists(outputTemplatesPath)
+				.then(function() {
+					return Promise.all([
+						savePagePreviews(pagePreviews, outputPreviewPath, outputTemplatesPath),
+						savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPreviewPath),
+						copyFiles(themeAssetsPath, outputAssetsPath),
+						copyFiles(themeTemplatesPath, outputTemplatesPath),
+						saveThemeManifest(theme, outputThemeManifestPath),
+						createSiteThumbnails({
+							siteRoot: outputPreviewPath,
+							outputPath: outputPath,
+							resolutions: [
+								{
+									dimensions: { width: 1280, height: 960, scale: 200 / 1280 },
+									inputPath: inputThumbnailPath,
+									filename: outputThumbnailFilename
+								},
+								{
+									dimensions: { width: 1440, height: 900, scale: 1 },
+									inputPath: inputScreenshotPath,
+									filename: outputScreenshotFilename
+								}
+							]
+						})
+					])
+					.then(function(results) {
+						return;
 					});
 				});
-			});
+		})
+		.then(function() {
+			return createPrecompiledThemeTemplates(theme, outputTemplatesPath);
+		})
+		.then(function() {
+			callback(null);
+		})
+		.catch(function(error) {
+			callback(error);
 		});
-	})
-	.catch(function(error) {
-		callback(error);
-	});
 
 
 	function loadTheme(themePath) {
@@ -276,26 +249,6 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		}
 	}
 
-	function getPreviewTemplateData(theme, templateId) {
-		var data = {
-			private: false
-		};
-		if (templateId === 'index') {
-			data.root = theme.preview.files;
-		}
-		return {
-			metadata: {
-				siteRoot: './',
-				themeRoot: './assets/',
-				theme: {
-					id: theme.id,
-					config: theme.preview.config
-				}
-			},
-			resource: data
-		};
-	}
-
 	function getThemeValidationErrors(theme) {
 		var errors = [];
 		if (!theme.name) {
@@ -339,58 +292,145 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		return (errors.length > 0 ? errors : null);
 	}
 
-	function generateThemePreviewPage(theme, templateId, templateData) {
-		return themeService.renderThemeTemplate(theme, templateId, templateData);
+	function ensureEmptyDirectoryExists(path) {
+		return retrieveStats(path)
+			.then(function(stats) {
+				if (!stats) {
+					return createDirectory(path);
+				}
+				if (!stats.isDirectory()) {
+					throw new Error('File exists: ' + path);
+				}
+				return readDirectoryContents(path)
+					.then(function(files) {
+						if (files.length > 0) {
+							throw new Error('Directory is not empty: ' + path);
+						}
+					});
+			});
+
+		function retrieveStats(path) {
+			return new Promise(function(resolve, reject) {
+				fs.stat(path, function(error, stats) {
+					if (error && (error.code === 'ENOENT')) {
+						return resolve(null);
+					}
+					if (error) { return reject(error); }
+					resolve(stats);
+				});
+			});
+		}
+
+		function createDirectory(path) {
+			return new Promise(function(resolve, reject) {
+				mkdirp(path, function(error) {
+					if (error) { return reject(error); }
+					resolve();
+				});
+			});
+		}
+
+		function readDirectoryContents(path) {
+			return new Promise(function(resolve, reject) {
+				fs.readdir(path, function(error, files) {
+					if (error) { return reject(error); }
+					return resolve(files);
+				});
+			});
+		}
+
 	}
 
-	function createDirectory(path, callback) {
-		fs.stat(path, function(error, stats) {
-			if (error && (error.code === 'ENOENT')) {
-				return mkdirp(path, callback);
+	function renderThemeTemplates(theme) {
+		var resolvedTheme = resolveThemePaths(theme, inputPath);
+		return Promise.all(Object.keys(resolvedTheme.templates).map(function(templateId) {
+			var templateData = getPreviewTemplateData(resolvedTheme, templateId);
+			return themeService.renderThemeTemplate(resolvedTheme, templateId, templateData)
+				.then(function(html) {
+					return themeService.serializeThemeTemplate(resolvedTheme, templateId)
+						.then(function(templateString) {
+							return {
+								id: templateId,
+								template: templateString,
+								data: templateData,
+								output: html
+							};
+						});
+				});
+		}));
+
+
+		function getPreviewTemplateData(theme, templateId) {
+			var data = {
+				private: false
+			};
+			if (templateId === 'index') {
+				data.root = theme.preview.files;
 			}
-			if (error) { return callback(error); }
-			if (!stats.isDirectory()) {
-				return callback(new Error('File exists: ' + path));
-			}
-			fs.readdir(path, function(error, files) {
-				if (error) { return callback(error); }
-				if (files.length > 0) {
-					return callback(new Error('Directory is not empty: ' + path));
-				}
-				return callback(null);
-			});
+			return {
+				metadata: {
+					siteRoot: './',
+					themeRoot: './assets/',
+					theme: {
+						id: theme.id,
+						config: theme.preview.config
+					}
+				},
+				resource: data
+			};
+		}
+	}
+
+	function savePagePreviews(pagePreviews, outputPreviewPath, outputTemplatesPath) {
+		return Promise.all(
+			pagePreviews.reduce(function(operations, pagePreview) {
+				var templateId = pagePreview.id;
+				var outputHtmlPath = path.join(outputPreviewPath, templateId + '.html');
+				var outputJsonPath = path.join(outputPreviewPath, templateId + '.json');
+				var outputTemplatePath = path.join(outputTemplatesPath, templateId + '.js');
+				var templateString = pagePreview.template;
+				var previewHtml = pagePreview.output;
+				var previewJson = JSON.stringify(pagePreview.data, null, 2);
+				return operations.concat([
+					writeFile(outputHtmlPath, previewHtml),
+					writeFile(outputJsonPath, previewJson),
+					writeFile(outputTemplatePath, templateString)
+				]);
+			}, [])
+		).then(function(results) {
+			return;
 		});
 	}
 
-	function savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPath, callback) {
+	function savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPath) {
 		var outputDownloadsPath = path.join(outputPath, PREVIEW_DOWNLOADS_PATH);
 		var outputThumbnailsPath = path.join(outputPath, PREVIEW_THUMBNAILS_PATH);
 		var outputMediaPath = path.join(outputPath, PREVIEW_MEDIA_PATH);
 		var outputAssetsPath = path.join(outputPath, PREVIEW_ASSETS_PATH);
-		async.parallel([
-			function(callback) { copyFiles(previewFilesPath, outputDownloadsPath, callback); },
-			function(callback) { copyMedia(previewFilesPath, outputMediaPath, callback); },
-			function(callback) { copyThumbnails(previewFilesPath, outputThumbnailsPath, callback); },
-			function(callback) { copyFiles(themeAssetsPath, outputAssetsPath, callback); }
-		], function(error, results) {
-			if (error) {
-				return del(outputPath)
-					.then(function() {
-						return callback(error);
-					})
-					.catch(function() {
-						return callback(error);
-					});
-			}
-			callback(null);
+		return Promise.all([
+			copyAssets(themeAssetsPath, outputAssetsPath),
+			copyDownloads(previewFilesPath, outputDownloadsPath),
+			copyMedia(previewFilesPath, outputMediaPath),
+			copyThumbnails(previewFilesPath, outputThumbnailsPath)
+		])
+		.then(function(results) {
+			return;
 		});
 
 
-		function copyMedia(sourcePath, outputPath, callback) {
-			return copyFiles(sourcePath, outputPath, callback);
+		function copyAssets(sourcePath, outputPath) {
+			return copyFiles(sourcePath, outputPath);
 		}
 
-		function copyThumbnails(sourcePath, outputPath, callback) {
+		function copyDownloads(sourcePath, outputPath) {
+			return copyFiles(sourcePath, outputPath);
+		}
+
+		function copyMedia(sourcePath, outputPath) {
+			return copyFiles(sourcePath, outputPath);
+		}
+
+		function copyThumbnails(sourcePath, outputPath) {
 			var options = {
 				filter: function(filePath) {
 					var extension = path.extname(filePath);
@@ -406,53 +446,39 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					});
 				}
 			};
-			return copy(sourcePath, outputPath, options, callback);
+			return Promise.resolve(copy(sourcePath, outputPath, options));
 		}
 	}
 
-	function createPrecompiledThemeTemplates(theme, templatesOutputPath, callback) {
+	function createPrecompiledThemeTemplates(theme, templatesOutputPath) {
+		var resolvedTheme = resolveThemePaths(theme, inputPath);
 		return Promise.all(
-			Object.keys(theme.templates).map(function(templateId) {
-				return themeService.serializeThemeTemplate(theme, templateId)
+			Object.keys(resolvedTheme.templates).map(function(templateId) {
+				return themeService.serializeThemeTemplate(resolvedTheme, templateId)
 					.then(function(templateString) {
 						var templateOutputPath = path.join(templatesOutputPath, templateId + '.js');
 						return writeFile(templateOutputPath, templateString);
 					});
 			})
 		)
-			.then(function() {
-				callback(null);
-			})
-			.catch(function(error) {
-				callback(error);
+			.then(function(results) {
+				return;
 			});
-
-
-		function writeFile(path, data) {
-			return new Promise(function(resolve, reject) {
-				fs.writeFile(path, data, function(error) {
-					if (error) { return reject(error); }
-					resolve();
-				});
-			});
-		}
 	}
 
-	function createSiteThumbnails(options, callback) {
+	function createSiteThumbnails(options) {
 		options = options || {};
 		var siteRoot = options.siteRoot;
 		var outputPath = options.outputPath;
 		var resolutions = options.resolutions;
 
-		Promise.all(
+		return Promise.all(
 			resolutions.map(function(resolution) {
 				var inputPath = resolution.inputPath;
-				return new Promise(function(resolve, reject) {
-					checkWhetherFileExists(inputPath, function(error, fileExists) {
-						if (error) { return reject(error); }
-						resolve(fileExists);
+				return checkWhetherFileExists(inputPath)
+					.then(function(fileExists) {
+						return fileExists;
 					});
-				});
 			})
 		)
 		.then(function(filesExist) {
@@ -466,14 +492,8 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				existingResolutions.map(function(resolution) {
 					var inputPath = resolution.inputPath;
 					var outputFilePath = path.join(outputPath, resolution.filename);
-
-					return new Promise(function(resolve, reject) {
-						log('Copying screenshot from ' + inputPath);
-						copyFile(inputPath, outputFilePath, function(error) {
-							if (error) { return reject(error); }
-							resolve();
-						});
-					});
+					log('Copying screenshot from ' + inputPath);
+					return copyFile(inputPath, outputFilePath);
 				})
 				.concat(
 					createScreenshots({
@@ -482,14 +502,12 @@ module.exports = function(inputPath, outputPath, options, callback) {
 						resolutions: pendingResolutions
 					})
 				)
-			);
-		})
-		.then(function(results) {
-			callback(null);
-		})
-		.catch(function(error) {
-			callback(error);
+			)
+			.then(function(results) {
+				return;
+			});
 		});
+
 
 		function createScreenshots(options) {
 			options = options || {};
@@ -498,84 +516,111 @@ module.exports = function(inputPath, outputPath, options, callback) {
 			var resolutions = options.resolutions;
 
 			log('Saving ' + resolutions.length + ' ' + (resolutions === 1 ? 'screenshot' : 'screenshots'));
-			return new Promise(function(resolve, reject) {
-				log('Serving static files from ' + siteRoot);
-				var server = http.createServer(express.static(siteRoot));
-				var randomPort = 0;
-				server.listen(randomPort, function(error) {
-					if (error) { return reject(error); }
+			log('Serving static files from ' + siteRoot);
+			return launchStaticServer(siteRoot)
+				.then(function(server) {
 					var url = 'http://localhost:' + server.address().port + '/';
 					log('Started preview server at ' + url);
-					saveUrlScreenshots({
+					return saveUrlScreenshots({
 						url: url,
 						outputPath: outputPath,
 						resolutions: resolutions
-					}, function(error) {
-						if (error) { return reject(error); }
-						server.close(function(error) {
-							if (error) { return reject(error); }
+					})
+						.then(function() {
+							return stopServer(server);
+						})
+						.then(function() {
 							log('Stopped preview server');
-							resolve(null);
+							return;
 						});
+				});
+
+
+			function launchStaticServer(siteRoot) {
+				return new Promise(function(resolve, reject) {
+					var server = http.createServer(express.static(siteRoot));
+					var randomPort = 0;
+					server.listen(randomPort, function(error) {
+						if (error) { return reject(error); }
+						resolve(server);
 					});
 				});
-			});
+			}
 
-			function saveUrlScreenshots(options, callback) {
+			function stopServer(server) {
+				return new Promise(function(resolve, reject) {
+					server.close(function(error) {
+						if (error) { return reject(error); }
+						resolve();
+					});
+				});
+			}
+
+			function saveUrlScreenshots(options) {
 				options = options || {};
 				var url = options.url;
 				var outputPath = options.outputPath;
 				var resolutions = options.resolutions;
 				log('Saving PhantomJS screenshots...');
 				var pageres = new Pageres({ crop: true });
-				resolutions.reduce(function(pageres, resolution) {
+				return resolutions.reduce(function(pageres, resolution) {
 					return pageres.src(url, [resolution.dimensions.width + 'x' + resolution.dimensions.height], {
 						scale: resolution.dimensions.scale,
 						filename: resolution.filename
 					});
 				}, pageres)
-				.dest(outputPath)
-				.run()
-				.then(function() {
-					log('Saved PhantomJS screenshot');
-					callback(null);
-				})
-				.catch(function(error) {
-					callback(error);
-				});
+					.dest(outputPath)
+					.run()
+					.then(function() {
+						log('Saved PhantomJS screenshot');
+						return;
+					});
 			}
 		}
 	}
 
-	function saveThemeManifest(theme, filePath, callback) {
+	function saveThemeManifest(theme, filePath) {
 		var json = JSON.stringify(theme, null, 2);
-		fs.writeFile(filePath, json, callback);
+		return writeFile(filePath, json);
 	}
 
-	function checkWhetherFileExists(path, callback) {
-		fs.stat(path, function(error, stats) {
-			if (error && (error.code === 'ENOENT')) {
-				return callback(null, false);
-			}
-			if (error) { return callback(error); }
-			if (!stats.isFile()) { return callback(null, false); }
-			return callback(null, true);
+	function checkWhetherFileExists(path) {
+		return new Promise(function(resolve, reject) {
+			fs.stat(path, function(error, stats) {
+				if (error && (error.code === 'ENOENT')) {
+					return resolve(false);
+				}
+				if (error) { return reject(error); }
+				if (!stats.isFile()) { return resolve(false); }
+				return resolve(true);
+			});
 		});
 	}
 
-	function copyFiles(sourcePath, outputPath, callback) {
-		return copy(sourcePath, outputPath, {
+	function copyFiles(sourcePath, outputPath) {
+		return Promise.resolve(copy(sourcePath, outputPath, {
 			expand: true
-		}, callback);
+		}));
 	}
 
-	function copyFile(inputPath, outputPath, callback) {
-		fs.createReadStream(inputPath)
-			.on('error', callback)
-			.pipe(fs.createWriteStream(outputPath))
-			.on('error', callback)
-			.on('finish', function() {
-				callback(null);
+	function copyFile(inputPath, outputPath) {
+		return new Promise(function(resolve, reject) {
+			fs.createReadStream(inputPath)
+				.on('error', reject)
+				.pipe(fs.createWriteStream(outputPath))
+				.on('error', reject)
+				.on('finish', function() {
+					resolve();
+				});
+		});
+	}
+
+	function writeFile(path, data, options) {
+		return new Promise(function(resolve, reject) {
+			fs.writeFile(path, data, options, function(error) {
+				if (error) { return reject(error); }
+				resolve();
 			});
+		});
 	}
 };
