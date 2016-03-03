@@ -4,21 +4,22 @@ title: Security
 
 # Security at Filecanvas
 
-Your safety and security are very important to us. We're not just saying that: our entire service depends on being able to guarantee that your data is totally safe when using Filecanvas. With this in mind, we thought it's important that we let you know exactly how we go about ensuring this safety.
+Filecanvas is solidly built around security best practices to ensure that your data is kept safe at all times. With this in mind, we thought we should let you know exactly how we go about ensuring this safety.
 
 ## Summary
 
-- The account login process is handled by your cloud storage provider – i.e. Google or Dropbox
+Here's a brief overview of the most important security aspects of Filecanvas:
+
+- The account login process is handled by your cloud storage provider – i.e. Google or Dropbox
 - Filecanvas does not store your account username or password
 - Filecanvas does not store any of your files
 - Filecanvas will never share any of your personal data with third parties
 - Filecanvas will never do anything you haven't authorised it to do
 - Filecanvas will only interact with your cloud storage in the ways discussed on this page
-- Filecanvas is solidly built around security best practices to keep your data safe at all times
 - All communication to and from filecanvas.com is fully encrypted using HTTPS
 - Pro tip: For optimum security, create a cloud storage account that you use solely for Filecanvas
 
-Read on for a more detailed explanation of some of the different security aspects within the Filecanvas serivce.
+Read on for a more detailed explanation of how these security features are implemented throughout the Filecanvas service.
 
 
 ## Account login
@@ -49,11 +50,11 @@ This means Filecanvas needs some method of authenticating with your cloud storag
 
 The cloud storage provider handles this by granting Filecanvas an *access token*. This provides a much safer alternative than sharing your login details. It's effectively like granting guest access to Filecanvas.
 
-- In the extremely unlikely event that an attacker manages to intercept this access token, the token can be instantly revoked, making it useless to the attacker
-	- Even if an access token is somehow compromised, your cloud storage account username and password are still completely safe
-	- There is no way an attacker can use your access token to lock you out of your account
-- You can choose to revoke your access token at any time from your cloud storage provider's account settings area, however this will prevent Filecanvas from being able to list your files and therefore your canvases will suddenly appear empty
-- If you accidentally revoke your access token, you can automatically create a new access token and restore the service by logging into your Filecanvas account
+- In the extremely unlikely event that an attacker manages to intercept this access token, the token can be instantly revoked, making it useless to the attacker.
+	- Even if an access token is somehow compromised, your cloud storage account username and password are still completely safe.
+	- There is no way an attacker can use your access token to lock you out of your account.
+- You can choose to revoke your access token at any time from your cloud storage provider's account settings area, however this will prevent Filecanvas from being able to list your files and therefore your canvases will suddenly appear empty.
+- If you accidentally revoke your access token, you can automatically create a new access token and restore the service by logging into your Filecanvas account.
 
 
 ## Cloud storage permissions
@@ -66,7 +67,7 @@ As stated above, these are used purely for communication purposes. We will never
 
 ### Why does Filecanvas need read/write access to my cloud storage, rather than just read-only?
 
-When you create a canvas, Filecanvas automatically creates a synced folder for you to put your files in, and when you delete a canvas, Filecanvas may ask you whether you also want to delete the synced folder. It also allows you to upload files to your canvases via the web interface. It can't do these without read/write access to your cloud storage. These are the only situations where Filecanvas will write to your cloud storage.
+When you create a canvas, Filecanvas automatically creates a synced folder for you to put your files in, and when you delete a canvas, Filecanvas may ask you whether you also want to delete the synced folder. It also allows you to upload files to your canvases via the web interface. It can't perform these actions without read/write access to your cloud storage. These are the only situations where Filecanvas will write to your cloud storage.
 
 ### Why does Filecanvas need to access my cloud storage when I'm not logged in?
 
@@ -74,7 +75,7 @@ Filecanvas needs this for its automatic folder syncing. Whenever you update a fi
 
 ### Why does Filecanvas need access to the files outside its own folder?
 
-It doesn't – which is particularly frustrating, seeing as we're limited by the APIs of the cloud storage providers on this one.
+It doesn't – however we're limited by the APIs of the cloud storage providers on this one.
 
 We'd much rather that Filecanvas only had access to its own "Filecanvas" folder within your cloud storage, both for security and performance reasons. Unfortunately, we're waiting for the APIs to catch up:
 
@@ -98,14 +99,14 @@ Filecanvas uses your cloud storage provider's API to perform the following funct
 
 - **List folder hierarchy and file metadata within your synced folders**
 	- This is necessary so that Filecanvas can display the contents of your synced folders when a user visits your canvas
-	- Rather than loading the contents of the file themselves, Filecanvas just uses file "metadata" (e.g. filename, filesize, size, etc) to display the files to the user
+	- Rather than loading the contents of the file themselves, Filecanvas just uses file "metadata" (e.g. filename, filesize, date, etc) to display the files to the user
 - **Display file preview thumbnails within your synced folders**
 	- When a user visits your canvas, Filecanvas shows file preview thumbnails for various file types
-	- These thumbnails are created by your cloud storage provider – Filecanvas just passes them on to the user as-is, without storing them
+	- These thumbnails are created by your cloud storage provider – Filecanvas just passes them on to the user as-is, without inspecting them or storing them
 - **Download files from your synced folders**
 	- When a user chooses to download a file from your canvas, Filecanvas creates a temporary download link that allows the user to download the file
 	- These links expire within several hours, and contain a randomly generated unique ID to prevent unauthorised access
-	- In order to prevent leaking your access token to the end user, these links may be proxied through a Filecanvas server. Filecanvas performs this proxying service solely to shield your sensitive information from the end user, and does not sniff or store the contents of the file during transfer
+	- In order to prevent leaking your access token to the end user, these links may be proxied through a Filecanvas server. Filecanvas performs this proxying service solely to shield your sensitive information from the end user, and does not inspect, modify or store the contents of the file during transfer
 	- This technique is also used to allow users to preview files within your canvas, and to allow users to visit web links that have been saved as shortcut files
 - **Create a folder**
 	- When you create a canvas, Filecanvas automatically creates a synced folder for you to put your files in
