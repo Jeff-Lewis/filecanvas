@@ -12,8 +12,8 @@
     "eb-local": "./scripts/eb-local",
     "docker-build": "./scripts/docker-build",
     "docker-bundle": "./scripts/docker-bundle",
-    "docker-push": "./scripts/docker-push",
-    "docker-start": "./scripts/docker-start"
+    "docker-start": "./scripts/docker-start",
+    "deploy": "./scripts/docker-push"
   },
   "engines": {
     "node": "0.12.x"
