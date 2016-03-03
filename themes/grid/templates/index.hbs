@@ -1,0 +1,38 @@
+<html lang="en">
+	<head>
+		{{> head }}
+		{{#if metadata.redirect}}
+		<meta http-equiv="refresh" content="0;url={{ metadata.redirect }}"/>
+		{{/if}}
+	</head>
+	<body>
+		{{#partial 'sidebar'}}
+			{{#if (folders resource.root)}}
+			<a class="sidebar-menu-link active" href="#" data-toggle="filter" data-target="#items" data-filter="">Home</a>
+			{{#each (folders resource.root) key='path' as |folder|}}
+			<a class="sidebar-menu-link" href="#" data-toggle="filter" data-target="#items" data-filter="{{ basename folder.path }}">{{ strip-number-prefix folder }}</a>
+			{{/each}}
+			{{/if}}
+		{{/partial}}
+		<div class="page clearfix">
+			<ul class="items clearfix" id="items">
+				{{#each (files resource.root) key='path' as |file|}}
+					{{ partial 'file' file=file parent=resource.root }}
+				{{/each}}
+				{{#each (folders resource.root) key='path' as |folder|}}
+				{{#each (flattenedFiles folder) key='path' as |file|}}
+					{{ partial 'file' file=file parent=folder }}
+				{{/each}}
+				{{/each}}
+			</ul>
+			<footer class="footer">
+				{{> contact }}
+				{{> banner }}
+			</footer>
+		</div>
+		{{ script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js" }}
+		{{ script src="https://cdnjs.cloudflare.com/ajax/libs/TinyNav.js/1.2.0/tinynav.min.js" }}
+		{{ script src=(asset @root 'js/filecanvas-theme.js') }}
+		{{ script src=(asset @root 'js/main.js') }}
+	</body>
+</html>

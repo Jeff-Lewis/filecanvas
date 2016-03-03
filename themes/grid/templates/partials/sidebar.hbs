@@ -1,0 +1,17 @@
+<div class="sidebar">
+	<div class="sidebar-content">
+		<div class="sidebar-header">
+			{{#if metadata.theme.config.images.headerLogo}}
+			<img class="sidebar-header-logo" src={{ metadata.theme.config.images.headerLogo }}/>
+			{{/if}}
+			<h1 class="sidebar-header-title">{{ metadata.theme.config.content.pageTitle }}</h1>
+			<h2 class="sidebar-header-subtitle">{{ metadata.theme.config.content.pageSubtitle }}</h2>
+		</div>
+		<nav class="sidebar-menu">
+			{{ yield }}
+		</nav>
+		<div class="sidebar-footer">
+			{{> contact}}
+		</div>
+	</div>
+</div>

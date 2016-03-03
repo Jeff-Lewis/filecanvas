@@ -1,0 +1,102 @@
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+{{#if (or metadata.theme.config.browser.title metadata.theme.config.content.pageHeader) }}
+<title>{{ if metadata.theme.config.browser.title metadata.theme.config.browser.title metadata.theme.config.content.pageHeader }}</title>
+{{else}}
+<title></title>
+{{/if}}
+<link rel="stylesheet" type="text/css" href="{{ asset @root 'css/filecanvas-overlay.css' }}"/>
+<link rel="stylesheet" type="text/css" href="{{ asset @root 'css/fonts.css' }}"/>
+<!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script><![endif]-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="{{ asset @root 'css/base.css' }}"/>
+<link rel="stylesheet" href="{{ asset @root 'css/main.css' }}"/>
+<style type="text/css">
+	h1 {
+		font-family: Montserrat;
+		font-weight: normal;
+		text-transform: none;
+	}
+	h2 {
+		font-family: Montserrat;
+		font-weight: normal;
+		text-transform: none;
+	}
+	.sidebar,
+	.sidebar a,
+	.sidebar a:link,
+	.sidebar a:visited,
+	.footer,
+	.footer a,
+	.footer a:link,
+	.footer a:visited {
+		font-family: Montserrat;
+		font-weight: normal;
+		text-transform: none;
+	}
+	.item-preview-title {
+		font-family: Montserrat;
+		font-weight: normal;
+		text-transform: uppercase;
+	}
+	.item-preview-rollover-button {
+		font-family: Montserrat;
+		font-weight: normal;
+		text-transform: uppercase;
+	}
+
+	body,
+	.sidebar,
+	.footer {
+		background-color: #111111;
+	}
+	.sidebar-header-title {
+		color: #cccccc;
+	}
+	.sidebar-header-subtitle {
+		color: #cccccc;
+	}
+	body,
+	.sidebar,
+	.sidebar a,
+	.sidebar a:link,
+	.sidebar a:visited,
+	.footer,
+	.footer a,
+	.footer a:link,
+	.footer a:visited {
+		color: #666666;
+	}
+	a.contact-social-link svg,
+	a.contact-social-link:link svg,
+	a.contact-social-link:visited svg,
+	a.contact-social-link:active svg {
+		fill: #666666;
+	}
+	.sidebar a:focus,
+	.sidebar a:hover,
+	.footer a:focus,
+	.footer a:hover {
+		color: #ffffff;
+	}
+	a.contact-social-link:focus svg,
+	a.contact-social-link:hover svg {
+		fill: #ffffff;
+	}
+	.sidebar a:active,
+	.sidebar a.active,
+	.footer a:active,
+	.footer a.active {
+		color: #cccccc;
+	}
+	.item-preview-title {
+		background-color: #111111;
+		color: white;
+	}
+	.item-preview-rollover-button {
+		background-color: #111111;
+		color: #ffffff;
+	}
+</style>
+<style type="text/css">{{ css metadata.theme.config.scripts.css }}</style>

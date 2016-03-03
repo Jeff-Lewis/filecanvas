@@ -1,0 +1,218 @@
+{
+	"name": "Grid",
+	"fonts": "css/fonts.css",
+	"templates": {
+		"index": {
+			"engine": "htmlbars",
+			"filename": "templates/index.hbs",
+			"options": {
+				"partials": "templates/partials"
+			}
+		},
+		"login": {
+			"engine": "htmlbars",
+			"filename": "templates/login.hbs",
+			"options": {
+				"partials": "templates/partials"
+			}
+		}
+	},
+	"config": [
+		{
+			"name": "content",
+			"label": "Text",
+			"icon": "align-left",
+			"fields": [
+				{
+					"name": "pageTitle",
+					"type": "string",
+					"default": "Your company",
+					"preview": "Acme, Inc",
+					"demo": "Filecanvas",
+					"label": "Page title",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Main page header",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "pageSubtitle",
+					"type": "string",
+					"default": "Your company slogan",
+					"preview": "2016 Portfolio",
+					"demo": "Interactive demo",
+					"label": "Page subtitle",
+					"editor": {
+						"name": "textarea",
+						"options": {
+							"placeholder": "Main page subtitle",
+							"maxLength": 256,
+							"rows": 3
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "contact",
+			"label": "Contact",
+			"icon": "th-list",
+			"fields": [
+				{
+					"name": "email",
+					"type": "string",
+					"default": "info@example.com",
+					"preview": "info@example.com",
+					"label": "Email",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "email",
+							"placeholder": "Email address",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "website",
+					"type": "url",
+					"default": "http://www.example.com/",
+					"preview": "http://www.example.com/",
+					"label": "Website",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "url",
+							"placeholder": "Web address",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "phone",
+					"type": "string",
+					"default": "+44 (0)123 456 7890",
+					"preview": "+44 (0)123 456 7890",
+					"label": "Phone",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "tel",
+							"placeholder": "Phone number",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "address",
+					"type": "string",
+					"default": "123 Address St,\nLondon, E1 1AA",
+					"preview": "123 Address St,\nLondon, E1 1AA",
+					"label": "Address",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Street address",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "twitter",
+					"type": "string",
+					"default": null,
+					"preview": "acmeinc",
+					"label": "Twitter username",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Street address",
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "facebook",
+					"type": "string",
+					"default": null,
+					"preview": "acmeinc",
+					"label": "Facebook username",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": null,
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "instagram",
+					"type": "string",
+					"default": null,
+					"preview": "acmeinc",
+					"label": "Instagram username",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": null,
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "pinterest",
+					"type": "string",
+					"default": null,
+					"preview": "acmeinc",
+					"label": "Pinterest username",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": null,
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "linkedin",
+					"type": "string",
+					"default": null,
+					"preview": "acmeinc",
+					"label": "LinkedIn username",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": null,
+							"maxLength": 128
+						}
+					}
+				},
+				{
+					"name": "github",
+					"type": "string",
+					"default": null,
+					"preview": "acmeinc",
+					"label": "Github username",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": null,
+							"maxLength": 128
+						}
+					}
+				}
+			]
+		}
+	]
+}

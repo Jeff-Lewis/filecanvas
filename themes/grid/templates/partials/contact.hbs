@@ -1,0 +1,69 @@
+<div class="contact">
+	{{#if metadata.theme.config.contact.website }}
+	<div class="contact-detail contact-website"><a href={{ metadata.theme.config.contact.website }} target="_blank">{{ metadata.theme.config.contact.website }}</a></div>
+	{{/if}}
+	{{#if metadata.theme.config.contact.email }}
+	<div class="contact-detail contact-email"><a href="mailto:{{ metadata.theme.config.contact.email }}">{{ metadata.theme.config.contact.email }}</a></div>
+	{{/if}}
+	{{#if metadata.theme.config.contact.phone }}
+	<div class="contact-detail contact-phone">{{ metadata.theme.config.contact.phone }}</div>
+	{{/if}}
+	{{#if metadata.theme.config.contact.address }}
+	<div class="contact-detail contact-address">{{ nl2br metadata.theme.config.contact.address }}</div>
+	{{/if}}
+	{{#if
+		(or
+			metadata.theme.config.contact.twitter
+			metadata.theme.config.contact.facebook
+			metadata.theme.config.contact.instagram
+			metadata.theme.config.contact.pinterest
+			metadata.theme.config.contact.github
+			metadata.theme.config.contact.linkedin
+		)
+	}}
+	<div class="contact-social">
+		{{#if metadata.theme.config.contact.twitter }}
+		<a class="contact-social-link contact-social-link-twitter" href="https://twitter.com/{{ metadata.theme.config.contact.twitter }}">
+			<svg width="20" height="20" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+				<path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z"/>
+			</svg>
+		</a>
+		{{/if}}
+		{{#if metadata.theme.config.contact.facebook }}
+		<a class="contact-social-link contact-social-link-facebook" href="https://www.facebook.com/{{ metadata.theme.config.contact.facebook }}">
+			<svg width="20" height="20" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+				<path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z"/>
+			</svg>
+		</a>
+		{{/if}}
+		{{#if metadata.theme.config.contact.instagram }}
+		<a class="contact-social-link contact-social-link-instagram" href="https://www.instagram.com/{{ metadata.theme.config.contact.instagram }}/">
+			<svg width="20" height="20" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+				<path d="M1490 1426v-648h-135q20 63 20 131 0 126-64 232.5t-174 168.5-240 62q-197 0-337-135.5t-140-327.5q0-68 20-131h-141v648q0 26 17.5 43.5t43.5 17.5h1069q25 0 43-17.5t18-43.5zm-284-533q0-124-90.5-211.5t-218.5-87.5q-127 0-217.5 87.5t-90.5 211.5 90.5 211.5 217.5 87.5q128 0 218.5-87.5t90.5-211.5zm284-360v-165q0-28-20-48.5t-49-20.5h-174q-29 0-49 20.5t-20 48.5v165q0 29 20 49t49 20h174q29 0 49-20t20-49zm174-208v1142q0 81-58 139t-139 58h-1142q-81 0-139-58t-58-139v-1142q0-81 58-139t139-58h1142q81 0 139 58t58 139z"/>
+			</svg>
+		</a>
+		{{/if}}
+		{{#if metadata.theme.config.contact.pinterest }}
+		<a class="contact-social-link contact-social-link-pinterest" href="https://www.pinterest.com/{{ metadata.theme.config.contact.pinterest }}/">
+			<svg width="20" height="20" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+				<path d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103q-111 0-218-32 59-93 78-164 9-34 54-211 20 39 73 67.5t114 28.5q121 0 216-68.5t147-188.5 52-270q0-114-59.5-214t-172.5-163-255-63q-105 0-196 29t-154.5 77-109 110.5-67 129.5-21.5 134q0 104 40 183t117 111q30 12 38-20 2-7 8-31t8-30q6-23-11-43-51-61-51-151 0-151 104.5-259.5t273.5-108.5q151 0 235.5 82t84.5 213q0 170-68.5 289t-175.5 119q-61 0-98-43.5t-23-104.5q8-35 26.5-93.5t30-103 11.5-75.5q0-50-27-83t-77-33q-62 0-105 57t-43 142q0 73 25 122l-99 418q-17 70-13 177-206-91-333-281t-127-423q0-209 103-385.5t279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/>
+			</svg>
+		</a>
+		{{/if}}
+		{{#if metadata.theme.config.contact.github }}
+		<a class="contact-social-link contact-social-link-github" href="https://github.com/{{ metadata.theme.config.contact.github }}/">
+			<svg width="20" height="20" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+				<path d="M1664 896q0 251-146.5 451.5t-378.5 277.5q-27 5-39.5-7t-12.5-30v-211q0-97-52-142 57-6 102.5-18t94-39 81-66.5 53-105 20.5-150.5q0-121-79-206 37-91-8-204-28-9-81 11t-92 44l-38 24q-93-26-192-26t-192 26q-16-11-42.5-27t-83.5-38.5-86-13.5q-44 113-7 204-79 85-79 206 0 85 20.5 150t52.5 105 80.5 67 94 39 102.5 18q-40 36-49 103-21 10-45 15t-57 5-65.5-21.5-55.5-62.5q-19-32-48.5-52t-49.5-24l-20-3q-21 0-29 4.5t-5 11.5 9 14 13 12l7 5q22 10 43.5 38t31.5 51l10 23q13 38 44 61.5t67 30 69.5 7 55.5-3.5l23-4q0 38 .5 89t.5 54q0 18-13 30t-40 7q-232-77-378.5-277.5t-146.5-451.5q0-209 103-385.5t279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/>
+			</svg>
+		</a>
+		{{/if}}
+		{{#if metadata.theme.config.contact.linkedin }}
+		<a class="contact-social-link contact-social-link-linkedin" href="https://www.linkedin.com/in/{{ metadata.theme.config.contact.linkedin }}">
+			<svg width="20" height="20" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+				<path d="M365 1414h231v-694h-231v694zm246-908q-1-52-36-86t-93-34-94.5 34-36.5 86q0 51 35.5 85.5t92.5 34.5h1q59 0 95-34.5t36-85.5zm585 908h231v-398q0-154-73-233t-193-79q-136 0-209 117h2v-101h-231q3 66 0 694h231v-388q0-38 7-56 15-35 45-59.5t74-24.5q116 0 116 157v371zm468-998v960q0 119-84.5 203.5t-203.5 84.5h-960q-119 0-203.5-84.5t-84.5-203.5v-960q0-119 84.5-203.5t203.5-84.5h960q119 0 203.5 84.5t84.5 203.5z"/>
+			</svg>
+		</a>
+		{{/if}}
+	</div>
+	{{/if}}
+</div>
