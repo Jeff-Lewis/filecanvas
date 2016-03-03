@@ -2,11 +2,11 @@
 	{{#if metadata.redirect}}
 	<input type="hidden" name="redirect" value={{ metadata.redirect }} />
 	{{/if}}
-	<h2 class="login-form-heading">Sign in</h2>
+	<h2>Sign in</h2>
 	{{#if metadata.retry}}
 	<p>Invalid username or password.</p>
 	{{/if}}
-	<div><input type="text" name="username" class="form-control" placeholder="Username" required autofocus></div>
-	<div><input type="password" name="password" class="form-control" placeholder="Password" required></div>
+	<div><input type="text" name="username" class="form-control" placeholder="Username" autofocus></div>
+	<div><input type="password" name="password" class="form-control" placeholder="Password"></div>
 	<div><button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button></div>
 </form>
