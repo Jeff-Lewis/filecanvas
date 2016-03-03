@@ -111,8 +111,10 @@ module.exports = function(inputPath, outputPath, options, callback) {
 						savePreviewSiteAssets(previewFilesPath, themeAssetsPath, outputPreviewPath),
 						copyFiles(themeAssetsPath, outputAssetsPath),
 						copyFiles(themeTemplatesPath, outputTemplatesPath),
-						saveThemeManifest(theme, outputThemeManifestPath),
-						createSiteThumbnails({
+						saveThemeManifest(theme, outputThemeManifestPath)
+					])
+					.then(function(results) {
+						return createSiteThumbnails({
 							siteRoot: outputPreviewPath,
 							outputPath: outputPath,
 							resolutions: [
@@ -127,10 +129,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 									filename: outputScreenshotFilename
 								}
 							]
-						})
-					])
-					.then(function(results) {
-						return;
+						});
 					});
 				});
 		})
