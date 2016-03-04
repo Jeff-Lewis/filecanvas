@@ -1,5 +1,7 @@
 'use strict';
 
+var path = require('path');
+
 function LocalUploadAdapter(options) {
 	options = options || {};
 	var uploadUrl = options.uploadUrl || null;
@@ -14,16 +16,21 @@ function LocalUploadAdapter(options) {
 
 LocalUploadAdapter.prototype.generateRequest = function(filePath) {
 	var uploadUrl = this.uploadUrl + filePath;
-	var downloadUrl = this.downloadUrl + filePath;
 
+	var self = this;
 	return Promise.resolve({
 		upload: {
 			url: uploadUrl,
 			method: 'POST',
 			headers: null
 		},
-		location: downloadUrl
+		location: self.getDownloadUrl(filePath)
 	});
+};
+
+LocalUploadAdapter.prototype.getDownloadUrl = function(filePath) {
+	var downloadUrl = this.downloadUrl;
+	return path.join(downloadUrl, filePath);
 };
 
 module.exports = LocalUploadAdapter;
