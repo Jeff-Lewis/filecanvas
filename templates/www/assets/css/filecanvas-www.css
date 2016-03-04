@@ -293,6 +293,40 @@ fieldset[disabled] .btn {
 	margin-top: -3px;
 }
 
+.carousel-actions {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	text-align: center;
+	padding: 100px 0;
+	height: 34px;
+	margin-top: -117px;
+}
+.carousel-actions .carousel-action {
+	visibility: hidden;
+	opacity: 0;
+	-webkit-transform: translateY(25%);
+	-moz-transform: translateY(25%);
+	-ms-transform: translateY(25%);
+	-o-transform: translateY(25%);
+	transform: translateY(25%);
+	-webkit-transition: all 150ms linear;
+	-moz-transition: all 150ms linear;
+	-ms-transition: all 150ms linear;
+	-o-transition: all 150ms linear;
+	transition: all 150ms linear;
+}
+.carousel-actions:hover .carousel-action {
+	visibility: visible;
+	opacity: 1;
+	-webkit-transform: translateY(0);
+	-moz-transform: translateY(0);
+	-ms-transform: translateY(0);
+	-o-transform: translateY(0);
+	transform: translateY(0);
+}
+
 .info-panel {
 	margin-bottom: 45px;
 }
