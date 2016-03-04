@@ -18,17 +18,10 @@ module.exports = function(adapterConfig) {
 
 
 	function createLocalAdapter(adapterConfig) {
-		return new LocalUploadAdapter({
-			uploadUrl: adapterConfig.uploadUrl,
-			downloadUrl: adapterConfig.downloadUrl
-		});
+		return new LocalUploadAdapter(adapterConfig);
 	}
 
 	function createS3Adapter(adapterConfig) {
-		return new S3UploadAdapter({
-			bucket: adapterConfig.bucket,
-			accessKey: adapterConfig.accessKey,
-			secretKey: adapterConfig.secretKey
-		});
+		return new S3UploadAdapter(adapterConfig);
 	}
 };
