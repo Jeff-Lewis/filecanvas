@@ -1112,7 +1112,6 @@ body.full-page .title-bar {
 	margin-left: 5px;
 }
 .title-bar-controls .btn:first-child,
-.title-bar-controls .btn:first-of-type,
 .title-bar-controls .visible-xs:first-child + .btn {
 	margin-left: 0;
 }
@@ -1270,9 +1269,7 @@ select.btn-toolbar {
 		width: 100%;
 		margin-top: 5px;
 	}
-	.title-bar-controls .btn:first-child,
-	.title-bar-controls .btn:first-of-type,
-	.title-bar-controls .visible-xs:first-child + .btn {
+	.title-bar-controls .btn:first-child {
 		margin-top: 0;
 	}
 	.title-bar-toolbar {
