@@ -2,8 +2,9 @@
 
 var path = require('path');
 var slug = require('slug');
-var xhr = require('../utils/xhr');
+
 var loadImage = require('../utils/loadImage');
+var uploadFile = require('../utils/uploadFile');
 
 var DEFAULT_VALIDATION_TRIGGERS = 'input change blur';
 
@@ -950,12 +951,12 @@ function initUploadControls() {
 									loaded: percentageLoaded,
 									total: 100
 								});
-								processUpload(processedFile, {
+								abortable(uploadFile(processedFile, {
 									uploadUrl: uploadUrl,
 									uploadMethod: uploadMethod,
 									requestUploadUrl: requestUploadUrl,
 									requestUploadMethod: requestUploadMethod
-								})
+								}))
 									.progress(function(progress) {
 										var percentageAlreadyLoaded = 100 * resizeImageProgressRatio;
 										var percentageUploaded = 100 * uploadProgressRatio * (progress.loaded / progress.total);
@@ -976,7 +977,7 @@ function initUploadControls() {
 							});
 						return deferred.promise();
 					} else {
-						return processUpload(file, {
+						return uploadFile(file, {
 							uploadUrl: uploadUrl,
 							uploadMethod: uploadMethod,
 							requestUploadUrl: requestUploadUrl,
@@ -994,93 +995,6 @@ function initUploadControls() {
 						format: imageFormat,
 						quality: imageQuality,
 						options: imageOptions
-					});
-				}
-
-				function processUpload(file, options) {
-					options = options || {};
-					var uploadUrl = options.uploadUrl;
-					var uploadMethod = options.uploadMethod;
-					var requestUploadUrl = options.requestUploadUrl;
-					var requestUploadMethod = options.requestUploadMethod;
-					var deferred = new $.Deferred();
-					if (uploadUrl) {
-						abortable(uploadFile(file, {
-							url: uploadUrl,
-							method: uploadMethod,
-							headers: null
-						}))
-						.progress(function(progress) {
-							deferred.notify({
-								loaded: progress.bytesLoaded,
-								total: progress.bytesTotal
-							});
-						})
-						.then(function(response) {
-							return uploadUrl;
-						})
-						.then(function(value) {
-							deferred.resolve(value);
-						})
-						.fail(function(error) {
-							deferred.reject(error);
-						});
-					} else {
-						var retrieveUploadUrlProgressRatio = 0.25;
-						var uploadProgressRatio = (1 - retrieveUploadUrlProgressRatio);
-						abortable(retrieveUploadUrl(file, {
-							url: requestUploadUrl,
-							method: requestUploadMethod
-						}))
-							.progress(function(progress) {
-								var percentageLoaded = 100 * (progress.bytesLoaded / progress.bytesTotal);
-								deferred.notify({
-									loaded: percentageLoaded * retrieveUploadUrlProgressRatio,
-									total: 100
-								});
-							})
-							.then(function(response) {
-								var uploadOptions = response.upload;
-								var uploadedUrl = response.location;
-								return abortable(uploadFile(file, uploadOptions))
-									.progress(function(progress) {
-										var percentageAlreadyLoaded = 100 * retrieveUploadUrlProgressRatio;
-										var percentageUploaded = 100 * uploadProgressRatio * (progress.bytesLoaded / progress.bytesTotal);
-										deferred.notify({
-											loaded: percentageAlreadyLoaded + percentageUploaded,
-											total: 100
-										});
-									})
-									.then(function(response) {
-										return uploadedUrl;
-									});
-							})
-							.then(function(value) {
-								deferred.resolve(value);
-							})
-							.fail(function(error) {
-								deferred.reject(error);
-							});
-					}
-					return deferred.promise();
-				}
-
-				function retrieveUploadUrl(file, options) {
-					options = options || {};
-					var url = options.url + '/' + file.name;
-					var method = options.method;
-					return xhr.send({ url: url, method: method });
-				}
-
-				function uploadFile(file, options) {
-					var method = options.method;
-					var url = options.url;
-					var headers = options.headers;
-					return xhr.upload({
-						method: method,
-						url: url,
-						headers: headers,
-						body: file
 					});
 				}
 
