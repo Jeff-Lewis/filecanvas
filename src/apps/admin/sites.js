@@ -96,7 +96,7 @@ module.exports = function(database, options) {
 		app.delete('/:site/users/:username', deleteSiteUserRoute);
 
 		app.get('/:site/edit', retrieveSiteEditRoute);
-		app.post('/:site/edit/upload/:filename', createSiteEditUploadRoute);
+		app.post('/:site/edit/upload/:filename', namespaceUserFileUpload, fileUploadService.middleware());
 
 
 		function retrieveSitesRoute(req, res, next) {
@@ -522,24 +522,12 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function createSiteEditUploadRoute(req, res, next) {
+		function namespaceUserFileUpload(req, res, next) {
 			var userModel = req.user;
 			var username = userModel.username;
 			var filename = req.params.filename;
-
-			new Promise(function(resolve, reject) {
-				var renamedFilename = fileUploadService.generateUniqueFilename(filename);
-				var uploadPath = 'users/' + username + '/' + renamedFilename;
-				resolve(
-					fileUploadService.generateRequest(uploadPath)
-				);
-			})
-			.then(function(response) {
-				res.json(response);
-			})
-			.catch(function(error) {
-				next(error);
-			});
+			req.params.filename = 'users/' + username + '/' + filename;
+			next();
 		}
 	}
 };

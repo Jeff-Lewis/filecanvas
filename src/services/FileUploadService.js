@@ -3,6 +3,8 @@
 var path = require('path');
 var uuid = require('uuid');
 
+var HttpError = require('../errors/HttpError');
+
 function FileUploadService(options) {
 	options = options || {};
 	var adapter = options.adapter;
@@ -22,6 +24,24 @@ FileUploadService.prototype.generateRequest = function(filename) {
 	if (!filename) { return Promise.reject(new Error('Missing filename')); }
 	var adapter = this.adapter;
 	return adapter.generateRequest(filename);
+};
+
+FileUploadService.prototype.middleware = function() {
+	var self = this;
+
+	return function(req, res, next) {
+		var filename = req.params.filename;
+		if (!filename) { return next(new HttpError(400, 'No filename specified')); }
+		var renamedFilename = self.generateUniqueFilename(filename);
+		var uploadPath = renamedFilename;
+		self.generateRequest(uploadPath)
+			.then(function(response) {
+				res.json(response);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+	};
 };
 
 module.exports = FileUploadService;
