@@ -839,6 +839,9 @@ function initUploadControls() {
 					var fileInputElement = event.currentTarget;
 					var selectedFile = fileInputElement.files[0];
 					if (!selectedFile) { return; }
+					if (activeRequest) {
+						activeRequest.abort();
+					}
 					$fileElement.val('');
 					$element.addClass('loading');
 					setProgressBarValue({
@@ -865,6 +868,7 @@ function initUploadControls() {
 							$element.addClass('error');
 						})
 						.always(function() {
+							activeRequest = null;
 							$element.removeClass('loading');
 							setProgressBarValue({
 								loaded: 0,
