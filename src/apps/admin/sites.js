@@ -526,7 +526,7 @@ module.exports = function(database, options) {
 			var userModel = req.user;
 			var username = userModel.username;
 			var filename = req.params.filename;
-			req.params.filename = 'users/' + username + '/' + filename;
+			req.params.filename = username + '/' + filename;
 			next();
 		}
 	}

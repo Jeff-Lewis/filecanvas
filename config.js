@@ -177,7 +177,8 @@ if (process.env.GOOGLE_CLIENT_ID) {
 if (process.env.AWS_S3_BUCKET) {
 	config.uploaders.admin = {
 		adapter: 's3',
-		bucket: process.env.AWS_S3_BUCKET
+		bucket: process.env.AWS_S3_BUCKET,
+		root: 'users'
 	};
 	config.uploaders.demo = {
 		adapter: 's3',
