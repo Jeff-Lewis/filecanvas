@@ -1,8 +1,11 @@
 'use strict';
 
+var util = require('util');
 var path = require('path');
 var aws = require('aws-sdk');
 var mime = require('mime');
+
+var UploadAdapter = require('./UploadAdapter');
 
 function S3UploadAdapter(options) {
 	options = options || {};
@@ -15,11 +18,15 @@ function S3UploadAdapter(options) {
 	if (secretKey && !accessKey) { throw new Error('Missing access key'); }
 	if (accessKey && !secretKey) { throw new Error('Missing secret key'); }
 
+	UploadAdapter.call(this);
+
 	this.bucket = bucket;
 	this.accessKey = accessKey;
 	this.secretKey = secretKey;
 	this.pathPrefix = pathPrefix;
 }
+
+util.inherits(S3UploadAdapter, UploadAdapter);
 
 S3UploadAdapter.prototype.bucket = null;
 S3UploadAdapter.prototype.accessKey = null;

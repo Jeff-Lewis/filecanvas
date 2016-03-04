@@ -1,6 +1,9 @@
 'use strict';
 
+var util = require('util');
 var path = require('path');
+
+var UploadAdapter = require('./UploadAdapter');
 
 function LocalUploadAdapter(options) {
 	options = options || {};
@@ -10,9 +13,13 @@ function LocalUploadAdapter(options) {
 	if (!uploadUrl) { throw new Error('Missing upload URL'); }
 	if (!downloadUrl) { throw new Error('Missing download URL'); }
 
+	UploadAdapter.call(this);
+
 	this.uploadUrl = uploadUrl;
 	this.downloadUrl = downloadUrl;
 }
+
+util.inherits(LocalUploadAdapter, UploadAdapter);
 
 LocalUploadAdapter.prototype.generateRequest = function(filePath) {
 	var uploadUrl = this.uploadUrl + filePath;
