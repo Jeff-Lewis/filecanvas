@@ -13,6 +13,9 @@ var escapeRegExp = require('escape-regexp');
 var slug = require('slug');
 var GoogleOAuth2Strategy = require('passport-google-oauth2').Strategy;
 
+var LoginAdapter = require('./LoginAdapter');
+var StorageAdapter = require('./StorageAdapter');
+
 var appendQueryParams = require('../utils/appendQueryParams');
 
 var UserService = require('../services/UserService');
@@ -65,8 +68,6 @@ GoogleOAuth2Strategy.prototype.userProfile = function(token, callback) {
 		});
 	}
 };
-
-var LoginAdapter = require('./LoginAdapter');
 
 function GoogleLoginAdapter(database, options) {
 	options = options || {};
@@ -197,6 +198,8 @@ function GoogleStorageAdapter(database, cache, options) {
 	if (!clientId) { throw new Error('Missing Google OAuth2 client id'); }
 	if (!clientSecret) { throw new Error('Missing Google OAuth2 client secret'); }
 
+	StorageAdapter.call(this);
+
 	this.database = database;
 	this.cache = cache;
 	this.adapterLabel = adapterLabel;
@@ -205,6 +208,8 @@ function GoogleStorageAdapter(database, cache, options) {
 	this.clientId = clientId;
 	this.clientSecret = clientSecret;
 }
+
+util.inherits(GoogleStorageAdapter, StorageAdapter);
 
 GoogleStorageAdapter.prototype.adapterName = 'google';
 GoogleStorageAdapter.prototype.database = null;

@@ -11,6 +11,7 @@ var Dropbox = require('../../lib/dropbox/dist/dropbox');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
 var LoginAdapter = require('./LoginAdapter');
+var StorageAdapter = require('./StorageAdapter');
 
 var FileModel = require('../models/FileModel');
 
@@ -122,6 +123,8 @@ function DropboxStorageAdapter(database, options) {
 	if (!appKey) { throw new Error('Missing Dropbox app key'); }
 	if (!appSecret) { throw new Error('Missing Dropbox app appSecret'); }
 
+	StorageAdapter.call(this);
+
 	this.database = database;
 	this.adapterLabel = adapterLabel;
 	this.rootLabel = rootLabel;
@@ -129,6 +132,8 @@ function DropboxStorageAdapter(database, options) {
 	this.appKey = appKey;
 	this.appSecret = appSecret;
 }
+
+util.inherits(DropboxStorageAdapter, StorageAdapter);
 
 DropboxStorageAdapter.prototype.adapterName = 'dropbox';
 DropboxStorageAdapter.prototype.database = null;

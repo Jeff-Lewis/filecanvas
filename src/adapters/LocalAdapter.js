@@ -9,9 +9,10 @@ var LocalStrategy = require('passport-local').Strategy;
 var mkdirp = require('mkdirp');
 var slug = require('slug');
 
-var AuthenticationService = require('../services/AuthenticationService');
-
 var LoginAdapter = require('./LoginAdapter');
+var StorageAdapter = require('./StorageAdapter');
+
+var AuthenticationService = require('../services/AuthenticationService');
 
 var loadFileMetadata = require('../utils/loadFileMetadata');
 
@@ -127,6 +128,8 @@ function LocalStorageAdapter(database, options) {
 	if (!previewUrl) { throw new Error('Missing local preview URL'); }
 	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
 
+	StorageAdapter.call(this);
+
 	this.database = database;
 	this.adapterLabel = adapterLabel;
 	this.rootLabel = rootLabel;
@@ -136,6 +139,8 @@ function LocalStorageAdapter(database, options) {
 	this.previewUrl = previewUrl;
 	this.thumbnailUrl = thumbnailUrl;
 }
+
+util.inherits(LocalStorageAdapter, StorageAdapter);
 
 LocalStorageAdapter.prototype.adapterName = 'local';
 LocalStorageAdapter.prototype.database = null;
