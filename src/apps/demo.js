@@ -1,36 +1,29 @@
 'use strict';
 
+var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 var express = require('express');
-var composeMiddleware = require('compose-middleware').compose;
-
-var previewApp = require('./demo/preview');
 
 var session = require('../middleware/session');
 var forms = require('../middleware/forms');
-var sessionState = require('../middleware/sessionState');
 var redirect = require('../middleware/redirect');
 var invalidRoute = require('../middleware/invalidRoute');
 
-var demoAuth = require('./demo/middleware/demoAuth');
-
-var loadLoginAdapters = require('../utils/loadLoginAdapters');
-var loadStorageAdapters = require('../utils/loadStorageAdapters');
 var loadUploadAdapter = require('../utils/loadUploadAdapter');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
 var parseLocation = require('../utils/parseLocation');
 var getSubdomainUrl = require('../utils/getSubdomainUrl');
+var parseShortcutUrl = require('../utils/parseShortcutUrl');
 
 var handlebarsEngine = require('../engines/handlebars');
 
-var UserService = require('../services/UserService');
-var SiteService = require('../services/SiteService');
 var ThemeService = require('../services/ThemeService');
 var FileUploadService = require('../services/FileUploadService');
 var AdminPageService = require('../services/AdminPageService');
 
 var HttpError = require('../errors/HttpError');
+var FileModel = require('../models/FileModel');
 
 module.exports = function(database, cache, options) {
 	var host = options.host;
@@ -45,7 +38,6 @@ module.exports = function(database, cache, options) {
 	var adminTemplatesUrl = options.adminTemplatesUrl;
 	var themesUrl = options.themesUrl;
 	var wwwUrl = options.wwwUrl;
-	var adaptersConfig = options.adapters;
 	var uploadAdapterConfig = options.uploadAdapter || null;
 
 	if (!database) { throw new Error('Missing database'); }
@@ -62,21 +54,14 @@ module.exports = function(database, cache, options) {
 	if (!adminTemplatesUrl) { throw new Error('Missing admin templates URL'); }
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
 	if (!wwwUrl) { throw new Error('Missing www URL'); }
-	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
-	var loginAdapters = loadLoginAdapters('demo', adaptersConfig, database);
-	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
-	var userService = new UserService(database);
-	var siteService = new SiteService(database, {
-		host: host,
-		adapters: storageAdapters
-	});
 	var themeService = new ThemeService({
 		themesPath: themesPath
 	});
+
 	var fileUploadService = new FileUploadService({
 		adapter: uploadAdapter
 	});
@@ -93,15 +78,8 @@ module.exports = function(database, cache, options) {
 		ttl: sessionDuration
 	}));
 	app.use(forms());
-	app.use(sessionState());
 
-	initAuth(app, database, {
-		adapters: loginAdapters
-	});
 	initRoutes(app);
-	initSitePreview(app, {
-		adapters: storageAdapters
-	});
 	initErrorHandler(app);
 	initViewEngine(app, {
 		templatesPath: templatesPath
@@ -109,17 +87,6 @@ module.exports = function(database, cache, options) {
 
 	return app;
 
-
-	function initAuth(app, database, options) {
-		options = options || {};
-		var adapters = options.adapters;
-
-		app.use('/', demoAuth(database, {
-			adapters: adapters,
-			login: '/login',
-			failure: '/login'
-		}));
-	}
 
 	function initErrorHandler(app) {
 		app.use(invalidRoute());
@@ -144,19 +111,17 @@ module.exports = function(database, cache, options) {
 
 
 		function getSessionData(req) {
-			var userModel = req.user || null;
 			var currentSubdomain = (req.subdomains ? req.subdomains.join('.') : null);
 			var location = parseLocation(objectAssign({}, host, {
 				hostname: (currentSubdomain ? currentSubdomain + '.' : '') + host.hostname,
 				path: req.originalUrl
 			}));
-			var webrootUrl = (userModel ? getSubdomainUrl(userModel.username, { host: host }) : null);
 			var domainUrlPattern = getSubdomainUrl('$0', { host: host });
 			return {
 				location: location,
 				urls: {
 					root: location.protocol + '//' + location.host,
-					webroot: webrootUrl,
+					webroot: null,
 					domain: domainUrlPattern,
 					home: wwwUrl,
 					assets: adminAssetsUrl,
@@ -177,6 +142,7 @@ module.exports = function(database, cache, options) {
 					},
 					www: {
 						root: wwwUrl,
+						signup: wwwUrl + '#sign-up',
 						security: stripTrailingSlash(wwwUrl) + '/security',
 						terms: stripTrailingSlash(wwwUrl) + '/terms',
 						privacy: stripTrailingSlash(wwwUrl) + '/privacy'
@@ -186,57 +152,16 @@ module.exports = function(database, cache, options) {
 		}
 	}
 
-	function initSitePreview(app, options) {
-		options = options || {};
-		var adapters = options.adapters;
-
-		app.use('/editor/preview', previewApp({
-			adapters: adapters
-		}));
-	}
-
 	function initRoutes(app) {
 		app.get('/', redirect('/themes'));
 		app.get('/themes', retrieveThemesRoute);
 		app.get('/themes/:theme', retrieveThemeRoute);
 		app.get('/editor', retrieveThemeEditorRoute);
-		app.post('/editor/upload/:filename', createThemeEditorUploadRoute);
-
-		var ensureLogin = ensureAuth('/editor', { allowPending: true });
-		var ensureUser = composeMiddleware(ensureLogin, ensureAuth(retrieveCreateUserRoute, { allowPending: false }));
-
-		app.get('/login', retrieveThemeEditorLoginRoute);
-		app.post('/editor/add-files', ensureLogin, createSiteFolderRoute, moveRequestBodyIntoQuery, retrieveThemeEditorRoute);
-		app.get('/editor/create-user', ensureLogin, retrieveCreateUserRoute);
-		app.post('/editor/create-user', ensureLogin, createUserRoute);
-		app.post('/editor/canvases', ensureUser, createSiteRoute);
-		app.get('/editor/canvases/:site', ensureUser, retrieveSitePublishRoute);
-		app.put('/editor/canvases/:site', ensureUser, updateSiteRoute);
-
-
-		function ensureAuth(loginRoute, options) {
-			options = options || {};
-			var allowPendingUser = Boolean(options.allowPending);
-			return function(req, res, next) {
-				if (req.isAuthenticated() && (allowPendingUser || !req.user.pending)) {
-					next();
-				} else {
-					if (typeof loginRoute === 'string') {
-						res.redirect(loginRoute);
-					} else if (typeof loginRoute === 'function') {
-						loginRoute(req, res, next);
-					}
-				}
-			};
-		}
-
-		function moveRequestBodyIntoQuery(req, res, next) {
-			Object.keys(req.body).forEach(function(key) {
-				req.query[key] = req.body[key];
-				delete req.body[key];
-			});
-			next();
-		}
+		app.post('/editor/upload/:filename', prefixSessionUploadPath('filename'), fileUploadService.middleware());
+		app.get('/editor/preview/download/*', prefixSessionUploadPath(), retrieveUserFileDownloadRoute);
+		app.get('/editor/preview/media/*', prefixSessionUploadPath(), retrieveUserFilePreviewRoute);
+		app.get('/editor/preview/thumbnail/*', prefixSessionUploadPath(), retrieveUserFileThumbnailRoute);
+		app.get('/editor/preview/redirect/*', prefixSessionUploadPath(), retrieveUserFileRedirectRoute);
 
 
 		function retrieveThemesRoute(req, res, next) {
@@ -280,168 +205,62 @@ module.exports = function(database, cache, options) {
 		function retrieveThemeEditorRoute(req, res, next) {
 			var themeIds = Object.keys(themeService.getThemes());
 			var firstThemeId = themeIds[0];
-			var sessionState = merge({}, req.session.state && req.session.state.editor);
-			if (sessionState.theme) {
-				if (sessionState.theme.config) {
-					try {
-						sessionState.theme.config = JSON.parse(sessionState.theme.config);
-					} catch (error) {
-						sessionState.theme.config = null;
-					}
-				}
-			}
-			var userModel = req.user || null;
-			var siteName = req.query.name || null;
-			var siteLabel = req.query.label || null;
-			var themeId = (sessionState.theme && sessionState.theme.id) || (req.query.theme && req.query.theme.id) || firstThemeId;
-			var themeConfigOverrides = (sessionState.theme && sessionState.theme.config) || (req.query.theme && req.query.theme.config) || null;
-			var siteRoot = req.query.root ? { adapter: req.query.root.adapter, path: req.query.root.path } : null;
-			var shouldShowOverlay = Boolean(sessionState && sessionState.overlay);
+			var themeId = (req.query.theme && req.query.theme.id) || firstThemeId;
+			var themeConfigOverrides = (req.query.theme && req.query.theme.config) || null;
 
 			new Promise(function(resolve, reject) {
-				var useDummyFiles = !siteRoot;
 				var theme = themeService.getTheme(themeId);
 				var themeAssetsRoot = themesUrl + themeId + '/assets/';
 				var siteModel = {
-					name: siteName,
-					label: siteLabel,
+					name: null,
+					label: null,
 					theme: {
 						id: themeId,
 						config: merge({}, theme.demo.config, themeConfigOverrides)
 					},
-					root: siteRoot,
+					root: new FileModel({
+						path: '/',
+						directory: true
+					}),
 					private: false,
 					published: false
 				};
-				var adaptersMetadata = (userModel ? getUserAdaptersMetadata(userModel) : null);
-				if (userModel && !siteModel.root) {
-					var defaultAdapterName = userModel.adapters.default;
-					var defaultAdapterPath = adaptersMetadata[defaultAdapterName].path;
-					siteModel.root = {
-						adapter: defaultAdapterName,
-						path: defaultAdapterPath
-					};
-				}
-				resolve(
-					(useDummyFiles ? Promise.resolve(null) : loadFolderContents(siteRoot, storageAdapters, userModel))
-						.then(function(siteContent) {
-							var adapterConfig = (useDummyFiles ? null : getSiteUploadConfig(siteRoot, storageAdapters, userModel));
-							var sitePreviewUrl = (
-								useDummyFiles ?
-									stripTrailingSlash(themesUrl) + '/' + themeId + '/preview' :
-									'/editor/preview/' + encodeURIComponent(siteModel.root.adapter + ':' + siteModel.root.path)
-							);
-							var templateData = {
-								content: {
-									overlay: shouldShowOverlay,
-									site: siteModel,
-									themes: themeService.getThemes(),
-									theme: themeService.getTheme(siteModel.theme.id),
-									adapter: adapterConfig,
-									adapters: adaptersMetadata,
-									previewUrl: null,
-									preview: {
-										metadata: {
-											siteRoot: sitePreviewUrl + '/',
-											themeRoot: themeAssetsRoot,
-											theme: siteModel.theme,
-											preview: true,
-											admin: !useDummyFiles
-										},
-										resource: {
-											private: false,
-											root: siteContent
-										}
-									}
-								}
-							};
-							return adminPageService.render(req, res, {
-								template: 'editor',
-								context: templateData
-							});
-						})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-
-
-			function getUserAdaptersMetadata(userModel) {
-				return Object.keys(userModel.adapters).filter(function(adapterName) {
-					return adapterName !== 'default';
-				}).reduce(function(adaptersMetadata, adapterName) {
-					var adapter = storageAdapters[adapterName];
-					var adapterConfig = userModel.adapters[adapterName];
-					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
-					return adaptersMetadata;
-				}, {});
-			}
-
-			function getSiteUploadConfig(siteRoot, adapters, userModel) {
-				if (!siteRoot || !userModel) { return null; }
-				var siteAdapter = siteRoot.adapter;
-				var sitePath = siteRoot.path;
-				var adapter = adapters[siteAdapter];
-				var adapterOptions = userModel.adapters[siteAdapter];
-				var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
-				return adapterConfig;
-			}
-
-			function loadFolderContents(siteRoot, adapters, userModel) {
-				var adapterName = siteRoot.adapter;
-				var sitePath = siteRoot.path;
-				var adapter = adapters[adapterName];
-				var adapterOptions = userModel.adapters[adapterName];
-				return adapter.loadFolderContents(sitePath, adapterOptions)
-					.then(function(folder) {
-						return folder.root;
-					});
-			}
-		}
-
-		function createThemeEditorUploadRoute(req, res, next) {
-			var filename = req.params.filename;
-
-			new Promise(function(resolve, reject) {
-				var renamedFilename = fileUploadService.generateUniqueFilename(filename);
-				var uploadPath = 'demo/' + renamedFilename;
-				resolve(
-					fileUploadService.generateRequest(uploadPath)
-				);
-			})
-			.then(function(response) {
-				res.json(response);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-		}
-
-		function retrieveThemeEditorLoginRoute(req, res, next) {
-			var themeId = req.query.theme && req.query.theme.id || null;
-			var themeConfig = req.query.theme && req.query.theme.config || null;
-			var redirectUrl = req.query.redirect || '/editor';
-
-			new Promise(function(resolve, reject) {
-				var adaptersHash = Object.keys(loginAdapters).reduce(function(adaptersHash, key) {
-					adaptersHash[key] = true;
-					return adaptersHash;
-				}, {});
+				var siteAdapterConfig = {
+					adapter: 'demo',
+					uploadUrl: '/editor/upload',
+					thumbnailMimeTypes: [
+						'image/gif',
+						'image/jpeg',
+						'image/png',
+						'image/svg+xml'
+					]
+				};
+				var sitePreviewUrl = '/editor/preview/';
 				var templateData = {
 					content: {
-						redirect: redirectUrl,
-						adapters: adaptersHash,
-						state: {
-							'editor.overlay': true,
-							'editor.theme.id': themeId,
-							'editor.theme.config': JSON.stringify(themeConfig)
+						previewUrl: null,
+						site: siteModel,
+						themes: themeService.getThemes(),
+						theme: themeService.getTheme(siteModel.theme.id),
+						adapter: siteAdapterConfig,
+						preview: {
+							metadata: {
+								siteRoot: sitePreviewUrl,
+								themeRoot: themeAssetsRoot,
+								theme: siteModel.theme,
+								preview: true,
+								admin: true
+							},
+							resource: {
+								private: siteModel.private,
+								root: siteModel.root
+							}
 						}
 					}
 				};
 				resolve(
 					adminPageService.render(req, res, {
-						template: 'login',
+						template: 'editor',
 						context: templateData
 					})
 				);
@@ -451,245 +270,49 @@ module.exports = function(database, cache, options) {
 			});
 		}
 
-		function createSiteFolderRoute(req, res, next) {
-			var userModel = req.user || null;
-			var siteRoot = req.body.root || null;
-
-			new Promise(function(resolve, reject) {
-				resolve(
-					createSiteFolder(siteRoot, userModel)
-						.then(function() {
-							next();
-						})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
-
-
-			function createSiteFolder(siteRoot, userModel) {
-				var userAdapters = userModel.adapters;
-				var siteAdapter = siteRoot.adapter;
-				var sitePath = siteRoot.path;
-				var adapter = storageAdapters[siteAdapter];
-				var adapterOptions = userAdapters[siteAdapter];
-				return adapter.createFolder(sitePath, adapterOptions);
-			}
-		}
-
-		function retrieveCreateUserRoute(req, res, next) {
-			var pendingSiteModel = {
-				name: req.body.name || null,
-				label: req.body.label || null,
-				root: req.body.root || null,
-				home: (req.body.home === 'true'),
-				private: (req.body.private === 'true'),
-				published: (req.body.published === 'true'),
-				theme: {
-					id: req.body.theme && req.body.theme.id || null,
-					config: req.body.theme && req.body.theme.config || null
-				}
+		function prefixSessionUploadPath(param) {
+			return function (req, res, next) {
+				var filename = (param ? req.params[param] : req.params[0]);
+				if (!filename) { return next(new HttpError(403)); }
+				var sessionId = req.sessionID;
+				req.params.filename = 'sessions/' + sessionId + '/' + filename;
+				next();
 			};
-			if (typeof pendingSiteModel.theme.config === 'string') {
-				try {
-					pendingSiteModel.theme.config = JSON.parse(pendingSiteModel.theme.config);
-				} catch(error) {
-					return next(new HttpError(400));
-				}
-			}
-
-			new Promise(function(resolve, reject) {
-				var templateData = {
-					content: {
-						site: pendingSiteModel
-					}
-				};
-				resolve(
-					adminPageService.render(req, res, {
-						template: 'editor/create-user',
-						context: templateData
-					})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
 		}
 
-		function createUserRoute(req, res, next) {
-			var pendingUserModel = req.user;
-			var userModel = {
-				username: req.body.username,
-				firstName: req.body.firstName,
-				lastName: req.body.lastName,
-				email: req.body.email,
-				defaultSite: null,
-				adapters: pendingUserModel.adapters
-			};
-
-			new Promise(function(resolve, reject) {
-				resolve(
-					userService.createUser(userModel)
-						.then(function(userModel) {
-							req.login(userModel, function(error) {
-								if (error) { return next(error); }
-								createSiteRoute(req, res, next);
-							});
-						})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
+		function retrieveUserFileDownloadRoute(req, res, next) {
+			var filename = req.params.filename;
+			if (!filename) { return next(new HttpError(403)); }
+			var downloadUrl = uploadAdapter.getDownloadUrl(filename);
+			res.redirect(downloadUrl);
 		}
 
-		function createSiteRoute(req, res, next) {
-			var userModel = req.user;
-			var username = userModel.username;
-			var siteName = req.body.name || null;
-			var siteLabel = req.body.label || null;
-			var siteRoot = req.body.root || null;
-			var isDefaultSite = (req.body.home === 'true');
-			var isPrivate = (req.body.private === 'true');
-			var isPublished = (req.body.published === 'true');
-			var themeId = req.body.theme && req.body.theme.id || null;
-			var themeConfigOverrides = req.body.theme && req.body.theme.config || null;
-			if (typeof themeConfigOverrides === 'string') {
-				try {
-					themeConfigOverrides = JSON.parse(themeConfigOverrides);
-				} catch(error) {
-					return next(new HttpError(400));
-				}
-			}
-
-			new Promise(function(resolve, reject) {
-				var theme = themeService.getTheme(themeId);
-				var themeConfigDefaults = theme.defaults;
-				var themeConfig = merge({}, themeConfigDefaults, themeConfigOverrides);
-				var siteModel = {
-					'owner': username,
-					'name': siteName,
-					'label': siteLabel,
-					'theme': {
-						'id': themeId,
-						'config': themeConfig
-					},
-					'root': siteRoot,
-					'private': isPrivate,
-					'users': [],
-					'published': isPublished,
-					'cache': null
-				};
-				resolve(
-					siteService.createSite(siteModel)
-						.then(function(siteModel) {
-							if (!isDefaultSite) { return siteModel; }
-							return userService.updateUserDefaultSiteName(username, siteModel.name)
-								.then(function() {
-									return siteModel;
-								});
-						})
-						.then(function(siteModel) {
-							var templateData = {
-								content: {
-									site: siteModel
-								}
-							};
-							return adminPageService.render(req, res, {
-								template: 'editor/create-site-success',
-								context: templateData
-							});
-						})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
+		function retrieveUserFilePreviewRoute(req, res, next) {
+			var filename = req.params.filename;
+			if (!filename) { return next(new HttpError(403)); }
+			var previewUrl = uploadAdapter.getDownloadUrl(filename);
+			res.redirect(previewUrl);
 		}
 
-		function retrieveSitePublishRoute(req, res, next) {
-			var userModel = req.user;
-			var username = userModel.username;
-			var siteName = req.params.site;
-
-			new Promise(function(resolve, reject) {
-				resolve(
-					siteService.retrieveSite(username, siteName)
-						.then(function(siteModel) {
-							var templateData = {
-								content: {
-									site: siteModel
-								}
-							};
-							adminPageService.render(req, res, {
-								template: 'editor/publish-site',
-								context: templateData
-							});
-						})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
+		function retrieveUserFileThumbnailRoute(req, res, next) {
+			var filename = req.params.filename;
+			if (!filename) { return next(new HttpError(403)); }
+			var thumbnailUrl = uploadAdapter.getDownloadUrl(filename);
+			res.redirect(thumbnailUrl);
 		}
 
-		function updateSiteRoute(req, res, next) {
-			var userModel = req.user;
-			var username = userModel.username;
-			var defaultSiteName = userModel.defaultSite;
-			var siteName = req.params.site;
-
-			var updates = {};
-			if (req.body.name) { updates.name = req.body.name; }
-			if (req.body.label) { updates.label = req.body.label; }
-			if (req.body.root) { updates.root = req.body.root || null; }
-			if (req.body.private) { updates.private = req.body.private === 'true'; }
-			if (req.body.published) { updates.published = req.body.published === 'true'; }
-
-			var themeId = req.body.theme && req.body.theme.id || null;
-			var themeConfigOverrides = req.body.theme && req.body.theme.config || null;
-
-			new Promise(function(resolve, reject) {
-				if (themeId || (themeId && themeConfigOverrides)) {
-					var theme = themeService.getTheme(themeId);
-					var themeConfigDefaults = theme.defaults;
-					var themeConfig = merge({}, themeConfigDefaults, themeConfigOverrides);
-					updates.theme = {
-						id: themeId,
-						config: themeConfig
-					};
-				}
-
-				var isDefaultSite = siteName === defaultSiteName;
-				var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
-				var updatedSiteName = ('name' in updates ? updates.name : siteName);
-				resolve(
-					siteService.updateSite(username, siteName, updates)
-						.then(function() {
-							var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));
-							if (updatedDefaultSiteName === defaultSiteName) { return; }
-							return userService.updateUserDefaultSiteName(username, updatedDefaultSiteName);
-						})
-						.then(function() {
-							var templateData = {
-								content: {
-									site: {
-										owner: username,
-										name: updatedSiteName
-									}
-								}
-							};
-							return adminPageService.render(req, res, {
-								template: 'editor/publish-site-success',
-								context: templateData
-							});
-						})
-				);
-			})
-			.catch(function(error) {
-				next(error);
-			});
+		function retrieveUserFileRedirectRoute(req, res, next) {
+			var filename = req.params.filename;
+			if (!filename) { return next(new HttpError(403)); }
+			var shortcutType = path.extname(filename).substr('.'.length);
+			uploadAdapter.readFile(filename)
+				.then(function(fileContents) {
+					var shortcutUrl = parseShortcutUrl(fileContents, { type: shortcutType });
+					res.redirect(shortcutUrl);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 		}
 	}
 };

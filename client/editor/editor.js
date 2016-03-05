@@ -5,7 +5,6 @@ var junk = require('junk');
 var template = require('lodash.template');
 var merge = require('lodash.merge');
 var isEqual = require('lodash.isequal');
-var mime = require('simple-mime')(null);
 var Mousetrap = require('mousetrap');
 var Handlebars = require('handlebars');
 
@@ -21,6 +20,8 @@ var setFormFieldValues = require('./utils/setFormFieldValues');
 var parseThemeConfigDefaults = require('../../src/utils/parseThemeConfigDefaults');
 var serializeQueryParams = require('../../src/utils/serializeQueryParams');
 var handlebarsHelpers = require('../../src/engines/handlebars/helpers/index');
+
+var FileModel = require('../../src/models/FileModel');
 
 var HistoryStack = require('./lib/HistoryStack');
 
@@ -749,6 +750,7 @@ function initLivePreview(callback) {
 
 						function loadEntries(entries, callback) {
 							if (entries.length === 0) { return callback([]); }
+							entries = entries.filter(function(entry) { return Boolean(entry); });
 							var numRemaining = entries.length;
 							var files = entries.map(function(entry, index) {
 								loadEntry(entry, function(result) {
@@ -844,14 +846,14 @@ function initLivePreview(callback) {
 						setUploadProgress(uploadBatch);
 						if (uploadBatch.numLoaded !== numLoaded) {
 							numLoaded = uploadBatch.numLoaded;
-							mergeFiles(uploadBatch.completedItems, currentSiteModel.resource.root);
+							mergeUploadedItems(uploadBatch.completedItems, currentSiteModel.resource.root);
 							updatePreview(currentSiteModel, currentThemeOverrides);
 						}
 					})
 					.then(function(uploadBatch) {
 						if (uploadBatch.numLoaded !== numLoaded) {
 							numLoaded = uploadBatch.numLoaded;
-							mergeFiles(uploadBatch.completedItems, currentSiteModel.resource.root);
+							mergeUploadedItems(uploadBatch.completedItems, currentSiteModel.resource.root);
 							updatePreview(currentSiteModel, currentThemeOverrides);
 						}
 						var hasErrors = uploadBatch.numFailed > 0;
@@ -887,87 +889,54 @@ function initLivePreview(callback) {
 				return upload;
 
 
-				function mergeFiles(completedItems, siteRoot) {
+				function mergeUploadedItems(completedItems, siteRoot) {
 					completedItems.forEach(function(item) {
-						var updatedFilename = item.filename;
-						var filePath = item.file.path.split('/').slice(0, -1).concat(updatedFilename).join('/');
-						insertFile(item.file.data, filePath, siteRoot);
+						var fileModel = item.response;
+						var filePath = fileModel.path;
+						var rootFolder = siteRoot;
+						insertFile(fileModel, filePath, rootFolder);
 					});
 
 
-					function insertFile(file, filePath, rootFolder) {
+					function insertFile(fileModel, filePath, rootFolder) {
 						var pathSegments = filePath.replace(/^\//, '').split('/');
 						if (pathSegments.length > 1) {
 							var parentFilename = pathSegments[0];
 							var childPath = pathSegments.slice(1).join('/');
-							var parentFolder = getChildFile(rootFolder, parentFilename) || createFolderModel(rootFolder, parentFilename, file.lastModifiedDate);
-							return insertFile(file, '/' + childPath, parentFolder);
+							var parentFolder = getChildFile(rootFolder, parentFilename) || createFolderModel(rootFolder, parentFilename);
+							return insertFile(fileModel, '/' + childPath, parentFolder);
 						} else {
-							var filename = pathSegments[0];
-							return createFileModel(rootFolder, filename, file);
+							addFile(rootFolder, fileModel);
+							return fileModel;
 						}
 
+
 						function getChildFile(parentFolder, filename) {
-							var filePath = getChildPath(parentFolder.path, filename);
+							var filePath = path.join(parentFolder.path, filename);
 							return parentFolder.contents.filter(function(file) {
 								return file.path === filePath;
 							})[0] || null;
 						}
 
-						function getChildPath(parentPath, filename) {
-							return (parentPath === '/' ? '' : parentPath) + '/' + filename;
-						}
-
-						function createFolderModel(parentFolder, folderName, modifiedDate) {
-							var folderPath = getChildPath(parentFolder.path, folderName);
-							var folderModel = {
+						function createFolderModel(parentFolder, folderName) {
+							var folderPath = path.join(parentFolder.path, folderName);
+							var folderModel = new FileModel({
 								path: folderPath,
-								mimeType: null,
-								size: 0,
-								modified: modifiedDate.toISOString(),
-								thumbnail: false,
-								directory: true,
-								contents: []
-							};
+								directory: true
+							});
 							parentFolder.contents.push(folderModel);
 							return folderModel;
 						}
 
-						function createFileModel(parentFolder, filename, file) {
-							var filePath = getChildPath(parentFolder.path, filename);
-							var fileModel = {
-								path: filePath,
-								mimeType: mime(filename),
-								size: file.size,
-								modified: file.lastModifiedDate.toISOString(),
-								thumbnail: getHasThumbnail(file),
-								directory: false
-							};
-							addFile(parentFolder, fileModel);
-							return fileModel;
-
-
-							function getHasThumbnail(file) {
-								var extension = path.extname(file.name).substr('.'.length);
-								var IMAGE_TYPES = [
-									'jpg',
-									'jpeg',
-									'png',
-									'gif'
-								];
-								return IMAGE_TYPES.indexOf(extension) !== -1;
-							}
-
-							function addFile(parentFolder, file) {
-								var existingFile = parentFolder.contents.filter(function(existingFile) {
-									return existingFile.path === file.path;
-								})[0] || null;
-								if (existingFile) {
-									var existingFileIndex = parentFolder.contents.indexOf(existingFile);
-									parentFolder.contents.splice(existingFileIndex, 1, file);
-								} else {
-									parentFolder.contents.push(file);
-								}
+						function addFile(parentFolder, file) {
+							var existingFile = parentFolder.contents.filter(function(existingFile) {
+								return existingFile.path === file.path;
+							})[0] || null;
+							if (existingFile) {
+								var existingFileIndex = parentFolder.contents.indexOf(existingFile);
+								parentFolder.contents.splice(existingFileIndex, 1, file);
+							} else {
+								parentFolder.contents.push(file);
 							}
 						}
 					}

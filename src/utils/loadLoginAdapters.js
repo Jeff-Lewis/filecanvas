@@ -4,11 +4,11 @@ var DropboxLoginAdapter = require('../adapters/DropboxAdapter').LoginAdapter;
 var GoogleLoginAdapter = require('../adapters/GoogleAdapter').LoginAdapter;
 var LocalLoginAdapter = require('../adapters/LocalAdapter').LoginAdapter;
 
-module.exports = function(loginProfile, adaptersConfig, database) {
+module.exports = function(adaptersConfig, database) {
 	return Object.keys(adaptersConfig).reduce(function(namedAdapters, key) {
 		var adapterName = key;
 		var adapterConfig = adaptersConfig[key];
-		var loginAdapterConfig = adapterConfig.login[loginProfile];
+		var loginAdapterConfig = adapterConfig.login;
 		namedAdapters[key] = loadLoginAdapter(adapterName, loginAdapterConfig, database);
 		return namedAdapters;
 	}, {});

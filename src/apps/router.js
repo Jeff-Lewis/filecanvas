@@ -34,7 +34,6 @@ module.exports = function(database, cache, config) {
 
 	var wwwUrl = config.www.url || getSubdomainUrl('www', { host: host });
 	var adminUrl = config.admin.url || getSubdomainUrl('my', { host: host });
-	var demoUrl = config.demo.url || getSubdomainUrl('try', { host: host });
 	var themesUrl = config.themes.url || getSubdomainUrl('themes', { host: host });
 	var assetsUrl = config.assets.url || getSubdomainUrl('assets', { host: host });
 	var adminTemplatesUrl = adminUrl + 'templates/';
@@ -52,15 +51,13 @@ module.exports = function(database, cache, config) {
 
 	if (config.adapters.dropbox) {
 		config.adapters.dropbox = getDropboxAdapterConfig(config.adapters.dropbox, {
-			adminUrl: adminUrl,
-			demoUrl: demoUrl
+			adminUrl: adminUrl
 		});
 	}
 
 	if (config.adapters.google) {
 		config.adapters.google = getGoogleAdapterConfig(config.adapters.google, {
-			adminUrl: adminUrl,
-			demoUrl: demoUrl
+			adminUrl: adminUrl
 		});
 	}
 
@@ -102,7 +99,6 @@ module.exports = function(database, cache, config) {
 			adminTemplatesUrl: adminTemplatesUrl,
 			themesUrl: themesUrl,
 			wwwUrl: wwwUrl,
-			adapters: config.adapters,
 			uploadAdapter: config.uploaders.demo
 		}),
 		'my': adminApp(database, cache, {
@@ -307,16 +303,10 @@ function getLocalUploaderConfig(uploaderConfig, options) {
 function getDropboxAdapterConfig(adapterConfig, options) {
 	options = options || {};
 	var adminUrl = options.adminUrl;
-	var demoUrl = options.demoUrl;
 	var oauthCallbackPath = '/login/dropbox/oauth2/callback';
 	return merge({}, adapterConfig, {
 		login: {
-			admin: {
-				loginCallbackUrl: adapterConfig.login.admin.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
-			},
-			demo: {
-				loginCallbackUrl: adapterConfig.login.demo.loginCallbackUrl || (stripTrailingSlash(demoUrl) + oauthCallbackPath)
-			}
+			loginCallbackUrl: adapterConfig.login.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
 		}
 	});
 
@@ -330,16 +320,10 @@ function getDropboxAdapterConfig(adapterConfig, options) {
 function getGoogleAdapterConfig(adapterConfig, options) {
 	options = options || {};
 	var adminUrl = options.adminUrl;
-	var demoUrl = options.demoUrl;
 	var oauthCallbackPath = '/login/google/oauth2/callback';
 	return merge({}, adapterConfig, {
 		login: {
-			admin: {
-				loginCallbackUrl: adapterConfig.login.admin.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
-			},
-			demo: {
-				loginCallbackUrl: adapterConfig.login.demo.loginCallbackUrl || (stripTrailingSlash(demoUrl) + oauthCallbackPath)
-			}
+			loginCallbackUrl: adapterConfig.login.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
 		}
 	});
 

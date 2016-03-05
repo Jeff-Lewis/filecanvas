@@ -21,29 +21,9 @@
 		<script type="text/javascript" src="{{ session.urls.themes }}/{{ content.site.theme.id }}/templates/index.js"></script>
 	{{/inline}}
 	{{#*inline 'content'}}
-		<form class="editor loading" role="form" method="POST"
-			{{#unless session.user}}
-			action="{{ session.urls.demo.login }}" target="modal"
-			{{else}}
-			{{#unless content.site.name}}
-			action="{{ session.urls.demo.linkSiteFolder }}"
-			{{else}}
-			action="{{ session.urls.demo.createSite }}" target="modal"
-			{{/unless}}
-			{{/unless}}
-			autocomplete="off" data-editor
-		>
-			{{#if session.user}}
-			<input type="hidden" name="_method" value="POST"/>
-			{{else}}
+		<form class="editor loading" role="form" method="POST" action="{{ session.urls.www.signup }}" autocomplete="off" data-editor>
 			<input type="hidden" name="_method" value="GET"/>
-			{{/if}}
-			{{#if content.state}}
-			{{#each state as |value key|}}
-			<input type="hidden" name="_state.{{ key }}" value="{{ value }}">
-			{{/each}}
-			{{/if}}
-			<div class="title-bar{{#if (and session.user content.site.name)}} controls-2{{/if}}">
+			<div class="title-bar controls-2">
 				<div class="title-bar-header">
 					<div class="title-bar-header-title">
 						<div class="brand">
@@ -54,19 +34,11 @@
 				</div>
 				<div class="title-bar-controls">
 					<div class="title-bar-controls-container clearfix">
-						{{#unless session.user}}
-						<button type="submit" class="btn btn-success bold">Next: Add files</button>
-						{{else}}
-						{{#unless content.site.name}}
-						<button type="button" class="btn btn-success bold" data-toggle="modal" data-target="#add-files-modal">Next: Add files</button>
-						{{else}}
 						<label class="editor-file-upload btn btn-primary bold visible-xs">
 							Upload a file
 							<input type="file" class="editor-file-upload-input" data-editor-upload/>
 						</label>
-						<button type="submit" class="btn btn-success bold">Save this canvas</button>
-						{{/unless}}
-						{{/unless}}
+						<button type="submit" class="btn btn-success bold">Sign up</button>
 					</div>
 				</div>
 				<div id="title-bar-toolbar" class="title-bar-toolbar pull-right hidden-xs">
@@ -90,114 +62,6 @@
 				</div>
 			</div>
 			{{> editor fileUploadUrl=session.urls.demo.upload}}
-			{{#unless session.user}}
-			<div class="modal fade" tabindex="-1" role="dialog">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Add files</h4>
-						</div>
-						<div class="modal-body">
-							<iframe name="modal" frameborder="0"></iframe>
-						</div>
-					</div>
-				</div>
-			</div>
-			{{else}}
-			{{#unless content.site.name}}
-			<div id="add-files-modal" class="modal fade" tabindex="-1" role="dialog"{{#if content.overlay}} data-show="true"{{/if}}>
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-							<h4 class="modal-title">Add files</h4>
-						</div>
-						<div class="modal-body">
-							<div class="mb20">
-								<p>Choose where to store this canvas's files within your {{ lookup (lookup content.adapters content.site.root.adapter) 'label' }}:</p>
-							</div>
-							<div class="text-center">
-								<input type="hidden"
-									name="name"
-									value="{{ content.site.name }}"
-									data-bind-value="site-label|slug"
-								/>
-								<input type="hidden"
-									name="root.adapter"
-									value="{{ content.site.root.adapter }}"
-								/>
-								<input type="hidden"
-									name="root.path"
-									value="{{ content.site.root.path }}"
-									readonly="readonly"
-									data-bind-value="site-label|filename|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
-									data-validate="path,notEmpty"
-								/>
-								<div class="path-control has-extra"
-									data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'rootLabel' }}"
-								>
-									<input type="text" class="form-control"
-										readonly="readonly"
-										value="{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}"
-									/>
-									<ul class="path-control-segments">
-									</ul><div class="path-control-extra">
-										<div class="input-group input-group-sm">
-											<span class="input-group-addon"><i class="fa fa-folder-o"></i></span>
-											<input type="text" class="form-control" autofocus="autofocus"
-												name="label"
-												value="{{ content.site.label }}"
-												placeholder="Type a folder name"
-												data-bind-id="site-label"
-												data-validate="notEmpty,filename"
-											/>
-										</div>
-									</div>
-									<span class="form-control-feedback fa" aria-hidden="true"></span>
-								</div>
-								<span class="form-control-feedback fa" aria-hidden="true"></span>
-							</div>
-							<div class="text-center mt30">
-								<button type="submit" class="btn btn-primary"
-									data-bind-value="site-label"
-								>Create canvas folder</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			{{else}}
-			<input type="hidden"
-				name="name"
-				value="{{ content.site.name }}"
-			/>
-			<input type="hidden"
-				name="label"
-				value="{{ content.site.label }}"
-			/>
-			<input type="hidden"
-				name="root.adapter"
-				value="{{ content.site.root.adapter }}"
-			/>
-			<input type="hidden"
-				name="root.path"
-				value="{{ content.site.root.path }}"
-			/>
-			<div class="modal fade" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h4 class="modal-title">Save canvas</h4>
-						</div>
-						<div class="modal-body">
-							<iframe name="modal" frameborder="0"></iframe>
-						</div>
-					</div>
-				</div>
-			</div>
-			{{/unless}}
-			{{/unless}}
 		</form>
 	{{/inline}}
 {{/index}}

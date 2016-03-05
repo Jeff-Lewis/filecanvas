@@ -2,6 +2,7 @@
 
 var path = require('path');
 var uuid = require('uuid');
+var objectAssign = require('object-assign');
 
 var HttpError = require('../errors/HttpError');
 
@@ -33,10 +34,10 @@ FileUploadService.prototype.middleware = function() {
 		var filename = req.params.filename;
 		if (!filename) { return next(new HttpError(400, 'No filename specified')); }
 		var renamedFilename = self.generateUniqueFilename(filename);
-		var uploadPath = renamedFilename;
+		var uploadPath = path.join(path.dirname(filename), renamedFilename);
 		self.generateRequest(uploadPath)
 			.then(function(response) {
-				res.json(response);
+				res.json(objectAssign({}, response, { id: renamedFilename }));
 			})
 			.catch(function(error) {
 				next(error);

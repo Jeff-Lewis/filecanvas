@@ -1,11 +1,11 @@
 'use strict';
 
 function FileModel(options) {
-	this.id = options.id;
-	this.path = options.path;
-	this.mimeType = options.mimeType;
-	this.size = options.size;
-	this.modified = options.modified;
+	this.id = options.id || null;
+	this.path = options.path || null;
+	this.mimeType = options.mimeType || null;
+	this.size = options.size || 0;
+	this.modified = options.modified || new Date().toISOString();
 	this.thumbnail = (typeof options.thumbnail === 'string' ? options.thumbnail : Boolean(options.thumbnail));
 	this.directory = Boolean(options.directory);
 	if (options.directory) {

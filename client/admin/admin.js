@@ -4,7 +4,7 @@ var path = require('path');
 var slug = require('slug');
 
 var loadImage = require('../utils/loadImage');
-var uploadFile = require('../utils/uploadFile');
+var requestSignedUpload = require('../utils/requestSignedUpload');
 
 var DEFAULT_VALIDATION_TRIGGERS = 'input change blur';
 
@@ -793,8 +793,6 @@ function initUploadControls() {
 				var $progressBarElement = $element.find('[role="progressbar"]');
 				var $clearButtonElement = $element.find('[data-upload-clear]');
 				var $dismissErrorButtonElement = $element.find('[data-upload-dismiss-error]');
-				var uploadUrl = $element.attr('data-upload-url');
-				var uploadMethod = $element.attr('data-upload-method') || 'POST';
 				var requestUploadUrl = $element.attr('data-request-upload-url');
 				var requestUploadMethod = $element.attr('data-request-upload-method') || 'POST';
 				var shouldHideExtension = $element[0].hasAttribute('data-hide-extension');
@@ -850,8 +848,6 @@ function initUploadControls() {
 						total: 0
 					});
 					processFile(selectedFile, {
-						uploadUrl: uploadUrl,
-						uploadMethod: uploadMethod,
 						requestUploadUrl: requestUploadUrl,
 						requestUploadMethod: requestUploadMethod,
 						image: imageSettings
@@ -862,7 +858,8 @@ function initUploadControls() {
 								total: progress.total
 							});
 						})
-						.then(function(uploadedUrl) {
+						.then(function(response) {
+							var uploadedUrl = response.location;
 							$inputElement.val(uploadedUrl).trigger('change');
 						})
 						.fail(function() {
@@ -927,8 +924,6 @@ function initUploadControls() {
 
 				function processFile(file, options) {
 					options = options || {};
-					var uploadUrl = options.uploadUrl;
-					var uploadMethod = options.uploadMethod;
 					var requestUploadUrl = options.requestUploadUrl;
 					var requestUploadMethod = options.requestUploadMethod;
 					var isImage = Boolean(options.image);
@@ -951,9 +946,7 @@ function initUploadControls() {
 									loaded: percentageLoaded,
 									total: 100
 								});
-								abortable(uploadFile(processedFile, {
-									uploadUrl: uploadUrl,
-									uploadMethod: uploadMethod,
+								abortable(requestSignedUpload(processedFile, {
 									requestUploadUrl: requestUploadUrl,
 									requestUploadMethod: requestUploadMethod
 								}))
@@ -965,8 +958,8 @@ function initUploadControls() {
 											total: 100
 										});
 									})
-									.then(function(value) {
-										deferred.resolve(value);
+									.then(function(response) {
+										deferred.resolve(response);
 									})
 									.fail(function(error) {
 										deferred.reject(error);
@@ -977,9 +970,7 @@ function initUploadControls() {
 							});
 						return deferred.promise();
 					} else {
-						return uploadFile(file, {
-							uploadUrl: uploadUrl,
-							uploadMethod: uploadMethod,
+						return requestSignedUpload(file, {
 							requestUploadUrl: requestUploadUrl,
 							requestUploadMethod: requestUploadMethod
 						});

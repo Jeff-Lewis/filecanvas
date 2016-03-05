@@ -248,11 +248,9 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
-					var sitePath = siteRoot.path;
-					var fullPath = sitePath + '/' + filePath;
 					var adapter = adapters[siteAdapter];
 					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrieveDownloadLink(fullPath, adapterOptions);
+					return adapter.retrieveDownloadLink(filePath, siteRoot, adapterOptions);
 				});
 		});
 };
@@ -270,11 +268,9 @@ SiteService.prototype.retrieveSitePreviewLink = function(username, siteName, fil
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
-					var sitePath = siteRoot.path;
-					var fullPath = sitePath + '/' + filePath;
 					var adapter = adapters[siteAdapter];
 					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrievePreviewLink(fullPath, adapterOptions);
+					return adapter.retrievePreviewLink(filePath, siteRoot, adapterOptions);
 				});
 		});
 };
@@ -292,11 +288,9 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
-					var sitePath = siteRoot.path;
-					var fullPath = sitePath + '/' + filePath;
 					var adapter = adapters[siteAdapter];
 					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrieveThumbnailLink(fullPath, adapterOptions);
+					return adapter.retrieveThumbnailLink(filePath, siteRoot, adapterOptions);
 				});
 		});
 };
@@ -317,11 +311,9 @@ SiteService.prototype.retrieveSiteShortcutLink = function(username, siteName, fi
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteAdapter = siteRoot.adapter;
-					var sitePath = siteRoot.path;
-					var fullPath = sitePath + '/' + filePath;
 					var adapter = adapters[siteAdapter];
 					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.readFile(fullPath, adapterOptions);
+					return adapter.readFile(filePath, siteRoot, adapterOptions);
 				})
 				.then(function(shortcutData) {
 					var shortcutType = fileExtension.substr('.'.length);

@@ -1,9 +1,12 @@
 'use strict';
 
 var path = require('path');
+var escapeRegExp = require('escape-regexp');
+
+var GoogleUploader = require('./GoogleUploader');
 
 var xhr = require('../../utils/xhr');
-var GoogleUploader = require('./GoogleUploader');
+var requestSignedUpload = require('../../utils/requestSignedUpload');
 
 var FileModel = require('../../../src/models/FileModel');
 var TransferBatch = require('./TransferBatch');
@@ -126,7 +129,6 @@ Api.prototype.uploadFiles = function(files, options) {
 		}
 
 		var deferred = new $.Deferred();
-		var file = queueItem.file;
 		var numRetriesRemaining = numRetries;
 
 		queueItem.started = true;
@@ -142,6 +144,7 @@ Api.prototype.uploadFiles = function(files, options) {
 
 
 		function startUpload(queueItem) {
+			var file = queueItem.file;
 			var upload = uploadFile(file);
 			upload
 				.progress(onFileProgress)
@@ -156,11 +159,9 @@ Api.prototype.uploadFiles = function(files, options) {
 			}
 
 			function onFileLoaded(response) {
-				var renamedPath = response.path;
-				var renamedFilename = renamedPath.split('/').pop();
 				queueItem.bytesLoaded = queueItem.bytesTotal;
 				queueItem.completed = true;
-				queueItem.filename = renamedFilename;
+				queueItem.response = response;
 				deferred.resolve(queueItem);
 			}
 
@@ -193,12 +194,16 @@ Api.prototype.uploadFiles = function(files, options) {
 				return uploadGoogleFile(file, adapterConfig);
 			case 'local':
 				return uploadLocalFile(file, adapterConfig);
+			case 'demo':
+				return uploadDemoFile(file, adapterConfig);
 			default:
 				return new $.Deferred().reject(new Error('Invalid adapter: ' + adapterConfig.adapter)).promise();
 		}
 
 
 		function uploadDropboxFile(file, options) {
+			if (!options.path) { return new $.Deferred().reject(new Error('Missing upload path')).promise(); }
+			if (!options.token) { return new $.Deferred().reject(new Error('Missing access token')).promise(); }
 			var pathPrefix = options.path;
 			var accessToken = options.token;
 			var uploadPath = pathPrefix + file.path;
@@ -215,10 +220,33 @@ Api.prototype.uploadFiles = function(files, options) {
 				url: url,
 				headers: headers,
 				body: file.data
-			});
+			})
+				.then(function(fileMetadata) {
+					var fileModel = parseDropboxFileMetadata(fileMetadata, pathPrefix);
+					return fileModel;
+				});
+
+
+			function parseDropboxFileMetadata(fileMetadata, rootPath) {
+				var filePath = (stripPathPrefix(fileMetadata['path'], rootPath) || '/');
+				return new FileModel({
+					id: filePath,
+					path: filePath,
+					mimeType: fileMetadata['mime_type'] || null,
+					size: fileMetadata['bytes'],
+					modified: new Date(fileMetadata['modified']).toISOString(),
+					thumbnail: fileMetadata['thumb_exists'],
+					directory: fileMetadata['is_dir'],
+					contents: (fileMetadata['contents'] ? fileMetadata['contents'].map(function(childFileMetadata) {
+						return parseDropboxFileMetadata(childFileMetadata, rootPath);
+					}) : null)
+				});
+			}
 		}
 
 		function uploadGoogleFile(file, options) {
+			if (!options.path) { return new $.Deferred().reject(new Error('Missing upload path')).promise(); }
+			if (!options.token) { return new $.Deferred().reject(new Error('Missing access token')).promise(); }
 			var sitePath = options.path;
 			var accessToken = options.token;
 			var fullPath = path.join(sitePath, file.path);
@@ -229,7 +257,7 @@ Api.prototype.uploadFiles = function(files, options) {
 					var parentFolderId = folderMetadata.id;
 					return writeGoogleFile(filename, parentFolderId, file.data, accessToken)
 						.then(function(fileMetadata) {
-							var fileModel = parseGoogleFileMetadata(fileMetadata, parentPath);
+							var fileModel = parseGoogleFileMetadata(fileMetadata, parentPath, sitePath);
 							return fileModel;
 						});
 				});
@@ -316,25 +344,29 @@ Api.prototype.uploadFiles = function(files, options) {
 				return deferred.promise();
 			}
 
-			function parseGoogleFileMetadata(fileMetadata, parentPath) {
+			function parseGoogleFileMetadata(fileMetadata, parentPath, rootPath) {
+				var fullPath = path.join(parentPath, fileMetadata.title);
+				var filePath = (stripPathPrefix(fullPath, rootPath) || '/');
 				var isDirectory = getIsGoogleDirectory(fileMetadata);
 				return new FileModel({
 					id: fileMetadata.id,
-					path: path.join(parentPath, fileMetadata.title),
+					path: filePath,
 					directory: isDirectory,
 					mimeType: isDirectory ? null : fileMetadata.mimeType,
-					size: fileMetadata.fileSize || 0,
+					size: Number(fileMetadata.fileSize || 0),
 					modified: fileMetadata.modifiedDate,
 					thumbnail: fileMetadata.thumbnailLink
 				});
-			}
 
-			function getIsGoogleDirectory(fileMetadata) {
-				return (fileMetadata.mimeType === MIME_TYPE_GOOGLE_FOLDER);
+
+				function getIsGoogleDirectory(fileMetadata) {
+					return (fileMetadata.mimeType === MIME_TYPE_GOOGLE_FOLDER);
+				}
 			}
 		}
 
 		function uploadLocalFile(file, options) {
+			if (!options.path) { return new $.Deferred().reject(new Error('Missing upload path')).promise(); }
 			var pathPrefix = options.path;
 			var uploadPath = pathPrefix + file.path;
 			var method = LOCAL_UPLOAD_API_METHOD;
@@ -348,7 +380,52 @@ Api.prototype.uploadFiles = function(files, options) {
 				url: url,
 				headers: headers,
 				body: file.data
+			})
+				.then(function(fileModel) {
+					return fileModel;
+				});
+		}
+
+		function uploadDemoFile(file, options) {
+			options = options || {};
+			if (!options.uploadUrl) { return new $.Deferred().reject(new Error('Missing upload URL')).promise(); }
+			if (!options.thumbnailMimeTypes) { return new $.Deferred().reject(new Error('Missing thumbnail mime types')).promise(); }
+			var uploadUrl = options.uploadUrl;
+			var thumbnailMimeTypes = options.thumbnailMimeTypes;
+			var deferred = new $.Deferred();
+			var upload = requestSignedUpload(file.data, {
+				requestUploadUrl: uploadUrl,
+				requestUploadMethod: 'POST'
 			});
+			upload
+				.progress(function(progress) {
+					deferred.notify({
+						bytesLoaded: Math.round((progress.loaded / progress.total) * file.data.size),
+						bytesTotal: file.size
+					});
+				})
+				.then(function(response) {
+					var fileModel = new FileModel({
+						id: response.id,
+						path: file.path,
+						mimeType: file.data.type,
+						size: file.data.size,
+						modified: file.data.lastModifiedDate.toISOString(),
+						thumbnail: (thumbnailMimeTypes.indexOf(file.data.type) !== -1)
+					});
+					return fileModel;
+				})
+				.then(function(fileModel) {
+					deferred.resolve(fileModel);
+				})
+				.fail(function(error) {
+					deferred.reject(error);
+				});
+			var operation = deferred.promise();
+			operation.abort = function() {
+				upload.abort();
+			};
+			return operation;
 		}
 
 		function getUploadUrl(endpoint, filePath, params) {
@@ -359,10 +436,15 @@ Api.prototype.uploadFiles = function(files, options) {
 
 
 			function formatQueryString(params) {
+				if (!params) { return ''; }
 				return Object.keys(params).map(function(key) {
 					return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
 				}).join('&');
 			}
+		}
+
+		function stripPathPrefix(filePath, rootPath) {
+			return filePath.replace(new RegExp('^' + escapeRegExp(rootPath), 'i'), '');
 		}
 	}
 };

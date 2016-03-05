@@ -272,7 +272,7 @@ DropboxStorageAdapter.prototype.loadFolderContents = function(folderPath, option
 		});
 };
 
-DropboxStorageAdapter.prototype.readFile = function(filePath, options) {
+DropboxStorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -280,11 +280,13 @@ DropboxStorageAdapter.prototype.readFile = function(filePath, options) {
 	return new DropboxConnector(appKey, appSecret)
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
-			return dropboxClient.readFile(filePath);
+			var sitePath = siteRoot.path;
+			var fullPath = path.join(sitePath, filePath);
+			return dropboxClient.readFile(fullPath);
 		});
 };
 
-DropboxStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
+DropboxStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoot, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -292,11 +294,13 @@ DropboxStorageAdapter.prototype.retrieveDownloadLink = function(filePath, option
 	return new DropboxConnector(appKey, appSecret)
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
-			return dropboxClient.generateDownloadLink(filePath);
+			var sitePath = siteRoot.path;
+			var fullPath = path.join(sitePath, filePath);
+			return dropboxClient.generateDownloadLink(fullPath);
 		});
 };
 
-DropboxStorageAdapter.prototype.retrievePreviewLink = function(filePath, options) {
+DropboxStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -304,11 +308,13 @@ DropboxStorageAdapter.prototype.retrievePreviewLink = function(filePath, options
 	return new DropboxConnector(appKey, appSecret)
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
-			return dropboxClient.generatePreviewLink(filePath);
+			var sitePath = siteRoot.path;
+			var fullPath = path.join(sitePath, filePath);
+			return dropboxClient.generatePreviewLink(fullPath);
 		});
 };
 
-DropboxStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
+DropboxStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteRoot, options) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var uid = options.uid;
@@ -316,7 +322,9 @@ DropboxStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, optio
 	return new DropboxConnector(appKey, appSecret)
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
-			return dropboxClient.generateThumbnailLink(filePath);
+			var sitePath = siteRoot.path;
+			var fullPath = path.join(sitePath, filePath);
+			return dropboxClient.generateThumbnailLink(fullPath);
 		});
 };
 
@@ -335,10 +343,10 @@ DropboxStorageAdapter.prototype.retrieveFileMetadata = function(filePath, option
 		});
 };
 
-DropboxStorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
+DropboxStorageAdapter.prototype.getUploadConfig = function(siteRoot, options) {
 	return {
 		adapter: this.adapterName,
-		path: sitePath,
+		path: siteRoot.path,
 		token: options.token
 	};
 };
@@ -384,27 +392,29 @@ function parseStatModel(statModel, options) {
 	options = options || {};
 	var rootPath = options.root || '';
 	if (!statModel) { return null; }
-	if (statModel.is_deleted) { return null; }
-	return createFileModel(statModel, rootPath);
+	if (statModel['is_deleted']) { return null; }
+	return parseDropboxFileMetadata(statModel, rootPath);
 
 
-	function createFileModel(statModel, rootPath) {
+	function parseDropboxFileMetadata(fileMetadata, rootPath) {
+		var filePath = (stripRootPrefix(fileMetadata['path'], rootPath) || '/');
 		return new FileModel({
-			id: statModel.path,
-			path: stripRootPrefix(statModel.path, rootPath) || '/',
-			mimeType: statModel.mime_type || null,
-			size: statModel.bytes,
-			modified: new Date(statModel.modified).toISOString(),
-			thumbnail: statModel.thumb_exists,
-			directory: statModel.is_dir,
-			contents: (statModel.contents ? statModel.contents.map(function(childStatModel) {
-				return createFileModel(childStatModel, rootPath);
+			id: filePath,
+			path: filePath,
+			mimeType: fileMetadata['mime_type'] || null,
+			size: fileMetadata['bytes'],
+			modified: new Date(fileMetadata['modified']).toISOString(),
+			thumbnail: fileMetadata['thumb_exists'],
+			directory: fileMetadata['is_dir'],
+			contents: (fileMetadata['contents'] ? fileMetadata['contents'].map(function(childFileMetadata) {
+				return parseDropboxFileMetadata(childFileMetadata, rootPath);
 			}) : null)
 		});
-	}
 
-	function stripRootPrefix(filePath, rootPath) {
-		return filePath.replace(new RegExp('^' + escapeRegExp(rootPath), 'i'), '');
+
+		function stripRootPrefix(filePath, rootPath) {
+			return filePath.replace(new RegExp('^' + escapeRegExp(rootPath), 'i'), '');
+		}
 	}
 }
 

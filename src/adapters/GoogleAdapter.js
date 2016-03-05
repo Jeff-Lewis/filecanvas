@@ -377,7 +377,7 @@ GoogleStorageAdapter.prototype.loadFolderContents = function(folderPath, options
 
 };
 
-GoogleStorageAdapter.prototype.readFile = function(filePath, options) {
+GoogleStorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
 	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
@@ -385,17 +385,15 @@ GoogleStorageAdapter.prototype.readFile = function(filePath, options) {
 	var accessToken = options.token;
 	var tokenExpires = options.tokenExpires;
 	var refreshToken = options.refreshToken;
+	var fileId = parseFileId(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
 		.then(function(googleClient) {
-			return googleClient.retrieveFileMetadataAtPath(filePath)
-				.then(function(fileMetadata) {
-					return googleClient.readFile(fileMetadata.id);
-				});
+			return googleClient.readFile(fileId);
 		});
 };
 
-GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
+GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoot, options) {
 	var database = this.database;
 	var cache = this.cache;
 	var clientId = this.clientId;
@@ -404,21 +402,19 @@ GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options
 	var accessToken = options.token;
 	var tokenExpires = options.tokenExpires;
 	var refreshToken = options.refreshToken;
+	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
 		.then(function(googleClient) {
-			return googleClient.retrieveFileMetadataAtPath(filePath)
-				.then(function(fileMetadata) {
-					return googleClient.generateDownloadLink(fileMetadata.id);
-				})
+			return googleClient.generateDownloadLink(fileId)
 				.then(function(downloadUrl) {
 					return sanitizeUrl(downloadUrl, cache, { filename: filename });
 				});
 		});
 };
 
-GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, options) {
+GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot, options) {
 	var database = this.database;
 	var cache = this.cache;
 	var clientId = this.clientId;
@@ -427,14 +423,12 @@ GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, options)
 	var accessToken = options.token;
 	var tokenExpires = options.tokenExpires;
 	var refreshToken = options.refreshToken;
+	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
 		.then(function(googleClient) {
-			return googleClient.retrieveFileMetadataAtPath(filePath)
-				.then(function(fileMetadata) {
-					return googleClient.generateDownloadLink(fileMetadata.id);
-				})
+			return googleClient.generateDownloadLink(fileId)
 				.then(function(previewUrl) {
 					return sanitizeUrl(previewUrl, cache, { filename: filename, inline: true });
 				});
@@ -450,14 +444,12 @@ GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, option
 	var accessToken = options.token;
 	var tokenExpires = options.tokenExpires;
 	var refreshToken = options.refreshToken;
+	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
 		.then(function(googleClient) {
-			return googleClient.retrieveFileMetadataAtPath(filePath)
-				.then(function(fileMetadata) {
-					return googleClient.generateThumbnailLink(fileMetadata.id, { size: THUMBNAIL_SIZE });
-				})
+			return googleClient.generateThumbnailLink(fileId, { size: THUMBNAIL_SIZE })
 				.then(function(thumbnailUrl) {
 					return sanitizeUrl(thumbnailUrl, cache, { filename: filename, inline: true });
 				});
@@ -482,10 +474,10 @@ GoogleStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options
 		});
 };
 
-GoogleStorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
+GoogleStorageAdapter.prototype.getUploadConfig = function(siteRoot, options) {
 	return {
 		adapter: this.adapterName,
-		path: sitePath,
+		path: siteRoot.path,
 		token: options.token
 	};
 };
@@ -511,7 +503,7 @@ function parseFileMetadata(fileMetadata, options) {
 			id: fileData.id,
 			path: stripRootPrefix(fileData.path, rootPath) || '/',
 			mimeType: (isDirectory ? null : fileData.mimeType),
-			size: fileData.fileSize || 0,
+			size: Number(fileData.fileSize || 0),
 			modified: fileData.modifiedDate,
 			thumbnail: fileData.thumbnailLink && getResizedThumbnailLink(fileData.thumbnailLink, { size: 's' + THUMBNAIL_SIZE }),
 			directory: isDirectory,
@@ -524,6 +516,10 @@ function parseFileMetadata(fileMetadata, options) {
 	function stripRootPrefix(filePath, rootPath) {
 		return filePath.replace(new RegExp('^' + escapeRegExp(rootPath), 'i'), '');
 	}
+}
+
+function parseFileId(filePath) {
+	return path.basename(filePath.replace(/\/(.*?)\.[^\/]+?$/, ''));
 }
 
 function GoogleConnector(database, clientId, clientSecret) {

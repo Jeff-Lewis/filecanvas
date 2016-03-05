@@ -15,20 +15,24 @@ module.exports['asset'] = function(rootModel, filePath) {
 };
 module.exports['download'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
-	return rootModel.metadata.siteRoot + 'download' + file.path;
+	var filenameSuffix = path.extname(file.id) || !path.extname(file.path) ? '' : path.basename(file.path);
+	return path.join(rootModel.metadata.siteRoot, 'download', file.id, filenameSuffix);
 };
 module.exports['preview'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
-	return rootModel.metadata.siteRoot + 'media' + file.path;
+	var filenameSuffix = path.extname(file.id) || !path.extname(file.path) ? '' : path.basename(file.path);
+	return path.join(rootModel.metadata.siteRoot, 'media', file.id, filenameSuffix);
 };
 module.exports['thumbnail'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
 	if (typeof file.thumbnail === 'string') { return file.thumbnail; }
-	return rootModel.metadata.siteRoot + 'thumbnail' + file.path;
+	var filenameSuffix = path.extname(file.id) || !path.extname(file.path) ? '' : path.basename(file.path);
+	return path.join(rootModel.metadata.siteRoot, 'thumbnail', file.id, filenameSuffix);
 };
 module.exports['shortcut'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
-	return rootModel.metadata.siteRoot + 'redirect' + file.path;
+	var filenameSuffix = path.extname(file.id) || !path.extname(file.path) ? '' : path.basename(file.path);
+	return path.join(rootModel.metadata.siteRoot, 'redirect', file.id, filenameSuffix);
 };
 module.exports['extension'] = function(file, options) {
 	if (!file || !file.path) { return null; }

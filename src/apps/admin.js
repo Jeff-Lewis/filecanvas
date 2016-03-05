@@ -69,7 +69,7 @@ module.exports = function(database, cache, options) {
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 
-	var loginAdapters = loadLoginAdapters('admin', adaptersConfig, database);
+	var loginAdapters = loadLoginAdapters(adaptersConfig, database);
 	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
@@ -380,6 +380,7 @@ module.exports = function(database, cache, options) {
 							},
 							www: {
 								root: wwwUrl,
+								signup: wwwUrl + '#sign-up',
 								security: stripTrailingSlash(wwwUrl) + '/security',
 								terms: stripTrailingSlash(wwwUrl) + '/terms',
 								privacy: stripTrailingSlash(wwwUrl) + '/privacy'

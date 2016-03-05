@@ -8,6 +8,7 @@ var express = require('express');
 var LocalStrategy = require('passport-local').Strategy;
 var mkdirp = require('mkdirp');
 var slug = require('slug');
+var urlJoin = require('url-join');
 
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
@@ -278,15 +279,34 @@ LocalStorageAdapter.prototype.loadFolderContents = function(folderPath, options)
 		});
 };
 
-LocalStorageAdapter.prototype.readFile = function(filePath, options) {
+LocalStorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
 	var sitesRoot = this.sitesRoot;
-	var fullPath = path.join(sitesRoot, filePath);
+	var sitePath = siteRoot.path;
+	var fullPath = path.join(sitesRoot, sitePath, filePath);
 	return new Promise(function(resolve, reject) {
 		fs.readFile(fullPath, { encoding: 'utf8' }, function(error, data) {
 			if (error) { return reject(error); }
 			resolve(data);
 		});
 	});
+};
+
+LocalStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoot, options) {
+	var downloadUrl = this.downloadUrl;
+	var sitePath = siteRoot.path;
+	return Promise.resolve(urlJoin(downloadUrl, sitePath, filePath));
+};
+
+LocalStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot, options) {
+	var previewUrl = this.previewUrl;
+	var sitePath = siteRoot.path;
+	return Promise.resolve(urlJoin(previewUrl, sitePath, filePath));
+};
+
+LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteRoot, options) {
+	var thumbnailUrl = this.thumbnailUrl;
+	var sitePath = siteRoot.path;
+	return Promise.resolve(urlJoin(thumbnailUrl, sitePath, filePath));
 };
 
 LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
@@ -302,25 +322,10 @@ LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options)
 		});
 };
 
-LocalStorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
-	var downloadUrl = this.downloadUrl;
-	return Promise.resolve(downloadUrl + filePath.substr('/'.length));
-};
-
-LocalStorageAdapter.prototype.retrievePreviewLink = function(filePath, options) {
-	var previewUrl = this.previewUrl;
-	return Promise.resolve(previewUrl + filePath.substr('/'.length));
-};
-
-LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
-	var thumbnailUrl = this.thumbnailUrl;
-	return Promise.resolve(thumbnailUrl + filePath.substr('/'.length));
-};
-
-LocalStorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
+LocalStorageAdapter.prototype.getUploadConfig = function(siteRoot, options) {
 	return {
 		adapter: this.adapterName,
-		path: sitePath
+		path: siteRoot.path
 	};
 };
 

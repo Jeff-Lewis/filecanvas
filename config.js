@@ -66,19 +66,9 @@ config.uploaders.demo = {};
 if (process.env.LOCAL === 'true') {
 	config.adapters.local = {
 		login: {
-			admin: {
-				temporary: false,
-				strategy: 'bcrypt',
-				options: {
-					strength: (process.env.LOCAL_BCRYPT_STRENGTH ? Number(process.env.LOCAL_BCRYPT_STRENGTH) : 10)
-				}
-			},
-			demo: {
-				temporary: true,
-				strategy: 'bcrypt',
-				options: {
-					strength: (process.env.LOCAL_BCRYPT_STRENGTH ? Number(process.env.LOCAL_BCRYPT_STRENGTH) : 10)
-				}
+			strategy: 'bcrypt',
+			options: {
+				strength: (process.env.LOCAL_BCRYPT_STRENGTH ? Number(process.env.LOCAL_BCRYPT_STRENGTH) : 10)
 			}
 		},
 		storage: {
@@ -108,18 +98,9 @@ if (process.env.LOCAL === 'true') {
 if (process.env.DROPBOX_APP_KEY) {
 	config.adapters.dropbox = {
 		login: {
-			admin: {
-				temporary: false,
-				appKey: process.env.DROPBOX_APP_KEY || null,
-				appSecret: process.env.DROPBOX_APP_SECRET || null,
-				loginCallbackUrl: process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null
-			},
-			demo: {
-				temporary: true,
-				appKey: process.env.DROPBOX_APP_KEY || null,
-				appSecret: process.env.DROPBOX_APP_SECRET || null,
-				loginCallbackUrl: process.env.DROPBOX_OAUTH2_DEMO_LOGIN_CALLBACK || null
-			}
+			appKey: process.env.DROPBOX_APP_KEY || null,
+			appSecret: process.env.DROPBOX_APP_SECRET || null,
+			loginCallbackUrl: process.env.DROPBOX_OAUTH2_LOGIN_CALLBACK || null
 		},
 		storage: {
 			adapterLabel: 'Dropbox',
@@ -134,34 +115,17 @@ if (process.env.DROPBOX_APP_KEY) {
 if (process.env.GOOGLE_CLIENT_ID) {
 	config.adapters.google = {
 		login: {
-			admin: {
-				temporary: false,
-				clientId: process.env.GOOGLE_CLIENT_ID || null,
-				clientSecret: process.env.GOOGLE_CLIENT_SECRET || null,
-				loginCallbackUrl: process.env.GOOGLE_OAUTH2_LOGIN_CALLBACK || null,
-				authOptions: {
-					accessType: 'offline',
-					prompt: 'select_account',
-					scope: [
-						'email',
-						'profile',
-						'https://www.googleapis.com/auth/drive'
-					]
-				}
-			},
-			demo: {
-				temporary: true,
-				clientId: process.env.GOOGLE_CLIENT_ID || null,
-				clientSecret: process.env.GOOGLE_CLIENT_SECRET || null,
-				loginCallbackUrl: process.env.GOOGLE_OAUTH2_DEMO_LOGIN_CALLBACK || null,
-				authOptions: {
-					prompt: 'select_account',
-					scope: [
-						'email',
-						'profile',
-						'https://www.googleapis.com/auth/drive'
-					]
-				}
+			clientId: process.env.GOOGLE_CLIENT_ID || null,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET || null,
+			loginCallbackUrl: process.env.GOOGLE_OAUTH2_LOGIN_CALLBACK || null,
+			authOptions: {
+				accessType: 'offline',
+				prompt: 'select_account',
+				scope: [
+					'email',
+					'profile',
+					'https://www.googleapis.com/auth/drive'
+				]
 			}
 		},
 		storage: {
@@ -182,7 +146,8 @@ if (process.env.AWS_S3_BUCKET) {
 	};
 	config.uploaders.demo = {
 		adapter: 's3',
-		bucket: process.env.AWS_S3_BUCKET
+		bucket: process.env.AWS_S3_BUCKET,
+		root: 'demo'
 	};
 } else if (process.env.LOCAL_ASSET_ROOT) {
 	config.uploaders.admin = {

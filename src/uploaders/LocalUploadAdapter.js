@@ -1,9 +1,14 @@
 'use strict';
 
 var util = require('util');
-var path = require('path');
+var url = require('url');
+var https = require('https');
+var request = require('request');
+var urlJoin = require('url-join');
 
 var UploadAdapter = require('./UploadAdapter');
+
+var HttpError = require('../errors/HttpError');
 
 function LocalUploadAdapter(options) {
 	options = options || {};
@@ -37,7 +42,26 @@ LocalUploadAdapter.prototype.generateRequest = function(filePath) {
 
 LocalUploadAdapter.prototype.getDownloadUrl = function(filePath) {
 	var downloadUrl = this.downloadUrl;
-	return path.join(downloadUrl, filePath);
+	return urlJoin(downloadUrl, filePath);
+};
+
+LocalUploadAdapter.prototype.readFile = function(filePath) {
+	var downloadUrl = this.getDownloadUrl(filePath);
+	return loadPotentiallyInsecureUrlContents(downloadUrl);
+
+	function loadPotentiallyInsecureUrlContents(targetUrl) {
+		var protocol = url.parse(targetUrl).protocol;
+		var agent = (protocol === 'https:' ? new https.Agent({ rejectUnauthorized: false }) : null);
+		return new Promise(function(resolve, reject) {
+			request({ url: targetUrl, agent: agent }, function(error, response, body) {
+				if (error) { return reject(error); }
+				if (response.statusCode >= 400) {
+					return reject(new HttpError(response.statusCode, body));
+				}
+				resolve(body);
+			});
+		});
+	}
 };
 
 module.exports = LocalUploadAdapter;

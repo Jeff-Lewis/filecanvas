@@ -2,8 +2,8 @@
 
 var util = require('util');
 var path = require('path');
-var aws = require('aws-sdk');
 var mime = require('mime');
+var aws = require('aws-sdk');
 
 var UploadAdapter = require('./UploadAdapter');
 
@@ -64,7 +64,8 @@ S3UploadAdapter.prototype.generateRequest = function(filePath) {
 					url: url,
 					method: 'PUT',
 					headers: {
-						'x-amz-acl': 'public-read'
+						'x-amz-acl': 'public-read',
+						'Content-Type': mimeType
 					}
 				},
 				location: self.getDownloadUrl(filePath)
@@ -78,6 +79,26 @@ S3UploadAdapter.prototype.getDownloadUrl = function(filePath) {
 	var pathPrefix = this.pathPrefix;
 	var fullPath = (pathPrefix ? path.join(pathPrefix, filePath) : filePath);
 	return 'https://' + bucketName + '.s3.amazonaws.com/' + fullPath;
+};
+
+S3UploadAdapter.prototype.readFile = function(filePath) {
+	var bucketName = this.bucket;
+	var pathPrefix = this.pathPrefix;
+	var fullPath = (pathPrefix ? path.join(pathPrefix, filePath) : filePath);
+
+	return new Promise(function(resolve, reject) {
+		var s3 = new aws.S3();
+		var params = {
+			'Bucket': bucketName,
+			'Key': fullPath,
+			'ResponseContentType': mime.lookup(fullPath)
+		};
+		s3.getObject(params, function(error, data) {
+			if (error) { return reject(error); }
+			var fileContents = data['Body'];
+			resolve(fileContents);
+		});
+	});
 };
 
 module.exports = S3UploadAdapter;

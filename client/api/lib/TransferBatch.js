@@ -103,7 +103,8 @@ function createBatchItem(file) {
 		bytesTotal: file.data.size,
 		started: false,
 		completed: false,
-		error: false
+		response: null,
+		error: null
 	};
 }
 

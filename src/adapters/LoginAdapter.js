@@ -10,57 +10,16 @@ var HttpError = require('../errors/HttpError');
 
 function LoginAdapter(database, options) {
 	options = options || {};
-	var isTemporary = Boolean(options.temporary);
 
 	if (!database) { throw new Error('Missing database'); }
 
 	this.database = database;
-	this.temporary = isTemporary;
 }
 
 LoginAdapter.prototype.adapterName = null;
 LoginAdapter.prototype.database = null;
-LoginAdapter.prototype.temporary = false;
 
 LoginAdapter.prototype.login = function(req, query, passportValues, callback) {
-	var isTemporary = this.temporary;
-	var self = this;
-	return (isTemporary ? createSessionUser(req, query, passportValues) : loginExistingUser(req, query, passportValues))
-		.then(function(userModel) {
-			if (userModel) {
-				if (isTemporary) {
-					userModel.pending = true;
-				}
-				callback(null, userModel);
-			} else {
-				callback(null, false);
-			}
-		})
-		.catch(function(error) {
-			callback(error);
-		});
-
-
-	function loginExistingUser() {
-		return self.processLogin(req, query, passportValues);
-	}
-
-	function createSessionUser(req, query, passportValues) {
-		var database = self.database;
-		var userService = new UserService(database);
-		return self.createUser(passportValues)
-			.then(function(userModel) {
-				var username = userModel.username;
-				return userService.generateUsername(username)
-					.then(function(username) {
-						userModel.username = username;
-						return userModel;
-					});
-			});
-	}
-};
-
-LoginAdapter.prototype.processLogin = function(req, query, passportValues) {
 	var self = this;
 	var adapterName = this.adapterName;
 	var database = this.database;
@@ -110,6 +69,16 @@ LoginAdapter.prototype.processLogin = function(req, query, passportValues) {
 				return null;
 			}
 			throw error;
+		})
+		.then(function(userModel) {
+			if (userModel) {
+				callback(null, userModel);
+			} else {
+				callback(null, false);
+			}
+		})
+		.catch(function(error) {
+			callback(error);
 		});
 };
 
@@ -128,7 +97,6 @@ LoginAdapter.prototype.createUser = function(passportValues) {
 			return userModel;
 		});
 };
-
 
 LoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
 	throw new Error('Not implemented');

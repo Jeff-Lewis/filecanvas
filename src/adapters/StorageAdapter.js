@@ -21,19 +21,19 @@ StorageAdapter.prototype.loadFolderContents = function(folderPath, options) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.readFile = function(filePath, options) {
+StorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.retrieveDownloadLink = function(filePath, options) {
+StorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoot, options) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.retrievePreviewLink = function(filePath, options) {
+StorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot, options) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
+StorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteRoot, options) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
@@ -41,7 +41,7 @@ StorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.getUploadConfig = function(sitePath, options) {
+StorageAdapter.prototype.getUploadConfig = function(sitePath, siteRoot, options) {
 	throw new Error('Not implemented');
 };
 

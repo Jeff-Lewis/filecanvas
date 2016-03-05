@@ -96,7 +96,7 @@ module.exports = function(database, options) {
 		app.delete('/:site/users/:username', deleteSiteUserRoute);
 
 		app.get('/:site/edit', retrieveSiteEditRoute);
-		app.post('/:site/edit/upload/:filename', namespaceUserFileUpload, fileUploadService.middleware());
+		app.post('/:site/edit/upload/:filename', prefixUserUploadPath('filename'), fileUploadService.middleware());
 
 
 		function retrieveSitesRoute(req, res, next) {
@@ -494,11 +494,11 @@ module.exports = function(database, options) {
 						users: includeUsers
 					})
 					.then(function(siteModel) {
-						var siteAdapter = siteModel.root.adapter;
-						var sitePath = siteModel.root.path;
+						var siteRoot = siteModel.root;
+						var siteAdapter = siteRoot.adapter;
 						var adapterOptions = userAdapters[siteAdapter];
 						var adapter = adapters[siteAdapter];
-						var adapterConfig = adapter.getUploadConfig(sitePath, adapterOptions);
+						var adapterConfig = adapter.getUploadConfig(siteRoot, adapterOptions);
 						var themeId = siteModel.theme.id;
 						var theme = themeService.getTheme(themeId);
 						var templateData = {
@@ -522,12 +522,15 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function namespaceUserFileUpload(req, res, next) {
-			var userModel = req.user;
-			var username = userModel.username;
-			var filename = req.params.filename;
-			req.params.filename = username + '/' + filename;
-			next();
+		function prefixUserUploadPath(param) {
+			return function(req, res, next) {
+				var filename = (param ? req.params[param] : req.params[0]);
+				if (!filename) { return next(new HttpError(403)); }
+				var userModel = req.user;
+				var username = userModel.username;
+				req.params.filename = username + '/' + filename;
+				next();
+			};
 		}
 	}
 };
