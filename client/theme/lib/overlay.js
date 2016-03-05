@@ -288,7 +288,7 @@ var escapeHtml = require('escape-html');
 
 	$('[data-overlay]').overlay();
 
-	$('[data-toggle="overlay"]').on('click', function(event) {
+	$(document).on('click', '[data-toggle="overlay"]', function(event) {
 		event.preventDefault();
 		var $element = $(this);
 		var $overlayTriggerElements = $('[data-toggle="overlay"]');
