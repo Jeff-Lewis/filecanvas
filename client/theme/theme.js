@@ -23,15 +23,17 @@ var bytes = require('bytes');
 	}
 
 	function initOverlayDescriptions() {
-		$('[data-file]').each(function(index, element) {
+		$(document).on('mousedown', '[data-file]', function(event) {
 			var $element = $(this);
-			var filename = $element.attr('data-file');
-			var timestamp = Number($element.attr('data-file-modified'));
-			var modifiedDate = new Date(timestamp *	1000);
-			var modifiedLabel = getLocalizedDateString(modifiedDate);
-			var filesizeLabel = bytes(Number($element.attr('data-file-size')), { decimalPlaces: 1 });
-			var description = filename + '\n' + modifiedLabel + ' – ' + filesizeLabel;
-			$element.attr('data-overlay-description', description);
+			if (!$element.attr('data-overlay-description')) {
+				var filename = $element.attr('data-file');
+				var timestamp = Number($element.attr('data-file-modified'));
+				var modifiedDate = new Date(timestamp *	1000);
+				var modifiedLabel = getLocalizedDateString(modifiedDate);
+				var filesizeLabel = bytes(Number($element.attr('data-file-size')), { decimalPlaces: 1 });
+				var description = filename + '\n' + modifiedLabel + ' – ' + filesizeLabel;
+				$element.attr('data-overlay-description', description);
+			}
 		});
 	}
 
