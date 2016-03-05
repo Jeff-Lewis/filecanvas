@@ -282,6 +282,8 @@ var escapeHtml = require('escape-html');
 				case 'hide':
 					overlay.hide();
 					break;
+				default:
+					break;
 			}
 		});
 	};
