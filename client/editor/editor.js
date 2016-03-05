@@ -991,26 +991,23 @@ function initLivePreview(callback) {
 }
 
 function startTour() {
-	var DEMO_EDITOR_PATH = '/editor';
-	var DEMO_ADD_FILES_PATH = '/editor/add-files';
-	var SITE_EDITOR_PATH = /^\/canvases\/[^\/]+\/edit$/;
+	var DEMO_SUBDOMAIN = 'try';
 
-	var TOUR_ID_DEMO_EDITOR = 'demo-tour';
-	var TOUR_ID_DEMO_ADD_FILES = 'demo-add-files-tour';
-	var TOUR_ID_SITE_EDITOR = 'edit-tour';
+	var TOUR_ID_DEMO = 'demo-tour';
+	var TOUR_ID_SITE = 'edit-tour';
 
-	var currentPath = document.location.pathname;
-	var tourId = getTourId(currentPath);
+	var subdomain = document.location.hostname.split('.')[0];
+	var tourId = (subdomain === DEMO_SUBDOMAIN ? TOUR_ID_DEMO : TOUR_ID_SITE);
 	var tourSteps = getTourSteps(tourId);
 	var currentTourSteps = getTourStepsForViewport(tourSteps, window);
-	var isDemoTour = (tourId === TOUR_ID_DEMO_EDITOR) || (tourId === TOUR_ID_DEMO_ADD_FILES);
+	var storage = (tourId === TOUR_ID_DEMO ? window.sessionStorage : window.localStorage);
 
 	$(window).on('resize', onWindowResized);
 
 	var tour = new window.Tour({
 		name: tourId,
 		steps: currentTourSteps,
-		storage: (isDemoTour ? window.sessionStorage : window.localStorage)
+		storage: storage
 	});
 	tour.init();
 	tour.start();
@@ -1051,35 +1048,6 @@ function startTour() {
 			});
 	}
 
-	function getTourId(pathname) {
-		if (getIsMatch(pathname, DEMO_EDITOR_PATH)) {
-			return TOUR_ID_DEMO_EDITOR;
-		} else if (getIsMatch(pathname, DEMO_ADD_FILES_PATH)) {
-			return TOUR_ID_DEMO_ADD_FILES;
-		} else if (getIsMatch(pathname, SITE_EDITOR_PATH)) {
-			return TOUR_ID_SITE_EDITOR;
-		} else {
-			return null;
-		}
-
-
-		function getIsMatch(value, filter) {
-			if (typeof filter === 'string') {
-				return value === filter;
-			} else if (filter instanceof RegExp) {
-				return filter.test(value);
-			} else if (typeof filter === 'function') {
-				return filter(value);
-			} else if (Array.isArray(filter)) {
-				return filter.some(function(filter) {
-					return getIsMatch(value, filter);
-				});
-			} else {
-				return false;
-			}
-		}
-	}
-
 	function getTourSteps(tourId) {
 		var TOUR_STEPS = [
 			{
@@ -1090,11 +1058,7 @@ function startTour() {
 				},
 				backdrop: true,
 				title: 'Theme options',
-				content: '<p>Use the Theme Options panel to change how your canvas looks</p>',
-				filter: [
-					TOUR_ID_DEMO_EDITOR,
-					TOUR_ID_SITE_EDITOR
-				]
+				content: '<p>Use the Theme Options panel to change how your canvas looks</p>'
 			},
 			{
 				element: '.editor-main',
@@ -1103,10 +1067,6 @@ function startTour() {
 				backdrop: true,
 				title: 'Upload files',
 				content: '<p>Drag files onto the preview area to upload them to your canvas</p>',
-				filter: [
-					TOUR_ID_DEMO_ADD_FILES,
-					TOUR_ID_SITE_EDITOR
-				],
 				mobile: false
 			},
 			{
@@ -1116,39 +1076,7 @@ function startTour() {
 				backdropContainer: '.title-bar-controls .title-bar-controls-container',
 				title: 'Upload files',
 				content: '<p>Click here to upload files to your canvas</p>',
-				filter: [
-					TOUR_ID_DEMO_ADD_FILES,
-					TOUR_ID_SITE_EDITOR
-				],
 				desktop: false
-			},
-			{
-				element: '.title-bar-controls .title-bar-controls-container button',
-				placement: {
-					mobile: 'top',
-					desktop: 'bottom'
-				},
-				backdrop: true,
-				backdropContainer: '.title-bar-controls .title-bar-controls-container',
-				title: 'Add files',
-				content: '<p>Once you’re happy with how your canvas looks, click here to add some files</p>',
-				filter: [
-					TOUR_ID_DEMO_EDITOR
-				]
-			},
-			{
-				element: '.title-bar-controls .title-bar-controls-container button[type="submit"]',
-				placement: {
-					mobile: 'top',
-					desktop: 'bottom'
-				},
-				backdrop: true,
-				backdropContainer: '.title-bar-controls .title-bar-controls-container',
-				title: 'Save your canvas',
-				content: '<p>Once you’re happy with how your canvas looks, click here to save it for publishing later</p>',
-				filter: [
-					TOUR_ID_DEMO_ADD_FILES
-				]
 			},
 			{
 				element: '.title-bar-controls .title-bar-controls-container button[type="submit"]',
@@ -1161,7 +1089,7 @@ function startTour() {
 				title: 'Save changes',
 				content: '<p>Once you’re happy with how your canvas looks, click here to save your changes and leave the editor</p>',
 				filter: [
-					TOUR_ID_SITE_EDITOR
+					TOUR_ID_SITE
 				]
 			}
 		];
