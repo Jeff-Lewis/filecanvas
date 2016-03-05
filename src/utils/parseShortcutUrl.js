@@ -18,17 +18,17 @@ module.exports = function(shortcutFileContents, options) {
 
 
 	function parseWindowsShortcutUrl(shortcutFileContents) {
-		var data = ini.parse(shortcutFileContents);
+		var data = ini.parse(shortcutFileContents.toString());
 		return data['InternetShortcut'].URL;
 	}
 
 	function parseOsXShortcutUrl(shortcutFileContents) {
-		var data = plist.parse(shortcutFileContents);
+		var data = plist.parse(shortcutFileContents.toString());
 		return data.URL;
 	}
 
 	function parseLinuxShortcutUrl(shortcutFileContents) {
-		var data = ini.parse(shortcutFileContents);
+		var data = ini.parse(shortcutFileContents.toString());
 		return data['Desktop Entry'].URL;
 	}
 };
