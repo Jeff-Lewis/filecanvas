@@ -4,6 +4,7 @@ var path = require('path');
 var objectAssign = require('object-assign');
 var isTextOrBinary = require('istextorbinary');
 var template = require('es6-template-strings');
+var isEqual = require('lodash.isequal');
 
 var parseShortcutUrl = require('../utils/parseShortcutUrl');
 
@@ -58,8 +59,6 @@ SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
 			return userService.retrieveUser(username)
 				.then(function(userModel) {
 					var userAdapters = userModel.adapters;
-					var siteRoot = siteModel.root;
-					var sitePath = siteRoot.path;
 					var context = {
 						host: host,
 						user: userModel,
@@ -68,10 +67,11 @@ SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
 					return generateSiteFiles(siteTemplateFiles, context)
 						.then(function(siteFiles) {
 							var siteRoot = siteModel.root;
-							var siteAdapter = siteRoot.adapter;
-							var adapter = adapters[siteAdapter];
-							var adapterOptions = userAdapters[siteAdapter];
-							return adapter.initSiteFolder(sitePath, siteFiles, adapterOptions);
+							var siteAdapterName = siteRoot.adapter;
+							var siteAdapterConfig = siteRoot.config;
+							var adapter = adapters[siteAdapterName];
+							var userAdapterConfig = userAdapters[siteAdapterName];
+							return adapter.initSiteFolder(siteFiles, siteAdapterConfig, userAdapterConfig);
 						});
 				});
 		})
@@ -111,14 +111,13 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
 					var siteRoot = siteModel.root;
-					var siteAdapter = siteRoot.adapter;
-					var sitePath = siteRoot.path;
-					var siteCache = siteModel.cache;
-					var adapter = adapters[siteAdapter];
-					var adapterOptions = objectAssign({}, userAdapters[siteAdapter], {
+					var siteAdapterName = siteRoot.adapter;
+					var siteAdapterConfig = siteRoot.config;
+					var adapter = adapters[siteAdapterName];
+					var userAdapterConfig = objectAssign({}, userAdapters[siteAdapterName], {
 						cache: siteCache && siteCache.adapter || null
 					});
-					return adapter.loadFolderContents(sitePath, adapterOptions)
+					return adapter.loadSiteContents(siteAdapterConfig, userAdapterConfig)
 						.then(function(folder) {
 							var siteCache = {
 								site: {
@@ -172,9 +171,7 @@ SiteService.prototype.updateSite = function(username, siteName, updates) {
 				if (!existingSiteRoot || !updates.root) {
 					return existingSiteRoot !== updates.root;
 				}
-				var siteRootHasChanged =
-					(existingSiteRoot.adapter !== updates.root.adapter) ||
-					(existingSiteRoot.path !== updates.root.path);
+				var siteRootHasChanged = !isEqual(existingSiteRoot, updates.root);
 				return siteRootHasChanged;
 			});
 	}
@@ -247,10 +244,11 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 			var userService = new UserService(database);
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
-					var siteAdapter = siteRoot.adapter;
-					var adapter = adapters[siteAdapter];
-					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrieveDownloadLink(filePath, siteRoot, adapterOptions);
+					var siteAdapterName = siteRoot.adapter;
+					var siteAdapterConfig = siteRoot.config;
+					var adapter = adapters[siteAdapterName];
+					var userAdapterConfig = userAdapters[siteAdapterName];
+					return adapter.retrieveDownloadLink(filePath, siteAdapterConfig, userAdapterConfig);
 				});
 		});
 };
@@ -267,10 +265,11 @@ SiteService.prototype.retrieveSitePreviewLink = function(username, siteName, fil
 			var userService = new UserService(database);
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
-					var siteAdapter = siteRoot.adapter;
-					var adapter = adapters[siteAdapter];
-					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrievePreviewLink(filePath, siteRoot, adapterOptions);
+					var siteAdapterName = siteRoot.adapter;
+					var siteAdapterConfig = siteRoot.config;
+					var adapter = adapters[siteAdapterName];
+					var userAdapterConfig = userAdapters[siteAdapterName];
+					return adapter.retrievePreviewLink(filePath, siteAdapterConfig, userAdapterConfig);
 				});
 		});
 };
@@ -287,10 +286,11 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 			var userService = new UserService(database);
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
-					var siteAdapter = siteRoot.adapter;
-					var adapter = adapters[siteAdapter];
-					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.retrieveThumbnailLink(filePath, siteRoot, adapterOptions);
+					var siteAdapterName = siteRoot.adapter;
+					var siteAdapterConfig = siteRoot.config;
+					var adapter = adapters[siteAdapterName];
+					var userAdapterConfig = userAdapters[siteAdapterName];
+					return adapter.retrieveThumbnailLink(filePath, siteAdapterConfig, userAdapterConfig);
 				});
 		});
 };
@@ -310,10 +310,11 @@ SiteService.prototype.retrieveSiteShortcutLink = function(username, siteName, fi
 			var userService = new UserService(database);
 			return userService.retrieveUserAdapters(username)
 				.then(function(userAdapters) {
-					var siteAdapter = siteRoot.adapter;
-					var adapter = adapters[siteAdapter];
-					var adapterOptions = userAdapters[siteAdapter];
-					return adapter.readFile(filePath, siteRoot, adapterOptions);
+					var siteAdapterName = siteRoot.adapter;
+					var siteAdapterConfig = siteRoot.config;
+					var adapter = adapters[siteAdapterName];
+					var userAdapterConfig = userAdapters[siteAdapterName];
+					return adapter.readFile(filePath, siteAdapterConfig, userAdapterConfig);
 				})
 				.then(function(shortcutData) {
 					var shortcutType = fileExtension.substr('.'.length);
@@ -368,8 +369,8 @@ SiteService.prototype.retrieveFileMetadata = function(username, adapterName, fil
 	return userService.retrieveUserAdapters(username)
 		.then(function(userAdapters) {
 			var adapter = adapters[adapterName];
-			var adapterOptions = userAdapters[adapterName];
-			return adapter.retrieveFileMetadata(filePath, adapterOptions);
+			var userAdapterConfig = userAdapters[adapterName];
+			return adapter.retrieveFileMetadata(filePath, userAdapterConfig);
 		});
 };
 

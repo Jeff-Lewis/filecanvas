@@ -90,16 +90,16 @@
 															value="{{ content.site.root.adapter }}"
 														/>
 														<input type="hidden"
-															name="name"
-															value="{{ content.site.name }}"
-															data-bind-value="site-label|slug"
-														/>
-														<input type="hidden"
-															name="root.path"
-															value="{{ content.site.root.path }}"
+															name="root.config.path"
+															value="{{ content.site.root.config.path }}"
 															readonly="readonly"
 															data-bind-value="site-label|filename|format:'{{ lookup (lookup content.adapters content.site.root.adapter) 'path' }}$0'"
 															data-validate="path,notEmpty"
+														/>
+														<input type="hidden"
+															name="name"
+															value="{{ content.site.name }}"
+															data-bind-value="site-label|slug"
 														/>
 														<div class="path-control has-extra"
 															data-path-control-root="{{ lookup (lookup content.adapters content.site.root.adapter) 'rootLabel' }}"

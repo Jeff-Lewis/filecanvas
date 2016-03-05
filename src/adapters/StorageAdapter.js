@@ -9,39 +9,35 @@ StorageAdapter.prototype.getMetadata = function(adapterConfig) {
 	throw new Error('Not implemented');
 };
 
-StorageAdapter.prototype.createFolder = function(folderPath, options) {
+StorageAdapter.prototype.initSiteFolder = function(siteFiles, siteAdapterConfig, userAdapterConfig) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
+StorageAdapter.prototype.loadSiteContents = function(siteAdapterConfig, userAdapterConfig) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.loadFolderContents = function(folderPath, options) {
+StorageAdapter.prototype.readFile = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
+StorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoot, options) {
+StorageAdapter.prototype.retrievePreviewLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot, options) {
+StorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteRoot, options) {
+StorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAdapterConfig) {
 	return Promise.reject(new Error('Not implemented'));
 };
 
-StorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
-	return Promise.reject(new Error('Not implemented'));
-};
-
-StorageAdapter.prototype.getUploadConfig = function(sitePath, siteRoot, options) {
+StorageAdapter.prototype.getUploadConfig = function(sitePath, siteAdapterConfig, userAdapterConfig) {
 	throw new Error('Not implemented');
 };
 

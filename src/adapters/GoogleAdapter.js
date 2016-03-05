@@ -232,39 +232,15 @@ GoogleStorageAdapter.prototype.getMetadata = function(adapterConfig) {
 	};
 };
 
-GoogleStorageAdapter.prototype.createFolder = function(folderPath, options) {
+GoogleStorageAdapter.prototype.initSiteFolder = function(siteFiles, siteAdapterConfig, userAdapterConfig) {
 	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
-	return new GoogleConnector(database, clientId, clientSecret)
-		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.retrieveFileMetadataAtPath(folderPath)
-				.catch(function(error) {
-					if (error.status === 404) {
-						return googleClient.createFolderAtPath(folderPath);
-					}
-					throw error;
-				})
-				.then(function(fileMetadata) {
-					var isFolder = (fileMetadata.mimeType === MIME_TYPE_FOLDER);
-					if (!isFolder) { throw new HttpError(409); }
-				});
-		});
-};
-
-GoogleStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
-	var database = this.database;
-	var clientId = this.clientId;
-	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
+	var uid = userAdapterConfig.uid;
+	var accessToken = userAdapterConfig.token;
+	var tokenExpires = userAdapterConfig.tokenExpires;
+	var refreshToken = userAdapterConfig.refreshToken;
+	var sitePath = siteAdapterConfig.path;
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
 		.then(function(googleClient) {
@@ -353,22 +329,23 @@ GoogleStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, op
 	}
 };
 
-GoogleStorageAdapter.prototype.loadFolderContents = function(folderPath, options) {
+GoogleStorageAdapter.prototype.loadSiteContents = function(siteAdapterConfig, userAdapterConfig) {
 	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
-	var cache = options.cache;
+	var uid = userAdapterConfig.uid;
+	var accessToken = userAdapterConfig.token;
+	var tokenExpires = userAdapterConfig.tokenExpires;
+	var refreshToken = userAdapterConfig.refreshToken;
+	var cache = userAdapterConfig.cache;
+	var siteFolderPath = siteAdapterConfig.path;
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
 		.then(function(googleClient) {
-			return googleClient.loadFolderContents(folderPath, cache);
+			return googleClient.loadFolderContents(siteFolderPath, cache);
 		})
 		.then(function(fileContents) {
-			var folder = parseFileMetadata(fileContents, { root: folderPath });
+			var folder = parseFileMetadata(fileContents, { root: siteFolderPath });
 			return {
 				root: folder,
 				cache: fileContents
@@ -377,14 +354,14 @@ GoogleStorageAdapter.prototype.loadFolderContents = function(folderPath, options
 
 };
 
-GoogleStorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
+GoogleStorageAdapter.prototype.readFile = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
+	var uid = userAdapterConfig.uid;
+	var accessToken = userAdapterConfig.token;
+	var tokenExpires = userAdapterConfig.tokenExpires;
+	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
@@ -393,15 +370,15 @@ GoogleStorageAdapter.prototype.readFile = function(filePath, siteRoot, options) 
 		});
 };
 
-GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoot, options) {
+GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var database = this.database;
 	var cache = this.cache;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
+	var uid = userAdapterConfig.uid;
+	var accessToken = userAdapterConfig.token;
+	var tokenExpires = userAdapterConfig.tokenExpires;
+	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
@@ -414,15 +391,15 @@ GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoo
 		});
 };
 
-GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot, options) {
+GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var database = this.database;
 	var cache = this.cache;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
+	var uid = userAdapterConfig.uid;
+	var accessToken = userAdapterConfig.token;
+	var tokenExpires = userAdapterConfig.tokenExpires;
+	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
@@ -435,15 +412,15 @@ GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot
 		});
 };
 
-GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, options) {
+GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, userAdapterConfig) {
 	var database = this.database;
 	var cache = this.cache;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
+	var uid = userAdapterConfig.uid;
+	var accessToken = userAdapterConfig.token;
+	var tokenExpires = userAdapterConfig.tokenExpires;
+	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
 	return new GoogleConnector(database, clientId, clientSecret)
@@ -456,14 +433,14 @@ GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, option
 		});
 };
 
-GoogleStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
+GoogleStorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAdapterConfig) {
 	var database = this.database;
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
-	var uid = options.uid;
-	var accessToken = options.token;
-	var tokenExpires = options.tokenExpires;
-	var refreshToken = options.refreshToken;
+	var uid = userAdapterConfig.uid;
+	var accessToken = userAdapterConfig.token;
+	var tokenExpires = userAdapterConfig.tokenExpires;
+	var refreshToken = userAdapterConfig.refreshToken;
 	return new GoogleConnector(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
 		.then(function(googleClient) {
@@ -474,11 +451,11 @@ GoogleStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options
 		});
 };
 
-GoogleStorageAdapter.prototype.getUploadConfig = function(siteRoot, options) {
+GoogleStorageAdapter.prototype.getUploadConfig = function(siteAdapterConfig, userAdapterConfig) {
 	return {
 		adapter: this.adapterName,
-		path: siteRoot.path,
-		token: options.token
+		path: siteAdapterConfig.path,
+		token: userAdapterConfig.token
 	};
 };
 

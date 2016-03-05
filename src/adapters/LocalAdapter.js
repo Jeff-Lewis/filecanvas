@@ -164,42 +164,9 @@ LocalStorageAdapter.prototype.getMetadata = function(adapterConfig) {
 	};
 };
 
-LocalStorageAdapter.prototype.createFolder = function(folderPath, options) {
+LocalStorageAdapter.prototype.initSiteFolder = function(siteFiles, siteAdapterConfig, userAdapterConfig) {
 	var sitesRoot = this.sitesRoot;
-	return checkWhetherFileExists(folderPath)
-		.then(function(folderExists) {
-			if (folderExists) { return; }
-			return createFolder(folderPath);
-		});
-
-
-	function checkWhetherFileExists(filePath) {
-		var fullPath = path.join(sitesRoot, filePath);
-		return new Promise(function(resolve, reject) {
-			fs.stat(fullPath, function(error, stat) {
-				if (error && (error.code === 'ENOENT')) {
-					return resolve(false);
-				}
-				if (error) { return reject(error); }
-				var fileExists = Boolean(stat);
-				return resolve(fileExists);
-			});
-		});
-	}
-
-	function createFolder(folderPath) {
-		var fullPath = path.join(sitesRoot, folderPath);
-		return new Promise(function(resolve, reject) {
-			mkdirp(fullPath, function(error) {
-				if (error) { return reject(error); }
-				resolve();
-			});
-		});
-	}
-};
-
-LocalStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, options) {
-	var sitesRoot = this.sitesRoot;
+	var sitePath = siteAdapterConfig.path;
 	return checkWhetherFileExists(sitePath)
 		.then(function(folderExists) {
 			if (folderExists) { return; }
@@ -264,9 +231,10 @@ LocalStorageAdapter.prototype.initSiteFolder = function(sitePath, siteFiles, opt
 	}
 };
 
-LocalStorageAdapter.prototype.loadFolderContents = function(folderPath, options) {
+LocalStorageAdapter.prototype.loadSiteContents = function(siteAdapterConfig, userAdapterConfig) {
 	var sitesRoot = this.sitesRoot;
-	var fullPath = path.join(sitesRoot, folderPath);
+	var siteFolderPath = siteAdapterConfig.path;
+	var fullPath = path.join(sitesRoot, siteFolderPath);
 	return loadFileMetadata(fullPath, {
 		root: fullPath,
 		contents: true
@@ -279,9 +247,9 @@ LocalStorageAdapter.prototype.loadFolderContents = function(folderPath, options)
 		});
 };
 
-LocalStorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
+LocalStorageAdapter.prototype.readFile = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var sitesRoot = this.sitesRoot;
-	var sitePath = siteRoot.path;
+	var sitePath = siteAdapterConfig.path;
 	var fullPath = path.join(sitesRoot, sitePath, filePath);
 	return new Promise(function(resolve, reject) {
 		fs.readFile(fullPath, { encoding: 'utf8' }, function(error, data) {
@@ -291,25 +259,25 @@ LocalStorageAdapter.prototype.readFile = function(filePath, siteRoot, options) {
 	});
 };
 
-LocalStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteRoot, options) {
+LocalStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var downloadUrl = this.downloadUrl;
-	var sitePath = siteRoot.path;
+	var sitePath = siteAdapterConfig.path;
 	return Promise.resolve(urlJoin(downloadUrl, sitePath, filePath));
 };
 
-LocalStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteRoot, options) {
+LocalStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var previewUrl = this.previewUrl;
-	var sitePath = siteRoot.path;
+	var sitePath = siteAdapterConfig.path;
 	return Promise.resolve(urlJoin(previewUrl, sitePath, filePath));
 };
 
-LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteRoot, options) {
+LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var thumbnailUrl = this.thumbnailUrl;
-	var sitePath = siteRoot.path;
+	var sitePath = siteAdapterConfig.path;
 	return Promise.resolve(urlJoin(thumbnailUrl, sitePath, filePath));
 };
 
-LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options) {
+LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAdapterConfig) {
 	var sitesRoot = this.sitesRoot;
 	var fullPath = path.resolve(sitesRoot, filePath);
 	return loadFileMetadata(fullPath, {
@@ -322,10 +290,10 @@ LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, options)
 		});
 };
 
-LocalStorageAdapter.prototype.getUploadConfig = function(siteRoot, options) {
+LocalStorageAdapter.prototype.getUploadConfig = function(siteAdapterConfig, userAdapterConfig) {
 	return {
 		adapter: this.adapterName,
-		path: siteRoot.path
+		path: siteAdapterConfig.path
 	};
 };
 
