@@ -171,7 +171,7 @@
 					"name": "pinterest",
 					"type": "string",
 					"default": null,
-					"preview": "acmeinc",
+					"preview": null,
 					"label": "Pinterest username",
 					"editor": {
 						"name": "input",
@@ -186,7 +186,7 @@
 					"name": "linkedin",
 					"type": "string",
 					"default": null,
-					"preview": "acmeinc",
+					"preview": null,
 					"label": "LinkedIn username",
 					"editor": {
 						"name": "input",
@@ -201,7 +201,7 @@
 					"name": "github",
 					"type": "string",
 					"default": null,
-					"preview": "acmeinc",
+					"preview": null,
 					"label": "Github username",
 					"editor": {
 						"name": "input",
