@@ -138,16 +138,11 @@ if (process.env.GOOGLE_CLIENT_ID) {
 	};
 }
 
-if (process.env.AWS_S3_BUCKET) {
+if (process.env.AWS_S3_BUCKET_THEME_UPLOADS) {
 	config.uploaders.admin = {
 		adapter: 's3',
-		bucket: process.env.AWS_S3_BUCKET,
+		bucket: process.env.AWS_S3_BUCKET_THEME_UPLOADS,
 		root: 'users'
-	};
-	config.uploaders.demo = {
-		adapter: 's3',
-		bucket: process.env.AWS_S3_BUCKET,
-		root: 'demo'
 	};
 } else if (process.env.LOCAL_ASSET_ROOT) {
 	config.uploaders.admin = {
@@ -157,6 +152,14 @@ if (process.env.AWS_S3_BUCKET) {
 		downloadSubdomain: 'site-downloads',
 		assetRoot: process.env.LOCAL_ASSET_ROOT
 	};
+}
+if (process.env.AWS_S3_BUCKET_DEMO_UPLOADS) {
+	config.uploaders.demo = {
+		adapter: 's3',
+		bucket: process.env.AWS_S3_BUCKET_DEMO_UPLOADS,
+		root: 'sessions'
+	};
+} else if (process.env.LOCAL_ASSET_ROOT) {
 	config.uploaders.demo = {
 		adapter: 'local',
 		uploadPath: 'editor-uploads/',

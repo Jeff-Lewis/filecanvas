@@ -275,7 +275,7 @@ module.exports = function(database, cache, options) {
 				var filename = (param ? req.params[param] : req.params[0]);
 				if (!filename) { return next(new HttpError(403)); }
 				var sessionId = req.sessionID;
-				req.params.filename = 'sessions/' + sessionId + '/' + filename;
+				req.params.filename = sessionId + '/' + filename;
 				next();
 			};
 		}
