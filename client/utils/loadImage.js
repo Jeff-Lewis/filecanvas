@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var loadImage = require('blueimp-load-image/js/load-image');
 var objectAssign = require('object-assign');
 
@@ -34,7 +35,8 @@ module.exports = function(file, options) {
 	}
 
 	function updateFileExtension(filename, mimeType) {
-		return filename + getMimeExtension(mimeType);
+		var extension = getMimeExtension(mimeType);
+		return swapExtension(filename, extension);
 
 
 		function getMimeExtension(mimeType) {
@@ -46,6 +48,10 @@ module.exports = function(file, options) {
 				default:
 					return '.' + mimeType.split('/')[1];
 			}
+		}
+
+		function swapExtension(filename, extension) {
+			return path.basename(filename, path.extname(filename)) + extension;
 		}
 	}
 };
