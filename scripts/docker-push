@@ -21,8 +21,14 @@ DOCKER_REGISTRY=$DOCKER_REGISTRY \
 	npm run docker-bundle
 
 # Upload local docker images
-docker push $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH
-docker push $DOCKER_REGISTRY/filecanvas/router:$COMMIT_HASH
+IMAGES=(
+	"filecanvas/app"
+	"filecanvas/router"
+	"filecanvas/templates"
+)
+for image in "${IMAGES[@]}"; do
+	docker push $DOCKER_REGISTRY/$image:$COMMIT_HASH
+done
 
 # Deploy to Elastic Beanstalk
 eb deploy

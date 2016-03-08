@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+
+cd $(dirname $0)
+
+OUTPUT_DIR=$PWD/data
+
+echo "Building client libraries..."
+rm -f $OUTPUT_DIR/admin/assets/js/filecanvas-*.js
+rm -f $OUTPUT_DIR/admin/assets/js/filecanvas-*.js.map
+if [ "$NODE_ENV" == 'production' ]; then
+	(cd client/admin; webpack -p $OUTPUT_DIR/admin/assets/js/filecanvas-admin.js)
+	(cd client/api; webpack -p $OUTPUT_DIR/admin/assets/js/filecanvas-api.js)
+	(cd client/editor; webpack -p $OUTPUT_DIR/admin/assets/js/filecanvas-editor.js)
+else
+	(cd client/admin; webpack -d --watch $OUTPUT_DIR/admin/assets/js/filecanvas-admin.js) &
+	(cd client/api; webpack -d --watch $OUTPUT_DIR/admin/assets/js/filecanvas-api.js) &
+	(cd client/editor; webpack -d --watch $OUTPUT_DIR/admin/assets/js/filecanvas-editor.js) &
+fi

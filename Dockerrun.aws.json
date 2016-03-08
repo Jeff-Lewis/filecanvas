@@ -2,62 +2,30 @@
 	"AWSEBDockerrunVersion": 2,
 	"volumes": [
 		{
-			"name": "assets-www",
+			"name": "www",
 			"host": {
-				"sourcePath": "/var/app/current/data/www"
-			}
-		},
-		{
-			"name": "assets-admin",
-			"host": {
-				"sourcePath": "/var/app/current/templates/admin/assets"
-			}
-		},
-		{
-			"name": "templates",
-			"host": {
-				"sourcePath": "/var/app/current/templates"
-			}
-		},
-		{
-			"name": "templates-router",
-			"host": {
-				"sourcePath": "/var/app/current/templates/router"
-			}
-		},
-		{
-			"name": "themes",
-			"host": {
-				"sourcePath": "/var/app/current/themes"
+				"sourcePath": "/var/app/current/volumes/www"
 			}
 		}
 	],
 	"containerDefinitions": [
 		{
+			"name": "templates",
+			"image": "filecanvas/templates:latest",
+			"essential": false,
+			"memory": 4
+		},
+		{
 			"name": "router",
 			"image": "filecanvas/router:latest",
 			"essential": true,
-			"memory": 128,
-			"mountPoints": [
+			"memory": 124,
+			"links": [
+				"app"
+			],
+			"volumesFrom": [
 				{
-					"sourceVolume": "assets-www",
-					"containerPath": "/var/www/subdomains/www"
-				},
-				{
-					"sourceVolume": "assets-admin",
-					"containerPath": "/var/www/subdomains/assets/admin"
-				},
-				{
-					"sourceVolume": "templates-router",
-					"containerPath": "/var/www/templates"
-				},
-				{
-					"sourceVolume": "themes",
-					"containerPath": "/var/www/subdomains/themes"
-				},
-				{
-					"sourceVolume": "awseb-logs-router",
-					"containerPath": "/var/log/nginx"
+					"sourceContainer": "templates"
 				}
 			],
 			"portMappings": [
@@ -66,8 +34,15 @@
 					"containerPort": 8080
 				}
 			],
-			"links": [
-				"app"
+			"mountPoints": [
+				{
+					"sourceVolume": "www",
+					"containerPath": "/var/www"
+				},
+				{
+					"sourceVolume": "awseb-logs-router",
+					"containerPath": "/var/log/nginx"
+				}
 			]
 		},
 		{
@@ -75,34 +50,51 @@
 			"image": "filecanvas/app:latest",
 			"essential": true,
 			"memory": 768,
-			"environment": [
+			"volumesFrom": [
 				{
-					"name": "PORT",
-					"value": "8081"
-				}
-			],
-			"mountPoints": [
-				{
-					"sourceVolume": "templates",
-					"containerPath": "/var/templates"
-				},
-				{
-					"sourceVolume": "assets-www",
-					"containerPath": "/var/www"
-				},
-				{
-					"sourceVolume": "themes",
-					"containerPath": "/var/themes"
-				},
-				{
-					"sourceVolume": "awseb-logs-app",
-					"containerPath": "/var/log/nodejs"
+					"sourceContainer": "templates"
 				}
 			],
 			"portMappings": [
 				{
 					"hostPort": 8081,
 					"containerPort": 8081
+				}
+			],
+			"mountPoints": [
+				{
+					"sourceVolume": "www",
+					"containerPath": "/var/www"
+				},
+				{
+					"sourceVolume": "awseb-logs-app",
+					"containerPath": "/var/log/nodejs"
+				}
+			],
+			"environment": [
+				{
+					"name": "PORT",
+					"value": "8081"
+				},
+				{
+					"name": "TEMPLATES_APP",
+					"value": "/var/templates/app"
+				},
+				{
+					"name": "TEMPLATES_SITE",
+					"value": "/var/templates/site"
+				},
+				{
+					"name": "TEMPLATES_WWW",
+					"value": "/var/templates/www"
+				},
+				{
+					"name": "THEMES_ROOT",
+					"value": "/var/templates/themes/themes"
+				},
+				{
+					"name": "WWW_SITE_ROOT",
+					"value": "/var/www"
 				}
 			]
 		}

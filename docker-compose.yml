@@ -1,3 +1,5 @@
+templates:
+  image: filecanvas/templates
 ssl:
   image: nginx
   links:
@@ -14,22 +16,23 @@ router:
   links:
     - redis
     - app
+  volumes_from:
+    - templates
   ports:
     - "8080"
   environment:
     - HOST
     - REDIS_URL=redis://redis:6379
   volumes:
-    - ${WWW_SITE_ROOT}:/var/www/subdomains/www
-    - ${THEMES_ROOT}:/var/www/subdomains/themes
-    - ${TEMPLATES_ROOT}/admin/assets:/var/www/subdomains/assets/admin
-    - ${TEMPLATES_ROOT}/router:/var/www/templates
+    - ${WWW_SITE_ROOT}:/var/www
     - ${LOGS_ROOT}/nginx:/var/log/nginx
 app:
   image: filecanvas/app
   links:
     - mongodb
     - redis
+  volumes_from:
+    - templates
   ports:
     - "8081"
   environment:
@@ -60,16 +63,16 @@ app:
     - SITE_USER_BCRYPT_STRENGTH
     - SESSION_DURATION
     - PORT=8081
-    - TEMPLATES_ROOT=/var/templates
+    - TEMPLATES_APP=/var/templates/app
+    - TEMPLATES_SITE=/var/templates/site
+    - TEMPLATES_WWW=/var/templates/www
+    - THEMES_ROOT=/var/templates/themes/themes
     - WWW_SITE_ROOT=/var/www
-    - THEMES_ROOT=/var/themes
     - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis
   volumes:
-    - ${TEMPLATES_ROOT}:/var/templates
     - ${WWW_SITE_ROOT}:/var/www
-    - ${THEMES_ROOT}:/var/themes
     - ${LOCAL_SITE_ROOT}:/var/sites
     - ${LOGS_ROOT}/nodejs:/var/log/nodejs
 mongodb:

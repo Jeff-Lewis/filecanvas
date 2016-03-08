@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -e
+
+cd $(dirname $0)
+
+echo "Building app templates..."
+./app/build
+
+echo "Building theme templates..."
+./themes/build

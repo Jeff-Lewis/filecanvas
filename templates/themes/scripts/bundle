@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+'use strict';
+
+var bundle = require('./src/bundle');
+
+var args = process.argv.slice(['node', 'script.js'].length);
+try {
+	if (args.length !== 2) { throw new Error('Usage: bundle <inputDir> <outputDir>'); }
+	if (args[0] === args[1]) { throw new Error('Invalid output path'); }
+} catch(error) {
+	exit(error);
+}
+var inputPath = args[0];
+var outputPath = args[1];
+var isProduction = process.env.NODE_ENV === 'production';
+
+log('Loading theme bundle from ' + inputPath);
+bundle(inputPath, outputPath, { log: log, expandSymlinks: isProduction }, function(error) {
+	if (error) { return exit(error); }
+	log('Created theme bundle at ' + outputPath);
+});
+
+function log(message) {
+	process.stdout.write(message + '\n');
+}
+
+function logError(message) {
+	process.stderr.write(formatErrorMessage(message) + '\n');
+
+
+	function formatErrorMessage(message) {
+		return '\u001b[31m' + message + '\u001b[39m';
+	}
+}
+
+function exit(error) {
+	if (error) {
+		logError(error.stack);
+		process.exit(1);
+	} else {
+		process.exit();
+	}
+}

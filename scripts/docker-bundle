@@ -11,46 +11,42 @@ eval $(docker-machine env default)
 npm run docker-build
 
 # Tag local docker images
+IMAGES=(
+	"filecanvas/app"
+	"filecanvas/router"
+	"filecanvas/templates"
+)
 COMMIT_HASH=$(git rev-parse --short HEAD)
 if [[ -n $(git status -s) ]]; then COMMIT_HASH=$COMMIT_HASH-dev; fi
-if [ $(docker images -q filecanvas/app:$COMMIT_HASH) ]; then
-	docker rmi filecanvas/app:$COMMIT_HASH
-fi
-if [ $(docker images -q filecanvas/router:$COMMIT_HASH) ]; then
-	docker rmi filecanvas/router:$COMMIT_HASH
-fi
-docker tag filecanvas/app filecanvas/app:$COMMIT_HASH
-docker tag filecanvas/router filecanvas/router:$COMMIT_HASH
+for image in "${IMAGES[@]}"; do
+	echo "Tagging image $image:$COMMIT_HASH..."
+	if [ $(docker images -q $image:$COMMIT_HASH) ]; then
+		docker rmi $image:$COMMIT_HASH
+	fi
+	docker tag $image $image:$COMMIT_HASH
 
-if [ "$DOCKER_REGISTRY" ]; then
-	if [ $(docker images -q $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH) ]; then
-		docker rmi $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH
+	if [ "$DOCKER_REGISTRY" ]; then
+		echo "Tagging image $DOCKER_REGISTRY/$image:$COMMIT_HASH..."
+		if [ $(docker images -q $DOCKER_REGISTRY/$image:$COMMIT_HASH) ]; then
+			docker rmi $DOCKER_REGISTRY/$image:$COMMIT_HASH
+		fi
+		docker tag $image:$COMMIT_HASH $DOCKER_REGISTRY/$image:$COMMIT_HASH
 	fi
-	if [ $(docker images -q $DOCKER_REGISTRY/filecanvas/router:$COMMIT_HASH) ]; then
-		docker rmi $DOCKER_REGISTRY/filecanvas/router:$COMMIT_HASH
-	fi
-	docker tag filecanvas/app:$COMMIT_HASH $DOCKER_REGISTRY/filecanvas/app:$COMMIT_HASH
-	docker tag filecanvas/router:$COMMIT_HASH $DOCKER_REGISTRY/filecanvas/router:$COMMIT_HASH
-fi
+done
 
 # Prepare the deploy artifact
+echo "Preparing Elastic Beanstalk deploy artifact..."
 rm -rf .tmp/deploy
 mkdir -p .tmp/deploy
 rsync -a -v -L --delete --exclude '.*' .ebextensions/ .tmp/deploy/.ebextensions
+echo "Updating Elastic Beanstalk deploy artifact configuration..."
 if [ "$DOCKER_REGISTRY" ]; then
 	REGISTRY_REPLACEMENT=$DOCKER_REGISTRY'\/'
 else
 	REGISTRY_REPLACEMENT=
 fi
-sed -e 's/filecanvas\/\([[:alpha:]]*\):latest/'$REGISTRY_REPLACEMENT'filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
-
-# Build compiled assets
-export NODE_ENV=production
-THEMES_ROOT=.tmp/deploy/themes npm run postinstall
-
-# Copy templates into artifact bundle
-mkdir -p .tmp/deploy/templates
-rsync -a -v -L --delete --exclude '.*' ./templates/ .tmp/deploy/templates
+sed -e 's/filecanvas\/\([[:alnum:]_-]*\):latest/'$REGISTRY_REPLACEMENT'filecanvas\/\1:'$COMMIT_HASH'/' ./Dockerrun.aws.json > .tmp/deploy/Dockerrun.aws.json
 
 # Pack the deploy artifact
+echo "Compressing Elastic Beanstalk deploy artifact..."
 (cd .tmp/deploy; zip -FSr ../app.zip * .[^.]*)

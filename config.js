@@ -33,7 +33,8 @@ config.cache.url = process.env.REDISCLOUD_URL || process.env.REDIS_URL || null;
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.templates = {};
-config.templates.root = process.env.TEMPLATES_ROOT || null;
+config.templates.app = process.env.TEMPLATES_APP || null;
+config.templates.site = process.env.TEMPLATES_SITE || null;
 
 config.www = {};
 config.www.url = process.env.WWW_URL || null;

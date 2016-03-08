@@ -61,16 +61,16 @@ module.exports = function(database, cache, config) {
 		});
 	}
 
-	var templatesPath = config.templates.root;
+	var appTemplatesPath = config.templates.app;
+	var siteTemplatePath = config.templates.site;
 	var themesPath = config.themes.root;
 	var wwwSiteRoot = config.www.siteRoot;
 
-	var partialsPath = path.resolve(templatesPath, '_partials');
-	var adminTemplatesPath = path.join(templatesPath, 'admin');
-	var demoTemplatesPath = path.join(templatesPath, 'demo');
+	var partialsPath = path.resolve(appTemplatesPath, '_partials');
+	var adminTemplatesPath = path.join(appTemplatesPath, 'admin');
+	var demoTemplatesPath = path.join(appTemplatesPath, 'demo');
 	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
-	var faqPath = path.join(adminTemplatesPath, 'faq.json');
-	var siteTemplatePath = path.join(templatesPath, 'site');
+	var faqPath = path.join(appTemplatesPath, 'faq/faq.json');
 
 	var app = express();
 

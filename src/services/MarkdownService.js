@@ -5,7 +5,7 @@ var path = require('path');
 var showdown = require('showdown');
 var template = require('es6-template-strings');
 
-var MARKDOWN_HTML_TEMPLATE = fs.readFileSync(path.resolve(process.env.TEMPLATES_ROOT, 'markdown/index.hbs'));
+var MARKDOWN_HTML_TEMPLATE = fs.readFileSync(path.resolve(process.env.TEMPLATES_APP, 'markdown/index.hbs'));
 var MARKDOWN_CSS_TEMPLATE = fs.readFileSync(path.resolve(__dirname, '../../node_modules/github-markdown-css/github-markdown.css'));
 
 function MarkdownService() {

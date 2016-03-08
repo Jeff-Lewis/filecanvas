@@ -11,6 +11,7 @@ if [ $# -eq 0 ]; then
 	# No arguments, build all images
 	./$0 app
 	./$0 router
+	./$0 templates
 
 	# Run a docker-compose build
 	docker-compose build
@@ -39,17 +40,22 @@ else
 				'- *'
 			)
 		elif [ $IMAGE_NAME == "router" ]; then
-			IMAGE_PATH="./services/router/"
+			IMAGE_PATH="./services/router"
+		elif [ $IMAGE_NAME == "templates" ]; then
+			NODE_ENV=production \
+				./templates/build
+			IMAGE_PATH="./templates"
 		else
 			echo "Invalid image name: $IMAGE_NAME"
 			exit 1
 		fi
 
 		# Copy build context and resolve symlinks
+		echo "Building image at $IMAGE_PATH"
 		mkdir -p .tmp/images/$IMAGE_NAME
 		filters=""
 		for filter in "${IMAGE_SRC_FILTERS[@]}"; do filters="$filters --filter='$filter'"; done
-		eval "rsync -a -v -L --delete --delete-excluded $filters $IMAGE_PATH .tmp/images/$IMAGE_NAME"
+		eval "rsync -a -v -L --delete --delete-excluded $filters $IMAGE_PATH/ .tmp/images/$IMAGE_NAME"
 
 		# Build and tag the Docker image
 		docker build -t filecanvas/$IMAGE_NAME .tmp/images/$IMAGE_NAME
