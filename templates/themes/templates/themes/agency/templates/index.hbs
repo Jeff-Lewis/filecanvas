@@ -16,11 +16,11 @@
 		metadata.theme.config.footer.footerText
 		) ' has-footer' }}"
 	>
-		{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle)}}
-		<header id="home">
+		{{#if (or metadata.theme.config.content.pageHeader metadata.theme.config.content.pageSubtitle metadata.theme.config.images.headerLogo)}}
+		<header id="home" class={{ if metadata.theme.config.images.headerLogo (if metadata.theme.config.images.headerLogoCentered 'has-logo logo-centered' 'has-logo') null }}>
 			<div class="container">
-				{{#if metadata.theme.config.images.headerLogo}}
-				<div class="row">
+				<div class="row ">
+					{{#if metadata.theme.config.images.headerLogo}}
 					<div class="span12">
 						<div class="logo-container{{ if (eq metadata.theme.config.images.headerLogoCentered 'true') ' centered' '' }}">
 							<div class="logo">
@@ -28,9 +28,7 @@
 							</div>
 						</div>
 					</div>
-				</div>
-				{{/if}}
-				<div class="row">
+					{{/if}}
 					<div class="span12">
 						<div id="slidecaption">
 							<h1 data-admin-field="theme.config.content.pageHeader">{{ markdown metadata.theme.config.content.pageHeader }}</h1>
@@ -134,16 +132,16 @@
 					<div class="contact span6">
 						<h5 data-admin-field="theme.config.footer.contactTitle">{{ metadata.theme.config.footer.contactTitle }}</h5>
 						{{#if metadata.theme.config.footer.contactEmail}}
-						<p><strong>E-mail:</strong> <a class="white-text" href="mailto:{{ metadata.theme.config.footer.contactEmail }}" data-admin-field="theme.config.footer.contactEmail">{{ metadata.theme.config.footer.contactEmail }}</a></p>
+						<p><strong>E-mail:</strong> <a class="footer-detail" href="mailto:{{ metadata.theme.config.footer.contactEmail }}" data-admin-field="theme.config.footer.contactEmail">{{ metadata.theme.config.footer.contactEmail }}</a></p>
 						{{/if}}
 						{{#if metadata.theme.config.footer.contactWebsite}}
-						<p><strong>Web:</strong> <a class="white-text" href={{ metadata.theme.config.footer.contactWebsite }} target="_blank" data-admin-field="theme.config.footer.contactWebsite">{{ metadata.theme.config.footer.contactWebsite }}</a></p>
+						<p><strong>Web:</strong> <a class="footer-detail" href={{ metadata.theme.config.footer.contactWebsite }} target="_blank" data-admin-field="theme.config.footer.contactWebsite">{{ metadata.theme.config.footer.contactWebsite }}</a></p>
 						{{/if}}
 						{{#if metadata.theme.config.footer.contactPhone}}
-						<p><strong>Phone:</strong> <span class="white-text" data-admin-field="theme.config.footer.contactPhone">{{ metadata.theme.config.footer.contactPhone }}</span></p>
+						<p><strong>Phone:</strong> <span class="footer-detail" data-admin-field="theme.config.footer.contactPhone">{{ metadata.theme.config.footer.contactPhone }}</span></p>
 						{{/if}}
 						{{#if metadata.theme.config.footer.contactAddress}}
-						<p><strong>Location:</strong> <span class="white-text" data-admin-field="theme.config.footer.contactAddress">{{ metadata.theme.config.footer.contactAddress }}</span></p>
+						<p><strong>Location:</strong> <span class="footer-detail" data-admin-field="theme.config.footer.contactAddress">{{ metadata.theme.config.footer.contactAddress }}</span></p>
 						{{/if}}
 					</div>
 					<div class="span2"></div>

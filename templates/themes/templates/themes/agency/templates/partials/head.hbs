@@ -17,11 +17,17 @@
 		background-color: {{ metadata.theme.config.colors.brandColor }};
 		color: {{ metadata.theme.config.colors.navItemColor }};
 	}
+	header {
+		background-color: {{ metadata.theme.config.colors.headerBackgroundColor }};
+	}
+	header h1 {
+		color: {{ metadata.theme.config.colors.headerTextColor }};
+	}
 	a,
 	.logout:hover,
-	#slidecaption h2,
-	#slidecaption em,
-	#slidecaption strong,
+	header h2,
+	header em,
+	header strong,
 	.option-set li a:hover,
 	.option-set li a.selected {
 		color: {{ metadata.theme.config.colors.brandColor }};
@@ -59,9 +65,19 @@
 	nav #fluid-nav li.current a {
 		color: {{ metadata.theme.config.colors.navItemSelectedColor }};
 	}
+	.footer {
+		background-color: {{ metadata.theme.config.colors.footerBackgroundColor }};
+		color: {{ metadata.theme.config.colors.footerTextColor }};
+	}
+	.footer h5 {
+		color: {{ metadata.theme.config.colors.footerTitleColor }};
 
-	body,
-	#slidecaption .sub-caption {
+	}
+	.footer-detail {
+		color: {{ metadata.theme.config.colors.footerDetailColor }};
+	}
+
+	body {
 		font-family: {{ metadata.theme.config.fonts.body.font-family }}, sans-serif;
 		font-weight: {{ metadata.theme.config.fonts.body.font-weight }};
 		text-transform: {{ metadata.theme.config.fonts.body.text-transform }};
@@ -70,13 +86,13 @@
 	h1,
 	h2,
 	h3,
-	#slidecaption {
+	header h1 {
 		font-family: {{ metadata.theme.config.fonts.pageHeader.font-family }}, sans-serif;
 		font-weight: {{ metadata.theme.config.fonts.pageHeader.font-weight }};
 		text-transform: {{ metadata.theme.config.fonts.pageHeader.text-transform }};
 	}
 
-	#slidecaption h2 {
+	header h2 {
 		font-family: {{ metadata.theme.config.fonts.pageSubtitle.font-family }}, sans-serif;
 		font-weight: {{ metadata.theme.config.fonts.pageSubtitle.font-weight }};
 		text-transform: {{ metadata.theme.config.fonts.pageSubtitle.text-transform }};

@@ -207,6 +207,36 @@
 			"icon": "paint-brush",
 			"fields": [
 				{
+					"name": "headerBackgroundColor",
+					"type": "color",
+					"default": "#111111",
+					"preview": "#111111",
+					"label": "Page header background",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "headerTextColor",
+					"type": "color",
+					"default": "#ffffff",
+					"preview": "#ffffff",
+					"label": "Page header text",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
 					"name": "brandColor",
 					"type": "color",
 					"default": "#aa0000",
@@ -257,6 +287,66 @@
 					"default": "#000000",
 					"preview": "#000000",
 					"label": "Navigation item (selected)",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "footerBackgroundColor",
+					"type": "color",
+					"default": "#111111",
+					"preview": "#111111",
+					"label": "Footer background colour",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "footerTitleColor",
+					"type": "color",
+					"default": "#ffffff",
+					"preview": "#ffffff",
+					"label": "Footer title colour",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "footerTextColor",
+					"type": "color",
+					"default": "#777777",
+					"preview": "#777777",
+					"label": "Footer text colour",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "footerDetailColor",
+					"type": "color",
+					"default": "#ffffff",
+					"preview": "#ffffff",
+					"label": "Footer detail colour",
 					"editor": {
 						"name": "colorpicker",
 						"options": {
@@ -520,19 +610,19 @@
 					}
 				},
 				{
-					"name": "sectionHeader",
+					"name": "body",
 					"type": "string",
 					"default": {
-						"font-family": "'Montserrat'",
+						"font-family": "'Open Sans'",
 						"font-weight": "normal",
-						"text-transform": "uppercase"
+						"text-transform": "none"
 					},
 					"preview": {
-						"font-family": "'Montserrat'",
+						"font-family": "'Open Sans'",
 						"font-weight": "normal",
-						"text-transform": "uppercase"
+						"text-transform": "none"
 					},
-					"label": "Section headings",
+					"label": "Body text",
 					"editor": {
 						"name": "font",
 						"options": {
@@ -602,19 +692,19 @@
 					}
 				},
 				{
-					"name": "body",
+					"name": "sectionHeader",
 					"type": "string",
 					"default": {
-						"font-family": "'Open Sans'",
+						"font-family": "'Montserrat'",
 						"font-weight": "normal",
-						"text-transform": "none"
+						"text-transform": "uppercase"
 					},
 					"preview": {
-						"font-family": "'Open Sans'",
+						"font-family": "'Montserrat'",
 						"font-weight": "normal",
-						"text-transform": "none"
+						"text-transform": "uppercase"
 					},
-					"label": "Body text",
+					"label": "Section headings",
 					"editor": {
 						"name": "font",
 						"options": {
