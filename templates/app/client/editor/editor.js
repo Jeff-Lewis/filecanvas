@@ -133,7 +133,7 @@ function initLivePreview(callback) {
 		hideLoadingIndicator($previewElement);
 		hideLoadingIndicator($formElement);
 		enableControls($controlsElement);
-		initAccordions($themeOptionsPanelElement);
+		initThemeOptionsPanel($themeOptionsPanelElement);
 		callback(error);
 	});
 	initLiveUpdates(function(formValues, options) {
@@ -285,7 +285,7 @@ function initLivePreview(callback) {
 				hideLoadingIndicator($previewElement);
 				hideLoadingIndicator($formElement);
 				enableControls($controlsElement);
-				initAccordions($themeOptionsPanelElement);
+				initThemeOptionsPanel($themeOptionsPanelElement);
 				deferred.resolve();
 			});
 		} else {
@@ -363,9 +363,24 @@ function initLivePreview(callback) {
 			}
 	}
 
-	function initAccordions($parentElement) {
-		$parentElement.collapse({ parent: true, toggle: true });
-		$('[data-fixed-accordion]').fixedAccordion();
+	function initThemeOptionsPanel($panelElement) {
+		initAccordions($panelElement);
+		initSelectPickers($panelElement);
+
+
+		function initSelectPickers($parentElement) {
+			$parentElement.find('.selectpicker').selectpicker();
+		}
+
+		function initAccordions($parentElement) {
+			$parentElement.collapse({ parent: true, toggle: true });
+			var $accordionElements = findIncludingSelf($parentElement, '[data-fixed-accordion]');
+			$accordionElements.fixedAccordion();
+		}
+
+		function findIncludingSelf($parentElement, selector) {
+			return $parentElement.find(selector).add($parentElement.filter(selector));
+		}
 	}
 
 	function initLiveUpdates(updateCallback) {
