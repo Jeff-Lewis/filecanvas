@@ -23,9 +23,9 @@
 				<div class="row">
 					<div class="span12">
 						<div class="logo-container{{ if (eq metadata.theme.config.images.headerLogoCentered 'true') ' centered' '' }}">
-							<a class="logo" href={{ if metadata.theme.config.footer.contactWebsite metadata.theme.config.footer.contactWebsite null }} target="_blank">
+							<div class="logo">
 								<img src={{ metadata.theme.config.images.headerLogo }} />
-							</a>
+							</div>
 						</div>
 					</div>
 				</div>
