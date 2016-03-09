@@ -10,6 +10,15 @@ echo "Building templates..."
 NODE_ENV=development \
 	./templates/build
 
+echo "Linking template directories..."
+rm -rf $DATA_DIR/templates
+mkdir -p $DATA_DIR/templates
+ln -s $ROOT_DIR/templates/app/data/ $DATA_DIR/templates/app
+ln -s $ROOT_DIR/templates/router/data/ $DATA_DIR/templates/router
+ln -s $ROOT_DIR/templates/site/data/ $DATA_DIR/templates/site
+ln -s $ROOT_DIR/templates/themes/data/ $DATA_DIR/templates/themes
+ln -s $ROOT_DIR/templates/www/data/ $DATA_DIR/templates/www
+
 echo "Running prestart hook..."
 npm run prestart
 
@@ -21,7 +30,7 @@ cp -r services/router/nginx/conf/ $DATA_DIR/nginx/config/
 NGINX_CONFIG_REPLACEMENTS=(
 	's/\/opt\/openresty\/nginx\/conf\//'${DATA_DIR//\//\\\/}'\/nginx\/config\//g'
 	's/\/opt\/openresty\/lua-resty-template\//'${PWD//\//\\\/}'\/services\/router\/plugins\/lua-resty-template\/lib\//g'
-	's/\/var\/www/'${DATA_DIR//\//\\\/}'\/nginx\/www/g'
+	's/\/var\/www/'${DATA_DIR//\//\\\/}'\/www/g'
 	's/\/var\/templates\//'${DATA_DIR//\//\\\/}'\/templates\//g'
 	's/\/var\/run\/nginx.pid/'${DATA_DIR//\//\\\/}'\/nginx\/run\/nginx.pid/g'
 	's/\/var\/log\/nginx\//'${DATA_DIR//\//\\\/}'\/logs\/nginx\//g'
@@ -33,15 +42,6 @@ done
 mkdir -p $DATA_DIR/nginx/run
 mkdir -p $DATA_DIR/logs/nginx
 $DATA_DIR/nginx/init.sh
-
-echo "Linking nginx assets..."
-mkdir -p $DATA_DIR/templates
-ln -s $DATA_DIR/www/data $DATA_DIR/nginx/www
-ln -s $ROOT_DIR/templates/app/data $DATA_DIR/templates/app
-ln -s $ROOT_DIR/templates/router/data $DATA_DIR/templates/router
-ln -s $ROOT_DIR/templates/site/data $DATA_DIR/templates/site
-ln -s $ROOT_DIR/templates/themes/data $DATA_DIR/templates/themes
-ln -s $ROOT_DIR/templates/www/data $DATA_DIR/templates/www
 
 echo "Writing SSL configuration..."
 rm -rf $DATA_DIR/ssl

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
+var fs = require('fs');
 var path = require('path');
 var del = require('del');
 var mkdirp = require('mkdirp');
@@ -15,8 +16,8 @@ try {
 	exit(error);
 }
 
-var source = process.env.TEMPLATE_DIR || null;
-var destination = process.env.OUTPUT_DIR || null;
+var source = fs.realpathSync(process.env.TEMPLATE_DIR);
+var destination = process.env.OUTPUT_DIR;
 var context = {
 	host: {
 		hostname: process.env.HOST || null,
