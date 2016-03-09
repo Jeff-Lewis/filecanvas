@@ -11,4 +11,4 @@ HOST_PROTOCOL=$HOST_PROTOCOL \
 HOST_PORT=$HOST_PORT \
 TEMPLATE_DIR=$TEMPLATES_WWW \
 OUTPUT_DIR=$WWW_SITE_ROOT \
-	./scripts/www/build
+	$(dirname $0)/www/build
