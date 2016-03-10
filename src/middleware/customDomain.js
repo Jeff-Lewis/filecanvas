@@ -22,7 +22,7 @@ module.exports = function(options) {
 			}
 			if (error) { return next(error); }
 			if (!cnames || (cnames.length === 0)) {
-				return next(new HttpError(400, 'Invalid host: ' + req.host));
+				return next(new HttpError(403, 'Invalid host: ' + req.host));
 			}
 			var cname = cnames[0];
 			res.locals.originalHost = req.host;
