@@ -4,7 +4,7 @@ var path = require('path');
 var express = require('express');
 var merge = require('lodash.merge');
 
-var pingApp = require('./ping');
+var statusApp = require('./status');
 var assetsApp = require('./assets');
 var themesApp = require('./themes');
 var demoApp = require('./demo');
@@ -74,8 +74,10 @@ module.exports = function(database, cache, config) {
 
 	var app = express();
 
+	app.use('/status', statusApp());
+
 	var subdomains = {
-		'ping': pingApp(),
+		'status': statusApp(),
 		'www': wwwApp({
 			siteRoot: wwwSiteRoot
 		}),
