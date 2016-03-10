@@ -794,8 +794,7 @@
 								"format": "image/png",
 								"options": {
 									"maxWidth": 250,
-									"maxHeight": 250,
-									"contain": true
+									"maxHeight": 250
 								}
 							}
 						}
@@ -827,9 +826,8 @@
 							"image": {
 								"format": "image/png",
 								"options": {
-									"maxWidth": 250,
-									"maxHeight": 50,
-									"contain": true
+									"maxWidth": 200,
+									"maxHeight": 40
 								}
 							}
 						}
