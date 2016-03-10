@@ -269,8 +269,11 @@ fieldset[disabled] .btn {
 	background-color: transparent;
 	color: white;
 }
-.jumbotron p {
-	margin-bottom: 35px;
+.jumbotron h2 {
+	margin: 0 0 35px;
+	font-size: 21px;
+	line-height: inherit;
+	font-weight: 200;
 }
 
 .media {
@@ -278,6 +281,10 @@ fieldset[disabled] .btn {
 }
 .media-heading {
 	text-transform: uppercase;
+	font-size: inherit;
+	line-height: inherit;
+	font-weight: inherit;
+	margin: 0 0 5px;
 }
 .media-object .fa {
 	display: inline-block;
