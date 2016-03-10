@@ -572,6 +572,7 @@ module.exports = function(inputPath, outputPath, options, callback) {
 				var resolutions = options.resolutions;
 				log('Saving PhantomJS screenshots...');
 				var pageres = new Pageres({ crop: true });
+				var resourceError = null;
 				return resolutions.reduce(function(pageres, resolution) {
 					return pageres.src(url, [resolution.dimensions.width + 'x' + resolution.dimensions.height], {
 						scale: resolution.dimensions.scale,
@@ -579,8 +580,12 @@ module.exports = function(inputPath, outputPath, options, callback) {
 					});
 				}, pageres)
 					.dest(outputPath)
+					.on('warn', function(message) {
+						resourceError = resourceError || new Error(message);
+					})
 					.run()
 					.then(function() {
+						if (resourceError) { throw resourceError; }
 						log('Saved PhantomJS screenshot');
 						return;
 					});
