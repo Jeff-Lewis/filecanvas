@@ -29,7 +29,7 @@
 					"default": "Your company",
 					"preview": "Acme, Inc",
 					"demo": "Filecanvas",
-					"label": "Page title",
+					"label": "Sidebar title",
 					"editor": {
 						"name": "input",
 						"options": {
@@ -45,7 +45,7 @@
 					"default": "Your company slogan",
 					"preview": "2016 Portfolio",
 					"demo": "Interactive demo",
-					"label": "Page subtitle",
+					"label": "Sidebar subtitle",
 					"editor": {
 						"name": "textarea",
 						"options": {
@@ -59,7 +59,7 @@
 		},
 		{
 			"name": "contact",
-			"label": "Contact",
+			"label": "Contact details",
 			"icon": "th-list",
 			"fields": [
 				{
@@ -210,6 +210,662 @@
 							"type": "text",
 							"placeholder": null,
 							"maxLength": 128
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "colors",
+			"label": "Colours",
+			"icon": "paint-brush",
+			"fields": [
+				{
+					"name": "sidebarColor",
+					"type": "color",
+					"default": "#111111",
+					"preview": "#111111",
+					"label": "Sidebar background",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "pageTitle",
+					"type": "color",
+					"default": "#cccccc",
+					"preview": "#cccccc",
+					"label": "Sidebar title",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "pageSubtitle",
+					"type": "color",
+					"default": "#cccccc",
+					"preview": "#cccccc",
+					"label": "Sidebar subtitle",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "navItem",
+					"type": "color",
+					"default": "#666666",
+					"preview": "#666666",
+					"label": "Sidebar link",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "navItemRollover",
+					"type": "color",
+					"default": "#ffffff",
+					"preview": "#ffffff",
+					"label": "Sidebar link (rollover)",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "navItemSelected",
+					"type": "color",
+					"default": "#cccccc",
+					"preview": "#cccccc",
+					"label": "Sidebar link (selected)",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "itemPreviewTitleBackground",
+					"type": "color",
+					"default": "#111111",
+					"preview": "#111111",
+					"label": "File rollover background",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "itemPreviewTitleText",
+					"type": "color",
+					"default": "#ffffff",
+					"preview": "#ffffff",
+					"label": "File rollover text",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "itemPreviewButtonBackground",
+					"type": "color",
+					"default": "#111111",
+					"preview": "#111111",
+					"label": "File action button background",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				},
+				{
+					"name": "itemPreviewButtonText",
+					"type": "color",
+					"default": "#ffffff",
+					"preview": "#ffffff",
+					"label": "File action button text",
+					"editor": {
+						"name": "colorpicker",
+						"options": {
+							"format": "hex",
+							"placeholder": null,
+							"presets": null
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "fonts",
+			"label": "Fonts",
+			"icon": "font",
+			"fields": [
+				{
+					"name": "pageTitle",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"label": "Sidebar title",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System default",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "pageSubtitle",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"label": "Sidebar subtitle",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System default",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "navItem",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"label": "Sidebar link",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System default",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "footer",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "none"
+					},
+					"label": "Sidebar footer link",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System default",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "itemPreviewTitle",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"label": "File rollover",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System default",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "itemPreviewButton",
+					"type": "string",
+					"default": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"preview": {
+						"font-family": "'Montserrat'",
+						"font-weight": "normal",
+						"text-transform": "uppercase"
+					},
+					"label": "File action button",
+					"editor": {
+						"name": "font",
+						"options": {
+							"uppercase": true,
+							"bold": true,
+							"italic": false,
+							"underline": false,
+							"fonts": [
+								{
+									"name": "System default",
+									"value": "sans-serif"
+								},
+								{
+									"name": "Arvo",
+									"value": "'Arvo'"
+								},
+								{
+									"name": "Bitter",
+									"value": "'Bitter'"
+								},
+								{
+									"name": "Cardo",
+									"value": "'Cardo'"
+								},
+								{
+									"name": "Fira Sans",
+									"value": "'Fira Sans'"
+								},
+								{
+									"name": "Gentium Book",
+									"value": "'Gentium Book Basic'"
+								},
+								{
+									"name": "Lato",
+									"value": "'Lato'"
+								},
+								{
+									"name": "Montserrat",
+									"value": "'Montserrat'"
+								},
+								{
+									"name": "Open Sans",
+									"value": "'Open Sans'"
+								},
+								{
+									"name": "Oswald",
+									"value": "'Oswald'"
+								},
+								{
+									"name": "Raleway",
+									"value": "'Raleway'"
+								},
+								{
+									"name": "Roboto",
+									"value": "'Roboto'"
+								},
+								{
+									"name": "Signika",
+									"value": "'Signika'"
+								},
+								{
+									"name": "Varela Round",
+									"value": "'Varela Round'"
+								}
+							]
 						}
 					}
 				}
