@@ -5,12 +5,12 @@
 		<meta http-equiv="refresh" content="0;url={{ metadata.redirect }}"/>
 		{{/if}}
 	</head>
-	<body>
+	<body data-admin={{ if metadata.admin '' null }} data-admin-upload={{ if metadata.admin '' null }}>
 		{{#partial 'sidebar'}}
 			{{#if (folders resource.root)}}
 			<a class="sidebar-menu-link active" href="#" data-toggle="filter" data-target="#items" data-filter="">Home</a>
 			{{#each (folders resource.root) key='path' as |folder|}}
-			<a class="sidebar-menu-link" href="#" data-toggle="filter" data-target="#items" data-filter="{{ basename folder.path }}">{{ strip-number-prefix folder }}</a>
+			<a class="sidebar-menu-link" href="#" data-toggle="filter" data-target="#items" data-filter="{{ basename folder.path }}" data-admin-upload={{ if metadata.admin folder.path null }}>{{ strip-number-prefix folder }}</a>
 			{{/each}}
 			{{/if}}
 		{{/partial}}
