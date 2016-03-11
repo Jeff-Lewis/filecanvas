@@ -4,8 +4,8 @@
 			{{#if metadata.theme.config.images.headerLogo}}
 			<img class="sidebar-header-logo" src={{ metadata.theme.config.images.headerLogo }}/>
 			{{/if}}
-			<h1 class="sidebar-header-title">{{ metadata.theme.config.content.pageTitle }}</h1>
-			<h2 class="sidebar-header-subtitle">{{ metadata.theme.config.content.pageSubtitle }}</h2>
+			<h1 class="sidebar-header-title" data-admin-field="theme.config.content.pageTitle">{{ metadata.theme.config.content.pageTitle }}</h1>
+			<h2 class="sidebar-header-subtitle" data-admin-field="theme.config.content.pageSubtitle">{{ metadata.theme.config.content.pageSubtitle }}</h2>
 		</div>
 		<nav class="sidebar-menu">
 			{{ yield }}

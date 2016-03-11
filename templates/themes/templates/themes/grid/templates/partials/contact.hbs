@@ -1,15 +1,15 @@
 <div class="contact">
 	{{#if metadata.theme.config.contact.website }}
-	<div class="contact-detail contact-website"><a href={{ metadata.theme.config.contact.website }} target="_blank">{{ metadata.theme.config.contact.website }}</a></div>
+	<div class="contact-detail contact-website" data-admin-field="theme.config.contact.website"><a href={{ metadata.theme.config.contact.website }} target="_blank">{{ metadata.theme.config.contact.website }}</a></div>
 	{{/if}}
 	{{#if metadata.theme.config.contact.email }}
-	<div class="contact-detail contact-email"><a href="mailto:{{ metadata.theme.config.contact.email }}">{{ metadata.theme.config.contact.email }}</a></div>
+	<div class="contact-detail contact-email" data-admin-field="theme.config.contact.email"><a href="mailto:{{ metadata.theme.config.contact.email }}">{{ metadata.theme.config.contact.email }}</a></div>
 	{{/if}}
 	{{#if metadata.theme.config.contact.phone }}
-	<div class="contact-detail contact-phone">{{ metadata.theme.config.contact.phone }}</div>
+	<div class="contact-detail contact-phone" data-admin-field="theme.config.contact.phone">{{ metadata.theme.config.contact.phone }}</div>
 	{{/if}}
 	{{#if metadata.theme.config.contact.address }}
-	<div class="contact-detail contact-address">{{ nl2br metadata.theme.config.contact.address }}</div>
+	<div class="contact-detail contact-address" data-admin-field="theme.config.contact.address">{{ nl2br metadata.theme.config.contact.address }}</div>
 	{{/if}}
 	{{#if
 		(or

@@ -336,3 +336,22 @@ a.contact-social-link {
 @media screen and (min-width: 3940px) { .item { width: 7.142857%; } }
 @media screen and (min-width: 4200px) { .item { width: 6.666666%; } }
 @media screen and (min-width: 4460px) { .item { width: 6.25%; } }
+
+.admin-active {
+	outline: 5px solid rgba(255, 0, 0, 0.25);
+	-webkit-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	-moz-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	-ms-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	-o-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	animation: admin-active-outline-pulse 0.5s 1 forwards;
+}
+@keyframes admin-active-outline-pulse {
+    0% { outline-color: rgba(255, 0, 0, 0); }
+    50% { outline-color: rgba(255, 0, 0, 0.5); }
+    100% { outline-color: rgba(255, 0, 0, 0.25); }
+}
+@-webkit-keyframes admin-active-outline-pulse {
+    0% { outline-color: rgba(255, 0, 0, 0); }
+    50% { outline-color: rgba(255, 0, 0, 0.5); }
+    100% { outline-color: rgba(255, 0, 0, 0.25); }
+}
