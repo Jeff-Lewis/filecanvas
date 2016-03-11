@@ -213,6 +213,28 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "browser",
+			"label": "Browser",
+			"icon": "desktop",
+			"fields": [
+				{
+					"name": "title",
+					"type": "string",
+					"default": "",
+					"preview": "",
+					"label": "Tab title",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "text",
+							"placeholder": "Tab title",
+							"maxLength": 128
+						}
+					}
+				}
+			]
 		}
 	]
 }
