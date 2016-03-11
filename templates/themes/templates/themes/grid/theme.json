@@ -872,6 +872,46 @@
 			]
 		},
 		{
+			"name": "images",
+			"label": "Images",
+			"icon": "picture-o",
+			"fields": [
+				{
+					"name": "headerLogo",
+					"type": "string",
+					"default": "",
+					"preview": "",
+					"label": "Header logo",
+					"editor": {
+						"name": "file",
+						"options": {
+							"placeholder": "No image selected",
+							"image": {
+								"format": "image/png",
+								"options": {
+									"maxWidth": 250,
+									"maxHeight": 250
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "headerLogoCentered",
+					"type": "boolean",
+					"default": "false",
+					"preview": "false",
+					"label": "",
+					"editor": {
+						"name": "checkbox",
+						"options": {
+							"label": "Centered header logo"
+						}
+					}
+				}
+			]
+		},
+		{
 			"name": "browser",
 			"label": "Browser",
 			"icon": "desktop",

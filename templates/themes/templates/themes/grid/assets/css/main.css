@@ -12,6 +12,15 @@
 .sidebar-header {
 	margin: 2em 1em;
 }
+.sidebar-header-logo {
+	display: block;
+	text-align: center;
+}
+.sidebar-header-logo-image {
+	width: auto;
+	height: auto;
+	max-width: 100%;
+}
 .sidebar-header-title {
 	text-align: center;
 }
@@ -232,6 +241,12 @@ a.contact-social-link {
 	}
 	.sidebar-header {
 		margin: 0;
+	}
+	.sidebar-header-logo {
+		text-align: left;
+	}
+	.sidebar-header-logo.logo-centered {
+		text-align: center;
 	}
 	.sidebar-menu-link {
 		display: block;
