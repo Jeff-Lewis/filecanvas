@@ -63,6 +63,21 @@
 			"icon": "th-list",
 			"fields": [
 				{
+					"name": "website",
+					"type": "url",
+					"default": null,
+					"preview": null,
+					"label": "Website",
+					"editor": {
+						"name": "input",
+						"options": {
+							"type": "url",
+							"placeholder": "Web address",
+							"maxLength": 128
+						}
+					}
+				},
+				{
 					"name": "email",
 					"type": "string",
 					"default": "info@example.com",
@@ -73,21 +88,6 @@
 						"options": {
 							"type": "email",
 							"placeholder": "Email address",
-							"maxLength": 128
-						}
-					}
-				},
-				{
-					"name": "website",
-					"type": "url",
-					"default": "http://www.example.com/",
-					"preview": "http://www.example.com/",
-					"label": "Website",
-					"editor": {
-						"name": "input",
-						"options": {
-							"type": "url",
-							"placeholder": "Web address",
 							"maxLength": 128
 						}
 					}
@@ -114,11 +114,12 @@
 					"preview": "123 Address St,\nLondon, E1 1AA",
 					"label": "Address",
 					"editor": {
-						"name": "input",
+						"name": "textarea",
 						"options": {
 							"type": "text",
 							"placeholder": "Street address",
-							"maxLength": 128
+							"maxLength": 128,
+							"rows": 2
 						}
 					}
 				},
