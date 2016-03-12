@@ -220,11 +220,11 @@ GoogleStorageAdapter.prototype.defaultSitesPath = null;
 GoogleStorageAdapter.prototype.clientId = null;
 GoogleStorageAdapter.prototype.clientSecret = null;
 
-GoogleStorageAdapter.prototype.getMetadata = function(adapterConfig) {
+GoogleStorageAdapter.prototype.getMetadata = function(userAdapterConfig) {
 	var adapterLabel = this.adapterLabel;
 	var rootLabel = this.rootLabel;
 	var defaultSitesPath = this.defaultSitesPath;
-	var fullName = [adapterConfig.firstName, adapterConfig.lastName].join(' ');
+	var fullName = [userAdapterConfig.firstName, userAdapterConfig.lastName].join(' ');
 	return {
 		label: adapterLabel,
 		rootLabel: rootLabel.replace(/\$\{\s*user\s*\}/g, fullName),

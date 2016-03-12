@@ -153,7 +153,7 @@ LocalStorageAdapter.prototype.downloadUrl = null;
 LocalStorageAdapter.prototype.previewUrl = null;
 LocalStorageAdapter.prototype.thumbnailUrl = null;
 
-LocalStorageAdapter.prototype.getMetadata = function(adapterConfig) {
+LocalStorageAdapter.prototype.getMetadata = function(userAdapterConfig) {
 	var adapterLabel = this.adapterLabel;
 	var rootLabel = this.rootLabel;
 	var defaultSitesPath = this.defaultSitesPath;

@@ -225,7 +225,7 @@ module.exports = function(database, cache, options) {
 					private: false,
 					published: false
 				};
-				var siteAdapterConfig = {
+				var adapterUploadConfig = {
 					adapter: 'demo',
 					uploadUrl: '/editor/upload',
 					thumbnailMimeTypes: [
@@ -242,7 +242,7 @@ module.exports = function(database, cache, options) {
 						site: siteModel,
 						themes: themeService.getThemes(),
 						theme: themeService.getTheme(siteModel.theme.id),
-						adapter: siteAdapterConfig,
+						adapter: adapterUploadConfig,
 						preview: {
 							metadata: {
 								siteRoot: sitePreviewUrl,

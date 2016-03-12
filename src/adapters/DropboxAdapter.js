@@ -143,11 +143,11 @@ DropboxStorageAdapter.prototype.defaultSitesPath = null;
 DropboxStorageAdapter.prototype.appKey = null;
 DropboxStorageAdapter.prototype.appSecret = null;
 
-DropboxStorageAdapter.prototype.getMetadata = function(adapterConfig) {
+DropboxStorageAdapter.prototype.getMetadata = function(userAdapterConfig) {
 	var adapterLabel = this.adapterLabel;
 	var rootLabel = this.rootLabel;
 	var defaultSitesPath = this.defaultSitesPath;
-	var fullName = [adapterConfig.firstName, adapterConfig.lastName].join(' ');
+	var fullName = [userAdapterConfig.firstName, userAdapterConfig.lastName].join(' ');
 	return {
 		label: adapterLabel,
 		rootLabel: rootLabel.replace(/\$\{\s*user\s*\}/g, fullName),

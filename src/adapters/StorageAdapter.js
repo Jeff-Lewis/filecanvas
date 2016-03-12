@@ -5,7 +5,7 @@ function StorageAdapter() {
 
 StorageAdapter.prototype.adapterName = null;
 
-StorageAdapter.prototype.getMetadata = function(adapterConfig) {
+StorageAdapter.prototype.getMetadata = function(userAdapterConfig) {
 	throw new Error('Not implemented');
 };
 
