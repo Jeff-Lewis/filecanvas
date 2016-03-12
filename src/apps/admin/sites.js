@@ -127,8 +127,8 @@ module.exports = function(database, options) {
 					return adapterName !== 'default';
 				}).reduce(function(adaptersMetadata, adapterName) {
 					var adapter = adapters[adapterName];
-					var adapterConfig = userAdapters[adapterName];
-					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+					var userAdapterConfig = userAdapters[adapterName];
+					adaptersMetadata[adapterName] = adapter.getMetadata(userAdapterConfig);
 					return adaptersMetadata;
 				}, {});
 				var defaultAdapterName = userAdapters.default;
@@ -268,8 +268,8 @@ module.exports = function(database, options) {
 					return adapterName !== 'default';
 				}).reduce(function(adaptersMetadata, adapterName) {
 					var adapter = adapters[adapterName];
-					var adapterConfig = userAdapters[adapterName];
-					adaptersMetadata[adapterName] = adapter.getMetadata(adapterConfig);
+					var userAdapterConfig = userAdapters[adapterName];
+					adaptersMetadata[adapterName] = adapter.getMetadata(userAdapterConfig);
 					return adaptersMetadata;
 				}, {});
 				var includeTheme = false;
@@ -496,9 +496,10 @@ module.exports = function(database, options) {
 					.then(function(siteModel) {
 						var siteRoot = siteModel.root;
 						var siteAdapter = siteRoot.adapter;
-						var adapterOptions = userAdapters[siteAdapter];
+						var siteAdapterConfig = siteRoot.config;
+						var userAdapterConfig = userAdapters[siteAdapter];
 						var adapter = adapters[siteAdapter];
-						var adapterConfig = adapter.getUploadConfig(siteRoot, adapterOptions);
+						var adapterConfig = adapter.getUploadConfig(siteAdapterConfig, userAdapterConfig);
 						var themeId = siteModel.theme.id;
 						var theme = themeService.getTheme(themeId);
 						var templateData = {
