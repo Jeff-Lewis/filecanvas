@@ -460,7 +460,7 @@ a.contact-social-link {
 }
 @media screen and (min-width: 768px) {
 	.item-dropzone {
-		margin: -7px 0 0 -7px;
+		margin: -7px 3px 3px -7px;
 		padding: 60px 10px;
 	}
 	.filecanvas-dropzone {
