@@ -1,6 +1,6 @@
 <div class="contact">
 	{{#if metadata.theme.config.contact.website }}
-	<div class="contact-detail contact-website" data-admin-field="theme.config.contact.website"><a href={{ metadata.theme.config.contact.website }} target="_blank">{{ metadata.theme.config.contact.website }}</a></div>
+	<div class="contact-detail contact-website" data-admin-field="theme.config.contact.website"><a href={{ url metadata.theme.config.contact.website }} target="_blank">{{ metadata.theme.config.contact.website }}</a></div>
 	{{/if}}
 	{{#if metadata.theme.config.contact.email }}
 	<div class="contact-detail contact-email" data-admin-field="theme.config.contact.email"><a href="mailto:{{ metadata.theme.config.contact.email }}">{{ metadata.theme.config.contact.email }}</a></div>

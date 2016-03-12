@@ -3,7 +3,7 @@
 		<div class="row">
 			{{#if metadata.theme.config.images.navLogo}}
 			<div class="span4">
-				<a class="logo" href={{ if metadata.theme.config.footer.contactWebsite metadata.theme.config.footer.contactWebsite null }} target="_blank">
+				<a class="logo" href={{ if metadata.theme.config.footer.contactWebsite (url metadata.theme.config.footer.contactWebsite) null }} target="_blank">
 					<img src={{ metadata.theme.config.images.navLogo }} />
 				</a>
 			</div>
