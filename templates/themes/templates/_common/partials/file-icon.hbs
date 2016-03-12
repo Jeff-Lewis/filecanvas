@@ -10,5 +10,5 @@
 	<path class="file-icon-content" d="M12 71h45v3H12v-3zm0-10h45v3H12v-3zm0-10h45v3H12v-3zm0-10h45v3H12v-3zm0-10h45v3H12v-3zm18-10h27v3H30v-3z"/>
 	{{/if}}
 	<rect class="file-icon-title" x="0" y="88" width="69" height="24"/>
-	<text class="file-icon-text" x="34" y="105" text-anchor="middle">.{{ extension file }}</text>
+	<text class="file-icon-text" x="34" y="105" text-anchor="middle">{{#if (is-shortcut file) }}WWW{{else}}.{{ extension file }}{{/if}}</text>
 </svg>
