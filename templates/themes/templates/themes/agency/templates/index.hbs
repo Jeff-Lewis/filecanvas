@@ -58,9 +58,7 @@
 						<div class="span12">
 							{{#if metadata.theme.config.content.introTitle}}
 							<div class="title" data-admin-field="theme.config.content.introTitle">{{ metadata.theme.config.content.introTitle }}</div>
-							{{#if metadata.theme.config.content.introText}}
 							<hr/>
-							{{/if}}
 							{{/if}}
 							{{#if metadata.theme.config.content.introText}}
 							<div class="lead-small" data-admin-field="theme.config.content.introText">{{ markdown metadata.theme.config.content.introText }}</div>
@@ -77,39 +75,45 @@
 				</div>
 			</div>
 			{{/if}}
-			{{#each (folders resource.root) key='path' as |folder|}}
-			<div id={{ slug (basename folder.path) }} class="page">
-				<div class="container">
-					<div class="row">
-						<div class="span12" data-admin-upload={{ if metadata.admin folder.path null }}>
-							<div class="title">{{ strip-number-prefix folder }}</div>
-							<hr/>
-							<div class="lead-small" data-section-header={{ strip-number-prefix folder }}></div>
-							{{#if (folders folder)}}
-							<ul class="option-set" data-option-key="filter">
-								<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
-								{{#each (folders folder) key='path' as |subfolder|}}
-								{{#if subfolder.directory}}
-								<li data-admin-upload={{ if metadata.admin subfolder.path null }}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder.path) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
+			{{#if (flattenedFiles resource.root)}}
+				{{#each (folders resource.root) key='path' as |folder|}}
+				<div id={{ slug (basename folder.path) }} class="page">
+					<div class="container">
+						<div class="row">
+							<div class="span12" data-admin-upload={{ if metadata.admin folder.path null }}>
+								<div class="title">{{ strip-number-prefix folder }}</div>
+								<hr/>
+								<div class="lead-small" data-section-header={{ strip-number-prefix folder }}></div>
+								{{#if (folders folder)}}
+								<ul class="option-set" data-option-key="filter">
+									<li><a href="#filter" data-option-value="*" class="selected"><span></span>All</a></li>
+									{{#each (folders folder) key='path' as |subfolder|}}
+									{{#if subfolder.directory}}
+									<li data-admin-upload={{ if metadata.admin subfolder.path null }}><a href="#filter" data-option-value=".filter-{{ slug (basename subfolder.path) }}"><span></span>{{ strip-number-prefix subfolder }}</a></li>
+									{{/if}}
+									{{/each}}
+								</ul>
 								{{/if}}
-								{{/each}}
-							</ul>
-							{{/if}}
-							<div class="posts row isotope">
-								{{#each (files folder) key='path' as |file|}}
-								{{ partial 'file' file=file parent=subfolder }}
-								{{/each}}
-								{{#each (folders folder) key='path' as |subfolder|}}
-								{{#each (flattenedFiles subfolder) key='path' as |file|}}
-								{{ partial 'file' file=file parent=subfolder }}
-								{{/each}}
-								{{/each}}
+								<div class="posts row isotope">
+									{{#each (files folder) key='path' as |file|}}
+									{{ partial 'file' file=file parent=subfolder }}
+									{{/each}}
+									{{#each (folders folder) key='path' as |subfolder|}}
+									{{#each (flattenedFiles subfolder) key='path' as |file|}}
+									{{ partial 'file' file=file parent=subfolder }}
+									{{/each}}
+									{{/each}}
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				{{/each}}
+			{{else}}
+			<div class="page">
+				{{> dropzone}}
 			</div>
-			{{/each}}
+			{{/if}}
 		</section>
 		{{#if (or
 		metadata.theme.config.footer.contactTitle

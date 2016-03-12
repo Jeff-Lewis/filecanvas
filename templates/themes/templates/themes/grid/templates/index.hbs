@@ -15,16 +15,24 @@
 			{{/if}}
 		{{/partial}}
 		<div class="page clearfix">
-			<ul class="items clearfix{{ if (eq metadata.theme.config.layout.hasGutter 'true') '' ' no-gutter' }}" id="items"><!--
-			 -->{{#each (files resource.root) key='path' as |file|}}
+			<ul class="items clearfix{{ if (eq metadata.theme.config.layout.hasGutter 'true') '' ' no-gutter' }}" id="items">
+				{{#if (flattenedFiles resource.root)}}
+				{{#each (files resource.root) key='path' as |file|}}
 					{{ partial 'file' file=file parent=resource.root }}
-				{{/each}}<!--
-			 -->{{#each (folders resource.root) key='path' as |folder|}}
+				{{/each}}
+				{{#each (folders resource.root) key='path' as |folder|}}
 				{{#each (flattenedFiles folder) key='path' as |file|}}
 					{{ partial 'file' file=file parent=folder }}
 				{{/each}}
-				{{/each}}<!--
-			--></ul>
+				{{/each}}
+				{{else}}
+				{{#if metadata.admin}}
+				<li class="item-dropzone">
+					{{> dropzone}}
+				</li>
+				{{/if}}
+				{{/if}}
+			</ul>
 			<footer class="footer">
 				{{> contact }}
 				{{> banner }}

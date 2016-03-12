@@ -58,9 +58,9 @@
 				{
 					"name": "introTitle",
 					"type": "string",
-					"default": "Welcome to your canvas",
+					"default": null,
 					"preview": null,
-					"demo": "Welcome to Filecanvas",
+					"demo": null,
 					"label": "Intro title",
 					"editor": {
 						"name": "input",
@@ -74,9 +74,9 @@
 				{
 					"name": "introText",
 					"type": "string",
-					"default": "Looks like you've created a brand new canvas! This page will automatically sync its contents to whatever's in the linked folder.\n\n**Pro tip:** move your files into subfolders to display them in separate categories.",
+					"default": null,
 					"preview": null,
-					"demo": "Let's create a new canvas!\n\n- Use the **Theme Options** panel to change text, colours, logos and more – the live preview will instantly reflect any changes you make, allowing you to personalise your canvas to your liking.\n\n- Any files you add to the canvas will show up straight away in the live preview.",
+					"demo": null,
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
@@ -346,7 +346,7 @@
 					"type": "color",
 					"default": "#ffffff",
 					"preview": "#ffffff",
-					"label": "Footer detail colour",
+					"label": "Footer link colour",
 					"editor": {
 						"name": "colorpicker",
 						"options": {

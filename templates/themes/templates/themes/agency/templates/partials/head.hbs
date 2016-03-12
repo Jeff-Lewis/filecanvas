@@ -11,6 +11,9 @@
 <!--[if lt IE 10]><style type="text/css">header .header-bg { background: none; }</style><![endif]-->
 <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script><![endif]-->
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+{{#if metadata.admin }}
+<link rel="stylesheet" type="text/css" href="{{ asset @root 'css/filecanvas-admin.css' }}"/>
+{{/if}}
 <link rel="stylesheet" href="{{ asset @root 'css/base.css' }}"/>
 <style type="text/css">
 	::-moz-selection {

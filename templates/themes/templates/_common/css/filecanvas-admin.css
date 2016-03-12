@@ -1,0 +1,97 @@
+.filecanvas-dropzone {
+	text-align: center;
+	color: #666;
+	font-family: 'Montserrat', 'Helvetica Neue', 'Helvetica', 'Arial', 'Roboto', sans-serif;
+}
+.filecanvas-dropzone-border {
+	display: inline-block;
+	width: 192px;
+	height: 192px;
+	margin-bottom: -192px;
+}
+.filecanvas-dropzone-border-stroke {
+	fill: #666;
+}
+.filecanvas-dropzone-icon {
+	display: block;
+	box-sizing: border-box;
+	width: 192px;
+	height: 192px;
+	font-size: 96px;
+	line-height: 1;
+	padding: 48px;
+	margin: auto;
+}
+.filecanvas-dropzone-icon-idle,
+[data-admin-upload].dragging .filecanvas-dropzone-icon-dragging {
+	display: inline-block;
+}
+.filecanvas-dropzone-icon-dragging,
+[data-admin-upload].dragging .filecanvas-dropzone-icon-idle {
+	display: none;
+}
+.filecanvas-dropzone-label {
+	display: block;
+	margin-top: 24px;
+	font-size: 16px;
+}
+.filecanvas-dropzone-label-mobile {
+	display: block;
+}
+.filecanvas-dropzone-label-desktop {
+	display: none;
+}
+@media screen and (min-width: 768px) {
+	.filecanvas-dropzone-label-mobile {
+		display: none;
+	}
+	.filecanvas-dropzone-label-desktop {
+		display: block;
+	}
+	.filecanvas-dropzone-label {
+		margin-top: 32px;
+		font-size: 22px;
+	}
+}
+
+[data-admin-upload].dragging {
+	position: relative;
+}
+[data-admin-upload].dragging::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -10px;
+	right: -10px;
+	border: 10px solid rgba(255, 0, 0, 0.25);
+	z-index: 999;
+	pointer-events: none;
+}
+body[data-admin-upload].dragging::after {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.admin-active {
+	outline: 5px solid rgba(255, 0, 0, 0.25);
+	-webkit-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	-moz-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	-ms-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	-o-animation: admin-active-outline-pulse 0.5s 1 forwards;
+	animation: admin-active-outline-pulse 0.5s 1 forwards;
+}
+@keyframes admin-active-outline-pulse {
+    0% { outline-color: rgba(255, 0, 0, 0); }
+    50% { outline-color: rgba(255, 0, 0, 0.5); }
+    100% { outline-color: rgba(255, 0, 0, 0.25); }
+}
+@-webkit-keyframes admin-active-outline-pulse {
+    0% { outline-color: rgba(255, 0, 0, 0); }
+    50% { outline-color: rgba(255, 0, 0, 0.5); }
+    100% { outline-color: rgba(255, 0, 0, 0.25); }
+}
