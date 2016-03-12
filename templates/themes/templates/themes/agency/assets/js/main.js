@@ -18,7 +18,7 @@ $(document).ready(function(){
 
 
 		function preventNavigation() {
-			$(document).on('click', 'a:href', function(event) {
+			$(document).on('click', 'a[href]', function(event) {
 				event.preventDefault();
 			});
 		}
