@@ -499,7 +499,7 @@ module.exports = function(database, options) {
 						var siteAdapterConfig = siteRoot.config;
 						var userAdapterConfig = userAdapters[siteAdapter];
 						var adapter = adapters[siteAdapter];
-						var adapterConfig = adapter.getUploadConfig(siteAdapterConfig, userAdapterConfig);
+						var adapterUploadConfig = adapter.getUploadConfig(siteAdapterConfig, userAdapterConfig);
 						var themeId = siteModel.theme.id;
 						var theme = themeService.getTheme(themeId);
 						var templateData = {
@@ -508,7 +508,7 @@ module.exports = function(database, options) {
 								site: siteModel,
 								themes: themeService.getThemes(),
 								theme: theme,
-								adapter: adapterConfig
+								adapter: adapterUploadConfig
 							}
 						};
 						return adminPageService.render(req, res, {

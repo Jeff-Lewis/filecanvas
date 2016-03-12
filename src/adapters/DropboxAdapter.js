@@ -309,9 +309,11 @@ DropboxStorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAd
 
 DropboxStorageAdapter.prototype.getUploadConfig = function(siteAdapterConfig, userAdapterConfig) {
 	return {
-		adapter: this.adapterName,
-		path: siteAdapterConfig.path,
-		token: userAdapterConfig.token
+		name: this.adapterName,
+		config: {
+			path: siteAdapterConfig.path,
+			token: userAdapterConfig.token
+		}
 	};
 };
 

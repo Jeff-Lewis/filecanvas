@@ -292,8 +292,10 @@ LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAdap
 
 LocalStorageAdapter.prototype.getUploadConfig = function(siteAdapterConfig, userAdapterConfig) {
 	return {
-		adapter: this.adapterName,
-		path: siteAdapterConfig.path
+		name: this.adapterName,
+		config: {
+			path: siteAdapterConfig.path
+		}
 	};
 };
 

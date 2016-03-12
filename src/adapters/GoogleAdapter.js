@@ -453,9 +453,11 @@ GoogleStorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAda
 
 GoogleStorageAdapter.prototype.getUploadConfig = function(siteAdapterConfig, userAdapterConfig) {
 	return {
-		adapter: this.adapterName,
-		path: siteAdapterConfig.path,
-		token: userAdapterConfig.token
+		name: this.adapterName,
+		config: {
+			path: siteAdapterConfig.path,
+			token: userAdapterConfig.token
+		}
 	};
 };
 

@@ -75,7 +75,9 @@ Api.prototype.retrieveFileMetadata = function(adapter, path) {
 
 Api.prototype.uploadFiles = function(files, options) {
 	options = options || {};
-	var adapterConfig = options.adapter;
+	var uploadAdapterConfig = options.adapter;
+	var adapterName = uploadAdapterConfig.name;
+	var adapterConfig = uploadAdapterConfig.config;
 	var numRetries = options.retries || 0;
 	if (files.length === 0) {
 		return new $.Deferred().resolve().promise();
@@ -188,7 +190,7 @@ Api.prototype.uploadFiles = function(files, options) {
 	}
 
 	function uploadFile(file) {
-		switch (adapterConfig.adapter) {
+		switch (adapterName) {
 			case 'dropbox':
 				return uploadDropboxFile(file, adapterConfig);
 			case 'google':

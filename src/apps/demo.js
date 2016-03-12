@@ -226,14 +226,16 @@ module.exports = function(database, cache, options) {
 					published: false
 				};
 				var adapterUploadConfig = {
-					adapter: 'demo',
-					uploadUrl: '/editor/upload',
-					thumbnailMimeTypes: [
-						'image/gif',
-						'image/jpeg',
-						'image/png',
-						'image/svg+xml'
-					]
+					name: 'demo',
+					config: {
+						uploadUrl: '/editor/upload',
+						thumbnailMimeTypes: [
+							'image/gif',
+							'image/jpeg',
+							'image/png',
+							'image/svg+xml'
+						]
+					}
 				};
 				var sitePreviewUrl = '/editor/preview/';
 				var templateData = {
