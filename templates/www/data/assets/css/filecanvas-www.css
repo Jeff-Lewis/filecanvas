@@ -262,6 +262,9 @@ fieldset[disabled] .btn {
 	color: white;
 	text-decoration: none;
 }
+.page-footer-copyright {
+	color: #666;
+}
 
 .jumbotron {
 	text-align: center;
