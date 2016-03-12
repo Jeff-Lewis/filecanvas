@@ -12,7 +12,9 @@
 			{{#if file.thumbnail}}
 			<div class="item-preview-thumbnail" style="background-image: url('{{ thumbnail @root file }}');"></div>
 			{{else}}
-			{{ partial 'file-icon' file=file }}
+			<div class="item-preview-icon">
+				{{ partial 'file-icon' file=file }}
+			</div>
 			{{/if}}
 			<div class="item-preview-rollover">
 				<div class="item-preview-rollover-button">{{ if (is-shortcut file) 'Visit' (if (has-preview file) 'View' 'Download') }}</div>

@@ -223,8 +223,8 @@
 				{
 					"name": "sidebarColor",
 					"type": "color",
-					"default": "#111111",
-					"preview": "#111111",
+					"default": "#27374a",
+					"preview": "#27374a",
 					"label": "Sidebar background",
 					"editor": {
 						"name": "colorpicker",
@@ -268,8 +268,8 @@
 				{
 					"name": "navItem",
 					"type": "color",
-					"default": "#666666",
-					"preview": "#666666",
+					"default": "#aaaaaa",
+					"preview": "#aaaaaa",
 					"label": "Sidebar link",
 					"editor": {
 						"name": "colorpicker",
@@ -313,9 +313,9 @@
 				{
 					"name": "itemPreviewTitleBackground",
 					"type": "color",
-					"default": "#111111",
-					"preview": "#111111",
-					"label": "File rollover background",
+					"default": "#365566",
+					"preview": "#365566",
+					"label": "File caption background",
 					"editor": {
 						"name": "colorpicker",
 						"options": {
@@ -330,7 +330,7 @@
 					"type": "color",
 					"default": "#ffffff",
 					"preview": "#ffffff",
-					"label": "File rollover text",
+					"label": "File caption text",
 					"editor": {
 						"name": "colorpicker",
 						"options": {
@@ -343,8 +343,8 @@
 				{
 					"name": "itemPreviewButtonBackground",
 					"type": "color",
-					"default": "#111111",
-					"preview": "#111111",
+					"default": "#3ea397",
+					"preview": "#3ea397",
 					"label": "File action button background",
 					"editor": {
 						"name": "colorpicker",
@@ -367,6 +367,26 @@
 							"format": "hex",
 							"placeholder": null,
 							"presets": null
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "layout",
+			"label": "Layout",
+			"icon": "object-group",
+			"fields": [
+				{
+					"name": "hasGutter",
+					"type": "boolean",
+					"default": "true",
+					"preview": "true",
+					"label": "",
+					"editor": {
+						"name": "checkbox",
+						"options": {
+							"label": "Spacing between files"
 						}
 					}
 				}
@@ -932,6 +952,28 @@
 					}
 				}
 			]
-		}
-	]
+		},
+		{
+			"name": "scripts",
+			"label": "Custom scripts",
+			"icon": "code",
+			"fields": [
+				{
+					"name": "css",
+					"type": "css",
+					"default": "",
+					"preview": "",
+					"label": "Custom CSS rules",
+					"editor": {
+						"name": "code",
+						"options": {
+							"language": "css",
+							"placeholder": "Paste custom CSS rules here",
+							"maxLength": 4096,
+							"rows": 6
+						}
+					}
+				}
+			]
+		}	]
 }
