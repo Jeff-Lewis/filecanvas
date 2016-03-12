@@ -1094,6 +1094,18 @@ function startTour() {
 				desktop: false
 			},
 			{
+				element: '#title-bar-toolbar .title-bar-toolbar-container',
+				placement: {
+					mobile: null,
+					desktop: 'bottom'
+				},
+				backdrop: true,
+				backdropPadding: 4,
+				title: 'Undo/redo',
+				content: 'Use the toolbar to undo any mistakes as you go along',
+				mobile: false
+			},
+			{
 				element: '.title-bar-controls .title-bar-controls-container button[type="submit"]',
 				placement: {
 					mobile: 'top',
