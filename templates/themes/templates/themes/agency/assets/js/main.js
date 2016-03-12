@@ -1,7 +1,7 @@
 'use strict';
 
 $(document).ready(function(){
-	initIframeScrolling();
+	initAdminMode();
 	initStickyNav();
 	initOnePageNav();
 	initSelectNav();
@@ -9,16 +9,32 @@ $(document).ready(function(){
 	initFileFilters();
 
 
-	function initIframeScrolling() {
+	function initAdminMode() {
 		var isWithinIframe = (window !== window.top);
 		if (isWithinIframe) {
-			$('html').css({
-				'height': '1px',
-				'min-height': '100%',
-				'overflow': 'auto',
-				'-webkit-overflow-scrolling': 'touch'
+			preventNavigation();
+			initIframeScrolling();
+		}
+
+
+		function preventNavigation() {
+			$(document).on('click', 'a:href', function(event) {
+				event.preventDefault();
 			});
 		}
+
+		function initIframeScrolling() {
+			var isWithinIframe = (window !== window.top);
+			if (isWithinIframe) {
+				$('html').css({
+					'height': '1px',
+					'min-height': '100%',
+					'overflow': 'auto',
+					'-webkit-overflow-scrolling': 'touch'
+				});
+			}
+		}
+
 	}
 
 	function initStickyNav() {
