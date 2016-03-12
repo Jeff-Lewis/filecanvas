@@ -302,11 +302,17 @@ a.contact-social-link {
 	.item {
 		width: 50%;
 	}
+	.item:first-child:last-child {
+		margin-left: 25%;
+	}
 }
 
 @media screen and (min-width: 720px) {
 	.item {
 		width: 33.333333%;
+	}
+	.item:first-child:last-child {
+		margin-left: 33.333333%;
 	}
 }
 
@@ -378,6 +384,9 @@ a.contact-social-link {
 	.item,
 	.item-link {
 		padding: 0 10px 10px 0;
+	}
+	.item:first-child:last-child {
+		margin-left: 0;
 	}
 	.items.no-gutter,
 	.items.no-gutter .item-link {
