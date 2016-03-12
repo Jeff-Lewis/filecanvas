@@ -113,8 +113,11 @@
 	}
 
 	.page {
-		padding-top: 78px;
+		padding-top: 100px;
 		background: #fff;
+	}
+	.page:first-child {
+		padding-top: 60px;
 	}
 	.page:last-child {
 		padding-bottom: 90px;
