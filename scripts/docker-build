@@ -45,6 +45,22 @@ else
 			NODE_ENV=production \
 				./templates/build
 			IMAGE_PATH="./templates"
+			IMAGE_SRC_FILTERS=(
+				'+ .dockerignore'
+				'- .*'
+				'+ app'
+				'+ app/data/***'
+				'+ router'
+				'+ router/data/***'
+				'+ site'
+				'+ site/data/***'
+				'+ themes'
+				'+ themes/data/***'
+				'+ www'
+				'+ www/data/***'
+				'+ Dockerfile'
+				'- *'
+			)
 		else
 			echo "Invalid image name: $IMAGE_NAME"
 			exit 1
@@ -55,7 +71,7 @@ else
 		mkdir -p .tmp/images/$IMAGE_NAME
 		filters=""
 		for filter in "${IMAGE_SRC_FILTERS[@]}"; do filters="$filters --filter='$filter'"; done
-		eval "rsync -a -v -L --delete --delete-excluded $filters $IMAGE_PATH/ .tmp/images/$IMAGE_NAME"
+		eval "rsync -a -v -L --checksum --omit-dir-times --delete --delete-excluded $filters $IMAGE_PATH/ .tmp/images/$IMAGE_NAME"
 
 		# Build and tag the Docker image
 		docker build -t filecanvas/$IMAGE_NAME .tmp/images/$IMAGE_NAME
