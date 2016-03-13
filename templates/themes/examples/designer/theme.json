@@ -1,0 +1,78 @@
+{
+	"theme": "grid",
+	"config": {
+        "content": {
+          "pageTitle": "Acme, Inc",
+          "pageSubtitle": "2016 Portfolio"
+        },
+        "contact": {
+          "website": "example.com",
+          "email": "info@example.com",
+          "phone": "+44 (0)123 456 7890",
+          "address": "123 Address St,\nLondon, E1 1AA",
+          "twitter": "acmeinc",
+          "facebook": "acmeinc",
+          "instagram": "acmeinc",
+          "pinterest": null,
+          "linkedin": null,
+          "github": null
+        },
+        "colors": {
+          "sidebarColor": "#17161c",
+          "pageTitle": "#cccccc",
+          "pageSubtitle": "#cccccc",
+          "navItem": "#aaaaaa",
+          "navItemRollover": "#ffffff",
+          "navItemSelected": "#cccccc",
+          "itemPreviewTitleBackground": "#17161c",
+          "itemPreviewTitleText": "#ffffff",
+          "itemPreviewButtonBackground": "#72bccc",
+          "itemPreviewButtonText": "#ffffff"
+        },
+        "layout": {
+          "hasGutter": "false"
+        },
+        "fonts": {
+          "pageTitle": {
+            "font-family": "'Montserrat'",
+            "font-weight": "normal",
+            "text-transform": "none"
+          },
+          "pageSubtitle": {
+            "font-family": "'Montserrat'",
+            "font-weight": "normal",
+            "text-transform": "none"
+          },
+          "navItem": {
+            "font-family": "'Montserrat'",
+            "font-weight": "normal",
+            "text-transform": "none"
+          },
+          "footer": {
+            "font-family": "'Montserrat'",
+            "font-weight": "normal",
+            "text-transform": "none"
+          },
+          "itemPreviewTitle": {
+            "font-family": "'Montserrat'",
+            "font-weight": "normal",
+            "text-transform": "uppercase"
+          },
+          "itemPreviewButton": {
+            "font-family": "'Montserrat'",
+            "font-weight": "normal",
+            "text-transform": "uppercase"
+          }
+        },
+        "images": {
+          "headerLogo": "",
+          "headerLogoCentered": "false"
+        },
+        "browser": {
+          "title": ""
+        },
+        "scripts": {
+          "css": ""
+        }
+	}
+}

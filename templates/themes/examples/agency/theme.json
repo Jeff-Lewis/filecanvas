@@ -1,0 +1,70 @@
+{
+	"theme": "agency",
+	"config": {
+		"content": {
+			"pageHeader": "Acme, Inc",
+			"pageSubtitle": "2016 Portfolio",
+			"introTitle": null,
+			"introText": null
+		},
+		"footer": {
+			"footerTitle": "About us",
+			"footerText": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+			"contactTitle": "Contact us",
+			"contactEmail": "info@example.com",
+			"contactWebsite": "example.com",
+			"contactPhone": "+44 (0)123 456 7890",
+			"contactAddress": "123 Address St, London, E1 1AA"
+		},
+		"colors": {
+			"headerBackgroundColor": "#0b1c2b",
+			"headerTextColor": "#ffffff",
+			"brandColor": "#ab1f16",
+			"navItemColor": "#ffffff",
+			"navItemRolloverColor": "#ffcccc",
+			"navItemSelectedColor": "#000000",
+			"footerBackgroundColor": "#111111",
+			"footerTitleColor": "#ffffff",
+			"footerTextColor": "#777777",
+			"footerDetailColor": "#ffffff"
+		},
+		"fonts": {
+			"pageHeader": {
+				"font-family": "'Raleway'",
+				"font-weight": "normal",
+				"text-transform": "uppercase"
+			},
+			"pageSubtitle": {
+				"font-family": "'Raleway'",
+				"font-weight": "bold",
+				"text-transform": "uppercase"
+			},
+			"subHeader": {
+				"font-family": "'Raleway'",
+				"font-weight": "bold",
+				"text-transform": "uppercase"
+			},
+			"sectionHeader": {
+				"font-family": "'Raleway'",
+				"font-weight": "normal",
+				"text-transform": "uppercase"
+			},
+			"body": {
+				"font-family": "'Fira Sans'",
+				"font-weight": "normal",
+				"text-transform": "none"
+			}
+		},
+		"images": {
+			"headerLogo": "",
+			"headerLogoCentered": "true",
+			"navLogo": ""
+		},
+		"browser": {
+			"title": ""
+		},
+		"scripts": {
+			"css": ""
+		}
+	}
+}
