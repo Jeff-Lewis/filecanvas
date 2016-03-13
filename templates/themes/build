@@ -3,7 +3,8 @@ set -e
 
 cd $(dirname $0)
 
-INPUT_DIR=$PWD/templates
+TEMPLATES_DIR=$PWD/templates
+EXAMPLES_DIR=$PWD/examples
 OUTPUT_DIR=$PWD/data
 
 rm -rf $OUTPUT_DIR
@@ -11,20 +12,26 @@ mkdir -p $OUTPUT_DIR
 
 echo "Building client libraries..."
 if [ "$NODE_ENV" == 'production' ]; then
-	rm -f $INPUT_DIR/_common/js/filecanvas-theme.js
-	rm -f $INPUT_DIR/_common/js/filecanvas-theme.js.map
-	(cd client; webpack -p $INPUT_DIR/_common/js/filecanvas-theme.js)
+	rm -f $TEMPLATES_DIR/_common/js/filecanvas-theme.js
+	rm -f $TEMPLATES_DIR/_common/js/filecanvas-theme.js.map
+	(cd client; webpack -p $TEMPLATES_DIR/_common/js/filecanvas-theme.js)
 else
-	(cd client; webpack -d $INPUT_DIR/_common/js/filecanvas-theme.js)
+	(cd client; webpack -d $TEMPLATES_DIR/_common/js/filecanvas-theme.js)
 fi
 
 if [ "$NODE_ENV" != 'production' ]; then
 	echo "Copying common theme code..."
-	cp -r $INPUT_DIR/_common $OUTPUT_DIR/_common/
+	cp -r $TEMPLATES_DIR/_common $OUTPUT_DIR/_common/
 fi
 
 echo "Building themes..."
 mkdir -p $OUTPUT_DIR/themes
-for theme in $(ls $INPUT_DIR/themes); do
-	./scripts/bundle $INPUT_DIR/themes/$theme $OUTPUT_DIR/themes/$theme
+for theme in $(ls $TEMPLATES_DIR/themes); do
+	./scripts/bundle $TEMPLATES_DIR/themes/$theme $OUTPUT_DIR/themes/$theme
+done
+
+echo "Building examples..."
+mkdir -p $OUTPUT_DIR/examples
+for example in $(ls $EXAMPLES_DIR); do
+	./scripts/render $EXAMPLES_DIR/$example $OUTPUT_DIR/examples/$example
 done

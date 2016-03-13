@@ -94,7 +94,7 @@
     "adm-zip": "^0.4.7",
     "finalhandler": "^0.4.1",
     "imagemagick-native": "^1.9.1",
-    "pageres": "^4.1.0",
+    "screenshot-stream": "^3.2.0",
     "serve-static": "^1.10.2"
   }
 }

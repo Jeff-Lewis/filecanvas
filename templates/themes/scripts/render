@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+'use strict';
+
+var path = require('path');
+var renderTheme = require('./src/renderTheme');
+var ensureEmptyDirectoryExists = require('./src/ensureEmptyDirectoryExists');
+var captureSiteThumbnail = require('./src/captureSiteThumbnail');
+
+var args = process.argv.slice(['node', 'script.js'].length);
+try {
+	if (args.length !== 2) { throw new Error('Usage: render <inputDir> <outputDir>'); }
+	if (args[0] === args[1]) { throw new Error('Invalid output path'); }
+} catch(error) {
+	exit(error);
+}
+var inputPath = args[0];
+var outputPath = args[1];
+
+var OUTPUT_SCREENSHOT_FILENAME = 'preview.png';
+
+var themeConfigPath = path.join(inputPath, 'theme.json');
+var previewFilesPath = path.join(inputPath, 'preview');
+var themeOptions = null;
+try {
+	log('Loading theme config from ' + themeConfigPath);
+	themeOptions = require(themeConfigPath);
+} catch (error) {
+	exit(error);
+}
+
+var themeId = themeOptions.theme;
+var themeConfig = themeOptions.config;
+var themePath = path.resolve(__dirname, '../templates/themes', themeId);
+
+var outputScreenshotPath = path.join(outputPath, OUTPUT_SCREENSHOT_FILENAME);
+log('Rendering theme preview to ' + outputPath);
+ensureEmptyDirectoryExists(outputPath)
+	.then(function() {
+		return renderTheme(themePath, outputPath, {
+			config: themeConfig,
+			files: previewFilesPath
+		});
+	})
+	.then(function() {
+		return captureSiteThumbnail({
+			siteRoot: outputPath,
+			outputPath: outputScreenshotPath,
+			dimensions: { width: 1440, height: 900 },
+			log: log
+		});
+	})
+	.then(function() {
+		log('Rendered theme bundle at ' + outputPath);
+	})
+	.catch(function(error) {
+		if (error) { return exit(error); }
+	});
+
+function log(message) {
+	process.stdout.write(message + '\n');
+}
+
+function logError(message) {
+	process.stderr.write(formatErrorMessage(message) + '\n');
+
+
+	function formatErrorMessage(message) {
+		return '\u001b[31m' + message + '\u001b[39m';
+	}
+}
+
+function exit(error) {
+	if (error) {
+		logError(error.stack);
+		process.exit(1);
+	} else {
+		process.exit();
+	}
+}

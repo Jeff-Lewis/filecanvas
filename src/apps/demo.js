@@ -216,7 +216,7 @@ module.exports = function(database, cache, options) {
 					label: null,
 					theme: {
 						id: themeId,
-						config: merge({}, theme.demo.config, themeConfigOverrides)
+						config: merge({}, theme.demo, themeConfigOverrides)
 					},
 					root: new FileModel({
 						path: '/',
