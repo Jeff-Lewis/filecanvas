@@ -757,6 +757,20 @@ fieldset[disabled] .btn {
 	background-color: #fcfcfc;
 	border-top: 1px solid #eee;
 }
+.page-section.hidden-xs ~ .page-section:nth-child(odd) {
+	background-color: #fefefe;
+}
+.page-section.hidden-xs ~ .page-section:nth-child(even) {
+	background-color: #fcfcfc;
+}
+@media screen and (min-width: 768px) {
+	.page-section.hidden-xs ~ .page-section:nth-child(even) {
+		background-color: #fefefe;
+	}
+	.page-section.hidden-xs ~ .page-section:nth-child(odd) {
+		background-color: #fcfcfc;
+	}
+}
 .page-section-title {
 	text-align: center;
 	margin-top: 10px;

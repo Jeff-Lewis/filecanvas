@@ -7,7 +7,7 @@
 	{{#*inline 'navigation'}}
 		<li role="presentation" class="active"><a href="#intro">Home</a></li>
 		<li role="presentation"><a href="#examples">Examples</a></li>
-		<li role="presentation"><a href="#demo">Demo</a></li>
+		<li role="presentation"><a class="hidden-xs" href="#demo">Demo</a></li>
 		<li role="presentation"><a href="#pricing">Pricing</a></li>
 		<li role="presentation"><a href="#sign-up">Sign up</a></li>
 		<li role="presentation"><a href="{{ subdomain host=host subdomain='my' }}">Log in</a></li>
@@ -21,7 +21,8 @@
 						<div class="jumbotron">
 							<h1>Your files. Giftwrapped.</h1>
 							<h2>Create your own personalised web dropbox with Filecanvas.</h2>
-							<a class="btn btn-success btn-lg" href="#demo">Try it out</a>
+							<a class="btn btn-success btn-lg hidden-xs" href="#demo">Try it out</a>
+							<a class="btn btn-success btn-lg visible-xs-inline" href="#beta">Sign up</a>
 						</div>
 					</div>
 				</div>
@@ -416,7 +417,7 @@
 				</div>
 			</div>
 		</section>
-		<section class="page-section">
+		<section class="page-section hidden-xs">
 			<a class="anchor anchor-section" id="demo"></a>
 			<div class="container">
 				<div class="row">
@@ -539,6 +540,7 @@
 							</div>
 							<div class="col-sm-6 col-md-3">
 								<div class="panel panel-primary panel-pricing">
+									<a id="beta" class="anchor anchor-offset"></a>
 									<div class="panel-heading">
 										<h3 class="panel-title">Beta trial</h3>
 									</div>
