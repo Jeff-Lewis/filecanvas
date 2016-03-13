@@ -60,7 +60,6 @@
 					"type": "string",
 					"default": null,
 					"preview": null,
-					"demo": null,
 					"label": "Intro title",
 					"editor": {
 						"name": "input",
@@ -76,7 +75,6 @@
 					"type": "string",
 					"default": null,
 					"preview": null,
-					"demo": null,
 					"label": "Intro text",
 					"editor": {
 						"name": "textarea",
@@ -157,8 +155,8 @@
 				{
 					"name": "contactWebsite",
 					"type": "url",
-					"default": "http://www.example.com/",
-					"preview": "http://www.example.com/",
+					"default": "example.com",
+					"preview": "example.com",
 					"label": "Contact: Website",
 					"editor": {
 						"name": "input",
@@ -209,8 +207,8 @@
 				{
 					"name": "headerBackgroundColor",
 					"type": "color",
-					"default": "#111111",
-					"preview": "#111111",
+					"default": "#0b1c2b",
+					"preview": "#0b1c2b",
 					"label": "Page header background",
 					"editor": {
 						"name": "colorpicker",
@@ -239,8 +237,8 @@
 				{
 					"name": "brandColor",
 					"type": "color",
-					"default": "#aa0000",
-					"preview": "#aa0000",
+					"default": "#ab1f16",
+					"preview": "#ab1f16",
 					"label": "Brand colour",
 					"editor": {
 						"name": "colorpicker",
@@ -367,12 +365,12 @@
 					"name": "pageHeader",
 					"type": "string",
 					"default": {
-						"font-family": "'Montserrat'",
+						"font-family": "'Raleway'",
 						"font-weight": "normal",
 						"text-transform": "uppercase"
 					},
 					"preview": {
-						"font-family": "'Montserrat'",
+						"font-family": "'Raleway'",
 						"font-weight": "normal",
 						"text-transform": "uppercase"
 					},
@@ -449,13 +447,13 @@
 					"name": "pageSubtitle",
 					"type": "string",
 					"default": {
-						"font-family": "'Montserrat'",
-						"font-weight": "normal",
+						"font-family": "'Raleway'",
+						"font-weight": "bold",
 						"text-transform": "uppercase"
 					},
 					"preview": {
-						"font-family": "'Montserrat'",
-						"font-weight": "normal",
+						"font-family": "'Raleway'",
+						"font-weight": "bold",
 						"text-transform": "uppercase"
 					},
 					"label": "Page subtitle",
@@ -531,13 +529,13 @@
 					"name": "subHeader",
 					"type": "string",
 					"default": {
-						"font-family": "'Montserrat'",
-						"font-weight": "normal",
+						"font-family": "'Raleway'",
+						"font-weight": "bold",
 						"text-transform": "uppercase"
 					},
 					"preview": {
-						"font-family": "'Montserrat'",
-						"font-weight": "normal",
+						"font-family": "'Raleway'",
+						"font-weight": "bold",
 						"text-transform": "uppercase"
 					},
 					"label": "Sub-headings",
@@ -610,19 +608,19 @@
 					}
 				},
 				{
-					"name": "body",
+					"name": "sectionHeader",
 					"type": "string",
 					"default": {
-						"font-family": "'Open Sans'",
+						"font-family": "'Raleway'",
 						"font-weight": "normal",
-						"text-transform": "none"
+						"text-transform": "uppercase"
 					},
 					"preview": {
-						"font-family": "'Open Sans'",
+						"font-family": "'Raleway'",
 						"font-weight": "normal",
-						"text-transform": "none"
+						"text-transform": "uppercase"
 					},
-					"label": "Body text",
+					"label": "Section headings",
 					"editor": {
 						"name": "font",
 						"options": {
@@ -692,19 +690,19 @@
 					}
 				},
 				{
-					"name": "sectionHeader",
+					"name": "body",
 					"type": "string",
 					"default": {
-						"font-family": "'Montserrat'",
+						"font-family": "'Fira Sans'",
 						"font-weight": "normal",
-						"text-transform": "uppercase"
+						"text-transform": "none"
 					},
 					"preview": {
-						"font-family": "'Montserrat'",
+						"font-family": "'Fira Sans'",
 						"font-weight": "normal",
-						"text-transform": "uppercase"
+						"text-transform": "none"
 					},
-					"label": "Section headings",
+					"label": "Body text",
 					"editor": {
 						"name": "font",
 						"options": {
