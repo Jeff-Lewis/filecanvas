@@ -514,6 +514,28 @@ fieldset[disabled] .btn {
 .device-preview .carousel-indicators {
 	display: none;
 }
+
+/* HACK: fix iOS carousel transitions */
+@media all and (transform-3d), (-webkit-transform-3d) {
+	.device-preview .carousel-inner > .item.active,
+	.device-preview .carousel-inner > .item.next.left,
+	.device-preview .carousel-inner > .item.prev.right {
+		-webkit-transform: translate(0, 0);
+		transform: translate(0, 0);
+	}
+	.device-preview .carousel-inner>.item.active.left,
+	.device-preview .carousel-inner>.item.prev {
+		-webkit-transform: translate(-100%, 0);
+		transform: translate(-100%, 0)
+	}
+	.device-preview .carousel-inner>.item.active.right,
+	.device-preview .carousel-inner>.item.next {
+		-webkit-transform: translate(100%, 0);
+		transform: translate(100%, 0)
+	}
+}
+/* END HACK */
+
 @media screen and (min-width: 768px) {
 	.device-preview .carousel-indicators {
 		display: block;
