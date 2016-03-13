@@ -498,13 +498,18 @@ fieldset[disabled] .btn {
 	position: relative;
 	overflow: hidden;
 }
+.device-preview .carousel-control {
+	width: 25%;
+}
 .device-preview .carousel-control .glyphicon-chevron-left,
 .device-preview .carousel-control .icon-prev {
 	left: 25%;
+	margin-left: -5px;
 }
 .device-preview .carousel-control .glyphicon-chevron-right,
 .device-preview .carousel-control .icon-next {
 	right: 25%;
+	margin-right: -5px;
 }
 .device-preview .carousel-indicators {
 	display: none;
@@ -518,6 +523,21 @@ fieldset[disabled] .btn {
 		margin-bottom: 0;
 		padding: 10px 0;
 		background-color: rgba(0, 0, 0, 0.25);
+	}
+}
+@media screen and (min-width: 1024px) {
+	.device-preview .carousel-control {
+		width: 15%;
+	}
+	.device-preview .carousel-control .glyphicon-chevron-left,
+	.device-preview .carousel-control .icon-prev {
+		left: 25%;
+		margin-left: -10px;
+	}
+	.device-preview .carousel-control .glyphicon-chevron-left,
+	.device-preview .carousel-control .icon-prev {
+		right: 25%;
+		margin-right: -10px;
 	}
 }
 
