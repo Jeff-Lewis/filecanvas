@@ -146,7 +146,7 @@
 					"editor": {
 						"name": "input",
 						"options": {
-							"type": "email",
+							"type": "text",
 							"placeholder": "Email address",
 							"maxLength": 128
 						}
@@ -154,14 +154,14 @@
 				},
 				{
 					"name": "contactWebsite",
-					"type": "url",
+					"type": "string",
 					"default": "example.com",
 					"preview": "example.com",
 					"label": "Contact: Website",
 					"editor": {
 						"name": "input",
 						"options": {
-							"type": "url",
+							"type": "text",
 							"placeholder": "Web address",
 							"maxLength": 128
 						}
@@ -176,7 +176,7 @@
 					"editor": {
 						"name": "input",
 						"options": {
-							"type": "tel",
+							"type": "text",
 							"placeholder": "Phone number",
 							"maxLength": 128
 						}
