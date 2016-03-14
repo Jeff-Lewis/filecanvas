@@ -95,24 +95,25 @@ Once you've authorised the Filecanvas app, the Filecanvas service is given an ac
 
 This communication happens via their web API (Application Programming Interface) – a service that allows the Filecanvas servers to communicate with your cloud storage provider's servers.
 
-Filecanvas uses your cloud storage provider's API to perform the following functions (where "synced folder" refers to a folder created by Filecanvas):
+Filecanvas uses your cloud storage provider's API to perform the following functions (where "Filecanvas folder" refers to a folder that you've linked to the Filecanvas service):
 
-- **List folder hierarchy and file metadata within your synced folders**
+- **List folder hierarchy and file metadata within your Filecanvas folders**
 	- This is necessary so that Filecanvas can display the contents of your synced folders when a user visits your canvas
 	- Rather than loading the contents of the file themselves, Filecanvas just uses file "metadata" (e.g. filename, filesize, date, etc) to display the files to the user
-- **Display file preview thumbnails within your synced folders**
+- **Display preview thumbnails for files within your Filecanvas folders**
 	- When a user visits your canvas, Filecanvas shows file preview thumbnails for various file types
 	- These thumbnails are created by your cloud storage provider – Filecanvas just passes them on to the user as-is, without inspecting them or storing them
-- **Download files from your synced folders**
+- **Allow users to download files from your Filecanvas folders**
 	- When a user chooses to download a file from your canvas, Filecanvas creates a temporary download link that allows the user to download the file
-	- These links expire within several hours, and contain a randomly generated unique ID to prevent unauthorised access
+	- Your files are transferred directly to the user, and are not stored on the Filecanvas servers
+	- These links expire within several hours, and contain a cryptographically secure unique ID to prevent unauthorised access
 	- In order to prevent leaking your access token to the end user, these links may be proxied through a Filecanvas server. Filecanvas performs this proxying service solely to shield your sensitive information from the end user, and does not inspect, modify or store the contents of the file during transfer
 	- This technique is also used to allow users to preview files within your canvas, and to allow users to visit web links that have been saved as shortcut files
 - **Create a folder**
 	- When you create a canvas, Filecanvas automatically creates a synced folder for you to put your files in
 	- This folder may contain example content, e.g. a "Getting Started" guide or an album of placeholder photos
 	- Filecanvas will never create a folder within your cloud storage without your express authorisation
-- **Upload files to your synced folders**
+- **Upload files to your Filecanvas folders**
 	- This is necessary to allow you to upload files to your canvases via the web interface
 	- Filecanvas will never upload files to your cloud storage without your express authorisation
 - **Delete a synced folder**
