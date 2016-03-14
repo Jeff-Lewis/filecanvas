@@ -1,12 +1,10 @@
 FROM node:4
 
-ENV NODE_ENV=production
-
 RUN mkdir -p /var/app
 WORKDIR /var/app
 
 COPY package.json .
-RUN npm install
+RUN npm install --production
 
 COPY . .
 
@@ -20,6 +18,7 @@ EXPOSE \
 	443
 
 ENV \
+	NODE_ENV=production\
 	HOST=localhost\
 	PORT=80\
 	HTTPS=false\
