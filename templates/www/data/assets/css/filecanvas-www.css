@@ -40,6 +40,17 @@ fieldset[disabled] .btn {
 	padding: 0;
 }
 
+@media screen and (max-width: 479px) {
+	.hidden-xs-portrait {
+		display: none !important;
+	}
+}
+@media screen and (min-width: 480px) and (max-width: 767px) {
+	.hidden-xs-landscape {
+		display: none !important;
+	}
+}
+
 .tooltip,
 .popover {
 	font-family: inherit;
