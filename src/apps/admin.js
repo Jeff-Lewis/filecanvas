@@ -291,7 +291,7 @@ module.exports = function(database, cache, options) {
 
 		app.use('/login', createAdapterLoginMiddleware(passport, {
 			adapters: adapters,
-			failure: '/register'
+			failure: '/'
 		}));
 
 
