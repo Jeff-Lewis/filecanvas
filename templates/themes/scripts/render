@@ -42,12 +42,23 @@ ensureEmptyDirectoryExists(outputPath)
 		});
 	})
 	.then(function() {
+		log('Capturing preview thumbnails...');
 		return captureSiteThumbnail({
 			siteRoot: outputPath,
-			outputPath: outputScreenshotPath,
 			dimensions: { width: 1440, height: 900 },
+			output: [
+				{ path: addFilenameSuffix(outputScreenshotPath, '-1440') },
+				{ path: addFilenameSuffix(outputScreenshotPath, '-1024'), resize: { width: 1024, height: 640 } },
+				{ path: addFilenameSuffix(outputScreenshotPath, '-768'), resize: { width: 768, height: 480 } },
+				{ path: addFilenameSuffix(outputScreenshotPath, '-480'), resize: { width: 480, height: 300 } },
+				{ path: addFilenameSuffix(outputScreenshotPath, '-320'), resize: { width: 320, height: 200 } }
+			],
 			log: log
 		});
+
+		function addFilenameSuffix(filePath, suffix) {
+			return path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)) + suffix + path.extname(filePath));
+		}
 	})
 	.then(function() {
 		log('Rendered theme bundle at ' + outputPath);

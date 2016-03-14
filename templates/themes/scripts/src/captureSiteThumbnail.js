@@ -14,9 +14,8 @@ var multipipe = require('multipipe');
 module.exports = function(options) {
 	options = options || {};
 	var siteRoot = options.siteRoot;
-	var outputPath = options.outputPath;
 	var dimensions = options.dimensions;
-	var resizeOptions = options.resize;
+	var outputOptions = options.output;
 	var log = options.log || global.console.log;
 
 	log('Serving static files from ' + siteRoot);
@@ -26,9 +25,8 @@ module.exports = function(options) {
 			log('Started preview server at ' + url);
 			return saveUrlScreenshot({
 				url: url,
-				outputPath: outputPath,
 				dimensions: dimensions,
-				resize: resizeOptions
+				output: outputOptions
 			})
 				.then(function() {
 					return stopServer(server);
@@ -71,9 +69,8 @@ module.exports = function(options) {
 	function saveUrlScreenshot(options) {
 		options = options || {};
 		var url = options.url;
-		var outputPath = options.outputPath;
 		var dimensions = options.dimensions;
-		var resizeOptions = options.resize;
+		var outputOptions = options.output;
 
 		return new Promise(function(resolve, reject) {
 			return screenshotStream(url, dimensions.width + 'x' + dimensions.height, {
@@ -83,19 +80,80 @@ module.exports = function(options) {
 					reject(new Error(message));
 				})
 				.on('error', reject)
-				.pipe(resizeOptions ? createPngStream({
-						width: resizeOptions.width,
-						height: resizeOptions.height
-					}) : new stream.PassThrough()
-				)
-				.on('error', reject)
-				.pipe(fs.createWriteStream(outputPath))
+				.pipe(saveResizedImage(outputOptions))
 				.on('error', reject)
 				.on('finish', resolve);
 		});
 	}
 
-	function createPngStream(options) {
+	function saveResizedImage(outputOptions) {
+		outputOptions = (Array.isArray(outputOptions) ? outputOptions : [outputOptions]);
+		var fileStreams = outputOptions.map(function(output) {
+			var outputPath = output.path;
+			var resizeOptions = output.resize || null;
+			var resizeStream = (resizeOptions ? createResizeStream({
+				width: resizeOptions.width,
+				height: resizeOptions.height
+			}) : new stream.PassThrough());
+			log('Saving screenshot to ' + outputPath);
+			return multipipe(resizeStream, fs.createWriteStream(outputPath));
+		});
+		return mergeWriteStreams(fileStreams);
+
+
+		function mergeWriteStreams(streams) {
+
+			function MergedWriteStream(streams) {
+				stream.Writable.call(this);
+
+				this.setMaxListeners(Infinity);
+
+				var self = this;
+				var hasFinished = false;
+				var numRemaining = streams.length;
+
+				var inputStream = new stream.PassThrough();
+				inputStream.on('error', function(error) {
+					if (hasFinished) { return; }
+					hasFinished = true;
+					self.emit('error', error);
+				});
+
+				streams.forEach(function(stream) {
+					stream.once('error', function(error) {
+						if (hasFinished) { return; }
+						hasFinished = true;
+						self.emit('error', error);
+					});
+
+					stream.once('finish', function() {
+						if (hasFinished) { return; }
+						if (--numRemaining === 0) {
+							hasFinished = true;
+							self.emit('finish');
+						}
+					});
+
+					inputStream.pipe(stream);
+				});
+
+				this._inputStream = inputStream;
+			}
+
+			util.inherits(MergedWriteStream, stream.Writable);
+
+			MergedWriteStream.prototype._write = function(chunk, enc, done) {
+				this._inputStream.write(chunk, enc, done);
+			};
+			MergedWriteStream.prototype.end = function(chunk, enc, done) {
+				this._inputStream.end(chunk, enc, done);
+			};
+
+			return new MergedWriteStream(streams);
+		}
+	}
+
+	function createResizeStream(options) {
 		var width = options.width;
 		var height = options.height;
 		var pngConverterStream = createPngConverterStream({

@@ -96,9 +96,11 @@ module.exports = function(inputPath, outputPath, options, callback) {
 						} else {
 							return captureSiteThumbnail({
 								siteRoot: outputPreviewPath,
-								outputPath: outputThumbnailPath,
 								dimensions: { width: 1280, height: 960 },
-								resize: { width: 200, height: 150 },
+								output: {
+									path: outputThumbnailPath,
+									resize: { width: 200, height: 150 }
+								},
 								log: log
 							});
 						}
