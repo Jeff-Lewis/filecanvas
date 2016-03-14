@@ -1,7 +1,7 @@
 {
   "name": "Filecanvas",
   "version": "0.0.1",
-  "description": "The easiest way to showcase your files",
+  "description": "Your files. Giftwrapped.",
   "license": "Copyright (c) Tim Kendrick Ltd",
   "main": "server.js",
   "scripts": {
