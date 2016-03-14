@@ -112,6 +112,7 @@ function initLivePreview(callback) {
 	var themeMetadataUrlPattern = $themeMetadataUrlElement.val();
 	var themeTemplateUrlPattern = $themeTemplateUrlElement.val();
 	var themeRootUrlPattern = $themeRootUrlElement.val();
+	var shouldWarnOnUnsavedChanges = $formElement[0].hasAttribute('data-editor-unsaved-changes-warning');
 	var currentSiteModel = parseSiteModel($previewDataElement);
 	var currentThemeOverrides = getFormFieldValues($formElement).theme;
 	var rerenderPreview = null;
@@ -136,7 +137,9 @@ function initLivePreview(callback) {
 		initThemeOptionsPanel($themeOptionsPanelElement);
 		callback(error);
 	});
-	initLiveUpdates(function(formValues, options) {
+	initLiveUpdates({
+		unsavedChangesWarning: shouldWarnOnUnsavedChanges
+	}, function(formValues, options) {
 		currentAction = waitForAction(currentAction).then(function() {
 			return applyUpdates(formValues, options);
 		});
@@ -383,10 +386,14 @@ function initLivePreview(callback) {
 		}
 	}
 
-	function initLiveUpdates(updateCallback) {
+	function initLiveUpdates(options, updateCallback) {
+		options = options || {};
+		var shouldWarnOnUnsavedChanges = options.unsavedChangesWarning;
 		var initialFormValues = getFormFieldValues($formElement);
 		initLiveEditorState(initialFormValues, updateCallback);
-		initUnsavedChangesWarning(initialFormValues);
+		if (shouldWarnOnUnsavedChanges) {
+			initUnsavedChangesWarning(initialFormValues);
+		}
 
 
 		function initLiveEditorState(initialFormValues, updateCallback) {
