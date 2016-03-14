@@ -177,12 +177,6 @@ footer a:hover {
 	margin-left: -35px;
 }
 
-.file-icon {
-	-webkit-filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
-	-moz-filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
-	-o-filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
-	filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
-}
 .file-icon-page {
 	fill: #FFFFFF;
 }
