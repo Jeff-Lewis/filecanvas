@@ -42,19 +42,19 @@
 									</ul>
 									<div class="carousel-inner" role="listbox">
 										<div class="item active">
-											<img class="visible-xs hidden-xs-landscape" src="{{ subdomain host=host subdomain='themes' path='/showcase/designer/preview-480.png' }}" alt="Filecanvas preview"/>
-											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/designer/preview-768.png' }}" alt="Filecanvas preview"/>
-											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/designer/preview-1440.png' }}" alt="Filecanvas preview"/>
-											<div class="carousel-actions">
-												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/designer/' }}" target="_blank">Launch example</a>
-											</div>
-										</div>
-										<div class="item">
 											<img class="visible-xs hidden-xs-landscape" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-480.png' }}" alt="Filecanvas preview"/>
 											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas preview"/>
 											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-1440.png' }}" alt="Filecanvas preview"/>
 											<div class="carousel-actions">
 												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">Launch example</a>
+											</div>
+										</div>
+										<div class="item">
+											<img class="visible-xs hidden-xs-landscape" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-480.png' }}" alt="Filecanvas preview"/>
+											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-768.png' }}" alt="Filecanvas preview"/>
+											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-1440.png' }}" alt="Filecanvas preview"/>
+											<div class="carousel-actions">
+												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">Launch example</a>
 											</div>
 										</div>
 										<div class="item">
@@ -128,16 +128,16 @@
 									<ul class="radio-icons list-unstyled">
 										<li class="radio-icon examples-option selected">
 											<label>
-												<span class="radio-icon-image fa fa-2x fa-pencil"></span>
-												<span class="radio-icon-label">Designer</span>
-												<input type="radio" class="radio-icon-input" name="example" value="designer" checked/>
+												<span class="radio-icon-image fa fa-2x fa-desktop"></span>
+												<span class="radio-icon-label">Digital agency</span>
+												<input type="radio" class="radio-icon-input" name="example" value="agency" checked="checked"/>
 											</label>
 										</li>
 										<li class="radio-icon examples-option">
 											<label>
-												<span class="radio-icon-image fa fa-2x fa-desktop"></span>
-												<span class="radio-icon-label">Digital agency</span>
-												<input type="radio" class="radio-icon-input" name="example" value="digital-agency"/>
+												<span class="radio-icon-image fa fa-2x fa-photo"></span>
+												<span class="radio-icon-label">Photographer</span>
+												<input type="radio" class="radio-icon-input" name="example" value="photography"/>
 											</label>
 										</li>
 										<li class="radio-icon examples-option">
@@ -147,45 +147,32 @@
 												<input type="radio" class="radio-icon-input" name="example" value="startup"/>
 											</label>
 										</li>
-										<li class="radio-icon examples-option">
-											<label>
-												<span class="radio-icon-image fa fa-2x fa-building"></span>
-												<span class="radio-icon-label">Business</span>
-												<input type="radio" class="radio-icon-input" name="example" value="business"/>
-											</label>
-										</li>
 									</ul>
 									<div class="examples-header-label visible-xs">
-									   <div class="examples-option selected">Designer</div>
-									   <div class="examples-option">Digital agency</div>
+									   <div class="examples-option selected">Digital agency</div>
+									   <div class="examples-option">Photographer</div>
 									   <div class="examples-option">Startup</div>
-									   <div class="examples-option">Business</div>
 									</div>
 								</div>
 								<div class="examples-body col-md-7 col-md-offset-0 col-lg-12 clearfix">
 									<ul class="examples-checklist fa-ul examples-option selected">
-										<li><span class="fa-li fa fa-check"></span>Create online portfolios in minutes</li>
-										<li><span class="fa-li fa fa-check"></span>Upload latest assets by dragging files into a synced folder</li>
-										<li><span class="fa-li fa fa-check"></span>Portfolios containing non-public work can be password-protected</li>
-									</ul>
-									<ul class="examples-checklist fa-ul examples-option">
 										<li><span class="fa-li fa fa-check"></span>Create branded asset bundles for client deliveries</li>
 										<li><span class="fa-li fa fa-check"></span>Synced to a shared folder to ensure latest versions of assets</li>
 										<li><span class="fa-li fa fa-check"></span>Pages can be password-protected to restrict access to individual clients</li>
+									</ul>
+									<ul class="examples-checklist fa-ul examples-option">
+										<li><span class="fa-li fa fa-check"></span>Create online portfolios in minutes</li>
+										<li><span class="fa-li fa fa-check"></span>Upload albums by dragging photos into a synced folder</li>
+										<li><span class="fa-li fa fa-check"></span>Albums can be individually password-protected</li>
 									</ul>
 									<ul class="examples-checklist fa-ul examples-option">
 										<li><span class="fa-li fa fa-check"></span>Create fully-branded press kits in minutes</li>
 										<li><span class="fa-li fa fa-check"></span>Synced to a shared folder to ensure latest versions of assets</li>
 										<li><span class="fa-li fa fa-check"></span>Press kits can be password-protected to restrict access</li>
 									</ul>
-									<ul class="examples-checklist fa-ul examples-option">
-										<li><span class="fa-li fa fa-check"></span>Create fully-branded document archives in seconds</li>
-										<li><span class="fa-li fa fa-check"></span>Shared folder syncing takes the hassle out of uploading documents</li>
-										<li><span class="fa-li fa fa-check"></span>Archives containing sensitive documents can be password-protected</li>
-									</ul>
 									<div class="hidden-xs hidden-sm">
-										<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/designer/' }}" target="_blank">See an example</a>
-										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">See an example</a>
+										<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">See an example</a>
+										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">See an example</a>
 										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/startup/' }}" target="_blank">See an example</a>
 									</div>
 								</div>
@@ -198,18 +185,18 @@
 												<div class="device-preview-content">
 													<div class="examples-carousel carousel slide" data-interval="false">
 														<div class="carousel-inner" role="listbox">
-															<a class="examples-carousel-item item active" href="{{ subdomain host=host subdomain='themes' path='/showcase/designer/' }}" target="_blank">
-																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/designer/preview-320.png' }}" alt="Filecanvas example"/>
-																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/designer/preview-480.png' }}" alt="Filecanvas example"/>
-																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/designer/preview-768.png' }}" alt="Filecanvas example"/>
+															<a class="examples-carousel-item item active" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">
+																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-320.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-480.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas example"/>
 																<div class="examples-carousel-item-icon">
 																	<i class="fa fa-search-plus"></i>
 																</div>
 															</a>
-															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">
-																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-320.png' }}" alt="Filecanvas example"/>
-																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-480.png' }}" alt="Filecanvas example"/>
-																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas example"/>
+															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">
+																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-320.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-480.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-768.png' }}" alt="Filecanvas example"/>
 																<div class="examples-carousel-item-icon">
 																	<i class="fa fa-search-plus"></i>
 																</div>
@@ -222,21 +209,13 @@
 																	<i class="fa fa-search-plus"></i>
 																</div>
 															</a>
-															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">
-																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-320.png' }}" alt="Filecanvas example"/>
-																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-480.png' }}" alt="Filecanvas example"/>
-																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas example"/>
-																<div class="examples-carousel-item-icon">
-																	<i class="fa fa-search-plus"></i>
-																</div>
-															</a>
 														</div>
 													</div>
 												</div>
 											</div>
 											<div class="text-center visible-xs visible-sm">
-												<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/designer/' }}" target="_blank">See an example</a>
-												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">See an example</a>
+												<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">See an example</a>
+												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">See an example</a>
 												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/startup/' }}" target="_blank">See an example</a>
 											</div>
 										</div>

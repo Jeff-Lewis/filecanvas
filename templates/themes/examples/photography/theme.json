@@ -2,17 +2,17 @@
 	"theme": "grid",
 	"config": {
         "content": {
-          "pageTitle": "Acme, Inc",
-          "pageSubtitle": "2016 Portfolio"
+          "pageTitle": "Jason Turner",
+          "pageSubtitle": "Photographer"
         },
         "contact": {
-          "website": "example.com",
-          "email": "info@example.com",
+          "website": "jasonturnerphotography.com",
+          "email": "jason@example.com",
           "phone": "+44 (0)123 456 7890",
           "address": "123 Address St,\nLondon, E1 1AA",
-          "twitter": "acmeinc",
-          "facebook": "acmeinc",
-          "instagram": "acmeinc",
+          "twitter": "jasonturner",
+          "facebook": null,
+          "instagram": "liveandletdraw",
           "pinterest": null,
           "linkedin": null,
           "github": null
