@@ -24,16 +24,18 @@ var bytes = require('bytes');
 
 	function initOverlayDescriptions() {
 		$(document).on('mousedown', '[data-file]', function(event) {
-			var $element = $(this);
-			if (!$element.attr('data-overlay-description')) {
-				var filename = $element.attr('data-file');
-				var timestamp = Number($element.attr('data-file-modified'));
-				var modifiedDate = new Date(timestamp *	1000);
-				var modifiedLabel = getLocalizedDateString(modifiedDate);
-				var filesizeLabel = bytes(Number($element.attr('data-file-size')), { decimalPlaces: 1 });
-				var description = filename + '\n' + modifiedLabel + ' – ' + filesizeLabel;
-				$element.attr('data-overlay-description', description);
-			}
+			$('[data-file]').each(function(index, element) {
+				var $element = $(element);
+				if (!$element.attr('data-overlay-description')) {
+					var filename = $element.attr('data-file');
+					var timestamp = Number($element.attr('data-file-modified'));
+					var modifiedDate = new Date(timestamp *	1000);
+					var modifiedLabel = getLocalizedDateString(modifiedDate);
+					var filesizeLabel = bytes(Number($element.attr('data-file-size')), { decimalPlaces: 1 });
+					var description = filename + '\n' + modifiedLabel + ' – ' + filesizeLabel;
+					$element.attr('data-overlay-description', description);
+				}
+			});
 		});
 	}
 
