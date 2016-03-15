@@ -350,12 +350,16 @@ module.exports = function(database, cache, options) {
 				callback(null, username);
 			});
 
-			passport.deserializeUser(function(username, callback) {
+			passport.deserializeUser(function(req, username, callback) {
 				return userService.retrieveUser(username)
 					.then(function(userModel) {
 						callback(null, userModel);
 					})
 					.catch(function(error) {
+						if (error.status === 404) {
+							error.status = 500;
+						}
+						req.logout();
 						callback(error);
 					});
 			});
