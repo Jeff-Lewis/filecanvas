@@ -127,6 +127,10 @@ LocalLoginAdapter.prototype.getAdapterConfig = function(passportValues, existing
 	}
 };
 
+LocalLoginAdapter.prototype.unlink = function(userAdapterConfig) {
+	return Promise.resolve();
+};
+
 
 function LocalStorageAdapter(database, options) {
 	options = options || {};

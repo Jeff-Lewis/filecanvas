@@ -7,6 +7,7 @@ var escapeRegExp = require('escape-regexp');
 var objectAssign = require('object-assign');
 var slug = require('slug');
 var mapSeries = require('promise-map-series');
+var request = require('request');
 var Dropbox = require('../../lib/dropbox/dist/dropbox');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
@@ -130,6 +131,33 @@ DropboxLoginAdapter.prototype.getAdapterConfig = function(passportValues, existi
 		lastName: passportValues.lastName,
 		email: passportValues.email
 	});
+};
+
+DropboxLoginAdapter.prototype.unlink = function(userAdapterConfig) {
+	var accessToken = userAdapterConfig.token;
+	if (!accessToken) { return Promise.resolve(); }
+	return revokeAccessToken(accessToken);
+
+
+	function revokeAccessToken(accessToken) {
+		return new Promise(function(resolve, reject) {
+			request(
+				{
+					url: 'https://api.dropboxapi.com/1/disable_access_token',
+					headers: {
+						'Authorization': 'Bearer ' + accessToken
+					}
+				},
+				function(error, response, body) {
+					if (error) { return reject(error); }
+					if (response.statusCode >= 400) {
+						return reject(new HttpError(response.statusCode));
+					}
+					return resolve();
+				}
+			);
+		});
+	}
 };
 
 

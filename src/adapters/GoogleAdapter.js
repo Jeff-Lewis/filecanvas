@@ -212,6 +212,34 @@ GoogleLoginAdapter.prototype.getAdapterConfig = function(passportValues, existin
 	});
 };
 
+GoogleLoginAdapter.prototype.unlink = function(userAdapterConfig) {
+	var accessToken = userAdapterConfig.token;
+	if (!accessToken) { return Promise.resolve(); }
+	return revokeAccessToken(accessToken);
+
+
+	function revokeAccessToken(accessToken) {
+		return new Promise(function(resolve, reject) {
+			request(
+				{
+					url: 'https://accounts.google.com/o/oauth2/revoke?token=' + accessToken,
+					headers: {
+						'Authorization': 'Bearer ' + accessToken
+					}
+				},
+				function(error, response, body) {
+					if (error) { return reject(error); }
+					if (response.statusCode >= 400) {
+						return reject(new HttpError(response.statusCode));
+					}
+					resolve();
+				}
+			);
+		});
+	}
+};
+
+
 function getTokenExpiryDate(duration) {
 	var currentTimestamp = Math.floor(new Date().getTime() / 1000);
 	var tokenExpiryTimestamp = currentTimestamp + duration;

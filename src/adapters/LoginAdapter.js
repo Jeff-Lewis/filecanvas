@@ -21,4 +21,8 @@ LoginAdapter.prototype.getAdapterConfig = function(passportValues, existingAdapt
 	return Promise.reject(new Error('Not implemented'));
 };
 
+LoginAdapter.prototype.unlink = function(userAdapterConfig) {
+	return Promise.reject(new Error('Not implemented'));
+};
+
 module.exports = LoginAdapter;
