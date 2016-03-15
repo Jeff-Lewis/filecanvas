@@ -712,8 +712,8 @@ fieldset[disabled] .btn {
 }
 
 
-.preview-group .row {
-	margin-bottom: -20px;
+.preview-group + p {
+	margin-top: 10px;
 }
 .preview-panel {
 	text-align: center;
