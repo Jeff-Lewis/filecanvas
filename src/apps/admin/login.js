@@ -50,9 +50,9 @@ module.exports = function(database, options) {
 	function initRoutes(app) {
 		app.get('/login', redirectIfLoggedIn('/'), retrieveLoginRoute);
 		app.get('/logout', redirectIfLoggedOut('/'), retrieveLogoutRoute);
-		app.get('/register', redirectIfNoPendingUser('/'), retrieveRegisterRoute);
+		app.get('/register', redirectIfUserAlreadyRegistered('/'), retrieveRegisterRoute);
 		app.post('/register', redirectIfNoPendingUser('/'), updatePendingUserRoute);
-		app.del('/register', redirectIfNoPendingUser('/'), deletePendingUserRoute);
+		app.delete('/register', redirectIfNoPendingUser('/'), deletePendingUserRoute);
 
 
 		function redirectIfLoggedIn(redirectPath) {
@@ -72,6 +72,12 @@ module.exports = function(database, options) {
 				return (!req.isAuthenticated() || !req.user.pending);
 			});
 		}
+		function redirectIfUserAlreadyRegistered(redirectPath) {
+			return createRedirect(redirectPath, function(req) {
+				return (req.isAuthenticated() && !req.user.pending);
+			});
+		}
+
 
 		function createRedirect(redirectPath, condition) {
 			redirectPath = redirectPath || '/';
@@ -85,6 +91,7 @@ module.exports = function(database, options) {
 
 
 		function retrieveLoginRoute(req, res, next) {
+			var isRegister = req.url === '/register';
 			var forceApproval = (req.query['reapprove'] === 'true');
 			var error = (req.query['error'] || req.query['error_description'] ? {} : null);
 			if (req.query['error']) { error['error'] = req.query['error']; }
@@ -97,6 +104,7 @@ module.exports = function(database, options) {
 				}, {});
 				var templateData = {
 					content: {
+						operation: (isRegister ? 'register' : 'login'),
 						redirect: req.query.redirect || null,
 						forceApproval: forceApproval,
 						error: error,
@@ -116,11 +124,16 @@ module.exports = function(database, options) {
 		}
 
 		function retrieveRegisterRoute(req, res, next) {
-			var userModel = req.user;
+			var pendingUserModel = req.user;
+			if (!pendingUserModel) {
+				retrieveLoginRoute(req, res, next);
+				return;
+			}
+
 			new Promise(function(resolve, reject) {
 				var templateData = {
 					content: {
-						user: userModel
+						user: pendingUserModel
 					}
 				};
 				return resolve(
