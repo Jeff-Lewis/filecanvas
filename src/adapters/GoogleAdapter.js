@@ -112,11 +112,16 @@ GoogleLoginAdapter.prototype.middleware = function(database, passport, callback)
 	var authOptions = this.authOptions;
 
 	var loginService = new LoginService(database, this);
+	var adapterName = this.adapterName;
 
 	var app = express();
 
 	app.post('/', function(req, res, next) {
-		passport.authenticate('admin/google', authOptions)(req, res, next);
+		var needsReapproval = (req.query['reapprove'] === 'true');
+		var oauthOptions = (needsReapproval ? objectAssign({}, authOptions, {
+			prompt: 'consent'
+		}) : authOptions);
+		passport.authenticate('admin/google', oauthOptions)(req, res, next);
 	});
 
 	app.get('/oauth2/callback', function(req, res, next) {
@@ -133,42 +138,46 @@ GoogleLoginAdapter.prototype.middleware = function(database, passport, callback)
 				error = new HttpError(401, oauthError.message);
 				error.code = oauthError.code;
 			}
+			var hasRefreshToken = Boolean(user && user.adapters[adapterName].refreshToken);
+			if (!error && !hasRefreshToken) {
+				error = new HttpError(401);
+				error.code = 'invalid_refresh_token';
+			}
 			callback(error, user, info, req, res, next);
 		})(req, res, next);
 	});
 
 	passport.use('admin/google', new GoogleOAuth2Strategy({
-		clientID: clientId,
-		clientSecret: clientSecret,
-		callbackURL: loginCallbackUrl,
-		authorizationURL: OAUTH2_AUTHORIZATION_URL,
-		tokenURL: OAUTH2_TOKEN_URL,
-		passReqToCallback: true
-	}, loginCallback));
+			clientID: clientId,
+			clientSecret: clientSecret,
+			callbackURL: loginCallbackUrl,
+			authorizationURL: OAUTH2_AUTHORIZATION_URL,
+			tokenURL: OAUTH2_TOKEN_URL,
+			passReqToCallback: true
+		}, function(req, accessToken, refreshToken, params, profile, callback) {
+			var tokenDuration = params['expires_in'];
+			var tokenExpires = getTokenExpiryDate(tokenDuration).toISOString();
+			var passportValues = {
+				uid: profile.uid,
+				token: accessToken,
+				tokenExpires: tokenExpires,
+				refreshToken: refreshToken || null,
+				firstName: profile.firstName,
+				lastName: profile.lastName,
+				email: profile.email
+			};
+			var query = { 'uid': passportValues.uid };
+			loginService.login(query, passportValues)
+				.then(function(userModel) {
+					callback(null, userModel);
+				})
+				.catch(function(error) {
+					callback(error);
+				});
+		}
+	));
 
 	return app;
-
-	function loginCallback(req, accessToken, refreshToken, params, profile, callback) {
-		var tokenDuration = params['expires_in'];
-		var tokenExpires = getTokenExpiryDate(tokenDuration).toISOString();
-		var passportValues = {
-			uid: profile.uid,
-			token: accessToken,
-			tokenExpires: tokenExpires,
-			refreshToken: refreshToken || null,
-			firstName: profile.firstName,
-			lastName: profile.lastName,
-			email: profile.email
-		};
-		var query = { 'uid': passportValues.uid };
-		loginService.login(query, passportValues)
-			.then(function(userModel) {
-				callback(null, userModel);
-			})
-			.catch(function(error) {
-				callback(error);
-			});
-	}
 };
 
 GoogleLoginAdapter.prototype.authenticate = function(passportValues, userAdapterConfig) {

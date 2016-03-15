@@ -300,7 +300,7 @@ module.exports = function(database, cache, options) {
 				var redirectUrl = '/login';
 				var redirectQuery = {};
 				if (err.code === 'invalid_refresh_token') {
-					redirectQuery['reapprove'] = true;
+					redirectQuery['reapprove'] = 'true';
 				}
 				if (err.code) { redirectQuery['error'] = err.code; }
 				if (err.description) { redirectQuery['error_description'] = err.description; }

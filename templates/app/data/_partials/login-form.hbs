@@ -14,7 +14,7 @@
 	</form>
 	{{/if}}
 	{{#if adapters.google}}
-	<form class="{{#if stacked}}col-sm-12{{else}}col-sm-6{{/if}}" method="POST" action="{{ loginUrl }}/google" target="_top">
+	<form class="{{#if stacked}}col-sm-12{{else}}col-sm-6{{/if}}" method="POST" action="{{ loginUrl }}/google{{#if reapprove}}?reapprove=true{{/if}}" target="_top">
 		{{#if state}}
 		{{#each state as |value key|}}
 		<input type="hidden" name="_state.{{ key }}" value="{{ value }}"/>

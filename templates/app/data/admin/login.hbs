@@ -9,7 +9,7 @@
 				<p class="login-banner-message">There was a problem signing in.<br/>Please try again.</p>
 			</div>
 			{{/if}}
-			{{>login-form loginUrl=session.urls.admin.login redirect=content.redirect adapters=content.adapters buttonColor='white' stacked=true}}
+			{{>login-form loginUrl=session.urls.admin.login redirect=content.redirect adapters=content.adapters buttonColor='white' stacked=true reapprove=content.forceApproval}}
 			<div class="login-banner mt10">
 				<i class="login-banner-icon fa fa-3x fa-shield"></i>
 				<p class="login-banner-message">At Filecanvas, your security comes first.</p>
