@@ -3,6 +3,12 @@
 		<div class="form-centered login-panel mb25">
 			<h1 class="text-center mb0 pl0 pr0 pb0"><div class="brand-logo">Filecanvas</div></h1>
 			<h4 class="text-center mt5 mb25">Your files. Giftwrapped.</h4>
+			{{#if (eq content.operation 'register') }}
+			<div class="login-banner mb5">
+				<i class="login-banner-icon fa fa-3x fa-user-plus"></i>
+				<p class="login-banner-message">Sign up by linking your storage account.<br/>Choose from one of the providers below:</p>
+			</div>
+			{{/if}}
 			{{#if content.error}}
 			<div class="login-banner bg-warning mb5">
 				<i class="login-banner-icon fa fa-3x fa-warning"></i>

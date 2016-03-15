@@ -551,7 +551,8 @@ button.bg-bluegrey:hover :not(:disabled) {
 	text-align: center;
 	margin-bottom: 5px;
 }
-.login-banner-icon.fa-warning {
+.login-banner-icon.fa-warning,
+.login-banner-icon.fa-user-plus {
 	font-size: 2.5em;
 	line-height: 1.2;
 }
@@ -568,6 +569,9 @@ button.bg-bluegrey:hover :not(:disabled) {
 .login-banner.bg-warning,
 .login-banner.bg-warning .login-banner-message {
 	color: #616161;
+}
+.login-banner + .login-form + .login-banner {
+	margin-top: 25px;
 }
 @media screen and (min-width: 480px) {
 	.login-banner {
