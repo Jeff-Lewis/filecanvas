@@ -10,6 +10,8 @@ var mapSeries = require('promise-map-series');
 var Dropbox = require('../../lib/dropbox/dist/dropbox');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
+var LoginService = require('../services/LoginService');
+
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
 
@@ -44,21 +46,30 @@ DropboxLoginAdapter.prototype.appKey = null;
 DropboxLoginAdapter.prototype.appSecret = null;
 DropboxLoginAdapter.prototype.loginCallbackUrl = null;
 
-DropboxLoginAdapter.prototype.middleware = function(passport, callback) {
+DropboxLoginAdapter.prototype.middleware = function(database, passport, callback) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
+
+	var loginService = new LoginService(database, this);
 
 	var app = express();
 
 	app.post('/', passport.authenticate('admin/dropbox'));
 	app.get('/oauth2/callback', function(req, res, next) {
 		passport.authenticate('admin/dropbox', function(error, user, info) {
+			if (error && error.oauthError) {
+				console.log('oauth error:', error.oauthError);
+				var oauthErrorDetails = error.oauthError.data ? JSON.parse(error.oauthError.data) : {};
+				error = new HttpError(401, oauthErrorDetails['error_description']);
+				error.code = oauthErrorDetails['error'];
+			}
+			console.log('Correct! Callback...');
+			console.log(error, user, info);
 			callback(error, user, info, req, res, next);
 		})(req, res, next);
 	});
 
-	var self = this;
 	passport.use('admin/dropbox', new DropboxOAuth2Strategy({
 			clientID: appKey,
 			clientSecret: appSecret,
@@ -66,6 +77,7 @@ DropboxLoginAdapter.prototype.middleware = function(passport, callback) {
 			passReqToCallback: true
 		},
 		function(req, accessToken, refreshToken, profile, callback) {
+			console.log('verifying...');
 			var passportValues = {
 				uid: profile.id,
 				token: accessToken,
@@ -75,7 +87,13 @@ DropboxLoginAdapter.prototype.middleware = function(passport, callback) {
 				email: profile.emails[0].value
 			};
 			var query = { 'uid': passportValues.uid };
-			self.login(req, query, passportValues, callback);
+			loginService.login(query, passportValues)
+				.then(function(userModel) {
+					callback(null, userModel);
+				})
+				.catch(function(error) {
+					callback(error);
+				});
 		}
 	));
 

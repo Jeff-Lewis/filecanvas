@@ -20,7 +20,7 @@ UserService.prototype.database = null;
 
 UserService.prototype.createUser = function(userModel) {
 	var database = this.database;
-	var requireFullModel = true;
+	var requireFullModel = !userModel.pending;
 	return validateUserModel(userModel, requireFullModel)
 		.then(function(userModel) {
 			return createUser(database, userModel)
@@ -165,17 +165,19 @@ function getExistingUsernames(database, username) {
 		});
 }
 
-function createUser(database, userModel) {
+function createUser(database, fields) {
+	var userModel = {
+		username: fields.username,
+		firstName: fields.firstName,
+		lastName: fields.lastName,
+		email: fields.email,
+		defaultSite: fields.defaultSite,
+		adapters: fields.adapters,
+		pending: Boolean(fields.pending)
+	};
 	return database.collection(DB_COLLECTION_USERS).insertOne(userModel)
 		.then(function() {
-			return {
-				username: userModel.username,
-				firstName: userModel.firstName,
-				lastName: userModel.lastName,
-				email: userModel.email,
-				defaultSite: userModel.defaultSite,
-				adapters: userModel.adapters
-			};
+			return userModel;
 		});
 }
 
@@ -185,6 +187,7 @@ function retrieveUser(database, query) {
 		'firstName',
 		'lastName',
 		'email',
+		'pending',
 		'defaultSite',
 		'adapters'
 	];
@@ -302,6 +305,7 @@ function validateUserModel(userModel, requireFullModel) {
 		if ((requireFullModel || ('email' in userModel)) && !userModel.email) { throw new HttpError(400, 'No email specified'); }
 		if (requireFullModel && !('lastName' in userModel)) { throw new HttpError(400, 'No last name specified'); }
 		if (requireFullModel && !('defaultSite' in userModel)) { throw new HttpError(400, 'No default site specified'); }
+		if (requireFullModel && !('pending' in userModel)) { throw new HttpError(400, 'No pending status specified'); }
 
 		// TODO: Validate username when validating user model
 		// TODO: Validate firstName when validating user model
@@ -309,6 +313,7 @@ function validateUserModel(userModel, requireFullModel) {
 		// TODO: Validate email when validating user model
 		// TODO: Validate defaultSite when validating user model
 		// TODO: Validate adapter when validating user model
+		// TODO: Validate pending status when validating user model
 
 		return resolve(userModel);
 	});

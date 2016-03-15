@@ -32,8 +32,6 @@ var getSubdomainUrl = require('../utils/getSubdomainUrl');
 
 var UserService = require('../services/UserService');
 
-var HttpError = require('../errors/HttpError');
-
 module.exports = function(database, cache, options) {
 	options = options || {};
 	var host = options.host;
@@ -291,7 +289,7 @@ module.exports = function(database, cache, options) {
 		app.use(passport.initialize());
 		app.use(passport.session());
 
-		var loginMiddleware = createLoginAdaptersMiddleware(passport, {
+		var loginMiddleware = createLoginAdaptersMiddleware(database, passport, {
 			prefix: '/login',
 			adapters: adapters
 		});
@@ -300,9 +298,10 @@ module.exports = function(database, cache, options) {
 			if (isFailedLoginError) {
 				var redirectMethod = 'GET';
 				var redirectUrl = '/login';
-				var redirectQuery = {
-					'force_approval': 'true'
-				};
+				var redirectQuery = {};
+				if (err.code === 'invalid_refresh_token') {
+					redirectQuery['reapprove'] = true;
+				}
 				if (err.code) { redirectQuery['error'] = err.code; }
 				if (err.description) { redirectQuery['error_description'] = err.description; }
 				internalRedirect(req, {
@@ -321,9 +320,24 @@ module.exports = function(database, cache, options) {
 			adapters: adapters,
 			sessionMiddleware: sessionMiddleware
 		});
+		var forceRegisterIfPendingUser = function(req, res, next) {
+			if (!req.isAuthenticated()) {
+				if (req.url !== '/') {
+					res.redirect('/');
+					return;
+				}
+			} else if (req.user.pending) {
+				if (req.url !== '/register') {
+					res.redirect('/register');
+					return;
+				}
+			}
+			next();
+		};
 
 		loginMiddleware.use(loginErrorHandler);
 		loginMiddleware.use(loginPages);
+		loginMiddleware.use(forceRegisterIfPendingUser);
 
 		app.use(loginMiddleware);
 
@@ -349,7 +363,7 @@ module.exports = function(database, cache, options) {
 			return passport;
 		}
 
-		function createLoginAdaptersMiddleware(passport, options) {
+		function createLoginAdaptersMiddleware(database, passport, options) {
 			options = options || {};
 			var adapters = options.adapters;
 			var loginPrefix = options.prefix || '';
@@ -367,12 +381,11 @@ module.exports = function(database, cache, options) {
 					next();
 				});
 
-				var adapterMiddleware = adapter.middleware(passport, loginCallback);
+				var adapterMiddleware = adapter.middleware(database, passport, loginCallback);
 				app.use(loginPrefix + '/' + adapterName, adapterMiddleware);
 
 
 				function loginCallback(error, user, info, req, res, next) {
-					if (!error && !user) { error = new HttpError(401); }
 					if (error) { return next(error); }
 
 					loginPassportUser(user, info, req, function(error) {

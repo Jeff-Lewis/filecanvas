@@ -6,7 +6,6 @@ var express = require('express');
 var handlebarsEngine = require('../../engines/handlebars');
 
 var UserService = require('../../services/UserService');
-var RegistrationService = require('../../services/RegistrationService');
 var AdminPageService = require('../../services/AdminPageService');
 
 module.exports = function(database, options) {
@@ -23,7 +22,6 @@ module.exports = function(database, options) {
 	if (!sessionMiddleware) { throw new Error('Missing admin session middleware'); }
 
 	var userService = new UserService(database);
-	var registrationService = new RegistrationService();
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
@@ -52,31 +50,45 @@ module.exports = function(database, options) {
 	function initRoutes(app) {
 		app.get('/login', redirectIfLoggedIn('/'), retrieveLoginRoute);
 		app.get('/logout', redirectIfLoggedOut('/'), retrieveLogoutRoute);
-		app.get('/register', redirectIfLoggedIn('/'), retrieveCreateUserRoute);
-		app.post('/register', redirectIfLoggedIn('/'), createUserRoute);
+		app.get('/register', redirectIfNoPendingUser('/'), retrieveRegisterRoute);
+		app.post('/register', redirectIfNoPendingUser('/'), updateUserRoute);
 
 
 		function redirectIfLoggedIn(redirectPath) {
-			redirectPath = redirectPath || '/';
-			return function(req, res, next) {
-				if (req.isAuthenticated()) {
-					return res.redirect(req.query.redirect || redirectPath);
-				}
-				next();
-			};
+			return createRedirect(redirectPath, function(req) {
+				return req.isAuthenticated();
+			});
 		}
 
 		function redirectIfLoggedOut(redirectPath) {
+			return createRedirect(redirectPath, function(req) {
+				return !req.isAuthenticated();
+			});
+		}
+
+		function redirectIfNoPendingUser(redirectPath) {
+			return createRedirect(redirectPath, function(req) {
+				return (!req.isAuthenticated() || !req.user.pending);
+			});
+		}
+
+		function createRedirect(redirectPath, condition) {
 			redirectPath = redirectPath || '/';
 			return function(req, res, next) {
-				if (!req.isAuthenticated()) {
+				if (!condition || condition(req)) {
 					return res.redirect(req.query.redirect || redirectPath);
 				}
 				next();
 			};
 		}
 
+
 		function retrieveLoginRoute(req, res, next) {
+			var forceApproval = (req.query['reapprove'] === 'true');
+			var error = (req.query['error'] || req.query['error_description'] ? {} : null);
+			if (req.query['error']) { error['error'] = req.query['error']; }
+			if (req.query['error_description']) { error['error_description'] = req.query['error_description']; }
+
 			new Promise(function(resolve, reject) {
 				var adaptersHash = Object.keys(adapters).reduce(function(adaptersHash, key) {
 					adaptersHash[key] = true;
@@ -85,6 +97,8 @@ module.exports = function(database, options) {
 				var templateData = {
 					content: {
 						redirect: req.query.redirect || null,
+						forceApproval: forceApproval,
+						error: error,
 						adapters: adaptersHash
 					}
 				};
@@ -100,30 +114,19 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function retrieveCreateUserRoute(req, res, next) {
+		function retrieveRegisterRoute(req, res, next) {
+			var userModel = req.user;
 			new Promise(function(resolve, reject) {
-				var pendingUserModel = registrationService.getPendingUser(req);
-				if (!pendingUserModel) {
-					res.redirect('/login');
-					return;
-				}
-				var username = pendingUserModel.username;
+				var templateData = {
+					content: {
+						user: userModel
+					}
+				};
 				return resolve(
-					userService.generateUsername(username)
-						.then(function(username) {
-							var userDetails = objectAssign({}, pendingUserModel, {
-								username: username
-							});
-							var templateData = {
-								content: {
-									user: userDetails
-								}
-							};
-							return adminPageService.render(req, res, {
-								template: 'register',
-								context: templateData
-							});
-						})
+					adminPageService.render(req, res, {
+						template: 'register',
+						context: templateData
+					})
 				);
 			})
 			.catch(function(error) {
@@ -131,22 +134,23 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function createUserRoute(req, res, next) {
+		function updateUserRoute(req, res, next) {
+			var userModel = req.user;
+			var username = userModel.username;
+
 			new Promise(function(resolve, reject) {
-				var pendingUserModel = registrationService.getPendingUser(req);
-				var userModel = {
+				var updates = {
 					username: req.body.username,
 					firstName: req.body.firstName,
 					lastName: req.body.lastName,
 					email: req.body.email,
-					defaultSite: null,
-					adapters: pendingUserModel.adapters
+					pending: (req.body.pending === 'true')
 				};
 				return resolve(
-					userService.createUser(userModel)
-						.then(function(userModel) {
-							registrationService.clearPendingUser(req);
-							req.login(userModel, function(error) {
+					userService.updateUser(username, updates)
+						.then(function() {
+							var updatedUserModel = objectAssign({}, userModel, updates);
+							req.login(updatedUserModel, function(error) {
 								if (error) { return next(error); }
 								res.redirect('/');
 							});

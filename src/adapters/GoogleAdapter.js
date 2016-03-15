@@ -13,6 +13,8 @@ var escapeRegExp = require('escape-regexp');
 var slug = require('slug');
 var GoogleOAuth2Strategy = require('passport-google-oauth2').Strategy;
 
+var LoginService = require('../services/LoginService');
+
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
 
@@ -103,48 +105,63 @@ GoogleLoginAdapter.prototype.clientKey = null;
 GoogleLoginAdapter.prototype.clientSecret = null;
 GoogleLoginAdapter.prototype.loginCallbackUrl = null;
 
-GoogleLoginAdapter.prototype.middleware = function(passport, callback) {
+GoogleLoginAdapter.prototype.middleware = function(database, passport, callback) {
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
 	var authOptions = this.authOptions;
 
+	var loginService = new LoginService(database, this);
+
 	var app = express();
 
-	app.post('/', passport.authenticate('admin/google', authOptions));
+	app.post('/', function(req, res, next) {
+		passport.authenticate('admin/google', authOptions)(req, res, next);
+	});
+
 	app.get('/oauth2/callback', function(req, res, next) {
 		passport.authenticate('admin/google', function(error, user, info) {
+			if (error && error.oauthError) {
+				var oauthErrorDetails = error.oauthError.data ? JSON.parse(error.oauthError.data) : {};
+				error = new HttpError(401, oauthErrorDetails['error_description']);
+				error.code = oauthErrorDetails['error'];
+			}
 			callback(error, user, info, req, res, next);
 		})(req, res, next);
 	});
 
-	var self = this;
 	passport.use('admin/google', new GoogleOAuth2Strategy({
-			clientID: clientId,
-			clientSecret: clientSecret,
-			callbackURL: loginCallbackUrl,
-			passReqToCallback: true,
-			authorizationURL: OAUTH2_AUTHORIZATION_URL,
-			tokenURL: OAUTH2_TOKEN_URL
-		},
-		function(req, accessToken, refreshToken, params, profile, callback) {
-			var tokenDuration = params['expires_in'];
-			var tokenExpires = getTokenExpiryDate(tokenDuration).toISOString();
-			var passportValues = {
-				uid: profile.uid,
-				token: accessToken,
-				tokenExpires: tokenExpires,
-				refreshToken: refreshToken || null,
-				firstName: profile.firstName,
-				lastName: profile.lastName,
-				email: profile.email
-			};
-			var query = { 'uid': passportValues.uid };
-			self.login(req, query, passportValues, callback);
-		}
-	));
+		clientID: clientId,
+		clientSecret: clientSecret,
+		callbackURL: loginCallbackUrl,
+		authorizationURL: OAUTH2_AUTHORIZATION_URL,
+		tokenURL: OAUTH2_TOKEN_URL,
+		passReqToCallback: true
+	}, loginCallback));
 
 	return app;
+
+	function loginCallback(req, accessToken, refreshToken, params, profile, callback) {
+		var tokenDuration = params['expires_in'];
+		var tokenExpires = getTokenExpiryDate(tokenDuration).toISOString();
+		var passportValues = {
+			uid: profile.uid,
+			token: accessToken,
+			tokenExpires: tokenExpires,
+			refreshToken: refreshToken || null,
+			firstName: profile.firstName,
+			lastName: profile.lastName,
+			email: profile.email
+		};
+		var query = { 'uid': passportValues.uid };
+		loginService.login(query, passportValues)
+			.then(function(userModel) {
+				callback(null, userModel);
+			})
+			.catch(function(error) {
+				callback(error);
+			});
+	}
 };
 
 GoogleLoginAdapter.prototype.authenticate = function(passportValues, userAdapterConfig) {

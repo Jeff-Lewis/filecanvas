@@ -10,6 +10,8 @@ var mkdirp = require('mkdirp');
 var slug = require('slug');
 var urlJoin = require('url-join');
 
+var LoginService = require('../services/LoginService');
+
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
 
@@ -42,7 +44,9 @@ LocalLoginAdapter.prototype.adapterName = 'local';
 LocalLoginAdapter.prototype.authStrategy = null;
 LocalLoginAdapter.prototype.authOptions = null;
 
-LocalLoginAdapter.prototype.middleware = function(passport, callback) {
+LocalLoginAdapter.prototype.middleware = function(database, passport, callback) {
+	var loginService = new LoginService(database, this);
+
 	var app = express();
 
 	app.post('/', function(req, res, next) {
@@ -54,7 +58,6 @@ LocalLoginAdapter.prototype.middleware = function(passport, callback) {
 		})(req, res, next);
 	});
 
-	var self = this;
 	passport.use('admin/local', new LocalStrategy({ passReqToCallback: true },
 		function(req, username, password, callback) {
 			var passportValues = {
@@ -62,7 +65,13 @@ LocalLoginAdapter.prototype.middleware = function(passport, callback) {
 				password: password
 			};
 			var query = { 'username': username };
-			self.login(req, query, passportValues, callback);
+			loginService.login(query, passportValues)
+				.then(function(userModel) {
+					callback(null, userModel);
+				})
+				.catch(function(error) {
+					callback(error);
+				});
 		})
 	);
 
