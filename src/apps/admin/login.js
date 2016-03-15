@@ -51,7 +51,8 @@ module.exports = function(database, options) {
 		app.get('/login', redirectIfLoggedIn('/'), retrieveLoginRoute);
 		app.get('/logout', redirectIfLoggedOut('/'), retrieveLogoutRoute);
 		app.get('/register', redirectIfNoPendingUser('/'), retrieveRegisterRoute);
-		app.post('/register', redirectIfNoPendingUser('/'), updateUserRoute);
+		app.post('/register', redirectIfNoPendingUser('/'), updatePendingUserRoute);
+		app.del('/register', redirectIfNoPendingUser('/'), deletePendingUserRoute);
 
 
 		function redirectIfLoggedIn(redirectPath) {
@@ -134,7 +135,7 @@ module.exports = function(database, options) {
 			});
 		}
 
-		function updateUserRoute(req, res, next) {
+		function updatePendingUserRoute(req, res, next) {
 			var userModel = req.user;
 			var username = userModel.username;
 
@@ -160,6 +161,44 @@ module.exports = function(database, options) {
 			.catch(function(error) {
 				next(error);
 			});
+		}
+
+		function deletePendingUserRoute(req, res, next) {
+			var userModel = req.user;
+			var username = userModel.username;
+
+			new Promise(function(resolve, reject) {
+				return resolve(
+					unlinkUserAccounts(userModel, adapters)
+						.catch(function(error) {
+							// Ignore failure
+						})
+						.then(function() {
+							return userService.deleteUser(username);
+						})
+						.then(function() {
+							req.logout();
+							res.redirect('/');
+						})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
+
+
+			function unlinkUserAccounts(userModel, adapters) {
+				return Promise.all(
+					Object.keys(userModel.adapters).filter(function(adapterName) {
+						return adapterName !== 'default';
+					}).map(function(adapterName) {
+						var adapter = adapters[adapterName];
+						return adapter.unlink(userModel);
+					})
+				).then(function() {
+					return;
+				});
+			}
 		}
 
 		function retrieveLogoutRoute(req, res, next) {

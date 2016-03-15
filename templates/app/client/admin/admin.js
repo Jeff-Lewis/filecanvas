@@ -84,6 +84,7 @@ $(function() {
 	initModalAutoload();
 	initWizards();
 	initThemePreview();
+	initRegistrationForm();
 	initLogout();
 });
 
@@ -1233,6 +1234,18 @@ function initThemePreview() {
 			.on('error', function(event) {
 				$element.removeClass('loading').addClass('error');
 			});
+	});
+}
+
+function initRegistrationForm() {
+	$('[data-registration-form]').each(function(index, element) {
+		var $element = $(element);
+		var formElement = element;
+		$element.find('[data-registration-form-cancel]').on('click', function(event) {
+			var methodInputElement = formElement._method;
+			$(methodInputElement).val('DELETE');
+			formElement.submit();
+		});
 	});
 }
 
