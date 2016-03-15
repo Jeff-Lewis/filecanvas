@@ -121,10 +121,17 @@ GoogleLoginAdapter.prototype.middleware = function(database, passport, callback)
 
 	app.get('/oauth2/callback', function(req, res, next) {
 		passport.authenticate('admin/google', function(error, user, info) {
-			if (error && error.oauthError) {
-				var oauthErrorDetails = error.oauthError.data ? JSON.parse(error.oauthError.data) : {};
-				error = new HttpError(401, oauthErrorDetails['error_description']);
-				error.code = oauthErrorDetails['error'];
+			if (!error && req.query['error']) {
+				if (req.query['error'] === 'access_denied') {
+					// TODO: Handle use case where user denies access
+				}
+				error = new HttpError(401, req.query['error_description'] || null);
+				error.code = req.query['error'];
+			}
+			if (error && error.code) {
+				var oauthError = error;
+				error = new HttpError(401, oauthError.message);
+				error.code = oauthError.code;
 			}
 			callback(error, user, info, req, res, next);
 		})(req, res, next);

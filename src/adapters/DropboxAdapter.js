@@ -58,14 +58,18 @@ DropboxLoginAdapter.prototype.middleware = function(database, passport, callback
 	app.post('/', passport.authenticate('admin/dropbox'));
 	app.get('/oauth2/callback', function(req, res, next) {
 		passport.authenticate('admin/dropbox', function(error, user, info) {
+			if (!error && req.query['error']) {
+				if (req.query['error'] === 'access_denied') {
+					// TODO: Handle use case where user denies access
+				}
+				error = new HttpError(401, req.query['error_description'] || null);
+				error.code = req.query['error'];
+			}
 			if (error && error.oauthError) {
-				console.log('oauth error:', error.oauthError);
 				var oauthErrorDetails = error.oauthError.data ? JSON.parse(error.oauthError.data) : {};
 				error = new HttpError(401, oauthErrorDetails['error_description']);
 				error.code = oauthErrorDetails['error'];
 			}
-			console.log('Correct! Callback...');
-			console.log(error, user, info);
 			callback(error, user, info, req, res, next);
 		})(req, res, next);
 	});
@@ -77,7 +81,6 @@ DropboxLoginAdapter.prototype.middleware = function(database, passport, callback
 			passReqToCallback: true
 		},
 		function(req, accessToken, refreshToken, profile, callback) {
-			console.log('verifying...');
 			var passportValues = {
 				uid: profile.id,
 				token: accessToken,
