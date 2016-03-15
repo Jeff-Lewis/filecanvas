@@ -193,7 +193,8 @@ module.exports = function(database, options) {
 						return adapterName !== 'default';
 					}).map(function(adapterName) {
 						var adapter = adapters[adapterName];
-						return adapter.unlink(userModel);
+						var userAdapterConfig = userModel.adapters[adapterName];
+						return adapter.unlink(userAdapterConfig);
 					})
 				).then(function() {
 					return;
