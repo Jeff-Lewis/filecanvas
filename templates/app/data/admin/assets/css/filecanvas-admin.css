@@ -541,38 +541,50 @@ button.bg-bluegrey:hover :not(:disabled) {
 	}
 }
 
-.security-banner {
-	padding: 10px 15px;
+.login-banner {
+	padding: 10px;
 	background-color: rgba(0, 0, 0, 0.1);
 	text-align: center;
 }
-.security-banner-icon {
+.login-banner-icon {
 	display: block;
 	text-align: center;
 	margin-bottom: 5px;
 }
-.security-banner-message {
+.login-banner-icon.fa-warning {
+	font-size: 2.5em;
+	line-height: 1.2;
+}
+.login-banner-message {
 	color: white;
 	margin-bottom: 0;
 }
-.security-banner-link {
+.login-banner-link {
 	display: block;
 }
+.login-banner.bg-warning {
+	background-color: #ffc65d;
+}
+.login-banner.bg-warning,
+.login-banner.bg-warning .login-banner-message {
+	color: #616161;
+}
 @media screen and (min-width: 480px) {
-	.security-banner {
+	.login-banner {
 		text-align: left;
 	}
-	.security-banner-icon {
+	.login-banner-icon {
 		display: inline;
 		float: left;
 		margin-bottom: 0;
+		width: 39px;
 	}
-	.security-banner-message {
-		margin-left: 45px;
+	.login-banner-message {
+		margin-left: 50px;
 	}
-	.security-banner-link {
+	.login-banner-link {
 		display: block;
-		margin-left: 45px;
+		margin-left: 50px;
 	}
 }
 
