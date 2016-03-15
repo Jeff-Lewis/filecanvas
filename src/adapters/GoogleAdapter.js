@@ -103,7 +103,7 @@ GoogleLoginAdapter.prototype.clientKey = null;
 GoogleLoginAdapter.prototype.clientSecret = null;
 GoogleLoginAdapter.prototype.loginCallbackUrl = null;
 
-GoogleLoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
+GoogleLoginAdapter.prototype.middleware = function(passport, callback) {
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
@@ -112,7 +112,11 @@ GoogleLoginAdapter.prototype.middleware = function(passport, passportOptions, ca
 	var app = express();
 
 	app.post('/', passport.authenticate('admin/google', authOptions));
-	app.get('/oauth2/callback', passport.authenticate('admin/google', passportOptions), callback);
+	app.get('/oauth2/callback', function(req, res, next) {
+		passport.authenticate('admin/google', function(error, user, info) {
+			callback(error, user, info, req, res, next);
+		})(req, res, next);
+	});
 
 	var self = this;
 	passport.use('admin/google', new GoogleOAuth2Strategy({

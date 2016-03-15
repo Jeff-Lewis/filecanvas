@@ -32,6 +32,8 @@ var getSubdomainUrl = require('../utils/getSubdomainUrl');
 
 var UserService = require('../services/UserService');
 
+var HttpError = require('../errors/HttpError');
+
 module.exports = function(database, cache, options) {
 	options = options || {};
 	var host = options.host;
@@ -84,9 +86,6 @@ module.exports = function(database, cache, options) {
 	app.use(sessionState());
 
 	initAuth(app, database, {
-		adapters: loginAdapters
-	});
-	initLogin(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
 		adapters: loginAdapters,
@@ -281,7 +280,10 @@ module.exports = function(database, cache, options) {
 
 	function initAuth(app, database, options) {
 		options = options || {};
+		var templatesPath = options.templatesPath;
+		var partialsPath = options.partialsPath;
 		var adapters = options.adapters;
+		var sessionMiddleware = options.sessionMiddleware;
 
 		var userService = new UserService(database);
 
@@ -289,10 +291,41 @@ module.exports = function(database, cache, options) {
 		app.use(passport.initialize());
 		app.use(passport.session());
 
-		app.use('/login', createAdapterLoginMiddleware(passport, {
+		var loginMiddleware = createLoginAdaptersMiddleware(passport, {
+			prefix: '/login',
+			adapters: adapters
+		});
+		var loginErrorHandler = function(err, req, res, next) {
+			var isFailedLoginError = (err.status === 401);
+			if (isFailedLoginError) {
+				var redirectMethod = 'GET';
+				var redirectUrl = '/login';
+				var redirectQuery = {
+					'force_approval': 'true'
+				};
+				if (err.code) { redirectQuery['error'] = err.code; }
+				if (err.description) { redirectQuery['error_description'] = err.description; }
+				internalRedirect(req, {
+					method: redirectMethod,
+					url: redirectUrl,
+					query: redirectQuery
+				});
+				next();
+			} else{
+				next(err);
+			}
+		};
+		var loginPages = loginApp(database, {
+			templatesPath: templatesPath,
+			partialsPath: partialsPath,
 			adapters: adapters,
-			failure: '/'
-		}));
+			sessionMiddleware: sessionMiddleware
+		});
+
+		loginMiddleware.use(loginErrorHandler);
+		loginMiddleware.use(loginPages);
+
+		app.use(loginMiddleware);
 
 
 		function createPassportInstance(userService) {
@@ -316,49 +349,68 @@ module.exports = function(database, cache, options) {
 			return passport;
 		}
 
-		function createAdapterLoginMiddleware(passport, options) {
+		function createLoginAdaptersMiddleware(passport, options) {
 			options = options || {};
-			var failureRedirect = options.failure;
 			var adapters = options.adapters;
+			var loginPrefix = options.prefix || '';
 
 			var app = express();
 
 			Object.keys(adapters).forEach(function(key) {
 				var adapterName = key;
 				var adapter = adapters[key];
-				app.post('/' + adapterName, function(req, res, next) {
+				app.post(loginPrefix + '/' + adapterName, function(req, res, next) {
 					delete req.session.loginRedirect;
 					if (req.body.redirect) {
 						req.session.loginRedirect = req.body.redirect;
 					}
 					next();
 				});
-				var loginMiddleware = adapter.middleware(passport, { failureRedirect: failureRedirect }, function(req, res) {
-					req.session.adapter = adapterName;
-					var redirectUrl = req.session.loginRedirect;
-					delete req.session.loginRedirect;
-					res.redirect(redirectUrl || '/');
-				});
-				app.use('/' + adapterName, loginMiddleware);
+
+				var adapterMiddleware = adapter.middleware(passport, loginCallback);
+				app.use(loginPrefix + '/' + adapterName, adapterMiddleware);
+
+
+				function loginCallback(error, user, info, req, res, next) {
+					if (!error && !user) { error = new HttpError(401); }
+					if (error) { return next(error); }
+
+					loginPassportUser(user, info, req, function(error) {
+						if (error) { return next(error); }
+						req.session.adapter = adapterName;
+						var redirectUrl = req.session.loginRedirect;
+						delete req.session.loginRedirect;
+						res.redirect(redirectUrl || '/');
+					});
+
+
+					function loginPassportUser(user, info, req, callback) {
+						req.logIn(user, function(error) {
+							if (error) { return callback(error); }
+							passport.transformAuthInfo(info, req, function(error, authInfo) {
+								if (error) { return next(error); }
+								req.authInfo = authInfo;
+								callback(null);
+							});
+						});
+					}
+				}
 			});
 
 			return app;
 		}
-	}
 
-	function initLogin(app, database, options) {
-		options = options || {};
-		var templatesPath = options.templatesPath;
-		var partialsPath = options.partialsPath;
-		var adapters = options.adapters;
-		var sessionMiddleware = options.sessionMiddleware;
-
-		app.use('/', loginApp(database, {
-			templatesPath: templatesPath,
-			partialsPath: partialsPath,
-			adapters: adapters,
-			sessionMiddleware: sessionMiddleware
-		}));
+		function internalRedirect(req, options) {
+			options = options || {};
+			var method = options.method || null;
+			var url = options.url || null;
+			var query = options.query || null;
+			var body = options.body || null;
+			if (method) { req.method = method; }
+			if (url) { req.url = url; }
+			req.query = query || {};
+			req.body = body || null;
+		}
 	}
 
 	function initErrorHandler(app) {

@@ -17,6 +17,8 @@ var AuthenticationService = require('../services/AuthenticationService');
 
 var loadFileMetadata = require('../utils/loadFileMetadata');
 
+var HttpError = require('../errors/HttpError');
+
 function LocalLoginAdapter(database, options) {
 	options = options || {};
 	var isTemporary = options.temporary || null;
@@ -40,10 +42,17 @@ LocalLoginAdapter.prototype.adapterName = 'local';
 LocalLoginAdapter.prototype.authStrategy = null;
 LocalLoginAdapter.prototype.authOptions = null;
 
-LocalLoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
+LocalLoginAdapter.prototype.middleware = function(passport, callback) {
 	var app = express();
 
-	app.post('/', passport.authenticate('admin/local', passportOptions), callback);
+	app.post('/', function(req, res, next) {
+		passport.authenticate('admin/local', function(error, user, info) {
+			if (!error && !user) {
+				error = new HttpError(401);
+			}
+			callback(error, user, info, req, res, next);
+		})(req, res, next);
+	});
 
 	var self = this;
 	passport.use('admin/local', new LocalStrategy({ passReqToCallback: true },

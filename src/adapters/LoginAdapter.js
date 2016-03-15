@@ -98,7 +98,7 @@ LoginAdapter.prototype.createUser = function(passportValues) {
 		});
 };
 
-LoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
+LoginAdapter.prototype.middleware = function(passport, callback) {
 	throw new Error('Not implemented');
 };
 

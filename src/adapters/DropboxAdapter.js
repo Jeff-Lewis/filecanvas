@@ -44,7 +44,7 @@ DropboxLoginAdapter.prototype.appKey = null;
 DropboxLoginAdapter.prototype.appSecret = null;
 DropboxLoginAdapter.prototype.loginCallbackUrl = null;
 
-DropboxLoginAdapter.prototype.middleware = function(passport, passportOptions, callback) {
+DropboxLoginAdapter.prototype.middleware = function(passport, callback) {
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
@@ -52,7 +52,11 @@ DropboxLoginAdapter.prototype.middleware = function(passport, passportOptions, c
 	var app = express();
 
 	app.post('/', passport.authenticate('admin/dropbox'));
-	app.get('/oauth2/callback', passport.authenticate('admin/dropbox', passportOptions), callback);
+	app.get('/oauth2/callback', function(req, res, next) {
+		passport.authenticate('admin/dropbox', function(error, user, info) {
+			callback(error, user, info, req, res, next);
+		})(req, res, next);
+	});
 
 	var self = this;
 	passport.use('admin/dropbox', new DropboxOAuth2Strategy({
