@@ -106,6 +106,7 @@ module.exports = function(database, cache, options) {
 	initAccount(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
+		adapters: loginAdapters,
 		sessionMiddleware: initAdminSession
 	});
 	initSites(app, database, {
@@ -190,12 +191,14 @@ module.exports = function(database, cache, options) {
 		var templatesPath = options.templatesPath;
 		var partialsPath = options.partialsPath;
 		var sessionMiddleware = options.sessionMiddleware;
+		var adapters = options.adapters;
 
 		app.use('/account', composeMiddleware([
 			ensureAuth('/login'),
 			accountApp(database, {
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
+				adapters: adapters,
 				sessionMiddleware: sessionMiddleware
 			})
 		]));

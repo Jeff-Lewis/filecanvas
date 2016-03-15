@@ -12,11 +12,13 @@ module.exports = function(database, options) {
 	var templatesPath = options.templatesPath || null;
 	var partialsPath = options.partialsPath || null;
 	var sessionMiddleware = options.sessionMiddleware || null;
+	var adapters = options.adapters || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
+	if (!adapters) { throw new Error('Missing adapters'); }
 
 	var userService = new UserService(database);
 	var adminPageService = new AdminPageService({
@@ -115,7 +117,13 @@ module.exports = function(database, options) {
 			var username = userModel.username;
 			new Promise(function(resolve, reject) {
 				return resolve(
-					userService.deleteUser(username)
+					unlinkUserAccounts(userModel, adapters)
+						.catch(function(error) {
+							// Ignore failure
+						})
+						.then(function() {
+							return userService.deleteUser(username);
+						})
 						.then(function() {
 							req.logout();
 							req.session.regenerate(function(error) {
@@ -128,6 +136,21 @@ module.exports = function(database, options) {
 			.catch(function(error) {
 				next(error);
 			});
+
+
+			function unlinkUserAccounts(userModel, adapters) {
+				return Promise.all(
+					Object.keys(userModel.adapters).filter(function(adapterName) {
+						return adapterName !== 'default';
+					}).map(function(adapterName) {
+						var adapter = adapters[adapterName];
+						var userAdapterConfig = userModel.adapters[adapterName];
+						return adapter.unlink(userAdapterConfig);
+					})
+				).then(function() {
+					return;
+				});
+			}
 		}
 
 	}
