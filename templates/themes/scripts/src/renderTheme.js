@@ -1,23 +1,33 @@
 'use strict';
 
 var fs = require('fs');
+var stream = require('stream');
+var util = require('util');
 var path = require('path');
 var copy = require('recursive-copy');
 var imagemagick = require('imagemagick-native');
+var escapeHtml = require('escape-html');
 
 var loadTheme = require('./loadTheme');
 
 var loadFileMetadata = require('../../../../src/utils/loadFileMetadata');
 var resolveThemePaths = require('../../../../src/utils/resolveThemePaths');
+var parseShortcutUrl = require('../../../../src/utils/parseShortcutUrl');
 
 var ThemeService = require('../../../../src/services/ThemeService');
 
 var THEME_ASSETS_PATH = 'assets';
 var PREVIEW_DOWNLOADS_PATH = 'download';
+var PREVIEW_REDIRECTS_PATH = 'redirect';
 var PREVIEW_THUMBNAILS_PATH = 'thumbnail';
 var PREVIEW_MEDIA_PATH = 'media';
 var PREVIEW_ASSETS_PATH = 'assets';
 
+var SHORTCUT_EXTENSIONS = [
+	'.url',
+	'.webloc',
+	'.desktop'
+];
 var THUMBNAIL_EXTENSIONS = [
 	'.jpg',
 	'.jpeg',
@@ -57,12 +67,12 @@ module.exports = function(themePath, outputPath, options) {
 		options = options || {};
 		var themePath = options.path;
 		var themeConfig = options.config;
-		var themeFiles = options.files;
+		var rootFile = options.files;
 		var resolvedTheme = resolveThemePaths(theme, themePath);
 		return Promise.all(Object.keys(resolvedTheme.templates).map(function(templateId) {
 			var templateData = getPreviewTemplateData(resolvedTheme, templateId, {
 				config: themeConfig,
-				files: themeFiles
+				files: rootFile
 			});
 			return themeService.renderThemeTemplate(resolvedTheme, templateId, templateData)
 				.then(function(html) {
@@ -121,10 +131,11 @@ module.exports = function(themePath, outputPath, options) {
 		var outputDownloadsPath = path.join(outputPath, PREVIEW_DOWNLOADS_PATH);
 		var outputThumbnailsPath = path.join(outputPath, PREVIEW_THUMBNAILS_PATH);
 		var outputMediaPath = path.join(outputPath, PREVIEW_MEDIA_PATH);
+		var outputRedirectsPath = path.join(outputPath, PREVIEW_REDIRECTS_PATH);
 		var outputAssetsPath = path.join(outputPath, PREVIEW_ASSETS_PATH);
 		return Promise.all([
 			copyAssets(themeAssetsPath, outputAssetsPath),
-			copyDownloads(previewFilesPath, outputDownloadsPath),
+			copyDownloads(previewFilesPath, outputDownloadsPath, outputRedirectsPath),
 			copyMedia(previewFilesPath, outputMediaPath),
 			copyThumbnails(previewFilesPath, outputThumbnailsPath)
 		])
@@ -137,8 +148,71 @@ module.exports = function(themePath, outputPath, options) {
 			return Promise.resolve(copy(sourcePath, outputPath, { expand: true }));
 		}
 
-		function copyDownloads(sourcePath, outputPath) {
-			return Promise.resolve(copy(sourcePath, outputPath, { expand: true }));
+		function copyDownloads(sourcePath, outputPath, redirectsPath) {
+			var options = {
+				expand: true,
+				rename: function(src, dest, stats) {
+					var extension = path.extname(src);
+					var isShortcutFile = SHORTCUT_EXTENSIONS.indexOf(extension) !== -1;
+					if (isShortcutFile) {
+						var htmlOutputPath = path.join(
+							path.relative(outputPath, redirectsPath),
+							path.dirname(dest),
+							swapFileExtension(src, '.html')
+						);
+						console.log('Creating shortcut at ' + htmlOutputPath);
+						return htmlOutputPath;
+					}
+					return src;
+				},
+				transform: function(src, dest, stats) {
+					var extension = path.extname(src);
+					var isShortcutFile = SHORTCUT_EXTENSIONS.indexOf(extension) !== -1;
+					if (isShortcutFile) {
+						var shortcutExtension = path.extname(src);
+						var shortcutType = shortcutExtension.substr('.'.length);
+						return createShortcutTransformer({ type: shortcutType });
+					}
+					return null;
+				}
+			};
+			return Promise.resolve(copy(sourcePath, outputPath, options));
+
+
+			function createShortcutTransformer(options) {
+				options = options || {};
+				var shortcutType = options.type;
+
+				function StringTransformer(transform) {
+					stream.Transform.call(this);
+					this._buffer = '';
+					this._map = transform || function(value) { return value; };
+				}
+
+				util.inherits(StringTransformer, stream.Transform);
+
+				StringTransformer.prototype._transform = function(chunk, enc, done) {
+					this._buffer += chunk.toString();
+					done();
+				};
+
+				StringTransformer.prototype._flush = function(done) {
+					var output = this._map(this._buffer);
+					this.push(output);
+					done();
+				};
+
+
+				return new StringTransformer(function(value) {
+					var shortcutUrl = parseShortcutUrl(value, { type: shortcutType });
+					var html = renderHtmlRedirectPage(shortcutUrl);
+					return html;
+				});
+			}
+
+			function renderHtmlRedirectPage(url) {
+				return '<html><head><meta http-equiv="refresh" content="0;URL=\'' + escapeHtml(url) + '\'"/></head></html>';
+			}
 		}
 
 		function copyMedia(sourcePath, outputPath) {
@@ -166,6 +240,10 @@ module.exports = function(themePath, outputPath, options) {
 		}
 	}
 };
+
+function swapFileExtension(filePath, extension) {
+	return path.join(path.dirname(filePath), path.basename(filePath, path.extname(filePath)) + extension);
+}
 
 function writeFile(path, data, options) {
 	return new Promise(function(resolve, reject) {
