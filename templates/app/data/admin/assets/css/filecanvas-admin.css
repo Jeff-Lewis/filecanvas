@@ -133,6 +133,11 @@ a.widget:visited,
 .form-control.input-sm { font-size: 12px; }
 .form-control.input-lg { font-size: 18px; }
 
+fieldset:disabled {
+    filter: alpha(opacity=65);
+	opacity: 0.65;
+}
+
 .btn-reset {
 	display: block;
 	margin: 0;
