@@ -1,76 +1,25 @@
 'use strict';
 
 var path = require('path');
-var slug = require('slug');
 
 var loadImage = require('../utils/loadImage');
 var requestSignedUpload = require('../utils/requestSignedUpload');
 
+var bindingFilters = require('./lib/bindings/filters');
+var bindingParsers = require('./lib/bindings/parsers');
+var bindingValidators = require('./lib/bindings/validators');
+
 var DEFAULT_VALIDATION_TRIGGERS = 'input change blur';
 
 $(function() {
-
-	var bindingFilters = {
-		'slug': function(value) {
-			return slug(value, { lower: true });
-		},
-		'format': function(value, formatString, emptyString) {
-			if (!value && (arguments.length >= 3)) { return emptyString; }
-			return formatString.replace(/\$0/g, value);
-		},
-		'filename': function(value) {
-			// See https://www.dropbox.com/en/help/145
-			return value.replace(/[\/<>:"|?*]/g, '');
-		}
-	};
-
-	var parsers = {
-		'slug': function(value) {
-			return value.toLowerCase().replace(/['"‘’“”]/g, '').replace(/[^a-z0-9]+/g, '-');
-		}
-	};
-
-	var validators = {
-		'notEmpty': function(value) {
-			return Boolean(value);
-		},
-		'notEqualTo': function(value, args) {
-			var items = Array.prototype.slice.call(arguments, 1);
-			return items.every(function(item) {
-				return (value !== item);
-			});
-		},
-		'startsWith': function(value, string) {
-			return Boolean(value) && (value.substr(0, string.length) === string);
-		},
-		'endsWith': function(value, string) {
-			return Boolean(value) && (value.substr(-string.length) === string);
-		},
-		'email': function(value) {
-			return /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(value);
-		},
-		'domain': function(value) {
-			return /^(?!:\/\/)([a-z0-9]+\.)?[a-z0-9][a-z0-9-]+\.[a-z]{2,6}?$/.test(value);
-		},
-		'slug': function(value) {
-			return (value === bindingFilters['slug'](value));
-		},
-		'path': function(value) {
-			return (value === '') || (value === path.normalize(value));
-		},
-		'filename': function(value) {
-			return (value === bindingFilters['filename'](value));
-		}
-	};
-
 	initFormSubmitButtons();
 	initFormResetButtons();
-	initInputParsers(parsers);
+	initInputParsers(bindingParsers);
 	var bindingSources = initBindingSources();
 	initBindingTargets(bindingSources, bindingFilters);
 	initFilecanvas(bindingSources, bindingFilters);
 	updateBindings(bindingSources);
-	initInputValidators(validators);
+	initInputValidators(bindingValidators);
 	initSelectAllInputs();
 	initFixedAccordions();
 	initAccordionAnchors();
