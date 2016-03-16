@@ -1171,9 +1171,11 @@ function initWizards() {
 			$panelElement.toggleClass(activeClass, $contentElement.hasClass('in'));
 			$contentElement
 				.on('hide.bs.collapse', function(event) {
+					if (event.target !== event.currentTarget) { return; }
 					$panelElement.removeClass(activeClass);
 				})
 				.on('show.bs.collapse', function(event) {
+					if (event.target !== event.currentTarget) { return; }
 					$panelElement.addClass(activeClass);
 				});
 		});
