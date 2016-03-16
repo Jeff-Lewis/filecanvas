@@ -413,6 +413,8 @@ function initBindingTargets(bindingSources, bindingFilters) {
 		} else if ($targetElement.is('input,textarea,select,option')) {
 			$targetElement.val(value);
 			$targetElement.change();
+		} else if ($targetElement.is('.collapse,.collapsing')) {
+			$targetElement.collapse(value && (value !== 'false') ? 'show' : 'hide');
 		} else {
 			$targetElement.text(value);
 		}
