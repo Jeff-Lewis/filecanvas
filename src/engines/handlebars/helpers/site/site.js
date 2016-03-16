@@ -4,8 +4,14 @@ var path = require('path');
 var isUrl = require('is-url');
 var bytes = require('bytes');
 
+var KB = 1024;
+var MB = 1024 * KB;
+
 // Shortcut files larger than this will not be parsed
-var MAX_SHORTCUT_FILE_SIZE = 4096;
+var MAX_SHORTCUT_FILE_SIZE = 4 * KB;
+
+// Image files larger than this will not have thumbnails generated
+var MAX_PREVIEW_FILE_SIZE = 20 * MB;
 
 module.exports['login'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'login';
@@ -59,8 +65,9 @@ module.exports['is-shortcut'] = function(file) {
 };
 module.exports['has-preview'] = function(file) {
 	var extension = path.extname(file.path);
+	var fileSize = file.size;
 	var PREVIEW_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.htm', '.html', '.txt', '.pdf'];
-	var hasPreview = (PREVIEW_EXTENSIONS.indexOf(extension) !== -1);
+	var hasPreview = (PREVIEW_EXTENSIONS.indexOf(extension) !== -1) && (fileSize <= MAX_PREVIEW_FILE_SIZE);
 	return hasPreview;
 };
 module.exports['files'] = function(file, options) {
