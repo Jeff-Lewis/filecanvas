@@ -4,6 +4,7 @@ $(function() {
 	initScrollAnchors('body', { duration: 500 });
 	initScrollSpy('body', { target: '#navigation', offset: 70 });
 	initTooltips();
+	initFocusTriggers();
 	initExamples('.examples');
 });
 
@@ -37,6 +38,38 @@ function initTooltips() {
 		animation: false
 	}).on('click', function(event) {
 		event.preventDefault();
+	});
+}
+
+function initFocusTriggers() {
+	var duration = 300;
+	var scrollOffset = 30;
+	$('[data-toggle="focus"').on('click', function(event) {
+		var $element = $(this);
+		event.preventDefault();
+		var targetSelector = $element.attr('data-target') || $element.attr('href');
+		var $targetElement = $(targetSelector);
+		var targetElement = $targetElement[0];
+		if (!targetElement) { return; }
+		var targetOffset = $targetElement.offset().top;
+		var currentScrollOffset = $(document).scrollTop();
+		var targetScrollTop = null;
+		if (targetOffset < currentScrollOffset) {
+			targetScrollTop = targetOffset - scrollOffset;
+		} else {
+			var targetHeight = $targetElement.outerHeight() + scrollOffset;
+			var windowHeight = $(window).height();
+			if (currentScrollOffset + windowHeight < targetOffset + targetHeight) {
+				targetScrollTop = targetOffset + targetHeight - windowHeight;
+			}
+		}
+		if (targetScrollTop) {
+			$('html, body').animate({ scrollTop: targetScrollTop }, duration, function() {
+				targetElement.focus();
+			});
+		} else {
+			targetElement.focus();
+		}
 	});
 }
 
