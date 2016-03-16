@@ -255,7 +255,14 @@ function initBindingSources() {
 
 
 		function addBindingListeners($sourceElement, bindingSource) {
-			if ($sourceElement.is('input')) {
+			if ($sourceElement.is('input[type="radio"]')) {
+				var radioGroupName = $sourceElement.prop('name');
+				if (radioGroupName) {
+					$sourceElement.closest('form').on('change', 'input[type="radio"][name="' + radioGroupName + '"]', onBindingUpdated);
+				} else {
+					$sourceElement.on('change', onBindingUpdated);
+				}
+			} else if ($sourceElement.is('input')) {
 				$sourceElement.on('input change', onBindingUpdated);
 			} else if ($sourceElement.is('textarea,select,option,button')) {
 				$sourceElement.on('change', onBindingUpdated);
