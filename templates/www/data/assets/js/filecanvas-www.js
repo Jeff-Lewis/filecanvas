@@ -13,7 +13,7 @@ function initScrollAnchors(navSelector, options) {
 	var scrollOffset = options.offset || 0;
 
 	var $navElement = $(navSelector);
-	var $navLinkElements = $navElement.find('a[href^="#"]');
+	var $navLinkElements = $navElement.find('a[href^="#"]:not([data-scroll-disabled])');
 	$navLinkElements.on('click', function(event) {
 		event.preventDefault();
 		var targetHash = this.hash;
