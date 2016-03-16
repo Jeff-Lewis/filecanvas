@@ -4,6 +4,9 @@ var path = require('path');
 var isUrl = require('is-url');
 var bytes = require('bytes');
 
+// Shortcut files larger than this will not be parsed
+var MAX_SHORTCUT_FILE_SIZE = 4096;
+
 module.exports['login'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'login';
 };
@@ -49,9 +52,10 @@ module.exports['strip-number-prefix'] = function(file, options) {
 };
 module.exports['is-shortcut'] = function(file) {
 	var extension = path.extname(file.path);
+	var fileSize = file.size;
 	var SHORTCUT_EXTENSIONS = ['.url', '.webloc', '.desktop'];
 	var isShortcutFile = (SHORTCUT_EXTENSIONS.indexOf(extension) !== -1);
-	return isShortcutFile;
+	return isShortcutFile && (fileSize <= MAX_SHORTCUT_FILE_SIZE);
 };
 module.exports['has-preview'] = function(file) {
 	var extension = path.extname(file.path);
