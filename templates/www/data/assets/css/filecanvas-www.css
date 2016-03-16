@@ -4,6 +4,7 @@ body {
 	-webkit-font-smoothing: subpixel-antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-family: 'Lato', 'Helvetica', 'Arial', sans-serif;
+	font-variant-ligatures: no-common-ligatures;
 	font-variant-ligatures: none;
 }
 
