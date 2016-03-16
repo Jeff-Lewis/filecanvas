@@ -213,47 +213,76 @@ module.exports = function(database, options) {
 				try {
 					themeConfig = JSON.parse(themeConfig);
 				} catch(error) {
-					return next(new HttpError(401));
+					return next(new HttpError(400));
 				}
 			}
 
+			var isClone = (req.body._action === 'clone');
+			var cloneSourceName = req.body.site || null;
+
+			if (!themeId && !isClone) {
+				return next(new Error(400));
+			}
+			if (isClone && !cloneSourceName) {
+				return next(new HttpError(400));
+			}
+
 			new Promise(function(resolve, reject) {
-				var siteModel = {
-					'owner': username,
-					'name': req.body.name,
-					'label': req.body.label,
-					'theme': {
-						'id': themeId,
-						'config': null
-					},
-					'root': req.body.root || null,
-					'private': isPrivate,
-					'users': [],
-					'published': isPublished,
-					'cache': null
-				};
-
-				var theme = themeService.getTheme(themeId);
-				var themeConfigDefaults = theme.defaults;
-				siteModel.theme.config = merge({}, themeConfigDefaults, themeConfig);
-
 				return resolve(
-					siteService.createSite(siteModel, siteTemplateFiles)
-						.then(function(siteModel) {
-							if (!isDefaultSite) { return siteModel; }
-							return userService.updateUserDefaultSiteName(username, siteModel.name)
-								.then(function() {
-									return siteModel;
+					retrieveSiteTheme(username, (isClone ? cloneSourceName : null), themeId, themeConfig)
+						.then(function(theme) {
+							var siteModel = {
+								'owner': username,
+								'name': req.body.name,
+								'label': req.body.label,
+								'theme': theme,
+								'root': req.body.root || null,
+								'private': isPrivate,
+								'users': [],
+								'published': isPublished,
+								'cache': null
+							};
+
+							return siteService.createSite(siteModel, siteTemplateFiles)
+								.then(function(siteModel) {
+									if (!isDefaultSite) { return siteModel; }
+									return userService.updateUserDefaultSiteName(username, siteModel.name)
+										.then(function() {
+											return siteModel;
+										});
+								})
+								.then(function(siteModel) {
+									res.redirect(303, redirectUrl);
 								});
-						})
-						.then(function(siteModel) {
-							res.redirect(303, redirectUrl);
 						})
 				);
 			})
 			.catch(function(error) {
 				next(error);
 			});
+
+
+			function retrieveSiteTheme(username, siteName, themeId, themeConfig) {
+				return Promise.resolve(
+					siteName ?
+						siteService.retrieveSite(username, siteName, { theme: true })
+							.then(function(siteModel) {
+								return siteModel.theme;
+							})
+					:
+						null
+				)
+					.then(function(baseTheme) {
+						if (baseTheme && themeId && (themeId !== baseTheme.id)) { baseTheme = null; }
+						var overriddenThemeId = themeId || baseTheme.id;
+						var themeConfigDefaults = (baseTheme ? baseTheme.config : themeService.getTheme(overriddenThemeId).defaults);
+						var overriddenThemeConfig = merge({}, themeConfigDefaults, themeConfig);
+						return {
+							id: overriddenThemeId,
+							config: overriddenThemeConfig
+						};
+					});
+			}
 		}
 
 		function retrieveSiteRoute(req, res, next) {
