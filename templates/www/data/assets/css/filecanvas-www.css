@@ -64,13 +64,38 @@ fieldset[disabled] .btn {
 	-webkit-box-shadow: none;
 	margin-bottom: 50px;
 }
-.well > h3:first-child,
-.well > .h3:first-child {
+.well-content {
+	position: relative;
+}
+.well-content > h3:first-child,
+.well-content > .h3:first-child {
 	margin-bottom: 30px;
 }
-.well p {
+.well-content p {
 	font-size: 16px;
 }
+.well:focus {
+	outline: none;
+	position: relative;
+}
+.well:focus::before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #337ab7;
+	opacity: 0;
+	-webkit-animation: pulse 0.5s 1 forwards;
+	-moz-animation: pulse 0.5s 1 forwards;
+	-ms-animation: pulse 0.5s 1 forwards;
+	-o-animation: pulse 0.5s 1 forwards;
+	animation: pulse 0.5s 1 forwards;
+}
+@keyframes pulse { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+@-webkit-keyframes pulse { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
 
 @media screen and (min-width: 768px) {
 	.navbar-default {
