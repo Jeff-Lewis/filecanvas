@@ -1,0 +1,10 @@
+{
+	"env": {
+		"node": false,
+		"commonjs": true,
+		"browser": true
+	},
+	"globals": {
+		"$": false
+	}
+}
