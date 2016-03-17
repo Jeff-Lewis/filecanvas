@@ -8,6 +8,13 @@ var mime = require('mime');
 
 var FileModel = require('../models/FileModel');
 
+var THUMBNAIL_EXTENSIONS = [
+	'.jpg',
+	'.jpeg',
+	'.png',
+	'.gif'
+];
+
 module.exports = function(filePath, options) {
 	options = options || {};
 	var rootPath = options.root || null;
@@ -89,7 +96,8 @@ function loadFileMetadata(filePath, rootPath, includeContents) {
 
 function parseStatModel(stat, filePath) {
 	var mimeType = stat.isFile() ? mime.lookup(filePath) : null;
-	var hasThumbnail = Boolean(mimeType) && mimeType.split('/')[0] === 'image';
+	var extension = stat.isFile() ? path.extname(filePath) : null;
+	var hasThumbnail = Boolean(extension) && (THUMBNAIL_EXTENSIONS.indexOf(extension) !== -1);
 	var isDirectory = stat.isDirectory();
 	return new FileModel({
 		id: filePath,
