@@ -10,8 +10,11 @@ var MB = 1024 * KB;
 // Shortcut files larger than this will not be parsed
 var MAX_SHORTCUT_FILE_SIZE = 4 * KB;
 
-// Image files larger than this will not have thumbnails generated
-var MAX_PREVIEW_FILE_SIZE = 20 * MB;
+// Files larger than this will not have thumbnails generated
+var MAX_THUMBNAIL_FILE_SIZE = 10 * MB;
+
+// Files larger than this will not show a preview
+var MAX_PREVIEW_FILE_SIZE = 5 * MB;
 
 module.exports['login'] = function(rootModel) {
 	return rootModel.metadata.siteRoot + 'login';
@@ -62,6 +65,11 @@ module.exports['is-shortcut'] = function(file) {
 	var SHORTCUT_EXTENSIONS = ['.url', '.webloc', '.desktop'];
 	var isShortcutFile = (SHORTCUT_EXTENSIONS.indexOf(extension) !== -1);
 	return isShortcutFile && (fileSize <= MAX_SHORTCUT_FILE_SIZE);
+};
+module.exports['has-thumbnail'] = function(file) {
+	var fileSize = file.size;
+	var hasThumbnail = Boolean(file.thumbnail) && (fileSize <= MAX_THUMBNAIL_FILE_SIZE);
+	return hasThumbnail;
 };
 module.exports['has-preview'] = function(file) {
 	var extension = path.extname(file.path);
