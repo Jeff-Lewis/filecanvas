@@ -42,7 +42,7 @@
 				{
 					"name": "pageSubtitle",
 					"type": "string",
-					"default": "Your company slogan",
+					"default": "Your canvas title",
 					"preview": "2016 Portfolio",
 					"demo": "Interactive demo",
 					"label": "Sidebar subtitle",
