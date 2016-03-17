@@ -8,8 +8,8 @@
 		data-file-size={{ file.size }}
 		data-file-modified={{ timestamp file.modified }}
 	>
-		<div class="item-preview{{ if file.thumbnail ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
-			{{#if file.thumbnail}}
+		<div class="item-preview{{ if (has-thumbnail file) ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
+			{{#if (has-thumbnail file)}}
 			<div class="item-preview-thumbnail" style="background-image: url('{{ thumbnail @root file }}');"></div>
 			{{else}}
 			<div class="item-preview-icon">

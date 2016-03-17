@@ -8,8 +8,8 @@
 		data-file-size={{ file.size }}
 		data-file-modified={{ timestamp file.modified }}
 	>
-		<div class="profile-photo{{ if file.thumbnail ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
-			{{#if file.thumbnail}}
+		<div class="profile-photo{{ if (has-thumbnail file) ' has-thumbnail' ''}}" data-extension="{{ extension file }}">
+			{{#if (has-thumbnail file)}}
 			<div class="profile-thumbnail">
 				<img src="{{ thumbnail @root file }}"/>
 			</div>
