@@ -8,6 +8,16 @@ body {
 	font-variant-ligatures: none;
 }
 
+@media screen and (min-width: 768px) {
+	p.lead + p.lead {
+		margin-top: -15px;
+	}
+}
+
+p.lead + hr {
+	margin-top: 40px;
+}
+
 .btn {
 	text-transform: uppercase;
 }
@@ -903,8 +913,9 @@ fieldset[disabled] .btn {
 }
 
 .page-hero {
-	padding-top: 40px;
 	position: relative;
+	padding-top: 40px;
+	padding-bottom: 10px;
 	background-color: #fefefe;
 }
 .page-hero + .page-section:nth-child(even),
@@ -915,6 +926,16 @@ fieldset[disabled] .btn {
 .page-hero .device-preview {
 	position: relative;
 	margin-top: -150px;
+}
+
+.intro-text {
+	font-size: 16px;
+	margin-bottom: 20px;
+}
+@media screen and (min-width: 768px) {
+	.intro-text {
+		text-align: center;
+	}
 }
 
 
