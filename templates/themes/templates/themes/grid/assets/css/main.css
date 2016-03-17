@@ -80,7 +80,26 @@ a.contact-social-link {
 	position: relative;
 	list-style: none;
 	margin: 0;
-	padding: 0;
+	padding: 15px 0 0 15px;
+}
+.item-divider {
+	clear: both;
+	text-align: center;
+}
+.item-divider h3 {
+	margin: 0;
+	padding: 40px 15px 15px 0;
+}
+.item-divider:first-child h3 {
+	padding-top: 10px;
+}
+@media screen and (min-width: 768px) {
+	.item-divider {
+		text-align: left;
+	}
+	.item-divider h3 {
+		padding: 60px 10px 10px;
+	}
 }
 .item {
 	float: left;
@@ -89,9 +108,6 @@ a.contact-social-link {
 	overflow: hidden;
 	margin: 0;
 	padding: 0;
-}
-.items {
-	padding: 15px 0 0 15px;
 }
 .item,
 .item-link {

@@ -26,6 +26,11 @@
 		font-weight: {{ metadata.theme.config.fonts.pageSubtitle.font-weight }};
 		text-transform: {{ metadata.theme.config.fonts.pageSubtitle.text-transform }};
 	}
+	h3 {
+		font-family: {{ metadata.theme.config.fonts.sectionHeader.font-family }}, sans-serif;
+		font-weight: {{ metadata.theme.config.fonts.sectionHeader.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.sectionHeader.text-transform }};
+	}
 	.sidebar,
 	.sidebar a,
 	.sidebar a:link,
@@ -61,7 +66,8 @@
 	.sidebar-header-title {
 		color: {{ metadata.theme.config.colors.pageTitle }};
 	}
-	.sidebar-header-subtitle {
+	.sidebar-header-subtitle,
+	h3 {
 		color: {{ metadata.theme.config.colors.pageSubtitle }};
 	}
 	body,
@@ -104,6 +110,11 @@
 	.item-preview-rollover-button {
 		background-color: {{ metadata.theme.config.colors.itemPreviewButtonBackground }};
 		color: {{ metadata.theme.config.colors.itemPreviewButtonText }};
+	}
+	@media screen and (min-width: 768px) {
+		h3 {
+			color: {{ metadata.theme.config.colors.sectionHeader }};
+		}
 	}
 </style>
 <style type="text/css">{{ css metadata.theme.config.scripts.css }}</style>

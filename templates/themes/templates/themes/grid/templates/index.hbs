@@ -21,6 +21,7 @@
 					{{ partial 'file' file=file parent=resource.root }}
 				{{/each}}
 				{{#each (folders resource.root) key='path' as |folder|}}
+				{{#if (eq metadata.theme.config.layout.hasSectionHeaders 'true')}}<li class="item-divider"><h3>{{ strip-number-prefix folder }}</h3></li>{{/if}}
 				{{#each (flattenedFiles folder) key='path' as |file|}}
 					{{ partial 'file' file=file parent=folder }}
 				{{/each}}

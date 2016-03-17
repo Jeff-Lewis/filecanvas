@@ -27,10 +27,12 @@
 	  "itemPreviewTitleBackground": "#365566",
 	  "itemPreviewTitleText": "#ffffff",
 	  "itemPreviewButtonBackground": "#3ea397",
-	  "itemPreviewButtonText": "#ffffff"
+	  "itemPreviewButtonText": "#ffffff",
+	  "sectionHeader": "#666666"
 	},
 	"layout": {
-	  "hasGutter": "true"
+	  "hasGutter": "true",
+	  "hasSectionHeaders": "true"
 	},
 	"fonts": {
 	  "pageTitle": {
@@ -62,7 +64,13 @@
 		"font-family": "'Montserrat'",
 		"font-weight": "normal",
 		"text-transform": "uppercase"
+	  },
+	  "sectionHeader": {
+		"font-family": "'Montserrat'",
+		"font-weight": "normal",
+		"text-transform": "uppercase"
 	  }
+
 	},
 	"images": {
 	  "headerLogo": "",
