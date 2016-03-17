@@ -1,28 +1,33 @@
 [
 	{
 		"id": "share-link",
-		"title": "Will other people need to sign up for Filecanvas or Dropbox to access my canvases?",
+		"title": "Will other people need to sign up for Filecanvas or Dropbox/Google Drive to access my canvases?",
 		"body": "<p>No. For others to view your canvas, all they need is the web address of the canvas.</p><p>The web address for a canvas takes the form <strong><a>https://${username}.filecanvas.com/${sitename}</a></strong>, where <strong>${username}</strong> is your Filecanvas username and <strong>${sitename}</strong> is your canvas path (as specified in your <a href=\"/account\">account settings</a> page and the canvas's settings page).</p><p>These links can be shared with anybody, however you can choose to <a href=\"#password-protection\">password-protect</a> your sites to keep them private.</p>"
 	},
 	{
 		"id": "canvas-folder",
 		"title": "Where are my canvases stored?",
-		"body": "<p>Filecanvas does <strong>not</strong> store any of your files. All the files in your canvases are located on Dropbox's secure file servers.</p><p>By default, whenever you create a canvas, Filecanvas will create a new canvas folder within a folder named <code>filecanvas</code> inside your Dropbox. Your canvas will then stay in sync with the contents of this folder.</p>"
+		"body": "<p>Filecanvas does <strong>not</strong> store any of your files. All the files in your canvases are hosted by your cloud provider (Dropbox or Google Drive).</p><p>By default, whenever you create a canvas, Filecanvas will create a new canvas folder within a folder named <code>Filecanvas</code> inside your Dropbox or Google Drive root. Your canvas will then stay in sync with the contents of this folder.</p>"
 	},
 	{
 		"id": "share-folder",
 		"title": "Can I invite others to collaborate on a canvas?",
-		"body": "<p>Absolutely. You can use Dropbox's <a href=\"https://www.dropbox.com/en/help/19\">shared folders</a> feature to share a canvas's folder with other Dropbox users. Any changes they make to the folder contents will be reflected in the canvas.</p>"
+		"body": "<p>Absolutely. You can use the <strong>shared folders</strong> feature provided (see instructions for <a href=\"https://www.dropbox.com/en/help/19\">Dropbox</a> and <a href=\"https://support.google.com/drive/answer/2494822\">Google Drive</a>) to share a canvas's folder with other collaborators. Any changes they make to the folder contents will be reflected in the canvas.</p>"
 	},
 	{
 		"id": "canvas-limit",
 		"title": "Is there a limit to how many canvases I can create from one account?",
-		"body": "<p>During the beta phase, you can create as many canvases as you want. Please be aware that this is likely to change once the beta phase ends.</p>"
+		"body": "<p>During the beta phase, you can create as many canvases as you want. Please be aware that this will change once the beta phase ends.</p>"
+	},
+	{
+		"id": "beta-limit",
+		"title": "How long will the beta phase last?",
+		"body": "<p>The beta phase will be finished once we're totally happy that the product is ready for general release. We'll give you lots of warning of when this will be, and will ensure that the transition from beta to general release will be as smooth as possible. You shouldn't notice any disruption to the service during this transition.</p>"
 	},
 	{
 		"id": "missing-all-files",
 		"title": "Where did my files go? My canvas is suddenly empty!",
-		"body": "<p>Sounds like either you've moved or renamed your folder within your Dropbox, or you've revoked Filecanvas's access to your Dropbox.</p><p>If you've moved or renamed your canvas folder, you can either move the folder back to its original location (within the <code>filecanvas</code> folder in your Dropbox), or you can update your canvas's <strong>Linked folder</strong> setting in the canvas settings page to match the folder's new location.</p><p>If you've accidentally revoked Filecanvas's access to your Dropbox folder, just log into Filecanvas and it will restore Filecanvas's access to your Dropbox.<p>"
+		"body": "<p>Sounds like either you've moved or renamed your folder within your Dropbox or Google Drive, or you've revoked Filecanvas's access to your Dropbox or Google Drive.</p><p>If you've moved or renamed your canvas folder, you can either move the folder back to its original location (within the <code>Filecanvas</code> folder in your Dropbox or Google Drive), or you can update your canvas's <strong>Linked folder</strong> setting in the canvas settings page to match the folder's new location.</p><p>If you've accidentally revoked Filecanvas's access to your Dropbox or Google Drive folder, just log into Filecanvas and it will restore Filecanvas's access.<p>"
 	},
 	{
 		"id": "password-protection",
@@ -46,13 +51,13 @@
 	},
 	{
 		"id": "move-rename-canvas-folder",
-		"title": "Can I move/rename my canvas folder within my Dropbox?",
-		"body": "<p>Yes, however make sure to update the <strong>Linked folder</strong> path in your canvas settings accordingly, or it will appear as if there are no files in your canvas.</p><p>You can put your sites anywhere in your Dropbox, however it's recommended that canvas folders should be kept in a folder named <code>filecanvas</code> in your Dropbox root.</p>"
+		"title": "Can I move/rename my canvas folder within my Dropbox or Google Drive?",
+		"body": "<p>Yes, however make sure to update the <strong>Linked folder</strong> path in your canvas settings accordingly, or it will appear as if there are no files in your canvas.</p><p>You can put your sites anywhere in your Dropbox or Google Drive, however it's recommended that canvas folders should be kept in a folder named <code>Filecanvas</code> in your Dropbox or Google Drive root.</p>"
 	},
 	{
 		"id": "existing-canvas-folder",
 		"title": "Can I use an existing folder as a canvas folder?",
-		"body": "<p>Yes. Make sure the folder is inside the <code>Filecanvas</code> folder within your Dropbox, and then create a new canvas, making sure to set the <strong>Canvas name</strong> to the name of the folder.</p>"
+		"body": "<p>Yes. Make sure the folder is inside the <code>Filecanvas</code> folder within your Dropbox or Google Drive, and then create a new canvas, making sure to set the <strong>Canvas name</strong> to the name of the folder.</p>"
 	},
 	{
 		"id": "custom-domain",
