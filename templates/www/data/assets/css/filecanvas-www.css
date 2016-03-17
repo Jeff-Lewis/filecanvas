@@ -148,6 +148,7 @@ fieldset[disabled] .btn {
 }
 
 .equation {
+	margin-top: 20px;
 	margin-bottom: 20px;
 }
 .equation-input,
