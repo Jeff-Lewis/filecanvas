@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="700px" height="700px" viewBox="0 0 700 700" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.6.1 (26313) - http://www.bohemiancoding.com/sketch -->
+    <title>Artboard</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard" fill="#333333">
+            <text id="Filecanvas" font-family="Lato-Regular, Lato" font-size="128" font-weight="normal">
+                <tspan x="58.084" y="658">Filecanvas</tspan>
+            </text>
+            <g id="Group" transform="translate(190.000000, 39.000000)">
+                <path d="M0,336 L320,336 L320,360 L256,360 L284,460 L236,472 L212,360 L108,360 L84,472 L36,460 L64,360 L0,360 L0,336 Z" id="Stand"></path>
+                <path d="M32,64 L208,64 C208,64 212,78 212,100 C212,122 208,144 208,144 L292,144 L292,328 L32,328 L32,64 Z" id="File-body"></path>
+                <path d="M216,64 C216,64 220,82 220,100 C220,118 216,136 216,136 L288,136 L216,64 Z" id="File-corner"></path>
+                <path d="M128,56 L192,56 L180,0 L140,0 L128,56 Z" id="Top"></path>
+            </g>
+        </g>
+    </g>
+</svg>
