@@ -1051,6 +1051,52 @@ fieldset[disabled] .btn {
 	}
 }
 
+.diagram {
+	width: 100%;
+	margin-bottom: 40px;
+	text-align: center;
+	max-width: 540px;
+	margin: auto;
+	box-sizing: content-box;
+	margin-bottom: 40px;
+}
+@media screen and (min-width: 480px) {
+	.diagram {
+		padding: 20px 60px;
+		background: #f5f5f5;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+	}
+}
+.diagram figure {
+	position: relative;
+	width: 100%;
+}
+.diagram figure img {
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+}
+.diagram figcaption {
+	display: table;
+	position: absolute;
+	left: 0;
+	width: 100%;
+	top: 66.66666667%;
+}
+.diagram figcaption h3 {
+	display: block;
+	font-size: 16px;
+}
+.diagram figcaption h3:first-child {
+	float: left;
+	width: 35.185185185185%;
+}
+.diagram figcaption h3:last-child {
+	float: right;
+	width: 30.555555555556%;
+}
+
 .article-markdown {
 	margin-top: 20px;
 	margin-bottom: 60px;
