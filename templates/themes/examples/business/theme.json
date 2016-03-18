@@ -73,8 +73,8 @@
 
 	},
 	"images": {
-	  "headerLogo": "",
-	  "headerLogoCentered": "false"
+	  "headerLogo": "https://s3.amazonaws.com/filecanvas-theme-assets/showcase/business/logo.png",
+	  "headerLogoCentered": "true"
 	},
 	"browser": {
 	  "title": ""
