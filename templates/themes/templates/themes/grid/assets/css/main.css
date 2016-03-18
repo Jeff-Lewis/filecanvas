@@ -306,10 +306,10 @@ a.contact-social-link {
 .file-icon-content {
 	fill: #999;
 }
-.file-icon-title {
+.file-icon-footer {
 	fill: white;
 }
-.file-icon .file-icon-text {
+.file-icon-text {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size: 13px;
 	font-weight: bold;

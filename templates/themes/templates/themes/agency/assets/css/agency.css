@@ -183,10 +183,10 @@ footer a:hover {
 .file-icon-content {
 	fill: #2d2d2d;
 }
-.file-icon-title {
+.file-icon-footer {
 	fill: #FFFFFF;
 }
-.file-icon .file-icon-text {
+.file-icon-text {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size: 13px;
 	font-weight: bold;
