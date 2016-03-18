@@ -100,6 +100,9 @@ a.contact-social-link {
 	.item-divider h3 {
 		padding: 60px 10px 10px;
 	}
+	.item-divider:first-child h3 {
+		padding-top: 35px;
+	}
 }
 .item {
 	float: left;
