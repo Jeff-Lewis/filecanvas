@@ -2,9 +2,9 @@
 	<div class="sidebar-content">
 		<div class="sidebar-header">
 			{{#if metadata.theme.config.images.headerLogo}}
-			<a class="sidebar-header-logo{{ if (eq metadata.theme.config.images.headerLogoCentered 'true') ' logo-centered' '' }}" href={{ if metadata.theme.config.footer.website metadata.theme.config.footer.website null }} target="_blank">
+			<div class="sidebar-header-logo{{ if (eq metadata.theme.config.images.headerLogoCentered 'true') ' logo-centered' '' }}">
 				<img class="sidebar-header-logo-image" src={{ metadata.theme.config.images.headerLogo }}/>
-			</a>
+			</div>
 			{{/if}}
 			<h1 class="sidebar-header-title" data-admin-field="theme.config.content.pageTitle">{{ metadata.theme.config.content.pageTitle }}</h1>
 			<h2 class="sidebar-header-subtitle" data-admin-field="theme.config.content.pageSubtitle">{{ metadata.theme.config.content.pageSubtitle }}</h2>
