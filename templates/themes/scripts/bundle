@@ -13,9 +13,14 @@ try {
 var inputPath = args[0];
 var outputPath = args[1];
 var isProduction = process.env.NODE_ENV === 'production';
+var analyticsConfig = null;
 
 log('Loading theme bundle from ' + inputPath);
-bundle(inputPath, outputPath, { log: log, expandSymlinks: isProduction }, function(error) {
+bundle(inputPath, outputPath, {
+	expandSymlinks: isProduction,
+	analytics: analyticsConfig,
+	log: log
+}, function(error) {
 	if (error) { return exit(error); }
 	log('Created theme bundle at ' + outputPath);
 });

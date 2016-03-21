@@ -33,8 +33,9 @@ module.exports = function(inputPath, outputPath, options, callback) {
 		options = null;
 	}
 	options = options || {};
-	var log = options.log || function(message) { };
+	var analyticsConfig = options.analytics;
 	var shouldExpandSymlinks = options.expandSymlinks;
+	var log = options.log || function(message) { };
 
 	var previewFilesPath = path.join(inputPath, THEME_PREVIEW_FILES_PATH);
 	var themeAssetsPath = path.join(inputPath, THEME_ASSETS_PATH);
@@ -78,7 +79,8 @@ module.exports = function(inputPath, outputPath, options, callback) {
 			var previewConfig = merge({}, theme.defaults, pluckThemeConfigVersion(theme.config, 'preview'));
 			return renderTheme(inputPath, outputPreviewPath, {
 				config: previewConfig,
-				files: previewFilesPath
+				files: previewFilesPath,
+				analytics: analyticsConfig
 			});
 		})
 		.then(function() {

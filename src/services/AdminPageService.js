@@ -11,8 +11,17 @@ function AdminPageService(options) {
 	var templatesPath = options.templatesPath;
 	var partialsPath = options.partialsPath;
 	var sessionMiddleware = options.sessionMiddleware;
+	var analyticsConfig = options.analytics;
+
+	if (!templatesPath) { throw new Error('Missing templates path'); }
+	if (!partialsPath) { throw new Error('Missing partials path'); }
+	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+
 	this.templatesPath = templatesPath;
 	this.partials = resolvePartials(partialsPath);
+	this.analyticsConfig = analyticsConfig;
+
 	this.loadSessionData = function(req, res) {
 		return new Promise(function(resolve, reject) {
 			sessionMiddleware(req, res, function(error) {
@@ -34,10 +43,11 @@ AdminPageService.prototype.render = function(req, res, options) {
 	var pageTemplateName = options.template;
 	var context = options.context || null;
 	var templateOptions = merge({}, { partials: this.partials }, options.options);
+	var analyticsConfig = this.analyticsConfig;
 
 	return this.loadSessionData(req, res)
 		.then(function() {
-			var templateData = getTemplateData(req, res, context, templateOptions);
+			var templateData = getTemplateData(req, res, context, templateOptions, analyticsConfig);
 			if (req.session && req.session.state) {
 				delete req.session.state;
 			}
@@ -61,7 +71,7 @@ AdminPageService.prototype.render = function(req, res, options) {
 
 module.exports = AdminPageService;
 
-function getTemplateData(req, res, context, templateOptions) {
+function getTemplateData(req, res, context, templateOptions, analyticsConfig) {
 	templateOptions = templateOptions || null;
 	var templateData = {
 		_: templateOptions,
@@ -72,7 +82,8 @@ function getTemplateData(req, res, context, templateOptions) {
 	function getTemplateSessionData(req, res) {
 		var session = {
 			state: req.session && req.session.state || null,
-			user: req.user || null
+			user: req.user || null,
+			analytics: analyticsConfig
 		};
 		return objectAssign({}, res.locals, session);
 	}

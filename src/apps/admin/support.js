@@ -11,15 +11,18 @@ module.exports = function(options) {
 	var templatesPath = options.templatesPath || null;
 	var partialsPath = options.partialsPath || null;
 	var sessionMiddleware = options.sessionMiddleware || null;
+	var analyticsConfig = options.analytics || null;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
-		sessionMiddleware: sessionMiddleware
+		sessionMiddleware: sessionMiddleware,
+		analytics: analyticsConfig
 	});
 
 	var app = express();

@@ -49,6 +49,7 @@ module.exports = function(database, cache, options) {
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
 	var uploadAdapterConfig = options.uploadAdapter;
+	var analyticsConfig = options.analytics;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!cache) { throw new Error('Missing key-value store'); }
@@ -67,6 +68,7 @@ module.exports = function(database, cache, options) {
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 
 	var loginAdapters = loadLoginAdapters(adaptersConfig, database);
 	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
@@ -87,7 +89,8 @@ module.exports = function(database, cache, options) {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
 		adapters: loginAdapters,
-		sessionMiddleware: initAdminSession
+		sessionMiddleware: initAdminSession,
+		analytics: analyticsConfig
 	});
 	initHome(app, {
 		redirect: '/canvases'
@@ -96,18 +99,21 @@ module.exports = function(database, cache, options) {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
 		faqPath: faqPath,
-		sessionMiddleware: initAdminSession
+		sessionMiddleware: initAdminSession,
+		analytics: analyticsConfig
 	});
 	initSupport(app, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
-		sessionMiddleware: initAdminSession
+		sessionMiddleware: initAdminSession,
+		analytics: analyticsConfig
 	});
 	initAccount(app, database, {
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
 		adapters: loginAdapters,
-		sessionMiddleware: initAdminSession
+		sessionMiddleware: initAdminSession,
+		analytics: analyticsConfig
 	});
 	initSites(app, database, {
 		host: host,
@@ -120,13 +126,15 @@ module.exports = function(database, cache, options) {
 		themesUrl: themesUrl,
 		adapters: storageAdapters,
 		uploadAdapter: uploadAdapter,
-		sessionMiddleware: initAdminSession
+		sessionMiddleware: initAdminSession,
+		analytics: analyticsConfig
 	});
 	initPreview(app, database, cache, {
 		host: host,
 		themesPath: themesPath,
 		themesUrl: themesUrl,
-		adaptersConfig: adaptersConfig
+		adaptersConfig: adaptersConfig,
+		analytics: analyticsConfig
 	});
 	initTemplates(app, {
 		templatesPath: templatesPath,
@@ -158,6 +166,7 @@ module.exports = function(database, cache, options) {
 		var partialsPath = options.partialsPath;
 		var faqPath = options.faqPath;
 		var sessionMiddleware = options.sessionMiddleware;
+		var analyticsConfig = options.analytics;
 
 		app.use('/faq', composeMiddleware([
 			ensureAuth('/login'),
@@ -165,7 +174,8 @@ module.exports = function(database, cache, options) {
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
 				faqPath: faqPath,
-				sessionMiddleware: sessionMiddleware
+				sessionMiddleware: sessionMiddleware,
+				analytics: analyticsConfig
 			})
 		]));
 	}
@@ -175,13 +185,15 @@ module.exports = function(database, cache, options) {
 		var templatesPath = options.templatesPath;
 		var partialsPath = options.partialsPath;
 		var sessionMiddleware = options.sessionMiddleware;
+		var analyticsConfig = options.analytics;
 
 		app.use('/support', composeMiddleware([
 			ensureAuth('/login'),
 			supportApp({
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
-				sessionMiddleware: sessionMiddleware
+				sessionMiddleware: sessionMiddleware,
+				analytics: analyticsConfig
 			})
 		]));
 	}
@@ -192,6 +204,7 @@ module.exports = function(database, cache, options) {
 		var partialsPath = options.partialsPath;
 		var sessionMiddleware = options.sessionMiddleware;
 		var adapters = options.adapters;
+		var analyticsConfig = options.analytics;
 
 		app.use('/account', composeMiddleware([
 			ensureAuth('/login'),
@@ -199,7 +212,8 @@ module.exports = function(database, cache, options) {
 				templatesPath: templatesPath,
 				partialsPath: partialsPath,
 				adapters: adapters,
-				sessionMiddleware: sessionMiddleware
+				sessionMiddleware: sessionMiddleware,
+				analytics: analyticsConfig
 			})
 		]));
 	}
@@ -228,6 +242,7 @@ module.exports = function(database, cache, options) {
 		var adapters = options.adapters;
 		var uploadAdapter = options.uploadAdapter;
 		var sessionMiddleware = options.sessionMiddleware;
+		var analyticsConfig = options.analytics;
 
 		app.use('/canvases', composeMiddleware([
 			ensureAuth('/login'),
@@ -242,7 +257,8 @@ module.exports = function(database, cache, options) {
 				themesUrl: themesUrl,
 				adapters: adapters,
 				uploadAdapter: uploadAdapter,
-				sessionMiddleware: sessionMiddleware
+				sessionMiddleware: sessionMiddleware,
+				analytics: analyticsConfig
 			})
 		]));
 	}
@@ -253,6 +269,7 @@ module.exports = function(database, cache, options) {
 		var themesPath = options.themesPath;
 		var themesUrl = options.themesUrl;
 		var adaptersConfig = options.adaptersConfig;
+		var analyticsConfig = options.analytics;
 
 		app.use('/preview', composeMiddleware([
 			ensureAuth('/login'),
@@ -260,7 +277,8 @@ module.exports = function(database, cache, options) {
 				host: host,
 				themesPath: themesPath,
 				themesUrl: themesUrl,
-				adaptersConfig: adaptersConfig
+				adaptersConfig: adaptersConfig,
+				analytics: analyticsConfig
 			})
 		]));
 	}
@@ -285,6 +303,7 @@ module.exports = function(database, cache, options) {
 		var partialsPath = options.partialsPath;
 		var adapters = options.adapters;
 		var sessionMiddleware = options.sessionMiddleware;
+		var analyticsConfig = options.analytics;
 
 		var userService = new UserService(database);
 
@@ -321,7 +340,8 @@ module.exports = function(database, cache, options) {
 			templatesPath: templatesPath,
 			partialsPath: partialsPath,
 			adapters: adapters,
-			sessionMiddleware: sessionMiddleware
+			sessionMiddleware: sessionMiddleware,
+			analytics: analyticsConfig
 		});
 		var forceRegisterIfPendingUser = function(req, res, next) {
 			if (!req.isAuthenticated()) {

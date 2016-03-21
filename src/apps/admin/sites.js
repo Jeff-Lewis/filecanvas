@@ -28,6 +28,7 @@ module.exports = function(database, options) {
 	var adapters = options.adapters || null;
 	var uploadAdapter = options.uploadAdapter || null;
 	var sessionMiddleware = options.sessionMiddleware || null;
+	var analyticsConfig = options.analytics || null;
 
 	if (!host) { throw new Error('Missing host details'); }
 	if (!templatesPath) { throw new Error('Missing templates path'); }
@@ -40,6 +41,7 @@ module.exports = function(database, options) {
 	if (!adapters) { throw new Error('Missing adapters'); }
 	if (!uploadAdapter) { throw new Error('Missing upload adapter'); }
 	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 
 	var siteTemplateFiles = readDirContentsSync(siteTemplatePath);
 
@@ -57,7 +59,8 @@ module.exports = function(database, options) {
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
-		sessionMiddleware: sessionMiddleware
+		sessionMiddleware: sessionMiddleware,
+		analytics: analyticsConfig
 	});
 
 	var app = express();

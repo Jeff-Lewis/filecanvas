@@ -16,16 +16,19 @@ module.exports = function(options) {
 	var partialsPath = options.partialsPath || null;
 	var faqPath = options.faqPath || null;
 	var sessionMiddleware = options.sessionMiddleware || null;
+	var analyticsConfig = options.analytics || null;
 
 	if (!templatesPath) { throw new Error('Missing templates path'); }
 	if (!partialsPath) { throw new Error('Missing partials path'); }
 	if (!faqPath) { throw new Error('Missing FAQ data path'); }
 	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
-		sessionMiddleware: sessionMiddleware
+		sessionMiddleware: sessionMiddleware,
+		analytics: analyticsConfig
 	});
 
 	var faqData = JSON.parse(fs.readFileSync(faqPath, { encoding: 'utf8' }));

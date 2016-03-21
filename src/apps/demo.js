@@ -38,7 +38,8 @@ module.exports = function(database, cache, options) {
 	var adminTemplatesUrl = options.adminTemplatesUrl;
 	var themesUrl = options.themesUrl;
 	var wwwUrl = options.wwwUrl;
-	var uploadAdapterConfig = options.uploadAdapter || null;
+	var uploadAdapterConfig = options.uploadAdapter;
+	var analyticsConfig = options.analytics;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!cache) { throw new Error('Missing key-value store'); }
@@ -55,6 +56,7 @@ module.exports = function(database, cache, options) {
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
 	if (!wwwUrl) { throw new Error('Missing www URL'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
@@ -68,7 +70,8 @@ module.exports = function(database, cache, options) {
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
 		partialsPath: partialsPath,
-		sessionMiddleware: initAdminSession
+		sessionMiddleware: initAdminSession,
+		analytics: analyticsConfig
 	});
 
 	var app = express();

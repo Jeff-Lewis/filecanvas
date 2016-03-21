@@ -27,6 +27,7 @@ module.exports = function(database, cache, options) {
 	var themesUrl = options.themesUrl;
 	var isPreview = options.preview;
 	var adaptersConfig = options.adapters;
+	var analyticsConfig = options.analytics;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!cache) { throw new Error('Missing key-value store'); }
@@ -34,6 +35,7 @@ module.exports = function(database, cache, options) {
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
 	if (!isPreview && !sessionStore) { throw new Error('Missing session store URL'); }
 	if (!isPreview && !sessionDuration) { throw new Error('Missing session duration'); }
@@ -433,7 +435,8 @@ module.exports = function(database, cache, options) {
 												themeRoot: themesUrl + themeId + '/assets/',
 												theme: siteTheme,
 												retry: isRetryAttempt,
-												redirect: redirectUrl
+												redirect: redirectUrl,
+												analytics: analyticsConfig
 											},
 											resource: {
 												private: siteModel.private
@@ -492,7 +495,8 @@ module.exports = function(database, cache, options) {
 											metadata: {
 												siteRoot: getSiteRootUrl(req),
 												themeRoot: themesUrl + themeId + '/assets/',
-												theme: siteTheme
+												theme: siteTheme,
+												analytics: analyticsConfig
 											},
 											resource: {
 												private: siteModel.private,

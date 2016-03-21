@@ -101,7 +101,8 @@ module.exports = function(database, cache, config) {
 			adminTemplatesUrl: adminTemplatesUrl,
 			themesUrl: themesUrl,
 			wwwUrl: wwwUrl,
-			uploadAdapter: config.uploaders.demo
+			uploadAdapter: config.uploaders.demo,
+			analytics: config.analytics.demo
 		}),
 		'my': adminApp(database, cache, {
 			host: host,
@@ -118,7 +119,8 @@ module.exports = function(database, cache, config) {
 			wwwUrl: wwwUrl,
 			adapters: config.adapters,
 			uploadAdapter: config.uploaders.admin,
-			siteAuth: config.auth.site
+			siteAuth: config.auth.site,
+			analytics: config.analytics.admin
 		}),
 		'sites': sitesApp(database, cache, {
 			host: host,
@@ -127,7 +129,8 @@ module.exports = function(database, cache, config) {
 			sessionDuration: config.session.duration,
 			themesPath: themesPath,
 			themesUrl: themesUrl,
-			adapters: config.adapters
+			adapters: config.adapters,
+			analytics: config.analytics.sites
 		}),
 		'*': 'sites',
 		'': redirectToSubdomain({

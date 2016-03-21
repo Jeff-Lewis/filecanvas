@@ -39,6 +39,7 @@ module.exports = function(themePath, outputPath, options) {
 	options = options || {};
 	var themeConfig = options.config;
 	var themeFilesPath = options.files;
+	var analyticsConfig = options.analytics;
 
 	var themeAssetsPath = path.join(themePath, THEME_ASSETS_PATH);
 	var themeFiles = loadFileMetadata(themeFilesPath, {
@@ -53,7 +54,8 @@ module.exports = function(themePath, outputPath, options) {
 	return renderThemeTemplates(theme, {
 		path: themePath,
 		config: themeConfig,
-		files: themeFiles
+		files: themeFiles,
+		analytics: analyticsConfig
 	})
 	.then(function(pagePreviews) {
 		return Promise.all([
@@ -68,11 +70,13 @@ module.exports = function(themePath, outputPath, options) {
 		var themePath = options.path;
 		var themeConfig = options.config;
 		var rootFile = options.files;
+		var analyticsConfig = options.analytics;
 		var resolvedTheme = resolveThemePaths(theme, themePath);
 		return Promise.all(Object.keys(resolvedTheme.templates).map(function(templateId) {
 			var templateData = getPreviewTemplateData(resolvedTheme, templateId, {
 				config: themeConfig,
-				files: rootFile
+				files: rootFile,
+				analytics: analyticsConfig
 			});
 			return themeService.renderThemeTemplate(resolvedTheme, templateId, templateData)
 				.then(function(html) {
@@ -89,6 +93,7 @@ module.exports = function(themePath, outputPath, options) {
 			options = options || {};
 			var themeConfig = options.config;
 			var themeFiles = options.files;
+			var analyticsConfig = options.analytics;
 			var data = {
 				private: false
 			};
@@ -102,7 +107,8 @@ module.exports = function(themePath, outputPath, options) {
 					theme: {
 						id: theme.id,
 						config: themeConfig
-					}
+					},
+					analytics: analyticsConfig
 				},
 				resource: data
 			};

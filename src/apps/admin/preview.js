@@ -10,6 +10,7 @@ module.exports = function(database, cache, options) {
 	var themesPath = options.themesPath || null;
 	var themesUrl = options.themesUrl || null;
 	var adaptersConfig = options.adaptersConfig || null;
+	var analyticsConfig = options.analytics || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!cache) { throw new Error('Missing key-value store'); }
@@ -17,6 +18,7 @@ module.exports = function(database, cache, options) {
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
+	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 
 	var app = express();
 
@@ -26,7 +28,8 @@ module.exports = function(database, cache, options) {
 		host: host,
 		themesPath: themesPath,
 		themesUrl: themesUrl,
-		adapters: adaptersConfig
+		adapters: adaptersConfig,
+		analytics: analyticsConfig
 	}));
 
 	return app;

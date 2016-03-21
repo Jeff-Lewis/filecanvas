@@ -23,6 +23,8 @@ var context = {
 		hostname: process.env.HOST || null,
 		protocol: process.env.HOST_PROTOCOL || 'https:',
 		port: Number(process.env.HOST_PORT || ((process.env.HOST_PROTOCOL || 'https:') === 'https:' ? 443 : 80))
+	},
+	analytics: {
 	}
 };
 

@@ -30,6 +30,12 @@ config.db.url = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.e
 config.cache = {};
 config.cache.url = process.env.REDISCLOUD_URL || process.env.REDIS_URL || null;
 
+config.analytics = {};
+config.analytics.admin = {};
+config.analytics.sites = {};
+config.analytics.demo = {};
+config.analytics.themes = {};
+
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
 config.templates = {};
