@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+if [[ -n $(git status -s) ]]; then
+	echo "ERROR: There are uncommitted changes"
+	exit 1
+fi
+
+# Bundle application
+DOCKER_REGISTRY=296296715593.dkr.ecr.us-east-1.amazonaws.com
+DOCKER_REGISTRY=$DOCKER_REGISTRY \
+	npm run docker-bundle

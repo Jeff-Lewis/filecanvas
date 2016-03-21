@@ -15,17 +15,13 @@ eval $(docker-machine env default)
 # Get the current Git commit hash
 COMMIT_HASH=$(git rev-parse --short HEAD)
 
-# Bundle application
-DOCKER_REGISTRY=296296715593.dkr.ecr.us-east-1.amazonaws.com
-DOCKER_REGISTRY=$DOCKER_REGISTRY \
-	npm run docker-bundle
-
 # Upload local docker images
 IMAGES=(
 	"filecanvas/app"
 	"filecanvas/router"
 	"filecanvas/templates"
 )
+DOCKER_REGISTRY=296296715593.dkr.ecr.us-east-1.amazonaws.com
 for image in "${IMAGES[@]}"; do
 	docker push $DOCKER_REGISTRY/$image:$COMMIT_HASH
 done

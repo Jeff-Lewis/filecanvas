@@ -8,11 +8,12 @@
     "start": "node server.js",
     "prestart": "./scripts/prestart",
     "local": "./scripts/local",
-    "eb-local": "./scripts/eb-local",
     "docker-build": "./scripts/docker-build",
     "docker-bundle": "./scripts/docker-bundle",
     "docker-start": "./scripts/docker-start",
-    "deploy": "./scripts/docker-push"
+    "eb-local": "./scripts/eb-local",
+	"build": "./scripts/build",
+    "deploy": "./scripts/deploy"
   },
   "engines": {
     "node": ">=4.0.0"
