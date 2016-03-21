@@ -11,5 +11,8 @@
 				{{> banner }}
 			</footer>
 		</div>
+		{{#if metadata.analytics.google}}
+		{{ partial 'google-analytics' id=metadata.analytics.google }}
+		{{/if}}
 	</body>
 </html>

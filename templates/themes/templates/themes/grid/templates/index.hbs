@@ -43,5 +43,8 @@
 		{{ script src="https://cdnjs.cloudflare.com/ajax/libs/TinyNav.js/1.2.0/tinynav.min.js" }}
 		{{ script src=(asset @root 'js/filecanvas-theme.js') }}
 		{{ script src=(asset @root 'js/main.js') }}
+		{{#if metadata.analytics.google}}
+		{{ partial 'google-analytics' id=metadata.analytics.google }}
+		{{/if}}
 	</body>
 </html>

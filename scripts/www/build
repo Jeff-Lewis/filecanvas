@@ -25,6 +25,7 @@ var context = {
 		port: Number(process.env.HOST_PORT || ((process.env.HOST_PROTOCOL || 'https:') === 'https:' ? 443 : 80))
 	},
 	analytics: {
+		google: process.env.GOOGLE_ANALYTICS_ID_WWW
 	}
 };
 

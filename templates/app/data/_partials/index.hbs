@@ -116,5 +116,8 @@
 		<script src="{{ session.urls.assets }}js/filecanvas-api.js"></script>
 		<script src="{{ session.urls.assets }}js/filecanvas-admin.js"></script>
 		{{#>scripts}}{{/scripts}}
+		{{#if session.analytics.google}}
+		{{> google-analytics id=session.analytics.google}}
+		{{/if}}
 	</body>
 </html>
