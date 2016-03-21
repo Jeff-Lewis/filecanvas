@@ -166,7 +166,6 @@ module.exports = function(themePath, outputPath, options) {
 							path.dirname(dest),
 							swapFileExtension(src, '.html')
 						);
-						console.log('Creating shortcut at ' + htmlOutputPath);
 						return htmlOutputPath;
 					}
 					return src;
