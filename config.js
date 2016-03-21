@@ -37,8 +37,6 @@ config.analytics.sites = {};
 config.analytics.sites.google = process.env.GOOGLE_ANALYTICS_ID_SITES || null;
 config.analytics.demo = {};
 config.analytics.demo.google = process.env.GOOGLE_ANALYTICS_ID_DEMO || null;
-config.analytics.themes = {};
-config.analytics.themes.google = process.env.GOOGLE_ANALYTICS_ID_THEMES || null;
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 
