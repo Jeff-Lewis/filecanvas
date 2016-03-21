@@ -12,7 +12,7 @@
     "docker-bundle": "./scripts/docker-bundle",
     "docker-start": "./scripts/docker-start",
     "eb-local": "./scripts/eb-local",
-	"build": "./scripts/build",
+    "build": "./scripts/build",
     "deploy": "./scripts/deploy"
   },
   "engines": {
