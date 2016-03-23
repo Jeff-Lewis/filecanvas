@@ -1010,7 +1010,7 @@
 					"name": "headerLogo",
 					"type": "string",
 					"default": "",
-					"preview": "",
+					"preview": "https://s3.amazonaws.com/filecanvas-theme-assets/showcase/business/logo.png",
 					"label": "Header logo",
 					"editor": {
 						"name": "file",
