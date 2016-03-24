@@ -42,7 +42,7 @@
 					placeholder="{{ field.editor.options.placeholder }}"
 					maxlength="{{ field.editor.options.maxLength }}"
 					rows="{{ field.editor.options.rows }}"
-				>{{ escapeNewlines (lookup (lookup ../../config configGroup.name) field.name) }}</textarea>
+				>{{ escape-newlines (lookup (lookup ../../config configGroup.name) field.name) }}</textarea>
 				{{/if}}
 				{{#if (eq field.editor.name 'code')}}
 				<textarea class="form-control code-editor"
@@ -51,7 +51,7 @@
 					maxlength="{{ field.editor.options.maxLength }}"
 					rows="{{ field.editor.options.rows }}"
 					data-language="{{ field.editor.options.language }}"
-				>{{ escapeNewlines (lookup (lookup ../../config configGroup.name) field.name) }}</textarea>
+				>{{ escape-newlines (lookup (lookup ../../config configGroup.name) field.name) }}</textarea>
 				{{/if}}
 				{{#if (eq field.editor.name 'file')}}
 				<div class="upload-control"

@@ -23,7 +23,7 @@
 				</div>
 				<nav role="navigation">
 					<ul class="nav">
-						<li class="menu-accordion{{#if (and (startsWith session.location.pathname session.urls.admin.sites) (not-eq session.location.pathname session.urls.admin.sitesCreate))}} open{{/if}}">
+						<li class="menu-accordion{{#if (and (starts-with session.location.pathname session.urls.admin.sites) (not-eq session.location.pathname session.urls.admin.sitesCreate))}} open{{/if}}">
 							<a href="{{ session.urls.admin.sites }}"><i class="fa fa-dashboard"></i> <span>Your canvases</span></a>
 							{{#if session.sites}}
 							<ul class="sub-menu">

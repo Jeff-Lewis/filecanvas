@@ -5,7 +5,7 @@
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.3/css/bootstrap-tour.min.css"/>
 		<link rel="stylesheet" href="{{ session.urls.assets }}css/filecanvas-editor.css"/>
 		{{#if content.theme.fonts}}
-		{{#if (or (startsWith content.theme.fonts 'http://') (startsWith content.theme.fonts 'https://') (startsWith content.theme.fonts '//'))}}
+		{{#if (or (starts-with content.theme.fonts 'http://') (starts-with content.theme.fonts 'https://') (starts-with content.theme.fonts '//'))}}
 		<link rel="stylesheet" href="{{ content.theme.fonts }}"/>
 		{{else}}
 		<link rel="stylesheet" href="{{ session.urls.themes }}/{{ content.theme.id }}/assets/{{ content.theme.fonts }}"/>
