@@ -397,6 +397,7 @@ module.exports = function(database, cache, options) {
 			function loginRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var siteAnalytics = (isPreview ? null : analyticsConfig);
 				var isRetryAttempt = ('retry' in req.query);
 				var redirectUrl = req.query.redirect || null;
 				var themeIdOverride = (isPreview && req.query.theme && req.query.theme.id || null);
@@ -436,7 +437,7 @@ module.exports = function(database, cache, options) {
 												theme: siteTheme,
 												retry: isRetryAttempt,
 												redirect: redirectUrl,
-												analytics: analyticsConfig
+												analytics: siteAnalytics
 											},
 											resource: {
 												private: siteModel.private
@@ -460,6 +461,7 @@ module.exports = function(database, cache, options) {
 			function siteRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var siteAnalytics = (isPreview ? null : analyticsConfig);
 				var redirectUrl = req.query.redirect || null;
 				var useCached = (req.query.cached === 'true');
 				var themeIdOverride = (isPreview && req.query.theme && req.query.theme.id || null);
@@ -496,7 +498,7 @@ module.exports = function(database, cache, options) {
 												siteRoot: getSiteRootUrl(req),
 												themeRoot: themesUrl + themeId + '/assets/',
 												theme: siteTheme,
-												analytics: analyticsConfig
+												analytics: siteAnalytics
 											},
 											resource: {
 												private: siteModel.private,
