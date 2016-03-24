@@ -431,7 +431,12 @@ module.exports = function(database, cache, options) {
 										var siteTheme = getCustomizedSiteTheme(siteModel, themeIdOverride, themeConfigOverrides);
 										var themeId = siteTheme.id;
 										var templateData = {
+											session: {
+												user: null
+											},
 											metadata: {
+												owner: username,
+												siteName: siteName,
 												siteRoot: getSiteRootUrl(req, '/login'),
 												themeRoot: themesUrl + themeId + '/assets/',
 												theme: siteTheme,
@@ -461,6 +466,7 @@ module.exports = function(database, cache, options) {
 			function siteRoute(req, res, next) {
 				var username = req.params.user;
 				var siteName = req.params.site;
+				var siteUser = (isPreview ? null : req.user);
 				var siteAnalytics = (isPreview ? null : analyticsConfig);
 				var redirectUrl = req.query.redirect || null;
 				var useCached = (req.query.cached === 'true');
@@ -494,7 +500,12 @@ module.exports = function(database, cache, options) {
 										var siteTheme = getCustomizedSiteTheme(siteModel, themeIdOverride, themeConfigOverrides);
 										var themeId = siteTheme.id;
 										var templateData = {
+											session: {
+												user: siteUser
+											},
 											metadata: {
+												owner: username,
+												siteName: siteName,
 												siteRoot: getSiteRootUrl(req),
 												themeRoot: themesUrl + themeId + '/assets/',
 												theme: siteTheme,
