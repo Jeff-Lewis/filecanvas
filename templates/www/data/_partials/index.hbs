@@ -64,5 +64,8 @@
 		{{#if analytics.google}}
 		{{> google-analytics id=analytics.google }}
 		{{/if}}
+		{{#if analytics.segment}}
+		{{> segment-analytics id=analytics.segment }}
+		{{/if}}
 	</body>
 </html>

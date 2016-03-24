@@ -21,5 +21,8 @@
 	{{#if metadata.analytics.google}}
 	{{ partial 'google-analytics' id=metadata.analytics.google }}
 	{{/if}}
+	{{#if metadata.analytics.segment}}
+	{{ partial 'segment-analytics' id=metadata.analytics.segment user=null }}
+	{{/if}}
 </body>
 </html>

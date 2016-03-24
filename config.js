@@ -33,10 +33,13 @@ config.cache.url = process.env.REDISCLOUD_URL || process.env.REDIS_URL || null;
 config.analytics = {};
 config.analytics.admin = {};
 config.analytics.admin.google = process.env.GOOGLE_ANALYTICS_ID_ADMIN || null;
+config.analytics.admin.segment = process.env.SEGMENT_ANALYTICS_ID_ADMIN || null;
 config.analytics.sites = {};
 config.analytics.sites.google = process.env.GOOGLE_ANALYTICS_ID_SITES || null;
+config.analytics.sites.segment = process.env.SEGMENT_ANALYTICS_ID_SITES || null;
 config.analytics.demo = {};
 config.analytics.demo.google = process.env.GOOGLE_ANALYTICS_ID_DEMO || null;
+config.analytics.demo.segment = process.env.SEGMENT_ANALYTICS_ID_DEMO || null;
 
 config.newRelic = Boolean(process.env.NEW_RELIC_LICENSE_KEY);
 

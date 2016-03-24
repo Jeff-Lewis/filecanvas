@@ -119,5 +119,8 @@
 		{{#if session.analytics.google}}
 		{{> google-analytics id=session.analytics.google}}
 		{{/if}}
+		{{#if session.analytics.segment}}
+		{{> segment-analytics id=session.analytics.segment user=session.user}}
+		{{/if}}
 	</body>
 </html>
