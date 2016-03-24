@@ -22,13 +22,23 @@ function inlineScriptKeyword(morph, env, scope, params, hash, template, inverse,
 }
 
 function blockScriptKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
-	var result = Htmlbars.render(template, env, scope, {});
-	var currentValue = result.fragment.firstChild.nodeValue;
+	var result = Htmlbars.render(template, env, scope, {
+		contextualElement: morph.contextualElement
+	});
+	var currentValue = getFragmentText(result.fragment);
 	var hasChanged = (morph.lastValue !== currentValue);
 	if (!hasChanged) { return true; }
-	var scriptElement = env.dom.createElement('script');
-	scriptElement.appendChild(result.fragment);
-	morph.setNode(scriptElement);
+	morph.parseTextAsHTML = true;
+	morph.setContent('<script>' + currentValue + '</script>');
 	morph.lastValue = currentValue;
 	return true;
+
+
+	function getFragmentText(fragment) {
+		var currentChild = result.fragment.firstChild;
+		if (!currentChild) { return null; }
+		var combinedValue = currentChild.nodeValue;
+		while ((currentChild = currentChild.nextSibling)) { combinedValue += currentChild.nodeValue; }
+		return combinedValue;
+	}
 }
