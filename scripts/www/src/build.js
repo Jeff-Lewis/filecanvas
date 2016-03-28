@@ -78,10 +78,12 @@ module.exports = function(source, destination, context, callback) {
 		}
 
 		function createMarkdownTransformStream(src, dest, stats) {
+			var documentId = path.basename(src, path.extname(src));
 			var markdownTemplate = handlebarsTemplates['markdown'];
 			return createAtomicTextTransformStream(function(markdown) {
 				var article = frontMatter(markdown);
 				var templateData = {
+					id: documentId,
 					title: article.attributes.title,
 					content: article.body
 				};
