@@ -5,12 +5,12 @@
 		<script src="/assets/js/filecanvas-www.js"></script>
 	{{/inline}}
 	{{#*inline 'navigation'}}
-		<li role="presentation" class="active"><a href="#intro">Home</a></li>
-		<li role="presentation"><a href="#examples">Examples</a></li>
-		<li role="presentation"><a class="hidden-xs" href="#demo">Demo</a></li>
-		<li role="presentation"><a href="#pricing">Pricing</a></li>
-		<li role="presentation"><a href="#sign-up">Sign up</a></li>
-		<li role="presentation"><a href="{{ subdomain host=host subdomain='my' }}">Log in</a></li>
+		<li role="presentation" class="active"><a href="#intro" data-analytics-id="www:client:home:navigation:intro">Home</a></li>
+		<li role="presentation"><a href="#examples" data-analytics-id="www:client:home:navigation:examples">Examples</a></li>
+		<li role="presentation"><a class="hidden-xs" href="#demo" data-analytics-id="www:client:home:navigation:demo">Demo</a></li>
+		<li role="presentation"><a href="#pricing" data-analytics-id="www:client:home:navigation:pricing">Pricing</a></li>
+		<li role="presentation"><a href="#sign-up" data-analytics-id="www:client:home:navigation:signup">Sign up</a></li>
+		<li role="presentation"><a href="{{ subdomain host=host subdomain='my' }}" data-analytics-id="www:client:home:navigation:login">Log in</a></li>
 	{{/inline}}
 	{{#*inline 'content'}}
 		<section class="page-splash">
@@ -21,8 +21,8 @@
 						<div class="jumbotron">
 							<h1>Your files. Giftwrapped.</h1>
 							<h2>Filecanvas is the quick, easy way to show off your files.</h2>
-							<a class="btn btn-success btn-lg hidden-xs" href="#demo">Try it out</a>
-							<a class="btn btn-success btn-lg visible-xs-inline" href="#beta">Sign up</a>
+							<a class="btn btn-success btn-lg hidden-xs" href="#demo" data-analytics-id="www:client:home:splash:cta" data-analytics-data="{&quot;action&quot;:&quot;demo&quot;}">Try it out</a>
+							<a class="btn btn-success btn-lg visible-xs-inline" href="#beta" data-analytics-id="www:client:home:splash:cta" data-analytics-data="{&quot;action&quot;:&quot;signup&quot;}">Sign up</a>
 						</div>
 					</div>
 				</div>
@@ -36,9 +36,9 @@
 							<div class="device-preview-content">
 								<div class="carousel slide" id="hero-carousel" data-ride="carousel">
 									<ul class="carousel-indicators">
-										<li data-target="#hero-carousel" data-slide-to="0" class="active"></li>
-										<li data-target="#hero-carousel" data-slide-to="1"></li>
-										<li data-target="#hero-carousel" data-slide-to="2"></li>
+										<li data-target="#hero-carousel" data-slide-to="0" class="active" data-analytics-id="www:client:home:hero:carousel:indicator" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}"></li>
+										<li data-target="#hero-carousel" data-slide-to="1" data-analytics-id="www:client:home:hero:carousel:indicator" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}"></li>
+										<li data-target="#hero-carousel" data-slide-to="2" data-analytics-id="www:client:home:hero:carousel:indicator" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}"></li>
 									</ul>
 									<div class="carousel-inner" role="listbox">
 										<div class="item active">
@@ -46,7 +46,7 @@
 											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas preview"/>
 											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-1440.png' }}" alt="Filecanvas preview"/>
 											<div class="carousel-actions">
-												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">Launch example</a>
+												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:hero:carousel:example" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">Launch example</a>
 											</div>
 										</div>
 										<div class="item">
@@ -54,7 +54,7 @@
 											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-768.png' }}" alt="Filecanvas preview"/>
 											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-1440.png' }}" alt="Filecanvas preview"/>
 											<div class="carousel-actions">
-												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">Launch example</a>
+												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:hero:carousel:example" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">Launch example</a>
 											</div>
 										</div>
 										<div class="item">
@@ -62,15 +62,15 @@
 											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-768.png' }}" alt="Filecanvas preview"/>
 											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-1440.png' }}" alt="Filecanvas preview"/>
 											<div class="carousel-actions">
-												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank">Launch example</a>
+												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:hero:carousel:example" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">Launch example</a>
 											</div>
 										</div>
 									</div>
 									<div class="carousel-controls">
-										<button type="button" class="btn-reset carousel-control left" data-target="#hero-carousel" data-slide="prev">
+										<button type="button" class="btn-reset carousel-control left" data-target="#hero-carousel" data-slide="prev" data-analytics-id="www:client:home:hero:carousel:previous">
 											<span class="glyphicon glyphicon-chevron-left"></span><span class="sr-only">Previous</span>
 										</button>
-										<button type="button" class="btn-reset carousel-control right" data-target="#hero-carousel" data-slide="next">
+										<button type="button" class="btn-reset carousel-control right" data-target="#hero-carousel" data-slide="next" data-analytics-id="www:client:home:hero:carousel:next">
 											<span class="glyphicon glyphicon-chevron-right"></span><span class="sr-only">Next</span>
 										</button>
 									</div>
@@ -307,21 +307,21 @@
 											<label>
 												<span class="radio-icon-image fa fa-2x fa-desktop"></span>
 												<span class="radio-icon-label">Digital agency</span>
-												<input type="radio" class="radio-icon-input" name="example" value="agency" checked="checked"/>
+												<input type="radio" class="radio-icon-input" name="example" value="agency" checked="checked" data-analytics-id="www:client:home:examples:toggle" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}"/>
 											</label>
 										</li>
 										<li class="radio-icon examples-option">
 											<label>
 												<span class="radio-icon-image fa fa-2x fa-photo"></span>
 												<span class="radio-icon-label">Photographer</span>
-												<input type="radio" class="radio-icon-input" name="example" value="photography"/>
+												<input type="radio" class="radio-icon-input" name="example" value="photography"/ data-analytics-id="www:client:home:examples:toggle" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">
 											</label>
 										</li>
 										<li class="radio-icon examples-option">
 											<label>
 												<span class="radio-icon-image fa fa-2x fa-building"></span>
 												<span class="radio-icon-label">Business</span>
-												<input type="radio" class="radio-icon-input" name="example" value="business"/>
+												<input type="radio" class="radio-icon-input" name="example" value="business"/ data-analytics-id="www:client:home:examples:toggle" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">
 											</label>
 										</li>
 									</ul>
@@ -348,9 +348,9 @@
 										<li><span class="fa-li fa fa-check"></span>Archives containing sensitive documents can be password-protected</li>
 									</ul>
 									<div class="hidden-xs hidden-sm">
-										<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">See an example</a>
-										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">See an example</a>
-										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank">See an example</a>
+										<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">See an example</a>
+										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">See an example</a>
+										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">See an example</a>
 									</div>
 								</div>
 							</div>
@@ -362,7 +362,7 @@
 												<div class="device-preview-content">
 													<div class="examples-carousel carousel slide" data-interval="false">
 														<div class="carousel-inner" role="listbox">
-															<a class="examples-carousel-item item active" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">
+															<a class="examples-carousel-item item active" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:examples:carousel" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">
 																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-320.png' }}" alt="Filecanvas example"/>
 																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-480.png' }}" alt="Filecanvas example"/>
 																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas example"/>
@@ -370,7 +370,7 @@
 																	<i class="fa fa-search-plus"></i>
 																</div>
 															</a>
-															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">
+															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:examples:carousel" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">
 																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-320.png' }}" alt="Filecanvas example"/>
 																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-480.png' }}" alt="Filecanvas example"/>
 																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-768.png' }}" alt="Filecanvas example"/>
@@ -378,7 +378,7 @@
 																	<i class="fa fa-search-plus"></i>
 																</div>
 															</a>
-															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank">
+															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:examples:carousel" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">
 																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-320.png' }}" alt="Filecanvas example"/>
 																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-480.png' }}" alt="Filecanvas example"/>
 																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-768.png' }}" alt="Filecanvas example"/>
@@ -391,9 +391,9 @@
 												</div>
 											</div>
 											<div class="text-center visible-xs visible-sm">
-												<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank">See an example</a>
-												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank">See an example</a>
-												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank">See an example</a>
+												<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">See an example</a>
+												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">See an example</a>
+												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">See an example</a>
 											</div>
 										</div>
 									</div>
@@ -413,7 +413,7 @@
 						<p class="page-section-subtitle lead">No signup needed. Choose a template to launch an interactive demo:</p>
 						<div class="preview-group row">
 							<div class="preview-panel col-sm-6 col-md-3 col-md-offset-3">
-								<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=agency' }}" target="_blank">
+								<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=agency' }}" target="_blank" data-analytics-id="www:client:home:demo:launch" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">
 									<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/agency/thumbnail.png' }}" alt="Launch demo">
 									<div class="preview-panel-thumbnail-icon">
 										<i class="fa fa-play"></i>
@@ -421,7 +421,7 @@
 								</a>
 							</div>
 							<div class="preview-panel col-sm-6 col-md-3">
-								<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=grid' }}" target="_blank">
+								<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=grid' }}" target="_blank" data-analytics-id="www:client:home:demo:launch" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;grid&quot;}">
 									<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/grid/thumbnail.png' }}" alt="Launch demo">
 									<div class="preview-panel-thumbnail-icon">
 										<i class="fa fa-play"></i>
@@ -429,7 +429,7 @@
 								</a>
 							</div>
 						</div>
-						<p class="text-center">Looking for something more personal? <a href="mailto:info@filecanvas.com?subject=Custom%20templates">Let us know</a> and we can help create the perfect template for your brand.</p>
+						<p class="text-center">Looking for something more personal? <a href="mailto:info@filecanvas.com?subject=Custom%20templates" data-analytics-id="www:client:home:demo:contact">Let us know</a> and we can help create the perfect template for your brand.</p>
 					</div>
 				</div>
 			</div>
@@ -453,7 +453,7 @@
 									<ul class="list-group panel-pricing-limits">
 										<li class="list-group-item">
 											<span>1 canvas</span>
-											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container">What's a canvas?</a></aside>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;personal&quot;}">What's a canvas?</a></aside>
 										</li>
 									</ul>
 									<ul class="list-group panel-pricing-features">
@@ -481,7 +481,7 @@
 									<ul class="list-group panel-pricing-limits">
 										<li class="list-group-item">
 											<span>Up to 5 canvases</span>
-											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container">What's a canvas?</a></aside>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;startup&quot;}">What's a canvas?</a></aside>
 										</li>
 									</ul>
 									<ul class="list-group panel-pricing-features">
@@ -509,7 +509,7 @@
 									<ul class="list-group panel-pricing-limits">
 										<li class="list-group-item">
 											<span>Up to 20 canvases</span>
-											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container">What's a canvas?</a></aside>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">What's a canvas?</a></aside>
 										</li>
 									</ul>
 									<ul class="list-group panel-pricing-features">
@@ -538,7 +538,7 @@
 									<ul class="list-group panel-pricing-limits">
 										<li class="list-group-item">
 											<span>Unlimited canvases</span>
-											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container">What's a canvas?</a></aside>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:3,&quot;id&quot;:&quot;beta&quot;}">What's a canvas?</a></aside>
 										</li>
 									</ul>
 									<ul class="list-group panel-pricing-features">
@@ -551,7 +551,7 @@
 										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
 									</ul>
 									<div class="panel-footer">
-										<a class="btn btn-success" href="{{ subdomain host=host subdomain='my' }}">Sign up</a>
+										<a class="btn btn-success" href="{{ subdomain host=host subdomain='my' }}" data-analytics-id="www:client:home:pricing:signup" data-analytics-data="{&quot;index&quot;:3,&quot;id&quot;:&quot;beta&quot;}">Sign up</a>
 									</div>
 								</div>
 							</div>
@@ -587,7 +587,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="page-section-content col-md-12">
-						<p class="lead text-center">Any questions? <a href="mailto:info@filecanvas.com">Drop us a line</a> and we&#39;ll be happy to help.</p>
+						<p class="lead text-center">Any questions? <a href="mailto:info@filecanvas.com" data-analytics-id="www:client:home:contact:email">Drop us a line</a> and we&#39;ll be happy to help.</p>
 					</div>
 				</div>
 			</div>

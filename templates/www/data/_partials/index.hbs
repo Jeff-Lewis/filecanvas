@@ -28,8 +28,8 @@
 		<nav class="navbar navbar-inverse navbar-static-top">
 			<div class="container-fluid">
 				<div class="navbar-header">
-					<a href="/" class="navbar-brand navbar-link">Filecanvas</a>
-					<button data-toggle="collapse" data-target="#navigation" class="navbar-toggle collapsed"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+					<a href="/" class="navbar-brand navbar-link" data-analytics-id="www:client:header:navigation:logo">Filecanvas</a>
+					<button data-toggle="collapse" data-target="#navigation" class="navbar-toggle collapsed" data-analytics-id="www:client:header:navigation:toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
 				</div>
 				<div class="collapse navbar-collapse" id="navigation">
 					<ul class="nav navbar-nav navbar-right">
@@ -44,15 +44,15 @@
 				<div class="row">
 					<div class="page-footer-navigation col-sm-6 col-md-4" id="footer-navigation">
 						<ul class="list-unstyled">
-							<li><a href="/#sign-up">Sign up</a></li>
-							<li><a href="{{ subdomain host=host subdomain='my' }}">Log in</a></li>
-							<li><a href="/terms">Terms &amp; Conditions</a></li>
-							<li><a href="/privacy">Privacy Policy</a></li>
+							<li><a href="/#sign-up" data-analytics-id="www:client:footer:navigation:signup">Sign up</a></li>
+							<li><a href="{{ subdomain host=host subdomain='my' }}" data-analytics-id="www:client:footer:navigation:login">Log in</a></li>
+							<li><a href="/terms" data-analytics-id="www:client:footer:navigation:terms">Terms &amp; Conditions</a></li>
+							<li><a href="/privacy" data-analytics-id="www:client:footer:navigation:privacy">Privacy Policy</a></li>
 						</ul>
 					</div>
 					<div class="page-footer-contact col-sm-6 col-md-3 col-md-offset-5">
 						<ul class="list-unstyled">
-							<li>For all enquiries, contact <a href="mailto:info@filecanvas.com">info@filecanvas.com</a></li>
+							<li>For all enquiries, contact <a href="mailto:info@filecanvas.com" data-analytics-id="www:client:footer:navigation:enquiries">info@filecanvas.com</a></li>
 							<li>&nbsp;</li>
 							<li class="page-footer-copyright">© Tim Kendrick Ltd 2016</li>
 						</ul>
@@ -67,5 +67,6 @@
 		{{#if analytics.segment}}
 		{{> segment-analytics id=analytics.segment }}
 		{{/if}}
+		<script src="/assets/js/filecanvas-analytics.js"></script>
 	</body>
 </html>
