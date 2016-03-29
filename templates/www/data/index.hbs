@@ -5,12 +5,12 @@
 		<script src="/assets/js/filecanvas-www.js"></script>
 	{{/inline}}
 	{{#*inline 'navigation'}}
-		<li role="presentation" class="active"><a href="#intro" data-analytics-id="www:client:home:navigation:intro">Home</a></li>
-		<li role="presentation"><a href="#examples" data-analytics-id="www:client:home:navigation:examples">Examples</a></li>
-		<li role="presentation"><a class="hidden-xs" href="#demo" data-analytics-id="www:client:home:navigation:demo">Demo</a></li>
-		<li role="presentation"><a href="#pricing" data-analytics-id="www:client:home:navigation:pricing">Pricing</a></li>
-		<li role="presentation"><a href="#sign-up" data-analytics-id="www:client:home:navigation:signup">Sign up</a></li>
-		<li role="presentation"><a href="{{ subdomain host=host subdomain='my' }}" data-analytics-id="www:client:home:navigation:login">Log in</a></li>
+		<li role="presentation" class="active" data-scroll-analytics-id="www:client:home:scroll:intro"><a href="#intro" data-analytics-id="www:client:home:navigation:intro">Home</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:examples"><a href="#examples" data-analytics-id="www:client:home:navigation:examples">Examples</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:demo"><a class="hidden-xs" href="#demo" data-analytics-id="www:client:home:navigation:demo">Demo</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:pricing"><a href="#pricing" data-analytics-id="www:client:home:navigation:pricing">Pricing</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:signup"><a href="#sign-up" data-analytics-id="www:client:home:navigation:signup">Sign up</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:login"><a href="{{ subdomain host=host subdomain='my' }}" data-analytics-id="www:client:home:navigation:login">Log in</a></li>
 	{{/inline}}
 	{{#*inline 'content'}}
 		<section class="page-splash">
