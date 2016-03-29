@@ -2,7 +2,19 @@
 
 $(function() {
 	initScrollAnchors('body', { duration: 500 });
-	initScrollSpy('body', { target: '#navigation', offset: 70 });
+	initScrollSpy('body', { target: '#navigation', offset: 70 }, function(event) {
+		var $activeElement = $(event.target);
+		var trackingId = $activeElement.attr('data-scroll-analytics-id');
+		var trackingData = parseJson($activeElement.attr('data-scroll-analytics-data'));
+		if (trackingId) {
+			$.fn.analytics.track.call($activeElement, event, trackingId, trackingData);
+		}
+
+
+		function parseJson(json) {
+			return (json ? JSON.parse(json) : null);
+		}
+	});
 	initTooltips();
 	initFocusTriggers();
 	initExamples('.examples');
@@ -26,8 +38,11 @@ function initScrollAnchors(navSelector, options) {
 	});
 }
 
-function initScrollSpy(scrollSelector, options) {
-	$(scrollSelector).scrollspy(options);
+function initScrollSpy(scrollSelector, options, callback) {
+	var scrollspy = $(scrollSelector).scrollspy(options);
+	if (callback) {
+		scrollspy.on('activate.bs.scrollspy', callback);
+	}
 }
 
 function initTooltips() {
