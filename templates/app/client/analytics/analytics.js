@@ -18,8 +18,9 @@ $(function() {
 
 	handleUncaughtExceptions(function(error, stackFrames) {
 		var errorFrame = stackFrames[0];
-		var trackingId = 'error:client';
+		var trackingId = 'exception:client';
 		var trackingData = {
+			url: document.location.href,
 			message: error.toString(),
 			source: errorFrame.fileName,
 			line: errorFrame.lineNumber,
