@@ -122,5 +122,6 @@
 		{{#if session.analytics.segment}}
 		{{> segment-analytics id=session.analytics.segment user=session.user}}
 		{{/if}}
+		<script src="{{ session.urls.assets }}js/filecanvas-analytics.js"></script>
 	</body>
 </html>
