@@ -111,7 +111,9 @@
 				{{/each}}
 			{{else}}
 			<div class="page">
+				{{#if metadata.admin}}
 				{{> dropzone}}
+				{{/if}}
 			</div>
 			{{/if}}
 		</section>
