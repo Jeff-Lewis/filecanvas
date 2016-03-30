@@ -173,7 +173,8 @@ function createUser(database, fields) {
 		email: fields.email,
 		defaultSite: fields.defaultSite,
 		adapters: fields.adapters,
-		pending: Boolean(fields.pending)
+		pending: Boolean(fields.pending),
+		createdAt: new Date()
 	};
 	return database.collection(DB_COLLECTION_USERS).insertOne(userModel)
 		.then(function() {
