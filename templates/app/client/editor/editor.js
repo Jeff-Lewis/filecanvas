@@ -37,7 +37,6 @@ var NUM_UPLOAD_RETRIES = 2;
 
 $(function() {
 	initToggleButtons();
-	initColorpickers();
 	initSidepanel();
 	initLivePreview(function(error) {
 		if (error) { return; }
@@ -52,24 +51,6 @@ function initToggleButtons() {
 			var $element = $(event.currentTarget);
 			var isChecked = $element.prop('checked');
 			$element.closest('label').toggleClass('active', isChecked);
-		});
-}
-
-function initColorpickers() {
-	$('[data-colorpicker]').colorpicker()
-		.on('showPicker.colorpicker', function(event) {
-			var $colorPickerElement = $(this);
-			var $inputElement = $colorPickerElement.data('colorpicker').input;
-			var currentValue = $inputElement.val();
-			$colorPickerElement.one('hidePicker.colorpicker', function(event) {
-				var hasChanged = (currentValue !== $inputElement.val());
-				if (hasChanged) { $inputElement.change(); }
-			});
-		})
-		.on('changeColor.colorpicker', function(event) {
-			var $colorPickerElement = $(this);
-			var $inputElement = $colorPickerElement.data('colorpicker').input;
-			$inputElement.trigger('input');
 		});
 }
 
@@ -358,7 +339,6 @@ function initLivePreview(callback) {
 					config: siteModel.metadata.theme.config
 				});
 				$parentElement.empty().append(themeOptionsHtml);
-				initColorpickers();
 			}
 
 			function loadThemeTemplate(themeTemplateUrl) {
@@ -369,6 +349,7 @@ function initLivePreview(callback) {
 	function initThemeOptionsPanel($panelElement) {
 		initAccordions($panelElement);
 		initSelectPickers($panelElement);
+		initColorpickers($panelElement);
 
 
 		function initSelectPickers($parentElement) {
@@ -380,6 +361,25 @@ function initLivePreview(callback) {
 			var $accordionElements = findIncludingSelf($parentElement, '[data-fixed-accordion]');
 			$accordionElements.fixedAccordion();
 		}
+
+		function initColorpickers($parentElement) {
+			$parentElement.find('[data-colorpicker]').colorpicker()
+				.on('showPicker.colorpicker', function(event) {
+					var $colorPickerElement = $(this);
+					var $inputElement = $colorPickerElement.data('colorpicker').input;
+					var currentValue = $inputElement.val();
+					$colorPickerElement.one('hidePicker.colorpicker', function(event) {
+						var hasChanged = (currentValue !== $inputElement.val());
+						if (hasChanged) { $inputElement.change(); }
+					});
+				})
+				.on('changeColor.colorpicker', function(event) {
+					var $colorPickerElement = $(this);
+					var $inputElement = $colorPickerElement.data('colorpicker').input;
+					$inputElement.trigger('input');
+				});
+		}
+
 
 		function findIncludingSelf($parentElement, selector) {
 			return $parentElement.find(selector).add($parentElement.filter(selector));
