@@ -2,7 +2,7 @@
 
 (function($, window) {
 
-	function Analytics(element) {
+	function AnalyticsEventSource(element) {
 		var $element = $(element);
 		var trackingId = $element.attr('data-analytics-id');
 		var trackingData = parseJson($element.attr('data-analytics-data'));
@@ -14,7 +14,52 @@
 
 		var self = this;
 		$element.on(trackingEvent, function(event) {
-			self.track(event);
+			var element = this;
+			var isNavigationEvent = Boolean(event) && getIsNavigationEvent(event, element);
+			var isSubmitEvent = Boolean(event) && getIsSubmitEvent(event, element);
+			if (isNavigationEvent) {
+				trackNavigationEvent(event, element);
+			} else if (isSubmitEvent) {
+				trackSubmitEvent(event, element);
+			} else {
+				trackEvent();
+			}
+
+
+			function getIsNavigationEvent(event, element) {
+				var isLinkElement = (element.tagName === 'A');
+				var isAnchorLinkElement = isLinkElement && /^#/.test(element.getAttribute('href'));
+				var isExternalLinkElement = isLinkElement && !isAnchorLinkElement;
+				var isClickEvent = (event.type === 'click');
+				return isExternalLinkElement && isClickEvent;
+			}
+
+			function getIsSubmitEvent(event, element) {
+				var isLinkElement = (element.tagName === 'A');
+				var isAnchorLinkElement = isLinkElement && /^#/.test(element.getAttribute('href'));
+				var isExternalLinkElement = isLinkElement && !isAnchorLinkElement;
+				var isClickEvent = (event.type === 'click');
+				return isExternalLinkElement && isClickEvent;
+			}
+
+			function trackNavigationEvent(event, element) {
+				event.preventDefault();
+				var href = element.getAttribute('href');
+				self.track(event, function() {
+					document.location.href = href;
+				});
+			}
+
+			function trackSubmitEvent(event, element) {
+				event.preventDefault();
+				self.track(event, function() {
+					element.submit();
+				});
+			}
+
+			function trackEvent(event) {
+				self.track(event);
+			}
 		});
 
 
@@ -38,24 +83,24 @@
 		}
 	}
 
-	Analytics.prototype.track = function(event) {
+	AnalyticsEventSource.prototype.track = function(event, callback) {
 		var trackingId = this.trackingId;
 		var trackingData = this.trackingData;
-		$.fn.analytics.track.call(this.element, event, trackingId, trackingData);
+		$.fn.analytics.track.call(this.element, event, trackingId, trackingData, callback);
 	};
 
 	$.fn.analytics = function(action) {
 		return this.each(function() {
 			var $element = $(this);
-			var analytics = $element.data('analytics') || null;
-			if (!analytics) {
-				analytics = new Analytics(this);
-				$element.data('analytics', analytics);
+			var eventSource = $element.data('analytics') || null;
+			if (!eventSource) {
+				eventSource = new AnalyticsEventSource(this);
+				$element.data('analytics', eventSource);
 			}
 
 			switch(action) {
 				case 'track':
-					analytics.track(null);
+					eventSource.track(null);
 					break;
 				default:
 					break;
@@ -63,9 +108,10 @@
 		});
 	};
 
-	$.fn.analytics.track = function(event, trackingId, trackingData) {
+	$.fn.analytics.track = function(event, trackingId, trackingData, callback) {
 		var log = window.console.info || window.console.log;
 		log.call(window.console, 'Analytics event:', trackingId, trackingData);
+		setTimeout(callback);
 	};
 
 	$('[data-analytics-id]').analytics();
