@@ -69,6 +69,16 @@ LoginService.prototype.login = function(query, passportValues) {
 					}
 				});
 		})
+		.then(function(userModel) {
+			var username = userModel.username;
+			var updates = {
+				'lastLogin': new Date()
+			};
+			return userService.updateUser(username, updates)
+				.then(function() {
+					return userModel;
+				});
+		})
 		.catch(function(error) {
 			if (error.status === 401) {
 				return null;
