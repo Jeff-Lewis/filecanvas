@@ -14,7 +14,7 @@ echo "Building client libraries..."
 if [ "$NODE_ENV" == 'production' ]; then
 	rm -f $TEMPLATES_DIR/_common/js/filecanvas-theme.js
 	rm -f $TEMPLATES_DIR/_common/js/filecanvas-theme.js.map
-	(cd client; webpack -p $TEMPLATES_DIR/_common/js/filecanvas-theme.js)
+	(cd client; webpack -p --devtool source-map $TEMPLATES_DIR/_common/js/filecanvas-theme.js)
 else
 	(cd client; webpack -d $TEMPLATES_DIR/_common/js/filecanvas-theme.js)
 fi
