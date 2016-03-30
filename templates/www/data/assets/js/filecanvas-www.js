@@ -1,8 +1,13 @@
 'use strict';
 
 $(function() {
-	initScrollAnchors('body', { duration: 500 });
+	var isAutoScrolling = false;
+	initScrollAnchors('body', { duration: 500 }, {
+		begin: function() { isAutoScrolling = true; },
+		end: function() { isAutoScrolling = false; }
+	});
 	initScrollSpy('body', { target: '#navigation', offset: 70 }, function(event) {
+		if (isAutoScrolling) { return; }
 		var $activeElement = $(event.target);
 		var trackingId = $activeElement.attr('data-scroll-analytics-id');
 		var trackingData = parseJson($activeElement.attr('data-scroll-analytics-data'));
@@ -20,10 +25,14 @@ $(function() {
 	initExamples('.examples');
 });
 
-function initScrollAnchors(navSelector, options) {
+
+function initScrollAnchors(navSelector, options, callbacks) {
 	options = options || {};
+	callbacks = callbacks || {};
 	var duration = options.duration || 300;
 	var scrollOffset = options.offset || 0;
+	var beginCallback = callbacks.begin || function() {};
+	var endCallback = callbacks.end || function() {};
 
 	var $navElement = $(navSelector);
 	var $navLinkElements = $navElement.find('a[href^="#"]:not([data-scroll-disabled])');
@@ -32,8 +41,10 @@ function initScrollAnchors(navSelector, options) {
 		var targetHash = this.hash;
 		var $targetElement = $(targetHash);
 		var targetOffset = $targetElement.offset().top + scrollOffset;
+		beginCallback();
 		$('html, body').animate({ scrollTop: targetOffset }, duration, function() {
 			window.location.hash = targetHash;
+			endCallback();
 		});
 	});
 }
