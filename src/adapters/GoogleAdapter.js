@@ -4,7 +4,6 @@ var util = require('util');
 var path = require('path');
 var url = require('url');
 var objectAssign = require('object-assign');
-var isEqual = require('lodash.isequal');
 var request = require('request');
 var express = require('express');
 var mime = require('mime');
@@ -306,25 +305,24 @@ GoogleStorageAdapter.prototype.initSiteFolder = function(siteFiles, siteAdapterC
 	var tokenExpires = userAdapterConfig.tokenExpires;
 	var refreshToken = userAdapterConfig.refreshToken;
 	var sitePath = siteAdapterConfig.path;
-	return new GoogleConnector(database, clientId, clientSecret)
+	var googleClient = new GoogleClient(database, clientId, clientSecret);
+	return googleClient
 		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.retrieveFileMetadataAtPath(sitePath)
-				.then(function(fileMetadata) {
-					var isFolder = (fileMetadata.mimeType === MIME_TYPE_FOLDER);
-					if (!isFolder) { throw new HttpError(409); }
-				})
-				.catch(function(error) {
-					if (error.status === 404) {
-						return googleClient.createFolderAtPath(sitePath)
-							.then(function(folderMetadata) {
-								var parentId = folderMetadata.id;
-								var nestedFiles = getFileListing(siteFiles);
-								return copyNestedFiles(googleClient, parentId, nestedFiles);
-							});
-					}
-					throw error;
-				});
+		.retrieveFileMetadataAtPath(sitePath)
+		.then(function(fileMetadata) {
+			var isFolder = (fileMetadata.mimeType === MIME_TYPE_FOLDER);
+			if (!isFolder) { throw new HttpError(409); }
+		})
+		.catch(function(error) {
+			if (error.status === 404) {
+				return googleClient.createFolderAtPath(sitePath)
+					.then(function(folderMetadata) {
+						var parentId = folderMetadata.id;
+						var nestedFiles = getFileListing(siteFiles);
+						return copyNestedFiles(googleClient, parentId, nestedFiles);
+					});
+			}
+			throw error;
 		});
 
 
@@ -404,11 +402,9 @@ GoogleStorageAdapter.prototype.loadSiteContents = function(siteAdapterConfig, us
 	var refreshToken = userAdapterConfig.refreshToken;
 	var cache = userAdapterConfig.cache;
 	var siteFolderPath = siteAdapterConfig.path;
-	return new GoogleConnector(database, clientId, clientSecret)
+	return new GoogleClient(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.loadFolderContents(siteFolderPath, cache);
-		})
+		.loadFolderContents(siteFolderPath, cache)
 		.then(function(fileContents) {
 			var folder = parseFileMetadata(fileContents, { root: siteFolderPath });
 			return {
@@ -428,11 +424,9 @@ GoogleStorageAdapter.prototype.readFile = function(filePath, siteAdapterConfig, 
 	var tokenExpires = userAdapterConfig.tokenExpires;
 	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
-	return new GoogleConnector(database, clientId, clientSecret)
+	return new GoogleClient(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.readFile(fileId);
-		});
+		.readFile(fileId);
 };
 
 GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteAdapterConfig, userAdapterConfig) {
@@ -446,13 +440,11 @@ GoogleStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteAda
 	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
-	return new GoogleConnector(database, clientId, clientSecret)
+	return new GoogleClient(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.generateDownloadLink(fileId)
-				.then(function(downloadUrl) {
-					return sanitizeUrl(downloadUrl, cache, { filename: filename });
-				});
+		.generateDownloadLink(fileId)
+		.then(function(downloadUrl) {
+			return sanitizeUrl(downloadUrl, cache, { filename: filename });
 		});
 };
 
@@ -467,13 +459,11 @@ GoogleStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteAdap
 	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
-	return new GoogleConnector(database, clientId, clientSecret)
+	return new GoogleClient(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.generateDownloadLink(fileId)
-				.then(function(previewUrl) {
-					return sanitizeUrl(previewUrl, cache, { filename: filename, inline: true });
-				});
+		.generateDownloadLink(fileId)
+		.then(function(previewUrl) {
+			return sanitizeUrl(previewUrl, cache, { filename: filename, inline: true });
 		});
 };
 
@@ -488,13 +478,11 @@ GoogleStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, userAd
 	var refreshToken = userAdapterConfig.refreshToken;
 	var fileId = parseFileId(filePath);
 	var filename = path.basename(filePath);
-	return new GoogleConnector(database, clientId, clientSecret)
+	return new GoogleClient(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.generateThumbnailLink(fileId, { size: THUMBNAIL_SIZE })
-				.then(function(thumbnailUrl) {
-					return sanitizeUrl(thumbnailUrl, cache, { filename: filename, inline: true });
-				});
+		.generateThumbnailLink(fileId, { size: THUMBNAIL_SIZE })
+		.then(function(thumbnailUrl) {
+			return sanitizeUrl(thumbnailUrl, cache, { filename: filename, inline: true });
 		});
 };
 
@@ -506,13 +494,11 @@ GoogleStorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAda
 	var accessToken = userAdapterConfig.token;
 	var tokenExpires = userAdapterConfig.tokenExpires;
 	var refreshToken = userAdapterConfig.refreshToken;
-	return new GoogleConnector(database, clientId, clientSecret)
+	return new GoogleClient(database, clientId, clientSecret)
 		.connect(uid, accessToken, tokenExpires, refreshToken)
-		.then(function(googleClient) {
-			return googleClient.retrieveFileMetadataAtPath(filePath)
-				.then(function(fileMetadata) {
-					return parseFileMetadata(fileMetadata, { root: null });
-				});
+		.retrieveFileMetadataAtPath(filePath)
+		.then(function(fileMetadata) {
+			return parseFileMetadata(fileMetadata, { root: null });
 		});
 };
 
@@ -566,7 +552,7 @@ function parseFileId(filePath) {
 	return path.basename(filePath.replace(/\/(.*?)\.[^\/]+?$/, ''));
 }
 
-function GoogleConnector(database, clientId, clientSecret) {
+function GoogleClient(database, clientId, clientSecret) {
 	if (!database) { throw new Error('Missing database'); }
 	if (!clientId) { throw new Error('Missing client ID'); }
 	if (!clientSecret) { throw new Error('Missing client secret'); }
@@ -576,64 +562,95 @@ function GoogleConnector(database, clientId, clientSecret) {
 	this.clientSecret = clientSecret;
 }
 
-GoogleConnector.prototype.adapterName = 'google';
-GoogleConnector.prototype.database = null;
-GoogleConnector.prototype.clientId = null;
-GoogleConnector.prototype.clientSecret = null;
+GoogleClient.prototype.adapterName = 'google';
+GoogleClient.prototype.database = null;
+GoogleClient.prototype.clientId = null;
+GoogleClient.prototype.clientSecret = null;
+GoogleClient.prototype.uid = null;
+GoogleClient.prototype.accessToken = null;
+GoogleClient.prototype.tokenExpires = null;
+GoogleClient.prototype.refreshToken = null;
 
-GoogleConnector.prototype.connect = function(uid, accessToken, tokenExpires, refreshToken) {
+GoogleClient.prototype.connect = function(uid, accessToken, tokenExpires, refreshToken) {
 	if (!uid) { return Promise.reject(new Error('Missing user ID')); }
-	if (!accessToken) { return Promise.reject(new Error('Missing access token')); }
-	if (!tokenExpires) { return Promise.reject(new Error('Missing access token expiry date')); }
-	if (!refreshToken) { return Promise.reject(new Error('Missing refresh token')); }
 
+	this.uid = uid;
+	this.accessToken = accessToken;
+	this.tokenExpires = tokenExpires;
+	this.refreshToken = refreshToken;
+
+	return this;
+};
+
+GoogleClient.prototype.request = function(options) {
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var adapterName = this.adapterName;
+	var uid = this.uid;
+	var accessToken = this.accessToken;
+	var tokenExpires = this.tokenExpires;
+	var refreshToken = this.refreshToken;
 
 	var userService = new UserService(this.database);
 
-	return login(clientId, clientSecret, accessToken, tokenExpires, refreshToken)
-		.then(function(authDetails) {
-			var existingDetails = {
+	var self = this;
+	return validateAccessToken(accessToken, tokenExpires)
+		.then(function() {
+			return {
 				token: accessToken,
 				tokenExpires: tokenExpires,
 				refreshToken: refreshToken
 			};
-			var authDetailsHaveChanged = !isEqual(authDetails, existingDetails);
-			return (authDetailsHaveChanged ? userService.updateUserAdapterSettings(adapterName, uid, authDetails) : Promise.resolve())
-				.then(function() {
-					return authDetails;
-				});
 		})
+		.catch(authErrorHandler)
 		.then(function(authDetails) {
 			var accessToken = authDetails.token;
-			return new GoogleClient(accessToken);
+			return apiRequest(objectAssign({ token: accessToken }, options))
+				.catch(function(error) {
+					return authErrorHandler(error)
+						.then(function(authDetails) {
+							var accessToken = authDetails.token;
+							return apiRequest(objectAssign({ token: accessToken }, options));
+						});
+				});
 		});
 
 
-	function login(clientId, clientSecret, accessToken, tokenExpires, refreshToken) {
-		var tokenExpiryDate = new Date(tokenExpires);
-		var isAccessTokenValid = getIsAccessTokenValid(accessToken, tokenExpiryDate);
-		if (isAccessTokenValid) {
-			return Promise.resolve({
-				token: accessToken,
-				tokenExpires: tokenExpires,
-				refreshToken: refreshToken
-			});
-		} else {
+	function authErrorHandler(error) {
+		if (error.status === 401) {
+			if (!refreshToken) { throw new HttpError(401); }
 			return renewAccessToken(clientId, clientSecret, accessToken, refreshToken)
-				.then(function(authDetails) {
-					var accessToken = authDetails.token;
-					var tokenExpires = authDetails.tokenExpires;
-					var refreshToken = authDetails.refreshToken;
+				.catch(function(error) {
 					return {
-						token: accessToken,
-						tokenExpires: tokenExpires,
-						refreshToken: refreshToken
+						token: null,
+						tokenExpires: null,
+						refreshToken: null
 					};
+				})
+				.then(function(updatedAuthDetails) {
+					return userService.updateUserAdapterSettings(adapterName, uid, updatedAuthDetails)
+						.then(function() {
+							self.accessToken = updatedAuthDetails.token;
+							self.tokenExpires = updatedAuthDetails.tokenExpires;
+							self.refreshToken = updatedAuthDetails.refreshToken;
+							return updatedAuthDetails;
+						})
+						.then(function(authDetails) {
+							if (!authDetails.token) { throw new HttpError(401); }
+							return authDetails;
+						});
 				});
 		}
+		throw error;
+	}
+
+	function validateAccessToken(accessToken, tokenExpires) {
+		var tokenExpiryDate = tokenExpires ? new Date(tokenExpires) : null;
+		var isAccessTokenValid = getIsAccessTokenValid(accessToken, tokenExpiryDate);
+		if (!isAccessTokenValid) {
+			return Promise.reject(new HttpError(401));
+		}
+		return Promise.resolve();
 
 
 		function getIsAccessTokenValid(accessToken, tokenExpiryDate) {
@@ -642,173 +659,103 @@ GoogleConnector.prototype.connect = function(uid, accessToken, tokenExpires, ref
 			var currentTimestamp = Math.floor(new Date().getTime() / 1000);
 			return (tokenExpiryTimestamp - currentTimestamp) >= MIN_TOKEN_VALIDITY_DURATION;
 		}
+	}
 
-		function renewAccessToken(clientId, clientSecret, accessToken, refreshToken) {
-			return apiRequest({
-				token: null,
-				method: 'POST',
-				url: OAUTH2_TOKEN_URL,
-				params: {
-					'grant_type': 'refresh_token',
-					'client_id': clientId,
-					'client_secret': clientSecret,
-					'refresh_token': refreshToken
-				}
-			}).then(function(response) {
-				var accessToken = response['access_token'];
-				var tokenDuration = response['expires_in'];
-				var tokenExpires = getTokenExpiryDate(tokenDuration).toISOString();
-				return {
-					token: accessToken,
-					tokenExpires: tokenExpires,
-					refreshToken: refreshToken
-				};
-			});
-		}
+	function renewAccessToken(clientId, clientSecret, accessToken, refreshToken) {
+		return apiRequest({
+			token: null,
+			method: 'POST',
+			url: OAUTH2_TOKEN_URL,
+			params: {
+				'grant_type': 'refresh_token',
+				'client_id': clientId,
+				'client_secret': clientSecret,
+				'refresh_token': refreshToken
+			}
+		})
+		.then(function(response) {
+			var accessToken = response['access_token'];
+			var tokenDuration = response['expires_in'];
+			var tokenExpires = getTokenExpiryDate(tokenDuration).toISOString();
+			return {
+				token: accessToken,
+				tokenExpires: tokenExpires,
+				refreshToken: refreshToken
+			};
+		});
 	}
 };
-
-function GoogleClient(accessToken) {
-	this.accessToken = accessToken;
-}
-
-GoogleClient.prototype.accessToken = null;
 
 GoogleClient.prototype.retrieveFileMetadataAtPath = function(filePath) {
-	var accessToken = this.accessToken;
-	return retrieveFileMetadataAtPath(filePath, accessToken);
-
-
-	function retrieveFileMetadataAtPath(filePath, accessToken) {
-		return loadFolderHierarchy(accessToken)
-			.then(function(rootFolder) {
-				if (filePath === '/') {
-					return stripChildren(rootFolder);
-				}
-				var parentPath = path.dirname(filePath);
-				var relativeParentPath = stripLeadingSlash(parentPath);
-				var parentFolder = getNestedFile(rootFolder, relativeParentPath);
-				if (!parentFolder) {
-					throw new HttpError(404);
-				}
-				var relativeFilePath = stripLeadingSlash(filePath);
-				var folder = getNestedFile(rootFolder, relativeFilePath);
-				if (folder) { return stripChildren(folder); }
-				var filename = path.basename(filePath);
-				var query = '(\'' + parentFolder.id + '\' in parents) and (title = \'' + escapeApiQueryString(filename) + '\')';
-				return loadFileList(query, accessToken)
-					.then(function(items) {
-						if (items.length === 0) {
-							throw new HttpError(404);
-						}
-						var files = parseFileList(items);
-						return files[0];
-					});
-			});
-
-
-		function stripChildren(folder) {
-			return objectAssign({}, folder, { children: null });
-		}
-	}
-};
-
-GoogleClient.prototype.loadFolderContents = function(folderPath, folderCache) {
-	var accessToken = this.accessToken;
-	return loadFolder(folderPath, folderCache, accessToken);
-
-
-	function loadFolder(folderPath, folderCache, accessToken) {
-		return loadFolderHierarchy(accessToken)
-			.then(function(rootFolder) {
-				var relativeFolderPath = stripLeadingSlash(folderPath);
-				var folder = getNestedFile(rootFolder, relativeFolderPath);
-				if (!folder) { throw new HttpError(404); }
-				var folderId = folder.id;
-				return loadFolderContents(folderId, accessToken)
-					.then(function(items) {
-						var baseFolderItem = createFolderItem({ id: folder.id, title: folder.filename, root: true });
-						var nestedFiles = parseFileList([baseFolderItem].concat(items));
-						var baseFolder = nestedFiles.filter(function(file) {
-							return file.id === baseFolderItem.id;
-						})[0];
-						return baseFolder;
-					});
-			});
-	}
-};
-
-GoogleClient.prototype.readFile = function(fileId) {
-	var accessToken = this.accessToken;
-	return readFile(fileId, accessToken);
-};
-
-GoogleClient.prototype.writeFile = function(filename, parentFolderId, data) {
-	var accessToken = this.accessToken;
-	return writeFile(filename, parentFolderId, data, accessToken);
-};
-
-GoogleClient.prototype.createFolder = function(filename, parentFolderId) {
-	var accessToken = this.accessToken;
-	return createFolder(filename, parentFolderId, accessToken);
-};
-
-GoogleClient.prototype.createFolderAtPath = function(folderPath) {
-	var client = this;
-	var accessToken = this.accessToken;
-	return createFolderAtPath(folderPath, accessToken);
-
-
-	function createFolderAtPath(folderPath, accessToken) {
-		if (!folderPath || (folderPath.charAt(0) !== '/')) {
-			return Promise.reject(new HttpError(400));
-		}
-		if (folderPath === '/') {
-			return Promise.resolve(createFolderItem({ id: 'root', root: true }));
-		}
-		var filename = path.basename(folderPath);
-		var parentPath = path.dirname(folderPath);
-		return client.retrieveFileMetadataAtPath(parentPath)
-			.catch(function(error) {
-				if (error.status === 404) {
-					return createFolderAtPath(parentPath, accessToken);
-				} else {
-					throw error;
-				}
-			})
-			.then(function(fileMetadata) {
-				if (fileMetadata.mimeType !== MIME_TYPE_FOLDER) {
-					throw new HttpError(409);
-				}
-				var parentId = fileMetadata.id;
-				return client.createFolder(filename, parentId);
-			});
-	}
-};
-
-GoogleClient.prototype.generateDownloadLink = function(fileId) {
-	var accessToken = this.accessToken;
-	return generateDownloadLink(fileId, accessToken);
-};
-
-GoogleClient.prototype.generateThumbnailLink = function(fileId, options) {
-	var accessToken = this.accessToken;
-	return generateThumbnailLink(fileId, options, accessToken);
-};
-
-function loadFolderHierarchy(accessToken) {
-	return loadUserFolders(accessToken)
-		.then(function(folders) {
-			var rootFolderId = getRootFolderId(folders);
-			var rootFolderItem = createFolderItem({ id: rootFolderId, title: null, root: true });
-			var nestedFiles = parseFileList([rootFolderItem].concat(folders.map(function(item) {
-				return createFolderItem(item);
-			})));
-			var linkedRootFolder = nestedFiles.filter(function(file) {
-				return file.id === rootFolderId;
-			})[0];
-			return linkedRootFolder;
+	var googleClient = this;
+	return googleClient.loadFolderHierarchy()
+		.then(function(rootFolder) {
+			if (filePath === '/') {
+				return stripChildren(rootFolder);
+			}
+			var parentPath = path.dirname(filePath);
+			var relativeParentPath = stripLeadingSlash(parentPath);
+			var parentFolder = getNestedFile(rootFolder, relativeParentPath);
+			if (!parentFolder) {
+				throw new HttpError(404);
+			}
+			var relativeFilePath = stripLeadingSlash(filePath);
+			var folder = getNestedFile(rootFolder, relativeFilePath);
+			if (folder) { return stripChildren(folder); }
+			var filename = path.basename(filePath);
+			var query = '(\'' + parentFolder.id + '\' in parents) and (title = \'' + escapeApiQueryString(filename) + '\')';
+			return googleClient.loadFileList(query)
+				.then(function(items) {
+					if (items.length === 0) {
+						throw new HttpError(404);
+					}
+					var files = parseFileList(items);
+					return files[0];
+				});
 		});
+
+
+	function stripChildren(folder) {
+		return objectAssign({}, folder, { children: null });
+	}
+};
+
+GoogleClient.prototype.loadFolderHierarchy = function() {
+	var googleClient = this;
+	return googleClient.request({
+		method: 'GET',
+		url: 'https://www.googleapis.com/drive/v2/files',
+		params: {
+			'spaces': 'drive',
+			'q': 'mimeType=\'application/vnd.google-apps.folder\' and trashed=false',
+			'maxResults': MAX_API_RESULTS
+		},
+		fields: {
+			'items': {
+				'id': true,
+				'title': true,
+				'parents': {
+					'id': true,
+					'isRoot': true
+				}
+			}
+		},
+		paginated: true
+	})
+	.then(function(data) {
+		return data.items;
+	})
+	.then(function(folders) {
+		var rootFolderId = getRootFolderId(folders);
+		var rootFolderItem = createFolderItem({ id: rootFolderId, title: null, root: true });
+		var nestedFiles = parseFileList([rootFolderItem].concat(folders.map(function(item) {
+			return createFolderItem(item);
+		})));
+		var linkedRootFolder = nestedFiles.filter(function(file) {
+			return file.id === rootFolderId;
+		})[0];
+		return linkedRootFolder;
+	});
 
 
 	function getRootFolderId(files) {
@@ -823,7 +770,203 @@ function loadFolderHierarchy(accessToken) {
 		});
 		return rootFolderId || 'root';
 	}
-}
+};
+
+GoogleClient.prototype.loadFolderContents = function(folderPath, folderCache) {
+	var googleClient = this;
+	return googleClient.loadFolderHierarchy()
+		.then(function(rootFolder) {
+			var relativeFolderPath = stripLeadingSlash(folderPath);
+			var folder = getNestedFile(rootFolder, relativeFolderPath);
+			if (!folder) { throw new HttpError(404); }
+			var folderId = folder.id;
+			return loadFolderContents(googleClient, folderId)
+				.then(function(items) {
+					var baseFolderItem = createFolderItem({ id: folder.id, title: folder.filename, root: true });
+					var nestedFiles = parseFileList([baseFolderItem].concat(items));
+					var baseFolder = nestedFiles.filter(function(file) {
+						return file.id === baseFolderItem.id;
+					})[0];
+					return baseFolder;
+				});
+		});
+
+
+	function loadFolderContents(googleClient, folderId, existingItems) {
+		var folderIds = (Array.isArray(folderId) ? folderId : [folderId]);
+		var query = folderIds.map(function(folderId) {
+			return '(\'' + folderId + '\' in parents)';
+		}).join(' or ');
+		return googleClient.loadFileList(query)
+			.then(function(items) {
+				var folderItems = items.filter(function(item) {
+					return (item.mimeType === MIME_TYPE_FOLDER);
+				});
+				var combinedItems = (existingItems ? existingItems.concat(items) : items);
+				if (folderItems.length === 0) {
+					return combinedItems;
+				} else {
+					var nestedFolderIds = folderItems.map(function(folderItem) {
+						return folderItem.id;
+					});
+					return loadFolderContents(googleClient, nestedFolderIds, combinedItems);
+				}
+			});
+	}
+};
+
+GoogleClient.prototype.readFile = function(fileId) {
+	var googleClient = this;
+	return googleClient.request({
+		method: 'GET',
+		url: 'https://www.googleapis.com/drive/v2/files/' + fileId,
+		params: {
+			'alt': 'media'
+		},
+		raw: true
+	});
+};
+
+GoogleClient.prototype.writeFile = function(filename, parentFolderId, data) {
+	var mimeType = mime.lookup(filename);
+	var fileMetadata = {
+		title: filename,
+		mimeType: mimeType,
+		parents: [ { id: parentFolderId } ]
+	};
+	var googleClient = this;
+	return googleClient.request({
+		method: 'POST',
+		url: 'https://www.googleapis.com/upload/drive/v2/files',
+		body: [
+			{ 'Content-Type': 'application/json; charset=UTF-8', body: JSON.stringify(fileMetadata) },
+			{ 'Content-Type': mimeType, body: data }
+		]
+	});
+};
+
+GoogleClient.prototype.createFolder = function(filename, parentFolderId) {
+	var fileMetadata = {
+		title: filename,
+		mimeType: MIME_TYPE_FOLDER,
+		parents: [ { id: parentFolderId } ]
+	};
+	var googleClient = this;
+	return googleClient.request({
+		method: 'POST',
+		url: 'https://www.googleapis.com/drive/v2/files',
+		body: fileMetadata
+	})
+	.then(function(data) {
+		return createFolderItem(data);
+	});
+};
+
+GoogleClient.prototype.createFolderAtPath = function(folderPath) {
+	var googleClient = this;
+	return createFolderAtPath(googleClient, folderPath);
+
+
+	function createFolderAtPath(googleClient, folderPath) {
+		if (!folderPath || (folderPath.charAt(0) !== '/')) {
+			return Promise.reject(new HttpError(400));
+		}
+		if (folderPath === '/') {
+			return Promise.resolve(createFolderItem({ id: 'root', root: true }));
+		}
+		var filename = path.basename(folderPath);
+		var parentPath = path.dirname(folderPath);
+		return googleClient.retrieveFileMetadataAtPath(parentPath)
+			.catch(function(error) {
+				if (error.status === 404) {
+					return createFolderAtPath(googleClient, parentPath);
+				} else {
+					throw error;
+				}
+			})
+			.then(function(fileMetadata) {
+				if (fileMetadata.mimeType !== MIME_TYPE_FOLDER) {
+					throw new HttpError(409);
+				}
+				var parentId = fileMetadata.id;
+				return googleClient.createFolder(filename, parentId);
+			});
+	}
+};
+
+GoogleClient.prototype.generateDownloadLink = function(fileId) {
+	var googleClient = this;
+	return googleClient.request({
+		method: 'GET',
+		url: 'https://www.googleapis.com/drive/v2/files/' + fileId,
+		fields: {
+			'downloadUrl': true
+		}
+	})
+		.then(function(response) {
+			var downloadUrl = response.downloadUrl;
+			if (!downloadUrl) { return new HttpError(403); }
+			var accessToken = googleClient.accessToken;
+			return appendQueryParams(downloadUrl, { 'access_token': accessToken });
+		});
+};
+
+GoogleClient.prototype.generateThumbnailLink = function(fileId, options) {
+	options = options || {};
+	var size = options.size || null;
+	if (typeof size === 'number') { size = 's' + size; }
+	var googleClient = this;
+	return googleClient.request({
+		method: 'GET',
+		url: 'https://www.googleapis.com/drive/v2/files/' + fileId,
+		fields: {
+			'thumbnailLink': true
+		}
+	})
+		.then(function(response) {
+			var thumbnailLink = response.thumbnailLink;
+			if (!thumbnailLink) { return new HttpError(403); }
+			if (size) { thumbnailLink = getResizedThumbnailLink(thumbnailLink, { size: size }); }
+			return thumbnailLink;
+		});
+};
+
+GoogleClient.prototype.loadFileList = function(query) {
+	var q = (query ? '(' + query + ') and ' : '') + 'trashed=false';
+	var googleClient = this;
+	return googleClient.request({
+		method: 'GET',
+		url: 'https://www.googleapis.com/drive/v2/files',
+		params: {
+			'spaces': 'drive',
+			'q': q,
+			'maxResults': MAX_API_RESULTS
+		},
+		fields: {
+			'items': {
+				'id': true,
+				'title': true,
+				'alternateLink': true,
+				'downloadUrl': true,
+				'fileSize': true,
+				'fullFileExtension': true,
+				'mimeType': true,
+				'modifiedDate': true,
+				'thumbnailLink': true,
+				'webContentLink': true,
+				'parents': {
+					'id': true,
+					'isRoot': true
+				}
+			}
+		},
+		paginated: true
+	}).then(function(data) {
+		return data.items;
+	});
+};
+
+
 
 function getNestedFile(currentFolder, filePath) {
 	if (!filePath) { return currentFolder; }
@@ -919,172 +1062,6 @@ function parseFileList(items) {
 	}
 }
 
-function loadUserFolders(accessToken) {
-	return apiRequest({
-		token: accessToken,
-		method: 'GET',
-		url: 'https://www.googleapis.com/drive/v2/files',
-		params: {
-			'spaces': 'drive',
-			'q': 'mimeType=\'application/vnd.google-apps.folder\' and trashed=false',
-			'maxResults': MAX_API_RESULTS
-		},
-		fields: {
-			'items': {
-				'id': true,
-				'title': true,
-				'parents': {
-					'id': true,
-					'isRoot': true
-				}
-			}
-		},
-		paginated: true
-	}).then(function(data) {
-		return data.items;
-	});
-}
-
-function loadFolderContents(folderId, accessToken, existingItems) {
-	var folderIds = (Array.isArray(folderId) ? folderId : [folderId]);
-	var query = folderIds.map(function(folderId) {
-		return '(\'' + folderId + '\' in parents)';
-	}).join(' or ');
-	return loadFileList(query, accessToken)
-		.then(function(items) {
-			var folderItems = items.filter(function(item) {
-				return (item.mimeType === MIME_TYPE_FOLDER);
-			});
-			var combinedItems = (existingItems ? existingItems.concat(items) : items);
-			if (folderItems.length === 0) {
-				return combinedItems;
-			} else {
-				var nestedFolderIds = folderItems.map(function(folderItem) {
-					return folderItem.id;
-				});
-				return loadFolderContents(nestedFolderIds, accessToken, combinedItems);
-			}
-		});
-}
-
-function loadFileList(query, accessToken) {
-	var q = (query ? '(' + query + ') and ' : '') + 'trashed=false';
-	return apiRequest({
-		token: accessToken,
-		method: 'GET',
-		url: 'https://www.googleapis.com/drive/v2/files',
-		params: {
-			'spaces': 'drive',
-			'q': q,
-			'maxResults': MAX_API_RESULTS
-		},
-		fields: {
-			'items': {
-				'id': true,
-				'title': true,
-				'alternateLink': true,
-				'downloadUrl': true,
-				'fileSize': true,
-				'fullFileExtension': true,
-				'mimeType': true,
-				'modifiedDate': true,
-				'thumbnailLink': true,
-				'webContentLink': true,
-				'parents': {
-					'id': true,
-					'isRoot': true
-				}
-			}
-		},
-		paginated: true
-	}).then(function(data) {
-		return data.items;
-	});
-}
-
-function readFile(fileId, accessToken) {
-	return apiRequest({
-		token: accessToken,
-		method: 'GET',
-		url: 'https://www.googleapis.com/drive/v2/files/' + fileId,
-		params: {
-			'alt': 'media'
-		},
-		raw: true
-	});
-}
-
-function writeFile(filename, parentFolderId, data, accessToken) {
-	var mimeType = mime.lookup(filename);
-	var fileMetadata = {
-		title: filename,
-		mimeType: mimeType,
-		parents: [ { id: parentFolderId } ]
-	};
-	return apiRequest({
-		token: accessToken,
-		method: 'POST',
-		url: 'https://www.googleapis.com/upload/drive/v2/files',
-		body: [
-			{ 'Content-Type': 'application/json; charset=UTF-8', body: JSON.stringify(fileMetadata) },
-			{ 'Content-Type': mimeType, body: data }
-		]
-	});
-}
-
-function createFolder(filename, parentFolderId, accessToken) {
-	var fileMetadata = {
-		title: filename,
-		mimeType: MIME_TYPE_FOLDER,
-		parents: [ { id: parentFolderId } ]
-	};
-	return apiRequest({
-		token: accessToken,
-		method: 'POST',
-		url: 'https://www.googleapis.com/drive/v2/files',
-		body: fileMetadata
-	})
-	.then(function(data) {
-		return createFolderItem(data);
-	});
-}
-
-function generateDownloadLink(fileId, accessToken) {
-	return apiRequest({
-		token: accessToken,
-		method: 'GET',
-		url: 'https://www.googleapis.com/drive/v2/files/' + fileId,
-		fields: {
-			'downloadUrl': true
-		}
-	})
-	.then(function(response) {
-		var downloadUrl = response.downloadUrl;
-		if (!downloadUrl) { return new HttpError(403); }
-		return appendQueryParams(downloadUrl, { 'access_token': accessToken });
-	});
-}
-
-function generateThumbnailLink(fileId, options, accessToken) {
-	options = options || {};
-	var size = options.size || null;
-	if (typeof size === 'number') { size = 's' + size; }
-	return apiRequest({
-		token: accessToken,
-		method: 'GET',
-		url: 'https://www.googleapis.com/drive/v2/files/' + fileId,
-		fields: {
-			'thumbnailLink': true
-		}
-	})
-	.then(function(response) {
-		var thumbnailLink = response.thumbnailLink;
-		if (!thumbnailLink) { return new HttpError(403); }
-		if (size) { thumbnailLink = getResizedThumbnailLink(thumbnailLink, { size: size }); }
-		return thumbnailLink;
-	});
-}
-
 function getResizedThumbnailLink(thumbnailLink, options) {
 	options = options || {};
 	var size = options.size || null;
@@ -1142,7 +1119,10 @@ function apiRequest(options) {
 			}, function (error, response, body) {
 				if (error) { return reject(error); }
 				if (response.statusCode >= 400) {
-					return reject(new HttpError(response.statusCode, getErrorMessage(body)));
+					var httpError = new HttpError(response.statusCode, getErrorMessage(body));
+					var errorCode = getErrorCode(body);
+					if (errorCode) { httpError.code = errorCode; }
+					return reject(httpError);
 				}
 				return resolve(body);
 			});
@@ -1174,6 +1154,17 @@ function apiRequest(options) {
 				}
 			}
 			return (apiResponse && apiResponse.error && apiResponse.error.message) || apiResponse;
+		}
+
+		function getErrorCode(apiResponse) {
+			if (typeof apiResponse === 'string') {
+				try {
+					apiResponse = JSON.parse(apiResponse);
+				} catch (error) {
+					return apiResponse;
+				}
+			}
+			return (apiResponse && apiResponse.error && apiResponse.error.code) || null;
 		}
 	}
 }
