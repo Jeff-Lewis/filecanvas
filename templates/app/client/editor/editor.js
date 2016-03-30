@@ -350,6 +350,7 @@ function initLivePreview(callback) {
 		initAccordions($panelElement);
 		initSelectPickers($panelElement);
 		initColorpickers($panelElement);
+		initAnalytics($panelElement);
 
 
 		function initSelectPickers($parentElement) {
@@ -380,6 +381,9 @@ function initLivePreview(callback) {
 				});
 		}
 
+		function initAnalytics($parentElement) {
+			$parentElement.find('[data-analytics-id]').analytics();
+		}
 
 		function findIncludingSelf($parentElement, selector) {
 			return $parentElement.find(selector).add($parentElement.filter(selector));
