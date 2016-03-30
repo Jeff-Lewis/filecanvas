@@ -65,7 +65,7 @@ LocalLoginAdapter.prototype.middleware = function(database, passport, callback) 
 				password: password
 			};
 			var query = { 'username': username };
-			loginService.login(query, passportValues)
+			loginService.login(query, passportValues, { request: req })
 				.then(function(userModel) {
 					callback(null, userModel);
 				})

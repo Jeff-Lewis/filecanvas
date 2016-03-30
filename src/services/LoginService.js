@@ -16,7 +16,15 @@ function LoginService(database, loginAdapter) {
 
 LoginService.prototype.database = null;
 
-LoginService.prototype.login = function(query, passportValues) {
+LoginService.prototype.login = function(query, passportValues, options) {
+	options = options || {};
+	var req = options.request;
+	var clientIp = getClientAddress(req);
+
+	if (!query) { return Promise.reject(new Error('Missing query')); }
+	if (!passportValues) { return Promise.reject(new Error('Missing passport values')); }
+	if (!req) { return Promise.reject(new Error('Missing request')); }
+
 	var loginAdapter = this.adapter;
 	var adapterName = loginAdapter.adapterName;
 	var database = this.database;
@@ -72,7 +80,8 @@ LoginService.prototype.login = function(query, passportValues) {
 		.then(function(userModel) {
 			var username = userModel.username;
 			var updates = {
-				'lastLogin': new Date()
+				'lastLogin': new Date(),
+				'lastLoginIp': clientIp
 			};
 			return userService.updateUser(username, updates)
 				.then(function() {
@@ -104,6 +113,10 @@ LoginService.prototype.login = function(query, passportValues) {
 					userModel.pending = true;
 					return userModel;
 				});
+		}
+
+		function getClientAddress(req) {
+			return ('x-forwarded-for' in req.headers ? req.headers['x-forwarded-for'].split(',')[0] : req.connection.remoteAddress);
 		}
 };
 

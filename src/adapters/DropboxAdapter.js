@@ -91,7 +91,7 @@ DropboxLoginAdapter.prototype.middleware = function(database, passport, callback
 				email: profile.emails[0].value
 			};
 			var query = { 'uid': passportValues.uid };
-			loginService.login(query, passportValues)
+			loginService.login(query, passportValues, { request: req })
 				.then(function(userModel) {
 					callback(null, userModel);
 				})

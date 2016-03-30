@@ -175,7 +175,8 @@ function createUser(database, fields) {
 		adapters: fields.adapters,
 		pending: Boolean(fields.pending),
 		createdAt: new Date(),
-		lastLogin: null
+		lastLogin: null,
+		lastLoginIp: null
 	};
 	return database.collection(DB_COLLECTION_USERS).insertOne(userModel)
 		.then(function() {
