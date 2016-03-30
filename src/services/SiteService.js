@@ -44,6 +44,19 @@ SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
 	var requireFullModel = true;
 	return validateSiteModel(siteModel, requireFullModel)
 		.then(function(siteModel) {
+			var userService = new UserService(database);
+			var username = siteModel.owner;
+			return userService.retrieveUser(username)
+				.catch(function(error) {
+					if (error.status === 404) {
+						throw new HttpError(400);
+					}
+				})
+				.then(function(userModel) {
+					return siteModel;
+				});
+		})
+		.then(function(siteModel) {
 			return createSite(database, siteModel)
 				.catch(function(error) {
 					if (error.code === database.ERROR_CODE_DUPLICATE_KEY) {
