@@ -83,6 +83,8 @@
     "showdown": "^1.3.0",
     "simple-dom": "^0.3.0",
     "slug": "^0.9.1",
+    "stackframe": "^1.0.2",
+    "stacktrace-js": "^1.0.4",
     "trace": "^2.3.0",
     "url-join": "^1.0.0",
     "uuid": "^2.0.1",
