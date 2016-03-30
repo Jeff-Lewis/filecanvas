@@ -145,6 +145,12 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 									siteModel.contents = siteCache.site.contents;
 									return siteModel;
 								});
+						})
+						.catch(function(error) {
+							if (error.status === 401) {
+								return siteModel;
+							}
+							throw error;
 						});
 				});
 		});
