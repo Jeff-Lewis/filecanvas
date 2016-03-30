@@ -344,12 +344,7 @@ module.exports = function(database, cache, options) {
 			analytics: analyticsConfig
 		});
 		var forceRegisterIfPendingUser = function(req, res, next) {
-			if (!req.isAuthenticated()) {
-				if (req.url !== '/') {
-					res.redirect('/');
-					return;
-				}
-			} else if (req.user.pending) {
+			if (req.isAuthenticated() && req.user.pending) {
 				if (req.url !== '/register') {
 					res.redirect('/register');
 					return;
