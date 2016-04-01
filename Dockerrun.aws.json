@@ -1,13 +1,5 @@
 {
 	"AWSEBDockerrunVersion": 2,
-	"volumes": [
-		{
-			"name": "www",
-			"host": {
-				"sourcePath": "/var/app/current/volumes/www"
-			}
-		}
-	],
 	"containerDefinitions": [
 		{
 			"name": "templates",
@@ -36,10 +28,6 @@
 			],
 			"mountPoints": [
 				{
-					"sourceVolume": "www",
-					"containerPath": "/var/www"
-				},
-				{
 					"sourceVolume": "awseb-logs-router",
 					"containerPath": "/var/log/nginx"
 				}
@@ -62,10 +50,6 @@
 				}
 			],
 			"mountPoints": [
-				{
-					"sourceVolume": "www",
-					"containerPath": "/var/www"
-				},
 				{
 					"sourceVolume": "awseb-logs-app",
 					"containerPath": "/var/log/nodejs"
@@ -91,10 +75,6 @@
 				{
 					"name": "THEMES_ROOT",
 					"value": "/var/templates/themes/themes"
-				},
-				{
-					"name": "WWW_SITE_ROOT",
-					"value": "/var/www"
 				}
 			]
 		}
