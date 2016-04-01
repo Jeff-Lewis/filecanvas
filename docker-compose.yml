@@ -24,7 +24,6 @@ router:
     - HOST
     - REDIS_URL=redis://redis:6379
   volumes:
-    - ${WWW_SITE_ROOT}:/var/www
     - ${LOGS_ROOT}/nginx:/var/log/nginx
 app:
   image: filecanvas/app
@@ -65,14 +64,12 @@ app:
     - PORT=8081
     - TEMPLATES_APP=/var/templates/app
     - TEMPLATES_SITE=/var/templates/site
-    - TEMPLATES_WWW=/var/templates/www
     - THEMES_ROOT=/var/templates/themes/themes
-    - WWW_SITE_ROOT=/var/www
+    - WWW_SITE_ROOT=/var/templates/www
     - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis
   volumes:
-    - ${WWW_SITE_ROOT}:/var/www
     - ${LOCAL_SITE_ROOT}:/var/sites
     - ${LOGS_ROOT}/nodejs:/var/log/nodejs
 mongodb:

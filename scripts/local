@@ -28,7 +28,6 @@ cp -r services/router/nginx/conf/ $DATA_DIR/nginx/config/
 NGINX_CONFIG_REPLACEMENTS=(
 	's/\/opt\/openresty\/nginx\/conf\//'${DATA_DIR//\//\\\/}'\/nginx\/config\//g'
 	's/\/opt\/openresty\/lua-resty-template\//'${PWD//\//\\\/}'\/services\/router\/plugins\/lua-resty-template\/lib\//g'
-	's/\/var\/www/'${DATA_DIR//\//\\\/}'\/www/g'
 	's/\/var\/templates\//'${DATA_DIR//\//\\\/}'\/templates\//g'
 	's/\/var\/run\/nginx.pid/'${DATA_DIR//\//\\\/}'\/nginx\/run\/nginx.pid/g'
 	's/\/var\/log\/nginx\//'${DATA_DIR//\//\\\/}'\/logs\/nginx\//g'
