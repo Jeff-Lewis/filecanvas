@@ -1,23 +1,15 @@
 'use strict';
 
-var fs = require('fs');
-
 var config = {};
 
 config.http = {};
 config.http.port = Number(process.env.PORT || 80);
 config.http.timeout = Number(process.env.HTTP_TIMEOUT || 20000);
 
-config.https = {};
-config.https.port = process.env.HTTPS === 'true' ? Number(process.env.HTTPS_PORT || 443) : null;
-config.https.cert = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_CERT) : null;
-config.https.key = process.env.HTTPS === 'true' ? fs.readFileSync(process.env.HTTPS_KEY) : null;
-config.https.timeout = Number(process.env.HTTPS_TIMEOUT || config.http.timeout);
-
 config.host = {};
 config.host.hostname = process.env.HOST || 'localhost';
-config.host.protocol = process.env.HOST_PROTOCOL || (config.https.port ? 'https:' : 'http:');
-config.host.port = process.env.HOST_PORT ? Number(process.env.HOST_PORT) : (config.https.port ? config.https.port : config.http.port);
+config.host.protocol = process.env.HOST_PROTOCOL || 'http:';
+config.host.port = process.env.HOST_PORT ? Number(process.env.HOST_PORT) : config.http.port;
 
 config.session = {};
 config.session.cookieSecret = process.env.COOKIE_SECRET || null;

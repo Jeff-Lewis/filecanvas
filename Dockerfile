@@ -19,12 +19,10 @@ EXPOSE \
 
 ENV \
 	NODE_ENV=production\
-	HOST=localhost\
 	PORT=80\
-	HTTPS=false\
-	HTTPS_PORT=443\
-	HTTPS_CERT=/opt/ssl/cert.pem\
-	HTTPS_KEY=/opt/ssl/key.pem\
+	HOST=localhost\
+	HOST_PROTOCOL=http:\
+	HOST_PORT=80\
 	MONGODB_URL=\
 	REDIS_URL=\
 	NEW_RELIC_LICENSE_KEY=\

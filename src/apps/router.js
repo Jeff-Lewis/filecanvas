@@ -161,11 +161,6 @@ module.exports = function(database, cache, config) {
 		subdomains[config.uploaders.demo.downloadSubdomain] = demoAssetDownloadMiddleware;
 	}
 
-	initMiddleware(app, {
-		host: host,
-		forceHttps: Boolean(config.https.port)
-	});
-
 	initCustomDomains(app, {
 		host: host
 	});
@@ -179,19 +174,6 @@ module.exports = function(database, cache, config) {
 
 	return app;
 
-
-	function initMiddleware(app, options) {
-		options = options || {};
-		var host = options.host;
-		var forceHttps = options.forceHttps;
-
-		if (forceHttps) {
-			app.set('forceSSLOptions', {
-				httpsPort: host.port
-			});
-			app.use(forceSsl({ hostname: host.hostname }));
-		}
-	}
 
 	function initCustomDomains(app, options) {
 		options = options || {};

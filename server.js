@@ -37,26 +37,19 @@ Promise.all([
 		return app;
 	})
 	.then(function(app) {
-		var httpPort = config.http.port;
-		var httpTimeout = config.http.timeout;
-		var httpsPort = config.https.port;
-		var httpsTimeout = config.https.timeout;
-		var httpsOptions = config.https;
+		var port = config.http.port;
+		var timeout = config.http.timeout;
 
 		serve(app, {
-			httpPort: httpPort,
-			httpTimeout: httpTimeout,
-			httpsPort: httpsPort,
-			httpsTimeout: httpsTimeout,
-			httpsOptions: httpsOptions
+			port: port,
+			timeout: timeout
 		});
 
 		return app;
 	})
 	.then(function(app) {
 		process.stdout.write('Server listening' +
-			' on HTTP port ' + app.get('httpPort') +
-			(app.get('httpsPort') ? ', HTTPS port ' + app.get('httpsPort') : '') +
+			' on HTTP port ' + config.http.port +
 			'\n'
 		);
 	})

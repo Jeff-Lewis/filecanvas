@@ -44,7 +44,6 @@
     "escape-html": "^1.0.3",
     "escape-regexp": "0.0.1",
     "express": "^3.21.2",
-    "express-force-ssl": "^0.3.1",
     "github-markdown-css": "^2.2.0",
     "handlebars": "^4.0.5",
     "htmlbars": "^0.14.16",
