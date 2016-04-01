@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+cd $(dirname $0)
+
+INPUT_DIR=$PWD/src
+OUTPUT_DIR=$PWD/dist
+
+rm -rf $OUTPUT_DIR
+if [ "$NODE_ENV" == 'production' ]; then
+	mkdir -p $OUTPUT_DIR
+	cp -R -L $INPUT_DIR/ $OUTPUT_DIR
+else
+	ln -s $INPUT_DIR $OUTPUT_DIR
+fi

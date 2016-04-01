@@ -18,7 +18,7 @@ ln -s $ROOT_DIR/templates/assets/dist/ $DATA_DIR/templates/assets
 ln -s $ROOT_DIR/templates/router/dist/ $DATA_DIR/templates/router
 ln -s $ROOT_DIR/templates/site/dist/ $DATA_DIR/templates/site
 ln -s $ROOT_DIR/templates/themes/dist/ $DATA_DIR/templates/themes
-ln -s $ROOT_DIR/templates/www/src/ $DATA_DIR/templates/www
+ln -s $ROOT_DIR/templates/www/dist/ $DATA_DIR/templates/www
 
 echo "Running prestart hook..."
 npm run prestart

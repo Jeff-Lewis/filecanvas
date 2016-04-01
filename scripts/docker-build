@@ -59,7 +59,7 @@ else
 				'+ themes'
 				'+ themes/dist/***'
 				'+ www'
-				'+ www/src/***'
+				'+ www/dist/***'
 				'+ Dockerfile'
 				'- *'
 			)

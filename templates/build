@@ -8,3 +8,6 @@ echo "Building asset libraries..."
 
 echo "Building theme templates..."
 ./themes/build
+
+echo "Copying www templates..."
+./www/build
