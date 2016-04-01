@@ -3,21 +3,21 @@
 
 var fs = require('fs');
 var path = require('path');
-var del = require('del');
 var mkdirp = require('mkdirp');
 
 var build = require('./src/build');
 
+var args = process.argv.slice(['node', 'script.js'].length);
 try {
-	if (!process.env.TEMPLATE_DIR) { throw new Error('Missing TEMPLATE_DIR environment variable'); }
-	if (!process.env.OUTPUT_DIR) { throw new Error('Missing OUTPUT_DIR environment variable'); }
+	if (args.length !== 2) { throw new Error('Usage: build <inputDir> <outputDir>'); }
+	if (args[0] === args[1]) { throw new Error('Invalid output path'); }
 	if (!process.env.HOST) { throw new Error('Missing HOST environment variable'); }
 } catch(error) {
 	exit(error);
 }
 
-var source = fs.realpathSync(process.env.TEMPLATE_DIR);
-var destination = process.env.OUTPUT_DIR;
+var source = fs.realpathSync(args[0]);
+var destination = path.resolve(args[1]);
 var context = {
 	host: {
 		hostname: process.env.HOST || null,
@@ -31,12 +31,7 @@ var context = {
 };
 
 process.stdout.write('Generating static site...\n');
-process.stdout.write('Cleaning ' + destination + '\n');
-del(path.join(destination + '**/*'), { force: true })
-	.then(function() {
-		process.stdout.write('Creating output directory\n');
-		return ensureDirectoryExists(destination);
-	})
+ensureDirectoryExists(destination)
 	.then(function() {
 		process.stdout.write('Copying files from ' + source + '\n');
 		return build(source, destination, context)

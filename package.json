@@ -6,7 +6,6 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "prestart": "./scripts/prestart",
     "local": "./scripts/local",
     "docker-build": "./scripts/docker-build",
     "docker-bundle": "./scripts/docker-bundle",

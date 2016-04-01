@@ -43,6 +43,9 @@ else
 			IMAGE_PATH="./services/router"
 		elif [ $IMAGE_NAME == "templates" ]; then
 			NODE_ENV=production \
+			HOST=filecanvas.com \
+			HOST_PROTOCOL=https: \
+			HOST_PORT=443 \
 				./templates/build
 			IMAGE_PATH="./templates"
 			IMAGE_SRC_FILTERS=(

@@ -20,9 +20,6 @@ ln -s $ROOT_DIR/templates/site/dist/ $DATA_DIR/templates/site
 ln -s $ROOT_DIR/templates/themes/dist/ $DATA_DIR/templates/themes
 ln -s $ROOT_DIR/templates/www/dist/ $DATA_DIR/templates/www
 
-echo "Running prestart hook..."
-npm run prestart
-
 echo "Writing nginx configuration..."
 rm -rf $DATA_DIR/nginx
 mkdir -p $DATA_DIR/nginx

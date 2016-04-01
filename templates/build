@@ -9,5 +9,5 @@ echo "Building asset libraries..."
 echo "Building theme templates..."
 ./themes/build
 
-echo "Copying www templates..."
+echo "Building www site..."
 ./www/build
