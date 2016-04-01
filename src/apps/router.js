@@ -13,14 +13,11 @@ var customDomain = require('../middleware/customDomain');
 var subdomain = require('../middleware/subdomain');
 var redirectToSubdomain = require('../middleware/redirectToSubdomain');
 var useSubdomainAsPathPrefix = require('../middleware/useSubdomainAsPathPrefix');
-var uploader = require('../middleware/uploader');
-var thumbnailer = require('../middleware/thumbnailer');
 var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
 var getSubdomainUrl = require('../utils/getSubdomainUrl');
 var stripTrailingSlash = require('../utils/stripTrailingSlash');
-var generateTempPath = require('../utils/generateTempPath');
 
 module.exports = function(database, cache, config) {
 	config = config || {};
@@ -35,16 +32,6 @@ module.exports = function(database, cache, config) {
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = assetsUrl + 'admin/';
 	var themeAssetsUrl = assetsUrl + 'theme/';
-
-	if (config.adapters.local) {
-		config.adapters.local = getLocalAdapterConfig(config.adapters.local, { host: host });
-	}
-	if (config.uploaders.admin.adapter === 'local') {
-		config.uploaders.admin = getLocalUploaderConfig(config.uploaders.admin, { host: host });
-	}
-	if (config.uploaders.demo.adapter === 'local') {
-		config.uploaders.demo = getLocalUploaderConfig(config.uploaders.demo, { host: host });
-	}
 
 	if (config.adapters.dropbox) {
 		config.adapters.dropbox = getDropboxAdapterConfig(config.adapters.dropbox, {
@@ -126,41 +113,6 @@ module.exports = function(database, cache, config) {
 		})
 	};
 
-	if (config.adapters.local) {
-		var tempPath = generateTempPath('filecanvas');
-		var thumbnailsPath = path.join(tempPath, 'thumbnails');
-		var localUploadMiddleware = uploader(config.adapters.local.storage.sitesRoot, { hostname: host.hostname });
-		var localDownloadMiddleware = express.static(config.adapters.local.storage.sitesRoot, { redirect: false });
-		var localThumbnailMiddleware = thumbnailer(config.adapters.local.storage.sitesRoot, {
-			width: config.adapters.local.storage.thumbnail.width,
-			height: config.adapters.local.storage.thumbnail.height,
-			format: config.adapters.local.storage.thumbnail.format,
-			cache: path.join(thumbnailsPath, 'local')
-		});
-		subdomains[config.adapters.local.storage.upload.subdomain] = localUploadMiddleware;
-		subdomains[config.adapters.local.storage.download.subdomain] = function(req, res, next) {
-			res.setHeader('Content-disposition', 'attachment; filename="' + decodeURIComponent(path.basename(req.originalUrl)) + '";');
-			localDownloadMiddleware(req, res, next);
-		};
-		subdomains[config.adapters.local.storage.preview.subdomain] = function(req, res, next) {
-			res.setHeader('Content-disposition', 'inline; filename="' + decodeURIComponent(path.basename(req.originalUrl)) + '";');
-			localDownloadMiddleware(req, res, next);
-		};
-		subdomains[config.adapters.local.storage.thumbnail.subdomain] = localThumbnailMiddleware;
-	}
-	if (config.uploaders.admin.adapter === 'local') {
-		var siteAssetUploadMiddleware = uploader(config.uploaders.admin.assetRoot, { hostname: host.hostname });
-		var siteAssetDownloadMiddleware = express.static(config.uploaders.admin.assetRoot, { redirect: false });
-		subdomains[config.uploaders.admin.uploadSubdomain] = siteAssetUploadMiddleware;
-		subdomains[config.uploaders.admin.downloadSubdomain] = siteAssetDownloadMiddleware;
-	}
-	if (config.uploaders.demo.adapter === 'local') {
-		var demoAssetUploadMiddleware = uploader(config.uploaders.demo.assetRoot, { hostname: host.hostname });
-		var demoAssetDownloadMiddleware = express.static(config.uploaders.demo.assetRoot, { redirect: false });
-		subdomains[config.uploaders.demo.uploadSubdomain] = demoAssetUploadMiddleware;
-		subdomains[config.uploaders.demo.downloadSubdomain] = demoAssetDownloadMiddleware;
-	}
-
 	initCustomDomains(app, {
 		host: host
 	});
@@ -238,39 +190,6 @@ module.exports = function(database, cache, config) {
 		app.use(errorHandler());
 	}
 };
-
-
-function getLocalAdapterConfig(adapterConfig, options) {
-	options = options || {};
-	var host = options.host;
-	return merge({}, adapterConfig, {
-		storage: {
-			upload: {
-				url: getSubdomainUrl(adapterConfig.storage.upload.subdomain, { host: host })
-			},
-			download: {
-				url: getSubdomainUrl(adapterConfig.storage.download.subdomain, { host: host })
-			},
-			preview: {
-				url: getSubdomainUrl(adapterConfig.storage.preview.subdomain, { host: host })
-			},
-			thumbnail: {
-				url: getSubdomainUrl(adapterConfig.storage.thumbnail.subdomain, { host: host })
-			}
-		}
-	});
-}
-
-function getLocalUploaderConfig(uploaderConfig, options) {
-	options = options || {};
-	var host = options.host;
-	var uploadUrl = getSubdomainUrl(uploaderConfig.uploadSubdomain, { host: host });
-	var downloadUrl = getSubdomainUrl(uploaderConfig.downloadSubdomain, { host: host });
-	return merge({}, uploaderConfig, {
-		uploadUrl: uploadUrl + uploaderConfig.uploadPath,
-		downloadUrl: downloadUrl + uploaderConfig.uploadPath
-	});
-}
 
 function getDropboxAdapterConfig(adapterConfig, options) {
 	options = options || {};

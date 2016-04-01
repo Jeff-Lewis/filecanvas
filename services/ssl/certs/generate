@@ -2,3 +2,4 @@ cd $(dirname $0)
 
 (cd dev-filecanvas.com; openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf)
 (cd vm-filecanvas.com; openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf)
+(cd localhost; openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf)

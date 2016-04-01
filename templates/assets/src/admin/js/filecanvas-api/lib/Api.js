@@ -19,7 +19,7 @@ var GOOGLE_CREATE_FOLDER_API_METHOD = 'POST';
 var GOOGLE_CREATE_FOLDER_API_ENDPOINT = 'https://www.googleapis.com/drive/v2/files';
 
 var LOCAL_UPLOAD_API_METHOD = 'POST';
-var LOCAL_UPLOAD_API_ENDPOINT = document.location.protocol + '//upload.' + document.location.host.split('.').slice(1).join('.');
+var LOCAL_UPLOAD_API_ENDPOINT = 'https://localhost:12345/sites/upload';
 
 var MIME_TYPE_GOOGLE_FOLDER = 'application/vnd.google-apps.folder';
 
@@ -385,7 +385,10 @@ Api.prototype.uploadFiles = function(files, options) {
 				body: file.data
 			})
 				.then(function(fileModel) {
-					return fileModel;
+					return objectAssign({}, fileModel, {
+						id: fileModel.id.replace(new RegExp('^' + escapeRegExp(pathPrefix)), ''),
+						path: fileModel.path.replace(new RegExp('^' + escapeRegExp(pathPrefix)), '')
+					});
 				});
 		}
 

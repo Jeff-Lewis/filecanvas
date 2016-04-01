@@ -1,0 +1,19 @@
+{
+  "name": "filecanvas-local",
+  "version": "0.0.1",
+  "description": "Local storage service for Filecanvas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "Copyright (c) Tim Kendrick Ltd",
+  "dependencies": {
+    "cors": "^2.7.1",
+    "del": "^2.2.0",
+    "express": "^4.13.4",
+    "finalhandler": "^0.4.1",
+    "is-path-inside": "^1.0.0",
+    "jimp": "^0.2.21",
+    "mkdirp": "^0.5.1"
+  }
+}

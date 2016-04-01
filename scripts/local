@@ -57,6 +57,7 @@ done
 ln -s $ROOT_DIR/services/ssl/certs/dev-filecanvas.com $DATA_DIR/ssl/certs
 
 echo "Starting services..."
+(cd services/storage && npm start) &
 (nginx -c $DATA_DIR/ssl/config/nginx.conf -g 'daemon off;') &
 (openresty -c $DATA_DIR/nginx/config/nginx.conf -g 'daemon off;') &
 mkdir -p $DATA_DIR/mongodb/db

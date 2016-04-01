@@ -138,9 +138,9 @@ function LocalStorageAdapter(database, options) {
 	var rootLabel = options.rootLabel || null;
 	var defaultSitesPath = options.defaultSitesPath || null;
 	var sitesRoot = options.sitesRoot || null;
-	var downloadUrl = options.download && options.download.url || null;
-	var previewUrl = options.preview && options.preview.url || null;
-	var thumbnailUrl = options.thumbnail && options.thumbnail.url || null;
+	var downloadUrl = options.downloadUrl || null;
+	var previewUrl = options.previewUrl || null;
+	var thumbnailUrl = options.thumbnailUrl || null;
 
 	if (!database) { throw new Error('Missing database'); }
 	if (!adapterLabel) { throw new Error('Missing adapter label'); }

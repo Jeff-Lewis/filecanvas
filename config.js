@@ -77,23 +77,12 @@ if (process.env.LOCAL === 'true') {
 		storage: {
 			adapterLabel: process.env.LOCAL_NAME || 'Filecanvas server',
 			rootLabel: process.env.LOCAL_LABEL || 'Filecanvas server',
-			defaultSitesPath: process.env.LOCAL_SITE_PATH || '/',
-			sitesRoot: process.env.LOCAL_SITE_ROOT || null,
-			upload: {
-				subdomain: 'upload'
-			},
-			download: {
-				subdomain: 'download'
-			},
-			preview: {
-				subdomain: 'media'
-			},
-			thumbnail: {
-				subdomain: 'thumbnail',
-				format: null,
-				width: 360,
-				height: 360
-			}
+			defaultSitesPath: process.env.LOCAL_SITE_PATH || '/Filecanvas/',
+			sitesRoot: process.env.LOCAL_SITES_ROOT || null,
+			uploadUrl: process.env.LOCAL_SITE_UPLOAD_URL || null,
+			downloadUrl: process.env.LOCAL_SITE_DOWNLOAD_URL || null,
+			previewUrl: process.env.LOCAL_SITE_PREVIEW_URL || null,
+			thumbnailUrl: process.env.LOCAL_SITE_THUMBNAIL_URL || null
 		}
 	};
 }
@@ -108,7 +97,7 @@ if (process.env.DROPBOX_APP_KEY) {
 		storage: {
 			adapterLabel: 'Dropbox',
 			rootLabel: '${user}’s Dropbox',
-			defaultSitesPath: process.env.DROPBOX_SITE_PATH || '/',
+			defaultSitesPath: process.env.DROPBOX_SITE_PATH || '/Filecanvas/',
 			appKey: process.env.DROPBOX_APP_KEY || null,
 			appSecret: process.env.DROPBOX_APP_SECRET || null
 		}
@@ -134,7 +123,7 @@ if (process.env.GOOGLE_CLIENT_ID) {
 		storage: {
 			adapterLabel: 'Google Drive',
 			rootLabel: '${user}’s Drive',
-			defaultSitesPath: process.env.GOOGLE_SITE_PATH || '/',
+			defaultSitesPath: process.env.GOOGLE_SITE_PATH || '/Filecanvas/',
 			clientId: process.env.GOOGLE_CLIENT_ID || null,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET || null
 		}
@@ -147,13 +136,12 @@ if (process.env.AWS_S3_BUCKET_THEME_UPLOADS) {
 		bucket: process.env.AWS_S3_BUCKET_THEME_UPLOADS,
 		root: 'users'
 	};
-} else if (process.env.LOCAL_ASSET_ROOT) {
+} else if (process.env.LOCAL) {
 	config.uploaders.admin = {
 		adapter: 'local',
 		uploadPath: 'editor-uploads/',
-		uploadSubdomain: 'site-uploads',
-		downloadSubdomain: 'site-downloads',
-		assetRoot: process.env.LOCAL_ASSET_ROOT
+		uploadUrl: process.env.LOCAL_THEME_ASSETS_UPLOAD_URL,
+		downloadUrl: process.env.LOCAL_THEME_ASSETS_DOWNLOAD_URL
 	};
 }
 if (process.env.AWS_S3_BUCKET_DEMO_UPLOADS) {
@@ -162,13 +150,12 @@ if (process.env.AWS_S3_BUCKET_DEMO_UPLOADS) {
 		bucket: process.env.AWS_S3_BUCKET_DEMO_UPLOADS,
 		root: 'sessions'
 	};
-} else if (process.env.LOCAL_ASSET_ROOT) {
+} else if (process.env.LOCAL) {
 	config.uploaders.demo = {
 		adapter: 'local',
 		uploadPath: 'editor-uploads/',
-		uploadSubdomain: 'demo-uploads',
-		downloadSubdomain: 'demo-downloads',
-		assetRoot: process.env.LOCAL_ASSET_ROOT
+		uploadUrl: process.env.LOCAL_DEMO_ASSETS_UPLOAD_URL,
+		downloadUrl: process.env.LOCAL_DEMO_ASSETS_DOWNLOAD_URL
 	};
 }
 

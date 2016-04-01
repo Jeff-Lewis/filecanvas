@@ -5,7 +5,7 @@ var path = require('path');
 var express = require('express');
 var isPathInside = require('is-path-inside');
 
-var HttpError = require('../errors/HttpError');
+var HttpError = require('../../../../src/errors/HttpError');
 
 var ThumbnailService = require('../services/ThumbnailService');
 

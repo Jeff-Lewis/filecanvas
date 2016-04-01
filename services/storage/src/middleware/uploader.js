@@ -6,9 +6,9 @@ var mkdirp = require('mkdirp');
 var express = require('express');
 var cors = require('cors');
 
-var loadFileMetadata = require('../utils/loadFileMetadata');
+var loadFileMetadata = require('../../../../src/utils/loadFileMetadata');
 
-var HttpError = require('../errors/HttpError');
+var HttpError = require('../../../../src/errors/HttpError');
 
 module.exports = function(destDir, options) {
 	options = options || {};
@@ -16,11 +16,9 @@ module.exports = function(destDir, options) {
 
 	var app = express();
 
-	if (hostname) {
-		app.use(cors({
-			origin: new RegExp('^https?://(?:\\w+\\.)*' + hostname + '(?::\\d+)?$')
-		}));
-	}
+	app.use(cors({
+		origin: (hostname ? new RegExp('^https?://(?:\\w+\\.)*' + hostname + '(?::\\d+)?$') : '*')
+	}));
 
 	app.post('*', function(req, res, next) {
 		var overwrite = Boolean(req.query.overwrite);
