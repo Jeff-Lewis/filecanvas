@@ -73,7 +73,7 @@ else
 		mkdir -p .tmp/images/$IMAGE_NAME
 		filters=""
 		for filter in "${IMAGE_SRC_FILTERS[@]}"; do filters="$filters --filter='$filter'"; done
-		eval "rsync -a -v -L --checksum --omit-dir-times --delete --delete-excluded $filters $IMAGE_PATH/ .tmp/images/$IMAGE_NAME"
+		eval "rsync -a -v --copy-unsafe-links --checksum --omit-dir-times --delete --delete-excluded $filters $IMAGE_PATH/ .tmp/images/$IMAGE_NAME"
 
 		# Build and tag the Docker image
 		docker build -t filecanvas/$IMAGE_NAME .tmp/images/$IMAGE_NAME
