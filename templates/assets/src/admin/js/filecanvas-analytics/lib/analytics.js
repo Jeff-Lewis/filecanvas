@@ -35,11 +35,9 @@
 			}
 
 			function getIsSubmitEvent(event, element) {
-				var isLinkElement = (element.tagName === 'A');
-				var isAnchorLinkElement = isLinkElement && /^#/.test(element.getAttribute('href'));
-				var isExternalLinkElement = isLinkElement && !isAnchorLinkElement;
-				var isClickEvent = (event.type === 'click');
-				return isExternalLinkElement && isClickEvent;
+				var isFormElement = (element.tagName === 'FORM');
+				var isSubmitEvent = (event.type === 'submit');
+				return isFormElement && isSubmitEvent;
 			}
 
 			function trackNavigationEvent(event, element) {
