@@ -1,6 +1,7 @@
 'use strict';
 
 var path = require('path');
+var objectAssign = require('object-assign');
 var escapeRegExp = require('escape-regexp');
 
 var GoogleUploader = require('./GoogleUploader');
@@ -211,16 +212,18 @@ Api.prototype.uploadFiles = function(files, options) {
 			var accessToken = options.token;
 			var uploadPath = pathPrefix + file.path;
 			var method = DROPBOX_UPLOAD_API_METHOD;
-			var url = getUploadUrl(DROPBOX_UPLOAD_API_ENDPOINT, uploadPath, {
+			var url = getUploadUrl(DROPBOX_UPLOAD_API_ENDPOINT, uploadPath);
+			var params = {
 				overwrite: false,
 				autorename: true
-			});
+			};
 			var headers = {
 				'Authorization': 'Bearer ' + accessToken
 			};
 			return xhr.upload({
 				method: method,
 				url: url,
+				params: params,
 				headers: headers,
 				body: file.data
 			})
@@ -373,14 +376,16 @@ Api.prototype.uploadFiles = function(files, options) {
 			var pathPrefix = options.path;
 			var uploadPath = pathPrefix + file.path;
 			var method = LOCAL_UPLOAD_API_METHOD;
-			var url = getUploadUrl(LOCAL_UPLOAD_API_ENDPOINT, uploadPath, {
+			var url = getUploadUrl(LOCAL_UPLOAD_API_ENDPOINT, uploadPath);
+			var params = {
 				overwrite: false,
 				autorename: true
-			});
+			};
 			var headers = null;
 			return xhr.upload({
 				method: method,
 				url: url,
+				params: params,
 				headers: headers,
 				body: file.data
 			})
@@ -434,19 +439,10 @@ Api.prototype.uploadFiles = function(files, options) {
 			return operation;
 		}
 
-		function getUploadUrl(endpoint, filePath, params) {
-			var queryString = formatQueryString(params);
+		function getUploadUrl(endpoint, filePath) {
 			var escapedPath = filePath.split('/').map(encodeURIComponent).join('/');
-			var url = endpoint + escapedPath + (queryString ? '?' + queryString : '');
+			var url = endpoint + escapedPath;
 			return url;
-
-
-			function formatQueryString(params) {
-				if (!params) { return ''; }
-				return Object.keys(params).map(function(key) {
-					return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-				}).join('&');
-			}
 		}
 
 		function stripPathPrefix(filePath, rootPath) {
