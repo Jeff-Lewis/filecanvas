@@ -83,14 +83,15 @@
 										<fieldset>
 											<div class="pl25 pr25{{#if session.sites}} collapse{{/if}}"{{#if session.sites}}
 												data-bind-value="create-form-theme"
-		{{/if}}>
+											{{/if}}>
 												<p class="pt15">Choose a theme from the selection below. You'll be able to customise the theme after the canvas has been created.</p>
 												<ul class="list-unstyled mn mb0">
+													{{#each content.themes as |theme|}}
 													<li class="theme-preview-control p15">
-														<div class="theme-preview-control-title h5 mt0 pb5"><strong>Agency</strong> </div>
+														<div class="theme-preview-control-title h5 mt0 pb5"><strong>{{ theme.name }}</strong> </div>
 														<div class="widget bg-white no-padding mb0 text-center bordered">
-															<a class="theme-preview-control-thumbnail" href="/canvases/create-canvas/themes/agency">
-																<img class="theme-preview-control-thumbnail-image" src="https://themes.dev-filecanvas.com:4443/agency/thumbnail.png">
+															<a class="theme-preview-control-thumbnail" href="{{ ../session.urls.admin.sitesCreateThemes }}/{{ theme.id }}">
+																<img class="theme-preview-control-thumbnail-image" src="{{ ../session.urls.themes }}/{{ theme.id }}/thumbnail.png">
 																<div class="theme-preview-control-thumbnail-icon">
 																	<i class="fa fa-search-plus"></i>
 																</div>
@@ -99,29 +100,13 @@
 														<label class="btn btn-primary block mt10" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
 															<input type="radio" class="theme-preview-control-radio-input"
 																name="theme.id"
-																value="agency"
+																value="{{ theme.id }}"
+																{{#if (eq theme.id ../content.site.theme.id)}}checked="checked"{{/if}}
 															/>
 															Use this theme
 														</label>
 													</li>
-													<li class="theme-preview-control p15">
-														<div class="theme-preview-control-title h5 mt0 pb5"><strong>Grid</strong> </div>
-														<div class="widget bg-white no-padding mb0 text-center bordered">
-															<a class="theme-preview-control-thumbnail" href="/canvases/create-canvas/themes/grid">
-																<img class="theme-preview-control-thumbnail-image" src="https://themes.dev-filecanvas.com:4443/grid/thumbnail.png">
-																<div class="theme-preview-control-thumbnail-icon">
-																	<i class="fa fa-search-plus"></i>
-																</div>
-															</a>
-														</div>
-														<label class="btn btn-primary block mt10" data-toggle="collapse" data-target="#create-form-fields" data-parent="#create-form">
-															<input type="radio" class="theme-preview-control-radio-input"
-																name="theme.id"
-																value="grid"
-															/>
-															Use this theme
-														</label>
-													</li>
+													{{/each}}
 												</ul>
 											</div>
 										</fieldset>
