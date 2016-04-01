@@ -30,8 +30,35 @@
 				var isLinkElement = (element.tagName === 'A');
 				var isAnchorLinkElement = isLinkElement && /^#/.test(element.getAttribute('href'));
 				var isExternalLinkElement = isLinkElement && !isAnchorLinkElement;
+				var willLeaveCurrentPage = isExternalLinkElement && (element.target !== '_blank') && !getIsModifierPressed(event);
 				var isClickEvent = (event.type === 'click');
-				return isExternalLinkElement && isClickEvent;
+				return willLeaveCurrentPage && isClickEvent;
+
+
+				function getIsModifierPressed(event) {
+					var isModifierKeyPressed = getIsModifierKeyPressed(event);
+					var isMiddleMouseButtonPressed = getIsMiddleMouseButtonPressed(event);
+					return isModifierKeyPressed || isMiddleMouseButtonPressed;
+
+
+					function getIsModifierKeyPressed(event) {
+						return (event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+					}
+
+					function getIsMiddleMouseButtonPressed(event) {
+						var LEFT_MOUSE_BUTTON_INDEX = 1;
+						var MIDDLE_MOUSE_BUTTON_INDEX = 2;
+						var RIGHT_MOUSE_BUTTON_INDEX = 3;
+						var buttonIndex = ('which' in event ? event.which : ('button' in event ? getLegacyMouseButtonIndex(event) : LEFT_MOUSE_BUTTON_INDEX));
+						return buttonIndex === MIDDLE_MOUSE_BUTTON_INDEX;
+
+
+						function getLegacyMouseButtonIndex(event) {
+							var button = event.button;
+							return (button & 1 ? LEFT_MOUSE_BUTTON_INDEX : (button & 2 ? RIGHT_MOUSE_BUTTON_INDEX : (button & 4 ? MIDDLE_MOUSE_BUTTON_INDEX : 0)));
+						}
+					}
+				}
 			}
 
 			function getIsSubmitEvent(event, element) {
