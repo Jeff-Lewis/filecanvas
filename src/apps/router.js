@@ -5,18 +5,13 @@ var express = require('express');
 var merge = require('lodash.merge');
 
 var statusApp = require('./status');
-var assetsApp = require('./assets');
-var themesApp = require('./themes');
 var demoApp = require('./demo');
 var sitesApp = require('./sites');
 var adminApp = require('./admin');
-var wwwApp = require('./www');
 
 var customDomain = require('../middleware/customDomain');
 var subdomain = require('../middleware/subdomain');
 var redirectToSubdomain = require('../middleware/redirectToSubdomain');
-var stripTrailingSlash = require('../middleware/stripTrailingSlash');
-var forceSsl = require('../middleware/forceSsl');
 var useSubdomainAsPathPrefix = require('../middleware/useSubdomainAsPathPrefix');
 var uploader = require('../middleware/uploader');
 var thumbnailer = require('../middleware/thumbnailer');
@@ -24,6 +19,7 @@ var invalidRoute = require('../middleware/invalidRoute');
 var errorHandler = require('../middleware/errorHandler');
 
 var getSubdomainUrl = require('../utils/getSubdomainUrl');
+var stripTrailingSlash = require('../utils/stripTrailingSlash');
 var generateTempPath = require('../utils/generateTempPath');
 
 module.exports = function(database, cache, config) {
@@ -65,12 +61,10 @@ module.exports = function(database, cache, config) {
 	var appTemplatesPath = config.templates.app;
 	var siteTemplatePath = config.templates.site;
 	var themesPath = config.themes.root;
-	var wwwSiteRoot = config.www.siteRoot;
 
 	var partialsPath = path.resolve(appTemplatesPath, '_partials');
 	var adminTemplatesPath = path.join(appTemplatesPath, 'admin');
 	var demoTemplatesPath = path.join(appTemplatesPath, 'demo');
-	var adminAssetsPath = path.join(adminTemplatesPath, 'assets');
 	var faqPath = path.join(appTemplatesPath, 'faq/faq.json');
 
 	var app = express();
@@ -79,16 +73,6 @@ module.exports = function(database, cache, config) {
 
 	var subdomains = {
 		'status': statusApp(),
-		'www': wwwApp({
-			siteRoot: wwwSiteRoot
-		}),
-		'assets': assetsApp({
-			adminAssetsPath: adminAssetsPath
-		}),
-		'themes': themesApp({
-			hostname: host.hostname,
-			themesPath: themesPath
-		}),
 		'try': demoApp(database, cache, {
 			host: host,
 			cookieSecret: config.session.cookieSecret,
@@ -200,9 +184,6 @@ module.exports = function(database, cache, config) {
 		options = options || {};
 		var host = options.host;
 		var forceHttps = options.forceHttps;
-
-		app.use(stripTrailingSlash());
-		app.use(express.compress());
 
 		if (forceHttps) {
 			app.set('forceSSLOptions', {
@@ -318,12 +299,6 @@ function getDropboxAdapterConfig(adapterConfig, options) {
 			loginCallbackUrl: adapterConfig.login.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
 		}
 	});
-
-
-	function stripTrailingSlash(string) {
-		var REGEXP_TRAILING_SLASH = /\/+$/;
-		return string.replace(REGEXP_TRAILING_SLASH, '');
-	}
 }
 
 function getGoogleAdapterConfig(adapterConfig, options) {
@@ -335,10 +310,4 @@ function getGoogleAdapterConfig(adapterConfig, options) {
 			loginCallbackUrl: adapterConfig.login.loginCallbackUrl || (stripTrailingSlash(adminUrl) + oauthCallbackPath)
 		}
 	});
-
-
-	function stripTrailingSlash(string) {
-		var REGEXP_TRAILING_SLASH = /\/+$/;
-		return string.replace(REGEXP_TRAILING_SLASH, '');
-	}
 }

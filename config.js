@@ -49,7 +49,6 @@ config.templates.site = process.env.TEMPLATES_SITE || null;
 
 config.www = {};
 config.www.url = process.env.WWW_URL || null;
-config.www.siteRoot = process.env.WWW_SITE_ROOT || null;
 
 config.assets = {};
 config.assets.url = process.env.ASSETS_URL || null;
@@ -61,8 +60,8 @@ config.demo = {};
 config.demo.url = process.env.DEMO_URL || null;
 
 config.themes = {};
-config.themes.root = process.env.THEMES_ROOT || null;
 config.themes.url = process.env.THEMES_URL || null;
+config.themes.root = process.env.THEMES_ROOT || null;
 
 config.auth = {};
 config.auth.site = {};

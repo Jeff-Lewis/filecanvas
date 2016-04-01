@@ -65,7 +65,6 @@ app:
     - TEMPLATES_APP=/var/templates/app
     - TEMPLATES_SITE=/var/templates/site
     - THEMES_ROOT=/var/templates/themes/themes
-    - WWW_SITE_ROOT=/var/templates/www
     - LOCAL_SITE_ROOT=/var/sites
     - MONGODB_URL=mongodb://mongodb/${DB_NAME}
     - REDIS_URL=redis://redis

@@ -69,10 +69,6 @@
 					"value": "/var/templates/site"
 				},
 				{
-					"name": "TEMPLATES_WWW",
-					"value": "/var/templates/www"
-				},
-				{
 					"name": "THEMES_ROOT",
 					"value": "/var/templates/themes/themes"
 				}
