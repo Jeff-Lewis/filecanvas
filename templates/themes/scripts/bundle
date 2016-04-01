@@ -12,12 +12,11 @@ try {
 }
 var inputPath = args[0];
 var outputPath = args[1];
-var isProduction = process.env.NODE_ENV === 'production';
 var analyticsConfig = null;
 
 log('Loading theme bundle from ' + inputPath);
 bundle(inputPath, outputPath, {
-	expandSymlinks: isProduction,
+	expandSymlinks: true,
 	analytics: analyticsConfig,
 	log: log
 }, function(error) {

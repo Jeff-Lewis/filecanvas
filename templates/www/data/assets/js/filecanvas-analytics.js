@@ -1,1 +1,0 @@
-../../../../app/data/admin/assets/js/filecanvas-analytics.js

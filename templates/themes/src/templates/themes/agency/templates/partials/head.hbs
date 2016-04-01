@@ -1,0 +1,121 @@
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+{{#if (or metadata.theme.config.browser.title metadata.theme.config.content.pageHeader) }}
+<title>{{ if metadata.theme.config.browser.title metadata.theme.config.browser.title metadata.theme.config.content.pageHeader }}</title>
+{{else}}
+<title></title>
+{{/if}}
+<link rel="stylesheet" type="text/css" href="{{ lib @root 'css/filecanvas-overlay.css' }}"/>
+<link rel="stylesheet" type="text/css" href="{{ asset @root 'css/fonts.css' }}"/>
+<!--[if lt IE 10]><style type="text/css">header .header-bg { background: none; }</style><![endif]-->
+<!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script><![endif]-->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+{{#if metadata.admin }}
+<link rel="stylesheet" type="text/css" href="{{ lib @root 'css/filecanvas-admin.css' }}"/>
+{{/if}}
+<link rel="stylesheet" href="{{ asset @root 'css/base.css' }}"/>
+<style type="text/css">
+	::-moz-selection {
+		background-color: {{ metadata.theme.config.colors.brandColor }};
+		color: {{ metadata.theme.config.colors.navItemColor }};
+	}
+	header {
+		background-color: {{ metadata.theme.config.colors.headerBackgroundColor }};
+	}
+	header h1 {
+		color: {{ metadata.theme.config.colors.headerTextColor }};
+	}
+	a,
+	.logout:hover,
+	header h2,
+	header em,
+	header strong,
+	.option-set li a:hover,
+	.option-set li a.selected {
+		color: {{ metadata.theme.config.colors.brandColor }};
+	}
+	nav#mainnav,
+	.project-wrp:hover,
+	.copyright {
+		background-color: {{ metadata.theme.config.colors.brandColor }};
+	}
+	.btn-primary,
+	.btn-primary:link,
+	.btn-primary:hover,
+	.btn-primary:active,
+	.btn-primary:focus {
+		background-color: {{ metadata.theme.config.colors.brandColor }} !important;
+	}
+	a,
+	hr,
+	hr.mini {
+		border-bottom: 1px solid {{ metadata.theme.config.colors.brandColor }};
+	}
+	.logout,
+	nav #fluid-nav li a,
+	.project-wrp:hover .project-name,
+	.project-wrp:hover .project-client,
+	.project-wrp:hover .project-date {
+		color: {{ metadata.theme.config.colors.navItemColor }};
+	}
+	.project-wrp:hover hr {
+		border-color: {{ metadata.theme.config.colors.navItemColor }};
+	}
+	nav #fluid-nav li a:hover {
+		color: {{ metadata.theme.config.colors.navItemRolloverColor }};
+	}
+	nav #fluid-nav li.current a {
+		color: {{ metadata.theme.config.colors.navItemSelectedColor }};
+	}
+	.footer {
+		background-color: {{ metadata.theme.config.colors.footerBackgroundColor }};
+		color: {{ metadata.theme.config.colors.footerTextColor }};
+	}
+	.footer h5 {
+		color: {{ metadata.theme.config.colors.footerTitleColor }};
+
+	}
+	.footer-detail {
+		color: {{ metadata.theme.config.colors.footerDetailColor }};
+	}
+
+	body {
+		font-family: {{ metadata.theme.config.fonts.body.font-family }}, sans-serif;
+		font-weight: {{ metadata.theme.config.fonts.body.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.body.text-transform }};
+	}
+
+	h1,
+	h2,
+	h3,
+	header h1 {
+		font-family: {{ metadata.theme.config.fonts.pageHeader.font-family }}, sans-serif;
+		font-weight: {{ metadata.theme.config.fonts.pageHeader.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.pageHeader.text-transform }};
+	}
+
+	header h2 {
+		font-family: {{ metadata.theme.config.fonts.pageSubtitle.font-family }}, sans-serif;
+		font-weight: {{ metadata.theme.config.fonts.pageSubtitle.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.pageSubtitle.text-transform }};
+	}
+
+	h4,
+	h5,
+	h6,
+	nav ul,
+	.project-wrp,
+	.option-set li {
+		font-family: {{ metadata.theme.config.fonts.subHeader.font-family }}, sans-serif;
+		font-weight: {{ metadata.theme.config.fonts.subHeader.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.subHeader.text-transform }};
+	}
+
+	.title {
+		font-family: {{ metadata.theme.config.fonts.sectionHeader.font-family }}, sans-serif;
+		font-weight: {{ metadata.theme.config.fonts.sectionHeader.font-weight }};
+		text-transform: {{ metadata.theme.config.fonts.sectionHeader.text-transform }};
+	}
+</style>
+<style type="text/css">{{ css metadata.theme.config.scripts.css }}</style>

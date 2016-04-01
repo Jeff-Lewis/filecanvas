@@ -104,6 +104,7 @@ module.exports = function(themePath, outputPath, options) {
 				metadata: {
 					siteRoot: './',
 					themeRoot: './assets/',
+					libRoot: './assets/lib/',
 					theme: {
 						id: theme.id,
 						config: themeConfig
@@ -142,8 +143,8 @@ module.exports = function(themePath, outputPath, options) {
 		return Promise.all([
 			copyAssets(themeAssetsPath, outputAssetsPath),
 			copyDownloads(previewFilesPath, outputDownloadsPath, outputRedirectsPath),
-			copyMedia(previewFilesPath, outputMediaPath),
-			copyThumbnails(previewFilesPath, outputThumbnailsPath)
+			copyThumbnails(previewFilesPath, outputThumbnailsPath),
+			linkMedia(path.join('.', PREVIEW_DOWNLOADS_PATH), outputMediaPath)
 		])
 		.then(function(results) {
 			return;
@@ -220,8 +221,8 @@ module.exports = function(themePath, outputPath, options) {
 			}
 		}
 
-		function copyMedia(sourcePath, outputPath) {
-			return Promise.resolve(copy(sourcePath, outputPath, { expand: true }));
+		function linkMedia(sourcePath, destinationPath) {
+			return createSymbolicLink(sourcePath, destinationPath, { type: 'dir' });
 		}
 
 		function copyThumbnails(sourcePath, outputPath) {
@@ -253,6 +254,17 @@ function swapFileExtension(filePath, extension) {
 function writeFile(path, data, options) {
 	return new Promise(function(resolve, reject) {
 		fs.writeFile(path, data, options, function(error) {
+			if (error) { return reject(error); }
+			resolve();
+		});
+	});
+}
+
+function createSymbolicLink(sourcePath, destinationPath, options) {
+	options = options || {};
+	var type = options.type || 'file';
+	return new Promise(function(resolve, reject) {
+		fs.symlink(sourcePath, destinationPath, type, function(error) {
 			if (error) { return reject(error); }
 			resolve();
 		});

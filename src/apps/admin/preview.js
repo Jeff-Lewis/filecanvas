@@ -9,6 +9,7 @@ module.exports = function(database, cache, options) {
 	var host = options.host || null;
 	var themesPath = options.themesPath || null;
 	var themesUrl = options.themesUrl || null;
+	var themeAssetsUrl = options.themeAssetsUrl || null;
 	var adaptersConfig = options.adaptersConfig || null;
 	var analyticsConfig = options.analytics || null;
 
@@ -17,6 +18,7 @@ module.exports = function(database, cache, options) {
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!themeAssetsUrl) { throw new Error('Missing theme assets root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 
@@ -28,6 +30,7 @@ module.exports = function(database, cache, options) {
 		host: host,
 		themesPath: themesPath,
 		themesUrl: themesUrl,
+		themeAssetsUrl: themeAssetsUrl,
 		adapters: adaptersConfig,
 		analytics: analyticsConfig
 	}));

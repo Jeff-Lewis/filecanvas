@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>{{#if title}}{{ title }} | Filecanvas{{else}}Filecanvas{{/if}}</title>
+		<meta name="description" content="Create your custom-branded web dropbox with Filecanvas."/>
+		<meta name="keywords" content="Filecanvas,dropbox,branded,custom,personalised,folder,cloud,drive"/>
+		<script type="application/ld+json">
+			{
+			  "@context": "http://schema.org",
+			  "@type": "Organization",
+			  "name": "Filecanvas",
+			  "url": "https://www.filecanvas.com",
+			  "email": "info@filecanvas.com",
+			  "logo": "https://www.filecanvas.com/assets/logo.png"
+			}
+		</script>
+		<link rel="shortcut icon" href="/assets/favicon.png"/>
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,400,700" />
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="/assets/css/filecanvas-www.css" />
+		{{#>styles}}{{/styles}}
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse navbar-static-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a href="/" class="navbar-brand navbar-link" data-analytics-id="www:client:header:navigation:logo">Filecanvas</a>
+					<button data-toggle="collapse" data-target="#navigation" class="navbar-toggle collapsed" data-analytics-id="www:client:header:navigation:toggle"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+				</div>
+				<div class="collapse navbar-collapse" id="navigation">
+					<ul class="nav navbar-nav navbar-right">
+						{{#>navigation}}{{/navigation}}
+					</ul>
+				</div>
+			</div>
+		</nav>
+		{{#>content}}{{/content}}
+		<footer class="page-footer">
+			<div class="container">
+				<div class="row">
+					<div class="page-footer-navigation col-sm-6 col-md-4" id="footer-navigation">
+						<ul class="list-unstyled">
+							<li><a href="/#sign-up" data-analytics-id="www:client:footer:navigation:signup">Sign up</a></li>
+							<li><a href="{{ subdomain host=host subdomain='my' }}" data-analytics-id="www:client:footer:navigation:login">Log in</a></li>
+							<li><a href="/terms" data-analytics-id="www:client:footer:navigation:terms">Terms &amp; Conditions</a></li>
+							<li><a href="/privacy" data-analytics-id="www:client:footer:navigation:privacy">Privacy Policy</a></li>
+						</ul>
+					</div>
+					<div class="page-footer-contact col-sm-6 col-md-3 col-md-offset-5">
+						<ul class="list-unstyled">
+							<li>For all enquiries, contact <a href="mailto:info@filecanvas.com" data-analytics-id="www:client:footer:navigation:enquiries">info@filecanvas.com</a></li>
+							<li>&nbsp;</li>
+							<li class="page-footer-copyright">© Tim Kendrick Ltd 2016</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</footer>
+		<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+		{{#>scripts}}{{/scripts}}
+		{{#if analytics.google}}
+		{{> google-analytics id=analytics.google }}
+		{{/if}}
+		{{#if analytics.segment}}
+		{{> segment-analytics id=analytics.segment }}
+		{{/if}}
+		<script src="/assets/js/filecanvas-analytics.js"></script>
+	</body>
+</html>

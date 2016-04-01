@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -e
+
+cd $(dirname $0)
+
+INPUT_DIR=$PWD/src
+OUTPUT_DIR=$PWD/dist
+
+echo "Cleaning output directory..."
+rm -rf $OUTPUT_DIR
+mkdir -p $OUTPUT_DIR
+
+echo "Copying CSS files..."
+mkdir -p $OUTPUT_DIR/admin/css
+mkdir -p $OUTPUT_DIR/theme/css
+cp -r $INPUT_DIR/admin/css/ $OUTPUT_DIR/admin/css
+cp -r $INPUT_DIR/theme/css/ $OUTPUT_DIR/theme/css
+
+echo "Building client libraries..."
+mkdir -p $OUTPUT_DIR/admin/js
+mkdir -p $OUTPUT_DIR/theme/js
+if [ "$NODE_ENV" == 'production' ]; then
+	(cd $INPUT_DIR/admin/js/filecanvas-admin; webpack -p --devtool source-map $OUTPUT_DIR/admin/js/filecanvas-admin.js)
+	(cd $INPUT_DIR/admin/js/filecanvas-analytics; webpack -p --devtool source-map $OUTPUT_DIR/admin/js/filecanvas-analytics.js)
+	(cd $INPUT_DIR/admin/js/filecanvas-api; webpack -p --devtool source-map $OUTPUT_DIR/admin/js/filecanvas-api.js)
+	(cd $INPUT_DIR/admin/js/filecanvas-editor; webpack -p --devtool source-map $OUTPUT_DIR/admin/js/filecanvas-editor.js)
+	(cd $INPUT_DIR/theme/js/filecanvas-theme; webpack -p --devtool source-map $OUTPUT_DIR/theme/js/filecanvas-theme.js)
+	cp $OUTPUT_DIR/admin/js/filecanvas-analytics.js $OUTPUT_DIR/theme/js/filecanvas-analytics.js
+	cp $OUTPUT_DIR/admin/js/filecanvas-analytics.js.map $OUTPUT_DIR/theme/js/filecanvas-analytics.js.map
+else
+	(cd $INPUT_DIR/admin/js/filecanvas-admin; webpack -d --watch $OUTPUT_DIR/admin/js/filecanvas-admin.js) &
+	(cd $INPUT_DIR/admin/js/filecanvas-analytics; webpack -d --watch $OUTPUT_DIR/admin/js/filecanvas-analytics.js) &
+	(cd $INPUT_DIR/admin/js/filecanvas-api; webpack -d --watch $OUTPUT_DIR/admin/js/filecanvas-api.js) &
+	(cd $INPUT_DIR/admin/js/filecanvas-editor; webpack -d --watch $OUTPUT_DIR/admin/js/filecanvas-editor.js) &
+	(cd $INPUT_DIR/theme/js/filecanvas-theme; webpack -d --watch $OUTPUT_DIR/theme/js/filecanvas-theme.js) &
+	ln -s ../../admin/js/filecanvas-analytics.js $OUTPUT_DIR/theme/js/filecanvas-analytics.js
+	ln -s ../../admin/js/filecanvas-analytics.js.map $OUTPUT_DIR/theme/js/filecanvas-analytics.js.map
+fi

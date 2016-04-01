@@ -3,26 +3,12 @@ set -e
 
 cd $(dirname $0)
 
-TEMPLATES_DIR=$PWD/templates
-EXAMPLES_DIR=$PWD/examples
-OUTPUT_DIR=$PWD/data
+TEMPLATES_DIR=$PWD/src/templates
+EXAMPLES_DIR=$PWD/src/examples
+OUTPUT_DIR=$PWD/dist
 
 rm -rf $OUTPUT_DIR
 mkdir -p $OUTPUT_DIR
-
-echo "Building client libraries..."
-if [ "$NODE_ENV" == 'production' ]; then
-	rm -f $TEMPLATES_DIR/_common/js/filecanvas-theme.js
-	rm -f $TEMPLATES_DIR/_common/js/filecanvas-theme.js.map
-	(cd client; webpack -p --devtool source-map $TEMPLATES_DIR/_common/js/filecanvas-theme.js)
-else
-	(cd client; webpack -d $TEMPLATES_DIR/_common/js/filecanvas-theme.js)
-fi
-
-if [ "$NODE_ENV" != 'production' ]; then
-	echo "Copying common theme code..."
-	cp -r $TEMPLATES_DIR/_common $OUTPUT_DIR/_common/
-fi
 
 echo "Building themes..."
 mkdir -p $OUTPUT_DIR/themes

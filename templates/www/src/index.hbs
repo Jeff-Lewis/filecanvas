@@ -1,0 +1,595 @@
+{{#>index host=host analytics=analytics}}
+	{{#*inline 'scripts'}}
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<script src="/assets/js/filecanvas-www.js"></script>
+	{{/inline}}
+	{{#*inline 'navigation'}}
+		<li role="presentation" class="active" data-scroll-analytics-id="www:client:home:scroll:intro"><a href="#intro" data-analytics-id="www:client:home:navigation:intro">Home</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:examples"><a href="#examples" data-analytics-id="www:client:home:navigation:examples">Examples</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:demo"><a class="hidden-xs" href="#demo" data-analytics-id="www:client:home:navigation:demo">Demo</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:pricing"><a href="#pricing" data-analytics-id="www:client:home:navigation:pricing">Pricing</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:signup"><a href="#sign-up" data-analytics-id="www:client:home:navigation:signup">Sign up</a></li>
+		<li role="presentation" data-scroll-analytics-id="www:client:home:scroll:login"><a href="{{ subdomain host=host subdomain='my' }}" data-analytics-id="www:client:home:navigation:login">Log in</a></li>
+	{{/inline}}
+	{{#*inline 'content'}}
+		<section class="page-splash">
+			<a class="anchor" id="intro"></a>
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="jumbotron">
+							<h1>Your files. Giftwrapped.</h1>
+							<h2>Filecanvas is the quick, easy way to show off your files.</h2>
+							<a class="btn btn-success btn-lg hidden-xs" href="#demo" data-analytics-id="www:client:home:splash:cta" data-analytics-data="{&quot;action&quot;:&quot;demo&quot;}">Try it out</a>
+							<a class="btn btn-success btn-lg visible-xs-inline" href="#beta" data-analytics-id="www:client:home:splash:cta" data-analytics-data="{&quot;action&quot;:&quot;signup&quot;}">Sign up</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div class="page-hero">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="device-preview device-preview-laptop">
+							<div class="device-preview-content">
+								<div class="carousel slide" id="hero-carousel" data-ride="carousel">
+									<ul class="carousel-indicators">
+										<li data-target="#hero-carousel" data-slide-to="0" class="active" data-analytics-id="www:client:home:hero:carousel:indicator" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}"></li>
+										<li data-target="#hero-carousel" data-slide-to="1" data-analytics-id="www:client:home:hero:carousel:indicator" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}"></li>
+										<li data-target="#hero-carousel" data-slide-to="2" data-analytics-id="www:client:home:hero:carousel:indicator" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}"></li>
+									</ul>
+									<div class="carousel-inner" role="listbox">
+										<div class="item active">
+											<img class="visible-xs hidden-xs-landscape" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-480.png' }}" alt="Filecanvas preview"/>
+											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas preview"/>
+											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-1440.png' }}" alt="Filecanvas preview"/>
+											<div class="carousel-actions">
+												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:hero:carousel:example" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">Launch example</a>
+											</div>
+										</div>
+										<div class="item">
+											<img class="visible-xs hidden-xs-landscape" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-480.png' }}" alt="Filecanvas preview"/>
+											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-768.png' }}" alt="Filecanvas preview"/>
+											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-1440.png' }}" alt="Filecanvas preview"/>
+											<div class="carousel-actions">
+												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:hero:carousel:example" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">Launch example</a>
+											</div>
+										</div>
+										<div class="item">
+											<img class="visible-xs hidden-xs-landscape" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-480.png' }}" alt="Filecanvas preview"/>
+											<img class="visible-xs hidden-xs-portrait visible-sm visible-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-768.png' }}" alt="Filecanvas preview"/>
+											<img class="hidden-xs hidden-sm hidden-md" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-1440.png' }}" alt="Filecanvas preview"/>
+											<div class="carousel-actions">
+												<a class="carousel-action btn btn-primary" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:hero:carousel:example" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">Launch example</a>
+											</div>
+										</div>
+									</div>
+									<div class="carousel-controls">
+										<button type="button" class="btn-reset carousel-control left" data-target="#hero-carousel" data-slide="prev" data-analytics-id="www:client:home:hero:carousel:previous">
+											<span class="glyphicon glyphicon-chevron-left"></span><span class="sr-only">Previous</span>
+										</button>
+										<button type="button" class="btn-reset carousel-control right" data-target="#hero-carousel" data-slide="next" data-analytics-id="www:client:home:hero:carousel:next">
+											<span class="glyphicon glyphicon-chevron-right"></span><span class="sr-only">Next</span>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="page-section">
+			<div class="container">
+				<p class="lead text-center">Got some files you need to share? Want them to look good? Try Filecanvas.</p>
+				<p class="intro-text">Filecanvas is perfect for creating branded press kits, galleries, portfolios, document bundles and more.<br/><br class="visible-xs"/>With Filecanvas, you can create a fully-branded web showcase for your files – in minutes, not days.</p>
+				<div class="row">
+					<div class="col-md-12 text-center">
+						<ul class="intro-checklist fa-ul text-left">
+							<li><span class="fa-li fa fa-check"></span>Say goodbye to emailing zip attachments</li>
+							<li><span class="fa-li fa fa-check"></span>Make your files look great, without the effort</li>
+							<li><span class="fa-li fa fa-check"></span>Synced to your Dropbox or Google Drive</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="page-section">
+			<a class="anchor anchor-section" id="about"></a>
+			<div class="container">
+				<h2 class="page-section-title">What is Filecanvas?</h2>
+				<div class="row">
+					<div class="diagram">
+						<figure class="clearfix">
+							<img class="diagram-image" src="/assets/images/diagram.svg"/>
+							<figcaption>
+								<h3>Your files</h3>
+								<h3>Your users</h3>
+							</figcaption>
+						</figure>
+					</div>
+				</div>
+				<p class="lead text-center">Filecanvas is a custom-branded presentation layer that sits in front of your Dropbox or Google Drive.</p>
+				<p class="lead text-center">Think of it as a <strong>turbocharged web interface</strong> for your files.</p>
+				<hr/>
+				<div class="row">
+					<div class="info-panel col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-0">
+						<h3 class="info-panel-header">Great-looking</h3>
+						<p>Choose from a selection of <strong>professionally-designed templates</strong> that can be extensively personalised and custom-branded to make sure your content looks its best.</p>
+					</div>
+					<div class="info-panel col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-0">
+						<h3 class="info-panel-header">Time-saving</h3>
+						<p>Instantly create online press kits, galleries, portfolios, document bundles and more – with <strong>zero development time</strong>. Just pick a template, sync to a folder, and you're done.</p>
+					</div>
+					<div class="info-panel col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-0">
+						<h3 class="info-panel-header">Super-simple</h3>
+						<p><strong>Automatic folder syncing</strong> means no more uploading files. Filecanvas integrates with your Dropbox or Google Drive to ensure everyone's always seeing the latest version.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<section class="page-section">
+			<a class="anchor anchor-section" id="how-it-works"></a>
+			<div class="container">
+				<div class="row">
+					<div class="page-section-content col-md-12">
+						<h2 class="page-section-title">How it works</h2>
+						<div class="row">
+							<div class="col-md-10 col-md-offset-1">
+								<div class="row">
+									<div class="instructions-panel col-sm-4">
+										<h4 class="instructions-panel-heading">Step 1: Design your canvas</h4>
+										<div class="instructions-panel-illustration">
+											<img src="/assets/images/instructions-editor.png" alt="Design your canvas"/>
+										</div>
+										<div class="instructions-panel-body">
+											<p>Pick from a selection of professionally-designed templates and customise to match your brand</p>
+											<aside>Custom CSS styling is also supported for advanced personalisation</aside>
+										</div>
+									</div>
+									<div class="instructions-panel col-sm-4">
+										<h4 class="instructions-panel-heading">Step 2: Sync to a folder</h4>
+										<div class="instructions-panel-illustration">
+											<img src="/assets/images/instructions-folder.png" alt="Sync to a folder"/>
+										</div>
+										<div class="instructions-panel-body">
+											<p>Sync to a Dropbox or Google Drive folder to automatically upload files to your canvas</p>
+											<aside>Folders can be shared with coworkers for collaborative editing</aside>
+										</div>
+									</div>
+									<div class="instructions-panel col-sm-4">
+										<h4 class="instructions-panel-heading">Step 3: Share link</h4>
+										<div class="instructions-panel-illustration">
+											<img src="/assets/images/instructions-link.png" alt="Share link"/>
+										</div>
+										<div class="instructions-panel-body">
+											<p>Share the web link with others to allow them to view the synced files – no account needed</p>
+											<aside>Links can be password-protected to prevent unauthorised access</aside>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="page-section">
+			<a class="anchor anchor-section" id="features"></a>
+			<div class="container">
+				<div class="row">
+					<div class="page-section-content col-md-12">
+						<h2 class="page-section-title">Features</h2>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-paint-brush"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Interactive canvas editor</h3>
+										<p>Customise logos, colours, headings and more to create your personalised canvas</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-refresh"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Folder sync</h3>
+										<p>Sync to a Dropbox or Google Drive folder to ensure files are always up to date</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-users"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Collaborative editing</h3>
+										<p>Share synced folders to allow multiple contributors to upload files to your canvas</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-globe"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Custom domain names</h3>
+										<p>Use custom domain names to maintain brand identity and integrate with your existing site</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-search-plus"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Media file previews</h3>
+										<p>The inbuilt file preview feature allows users to preview media files before downloading</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-tags"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Simple file organisation</h3>
+										<p>Drag files into sub-folders to create groups, and use filenames to control the display order</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-lock"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Password protection</h3>
+										<p>You can restrict access to your canvases by adding password protection</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-mobile"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Mobile friendly</h3>
+										<p>All templates come with a built-in mobile layout for accessing files on the go</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="media">
+									<div class="media-left">
+										<div class="media-object"><span class="fa fa-fw fa-2x fa-shield"></span></div>
+									</div>
+									<div class="media-body">
+										<h3 class="media-heading">Safe and secure</h3>
+										<p>Filecanvas is solidly built around security best practices to keep your data safe at all times</p>
+										<a href="/security" target="_blank">Read about our security measures</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="page-section">
+			<a class="anchor anchor-section" id="examples"></a>
+			<div class="container">
+				<div class="row">
+					<div class="page-section-content col-md-12">
+						<h2 class="page-section-title">See it in action</h2>
+						<p class="page-section-subtitle">Filecanvas can be used to present anything from showreels, to prototypes, to finance reports. Here's a few examples:</p>
+						<form class="examples row">
+							<div class="col-lg-6 col-lg-offset-1">
+								<div class="examples-header navbar navbar-default">
+									<ul class="radio-icons list-unstyled">
+										<li class="radio-icon examples-option selected">
+											<label>
+												<span class="radio-icon-image fa fa-2x fa-desktop"></span>
+												<span class="radio-icon-label">Digital agency</span>
+												<input type="radio" class="radio-icon-input" name="example" value="agency" checked="checked" data-analytics-id="www:client:home:examples:toggle" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}"/>
+											</label>
+										</li>
+										<li class="radio-icon examples-option">
+											<label>
+												<span class="radio-icon-image fa fa-2x fa-photo"></span>
+												<span class="radio-icon-label">Photographer</span>
+												<input type="radio" class="radio-icon-input" name="example" value="photography"/ data-analytics-id="www:client:home:examples:toggle" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">
+											</label>
+										</li>
+										<li class="radio-icon examples-option">
+											<label>
+												<span class="radio-icon-image fa fa-2x fa-building"></span>
+												<span class="radio-icon-label">Business</span>
+												<input type="radio" class="radio-icon-input" name="example" value="business"/ data-analytics-id="www:client:home:examples:toggle" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">
+											</label>
+										</li>
+									</ul>
+									<div class="examples-header-label visible-xs">
+									   <div class="examples-option selected">Digital agency</div>
+									   <div class="examples-option">Photographer</div>
+									   <div class="examples-option">Business</div>
+									</div>
+								</div>
+								<div class="examples-body col-md-7 col-md-offset-0 col-lg-12 clearfix">
+									<ul class="examples-checklist fa-ul examples-option selected">
+										<li><span class="fa-li fa fa-check"></span>Create branded asset bundles for client deliveries</li>
+										<li><span class="fa-li fa fa-check"></span>Synced to a shared folder to ensure latest versions of assets</li>
+										<li><span class="fa-li fa fa-check"></span>Pages can be password-protected to restrict access to individual clients</li>
+									</ul>
+									<ul class="examples-checklist fa-ul examples-option">
+										<li><span class="fa-li fa fa-check"></span>Create online portfolios in minutes</li>
+										<li><span class="fa-li fa fa-check"></span>Upload albums by dragging photos into a synced folder</li>
+										<li><span class="fa-li fa fa-check"></span>Albums can be individually password-protected</li>
+									</ul>
+									<ul class="examples-checklist fa-ul examples-option">
+										<li><span class="fa-li fa fa-check"></span>Create fully-branded document archives in minutes</li>
+										<li><span class="fa-li fa fa-check"></span>Shared folder syncing takes the hassle out of uploading documents</li>
+										<li><span class="fa-li fa fa-check"></span>Archives containing sensitive documents can be password-protected</li>
+									</ul>
+									<div class="hidden-xs hidden-sm">
+										<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">See an example</a>
+										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">See an example</a>
+										<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">See an example</a>
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-0 col-lg-4 col-lg-offset-0">
+								<div class="examples-body clearfix">
+									<div class="col-xs-10 col-xs-offset-1 col-sm-12 col-sm-offset-0">
+										<div class="examples-preview">
+											<div class="device-preview device-preview-desktop">
+												<div class="device-preview-content">
+													<div class="examples-carousel carousel slide" data-interval="false">
+														<div class="carousel-inner" role="listbox">
+															<a class="examples-carousel-item item active" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:examples:carousel" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">
+																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-320.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-480.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/agency/preview-768.png' }}" alt="Filecanvas example"/>
+																<div class="examples-carousel-item-icon">
+																	<i class="fa fa-search-plus"></i>
+																</div>
+															</a>
+															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:examples:carousel" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">
+																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-320.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-480.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/photography/preview-768.png' }}" alt="Filecanvas example"/>
+																<div class="examples-carousel-item-icon">
+																	<i class="fa fa-search-plus"></i>
+																</div>
+															</a>
+															<a class="examples-carousel-item item" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:examples:carousel" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">
+																<img class="examples-carousel-item-image hidden-xs-landscape hidden-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-320.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-xs hidden-xs-portrait" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-480.png' }}" alt="Filecanvas example"/>
+																<img class="examples-carousel-item-image visible-lg" src="{{ subdomain host=host subdomain='themes' path='/showcase/business/preview-768.png' }}" alt="Filecanvas example"/>
+																<div class="examples-carousel-item-icon">
+																	<i class="fa fa-search-plus"></i>
+																</div>
+															</a>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="text-center visible-xs visible-sm">
+												<a class="btn btn-primary examples-option selected" href="{{ subdomain host=host subdomain='themes' path='/showcase/agency/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">See an example</a>
+												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/photography/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;photography&quot;}">See an example</a>
+												<a class="btn btn-primary examples-option" href="{{ subdomain host=host subdomain='themes' path='/showcase/business/' }}" target="_blank" data-analytics-id="www:client:home:examples:preview" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">See an example</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="page-section hidden-xs">
+			<a class="anchor anchor-section" id="demo"></a>
+			<div class="container">
+				<div class="row">
+					<div class="page-section-content col-md-12">
+						<h2 class="page-section-title">Take it for a spin</h2>
+						<p class="page-section-subtitle lead">No signup needed. Choose a template to launch an interactive demo:</p>
+						<div class="preview-group row">
+							<div class="preview-panel col-sm-6 col-md-3 col-md-offset-3">
+								<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=agency' }}" target="_blank" data-analytics-id="www:client:home:demo:launch" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;agency&quot;}">
+									<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/agency/thumbnail.png' }}" alt="Launch demo">
+									<div class="preview-panel-thumbnail-icon">
+										<i class="fa fa-play"></i>
+									</div>
+								</a>
+							</div>
+							<div class="preview-panel col-sm-6 col-md-3">
+								<a class="preview-panel-thumbnail" href="{{ subdomain host=host subdomain='try' path='/editor?theme.id=grid' }}" target="_blank" data-analytics-id="www:client:home:demo:launch" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;grid&quot;}">
+									<img class="preview-panel-thumbnail-image" src="{{ subdomain host=host subdomain='themes' path='/grid/thumbnail.png' }}" alt="Launch demo">
+									<div class="preview-panel-thumbnail-icon">
+										<i class="fa fa-play"></i>
+									</div>
+								</a>
+							</div>
+						</div>
+						<p class="text-center">Looking for something more personal? <a href="mailto:info@filecanvas.com?subject=Custom%20templates" data-analytics-id="www:client:home:demo:contact">Let us know</a> and we can help create the perfect template for your brand.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="page-section">
+			<a class="anchor anchor-section" id="pricing"></a>
+			<div class="container">
+				<div class="row">
+					<div class="page-section-content col-md-12">
+						<h2 class="page-section-title">Pricing</h2>
+						<a id="sign-up" class="anchor anchor-offset"></a>
+						<div class="row">
+							<div class="col-sm-6 col-md-3">
+								<div class="panel panel-warning panel-pricing">
+									<div class="panel-heading">
+										<h3 class="panel-title">Personal</h3>
+									</div>
+									<div class="panel-body">
+										<p class="lead">Free</p>
+									</div>
+									<ul class="list-group panel-pricing-limits">
+										<li class="list-group-item">
+											<span>1 canvas</span>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:0,&quot;id&quot;:&quot;personal&quot;}">What's a canvas?</a></aside>
+										</li>
+									</ul>
+									<ul class="list-group panel-pricing-features">
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom branded templates</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+										<li class="list-group-item hidden-xs">&nbsp;</li>
+										<li class="list-group-item hidden-xs">&nbsp;</li>
+										<li class="list-group-item hidden-xs">&nbsp;</li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+									</ul>
+									<div class="panel-footer">
+										<button class="btn btn-default" type="button" disabled>Coming soon</button>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-6 col-md-3">
+								<div class="panel panel-success panel-pricing">
+									<div class="panel-heading">
+										<h3 class="panel-title">Startup</h3>
+									</div>
+									<div class="panel-body">
+										<p class="lead">£14 / month</p>
+									</div>
+									<ul class="list-group panel-pricing-limits">
+										<li class="list-group-item">
+											<span>Up to 5 canvases</span>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:1,&quot;id&quot;:&quot;startup&quot;}">What's a canvas?</a></aside>
+										</li>
+									</ul>
+									<ul class="list-group panel-pricing-features">
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom branded templates</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Password-protected canvases</span></li>
+										<li class="list-group-item hidden-xs">&nbsp;</li>
+										<li class="list-group-item hidden-xs">&nbsp;</li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+									</ul>
+									<div class="panel-footer">
+										<button class="btn btn-default" type="button" disabled>Coming soon</button>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-6 col-md-3">
+								<div class="panel panel-info panel-pricing">
+									<div class="panel-heading">
+										<h3 class="panel-title">Business</h3>
+									</div>
+									<div class="panel-body">
+										<p class="lead">£45 / month</p>
+									</div>
+									<ul class="list-group panel-pricing-limits">
+										<li class="list-group-item">
+											<span>Up to 20 canvases</span>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:2,&quot;id&quot;:&quot;business&quot;}">What's a canvas?</a></aside>
+										</li>
+									</ul>
+									<ul class="list-group panel-pricing-features">
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom branded templates</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Password-protected canvases</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Upload your own templates</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Google Drive folder sync</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+									</ul>
+									<div class="panel-footer">
+										<button class="btn btn-default" type="button" disabled>Coming soon</button>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-6 col-md-3">
+								<div class="panel panel-primary panel-pricing">
+									<a id="beta" class="anchor anchor-offset"></a>
+									<div class="panel-heading">
+										<h3 class="panel-title">Beta trial</h3>
+									</div>
+									<div class="panel-body">
+										<p class="lead">Free</p>
+									</div>
+									<ul class="list-group panel-pricing-limits">
+										<li class="list-group-item">
+											<span>Unlimited canvases</span>
+											<aside><a href="#canvas" data-scroll-disabled data-toggle="focus" data-target="#canvas-container" data-analytics-id="www:client:home:pricing:canvas" data-analytics-data="{&quot;index&quot;:3,&quot;id&quot;:&quot;beta&quot;}">What's a canvas?</a></aside>
+										</li>
+									</ul>
+									<ul class="list-group panel-pricing-features">
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom branded templates</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Dropbox folder sync</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Custom domain support</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Password-protected canvases</span></li>
+										<li class="list-group-item disabled" data-toggle="tooltip" data-placement="top" title="Coming soon to beta"><span class="glyphicon glyphicon-hourglass"></span><span>Upload your own templates</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Google Drive folder sync</span></li>
+										<li class="list-group-item"><span class="glyphicon glyphicon-ok text-success"></span><span>Email support</span></li>
+									</ul>
+									<div class="panel-footer">
+										<a class="btn btn-success" href="{{ subdomain host=host subdomain='my' path='/register' }}" data-analytics-id="www:client:home:pricing:signup" data-analytics-data="{&quot;index&quot;:3,&quot;id&quot;:&quot;beta&quot;}">Sign up</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="well text-center" id="canvas-container" tabindex="-1">
+							<a id="canvas" class="anchor anchor-offset"></a>
+							<div class="well-content">
+								<div class="equation">
+									<div class="equation-input">
+										<span class="equation-input-icon fa fa-4x fa-folder-open"></span>
+										<span class="equation-input-label">Synced<br/>folder</span>
+									</div>
+									<span class="equation-operator fa fa-plus"></span>
+									<div class="equation-input">
+										<span class="equation-input-icon fa fa-magic"></span>
+										<span class="equation-input-label">Filecanvas<br/>template</span>
+									</div>
+									<span class="equation-operator fa fa-equals"></span>
+									<div class="equation-output">
+										<span class="equation-output-icon canvas-logo"></span>
+										<span class="equation-output-label">1 Canvas</span>
+									</div>
+								</div>
+								<p>Each canvas is synced to the contents of a specific folder in your Dropbox or Google Drive.<br/><br class="visible-xs"/>Each canvas has its own personalised template and web address.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div class="page-section">
+			<a class="anchor anchor-section" id="contact"></a>
+			<div class="container">
+				<div class="row">
+					<div class="page-section-content col-md-12">
+						<p class="lead text-center">Any questions? <a href="mailto:info@filecanvas.com" data-analytics-id="www:client:home:contact:email">Drop us a line</a> and we&#39;ll be happy to help.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	{{/inline}}
+{{/index}}

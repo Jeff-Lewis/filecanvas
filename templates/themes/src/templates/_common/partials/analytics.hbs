@@ -1,0 +1,9 @@
+{{#if metadata.analytics}}
+{{#if metadata.analytics.google}}
+{{ partial 'google-analytics' id=metadata.analytics.google }}
+{{/if}}
+{{#if metadata.analytics.segment}}
+{{ partial 'segment-analytics' id=metadata.analytics.segment user=(if session.user (concat metadata.owner ':' session.user.site ':' session.user.user)) }}
+{{/if}}
+{{ script src=(lib @root 'js/filecanvas-analytics.js') }}
+{{/if}}

@@ -13,11 +13,12 @@ NODE_ENV=development \
 echo "Linking template directories..."
 rm -rf $DATA_DIR/templates
 mkdir -p $DATA_DIR/templates
-ln -s $ROOT_DIR/templates/app/data/ $DATA_DIR/templates/app
-ln -s $ROOT_DIR/templates/router/data/ $DATA_DIR/templates/router
-ln -s $ROOT_DIR/templates/site/data/ $DATA_DIR/templates/site
-ln -s $ROOT_DIR/templates/themes/data/ $DATA_DIR/templates/themes
-ln -s $ROOT_DIR/templates/www/data/ $DATA_DIR/templates/www
+ln -s $ROOT_DIR/templates/app/dist/ $DATA_DIR/templates/app
+ln -s $ROOT_DIR/templates/assets/dist/ $DATA_DIR/templates/assets
+ln -s $ROOT_DIR/templates/router/dist/ $DATA_DIR/templates/router
+ln -s $ROOT_DIR/templates/site/dist/ $DATA_DIR/templates/site
+ln -s $ROOT_DIR/templates/themes/dist/ $DATA_DIR/templates/themes
+ln -s $ROOT_DIR/templates/www/src/ $DATA_DIR/templates/www
 
 echo "Running prestart hook..."
 npm run prestart

@@ -37,6 +37,7 @@ module.exports = function(database, cache, options) {
 	var adminAssetsUrl = options.adminAssetsUrl;
 	var adminTemplatesUrl = options.adminTemplatesUrl;
 	var themesUrl = options.themesUrl;
+	var themeAssetsUrl = options.themeAssetsUrl;
 	var wwwUrl = options.wwwUrl;
 	var uploadAdapterConfig = options.uploadAdapter;
 	var analyticsConfig = options.analytics;
@@ -54,6 +55,7 @@ module.exports = function(database, cache, options) {
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!adminTemplatesUrl) { throw new Error('Missing admin templates URL'); }
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
+	if (!themeAssetsUrl) { throw new Error('Missing theme assets URL'); }
 	if (!wwwUrl) { throw new Error('Missing www URL'); }
 	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
 	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
@@ -252,6 +254,7 @@ module.exports = function(database, cache, options) {
 							metadata: {
 								siteRoot: sitePreviewUrl,
 								themeRoot: themeAssetsRoot,
+								libRoot: themeAssetsUrl,
 								theme: siteModel.theme,
 								preview: true,
 								admin: true

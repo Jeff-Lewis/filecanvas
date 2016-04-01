@@ -25,6 +25,7 @@ module.exports = function(database, cache, options) {
 	var sessionDuration = options.sessionDuration;
 	var themesPath = options.themesPath;
 	var themesUrl = options.themesUrl;
+	var themeAssetsUrl = options.themeAssetsUrl;
 	var isPreview = options.preview;
 	var adaptersConfig = options.adapters;
 	var analyticsConfig = options.analytics;
@@ -34,6 +35,7 @@ module.exports = function(database, cache, options) {
 	if (!host) { throw new Error('Missing host details'); }
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!themesUrl) { throw new Error('Missing themes root URL'); }
+	if (!themeAssetsUrl) { throw new Error('Missing theme assets root URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
 	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
@@ -439,6 +441,7 @@ module.exports = function(database, cache, options) {
 												siteName: siteName,
 												siteRoot: getSiteRootUrl(req, '/login'),
 												themeRoot: themesUrl + themeId + '/assets/',
+												libRoot: themeAssetsUrl,
 												theme: siteTheme,
 												retry: isRetryAttempt,
 												redirect: redirectUrl,
@@ -508,6 +511,7 @@ module.exports = function(database, cache, options) {
 												siteName: siteName,
 												siteRoot: getSiteRootUrl(req),
 												themeRoot: themesUrl + themeId + '/assets/',
+												libRoot: themeAssetsUrl,
 												theme: siteTheme,
 												analytics: siteAnalytics
 											},

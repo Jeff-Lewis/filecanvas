@@ -23,7 +23,6 @@ module.exports = function(database, options) {
 	var themesPath = options.themesPath || null;
 	var siteTemplatePath = options.siteTemplatePath || null;
 	var siteAuthOptions = options.siteAuthOptions || null;
-	var adminAssetsUrl = options.adminAssetsUrl || null;
 	var themesUrl = options.themesUrl || null;
 	var adapters = options.adapters || null;
 	var uploadAdapter = options.uploadAdapter || null;
@@ -36,7 +35,6 @@ module.exports = function(database, options) {
 	if (!themesPath) { throw new Error('Missing themes path'); }
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
 	if (!siteAuthOptions) { throw new Error('Missing site auth options'); }
-	if (!adminAssetsUrl) { throw new Error('Missing admin assets URL'); }
 	if (!themesUrl) { throw new Error('Missing theme gallery URL'); }
 	if (!adapters) { throw new Error('Missing adapters'); }
 	if (!uploadAdapter) { throw new Error('Missing upload adapter'); }

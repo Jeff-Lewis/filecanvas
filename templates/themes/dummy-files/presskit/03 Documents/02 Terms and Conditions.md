@@ -1,1 +1,0 @@
-../../../../www/data/terms.md

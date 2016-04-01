@@ -25,6 +25,9 @@ module.exports['logout'] = function(rootModel) {
 module.exports['asset'] = function(rootModel, filePath) {
 	return isUrl(filePath) ? filePath : rootModel.metadata.themeRoot + filePath;
 };
+module.exports['lib'] = function(rootModel, filePath) {
+	return rootModel.metadata.libRoot + filePath;
+};
 module.exports['download'] = function(rootModel, file) {
 	if (!file || !file.path) { return null; }
 	var filenameSuffix = path.extname(file.id) || !path.extname(file.path) ? '' : path.basename(file.path);

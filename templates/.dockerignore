@@ -1,7 +1,8 @@
 *
 
-!app/data
-!router/data
-!site/data
-!www/data
-!themes/data
+!app/dist
+!assets/dist
+!router/dist
+!site/dist
+!themes/dist
+!www/src

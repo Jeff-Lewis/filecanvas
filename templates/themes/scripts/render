@@ -30,7 +30,7 @@ try {
 
 var themeId = themeOptions.theme;
 var themeConfig = themeOptions.config;
-var themePath = path.resolve(__dirname, '../templates/themes', themeId);
+var themePath = path.resolve(__dirname, '../src/templates/themes', themeId);
 
 var outputScreenshotPath = path.join(outputPath, OUTPUT_SCREENSHOT_FILENAME);
 log('Rendering theme preview to ' + outputPath);

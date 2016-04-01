@@ -45,6 +45,7 @@ module.exports = function(database, cache, options) {
 	var siteTemplatePath = options.siteTemplatePath;
 	var adminAssetsUrl = options.adminAssetsUrl;
 	var themesUrl = options.themesUrl;
+	var themeAssetsUrl = options.themeAssetsUrl;
 	var wwwUrl = options.wwwUrl;
 	var adaptersConfig = options.adapters;
 	var siteAuthOptions = options.siteAuth;
@@ -64,6 +65,7 @@ module.exports = function(database, cache, options) {
 	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
 	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
 	if (!themesUrl) { throw new Error('Missing themes URL'); }
+	if (!themeAssetsUrl) { throw new Error('Missing theme assets URL'); }
 	if (!wwwUrl) { throw new Error('Missing www URL'); }
 	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
 	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
@@ -133,6 +135,7 @@ module.exports = function(database, cache, options) {
 		host: host,
 		themesPath: themesPath,
 		themesUrl: themesUrl,
+		themeAssetsUrl: themeAssetsUrl,
 		adaptersConfig: adaptersConfig,
 		analytics: analyticsConfig
 	});
@@ -268,6 +271,7 @@ module.exports = function(database, cache, options) {
 		var host = options.host;
 		var themesPath = options.themesPath;
 		var themesUrl = options.themesUrl;
+		var themeAssetsUrl = options.themeAssetsUrl;
 		var adaptersConfig = options.adaptersConfig;
 		var analyticsConfig = options.analytics;
 
@@ -277,6 +281,7 @@ module.exports = function(database, cache, options) {
 				host: host,
 				themesPath: themesPath,
 				themesUrl: themesUrl,
+				themeAssetsUrl: themeAssetsUrl,
 				adaptersConfig: adaptersConfig,
 				analytics: analyticsConfig
 			})

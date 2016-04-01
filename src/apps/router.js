@@ -38,6 +38,7 @@ module.exports = function(database, cache, config) {
 	var assetsUrl = config.assets.url || getSubdomainUrl('assets', { host: host });
 	var adminTemplatesUrl = adminUrl + 'templates/';
 	var adminAssetsUrl = assetsUrl + 'admin/';
+	var themeAssetsUrl = assetsUrl + 'theme/';
 
 	if (config.adapters.local) {
 		config.adapters.local = getLocalAdapterConfig(config.adapters.local, { host: host });
@@ -100,6 +101,7 @@ module.exports = function(database, cache, config) {
 			adminAssetsUrl: adminAssetsUrl,
 			adminTemplatesUrl: adminTemplatesUrl,
 			themesUrl: themesUrl,
+			themeAssetsUrl: themeAssetsUrl,
 			wwwUrl: wwwUrl,
 			uploadAdapter: config.uploaders.demo,
 			analytics: config.analytics.demo
@@ -116,6 +118,7 @@ module.exports = function(database, cache, config) {
 			siteTemplatePath: siteTemplatePath,
 			adminAssetsUrl: adminAssetsUrl,
 			themesUrl: themesUrl,
+			themeAssetsUrl: themeAssetsUrl,
 			wwwUrl: wwwUrl,
 			adapters: config.adapters,
 			uploadAdapter: config.uploaders.admin,
@@ -129,6 +132,7 @@ module.exports = function(database, cache, config) {
 			sessionDuration: config.session.duration,
 			themesPath: themesPath,
 			themesUrl: themesUrl,
+			themeAssetsUrl: themeAssetsUrl,
 			adapters: config.adapters,
 			analytics: config.analytics.sites
 		}),
