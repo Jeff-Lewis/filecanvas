@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var express = require('express');
 
 var handlebarsEngine = require('../../engines/handlebars');
@@ -15,12 +16,12 @@ module.exports = function(database, options) {
 	var adapters = options.adapters || null;
 	var analyticsConfig = options.analytics || null;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
-	if (!adapters) { throw new Error('Missing adapters'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(database, 'Missing database');
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(sessionMiddleware, 'Missing session middleware');
+	assert(adapters, 'Missing adapters');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	var userService = new UserService(database);
 	var adminPageService = new AdminPageService({
@@ -64,7 +65,7 @@ module.exports = function(database, options) {
 						user: userModel
 					}
 				};
-				return resolve(
+				resolve(
 					adminPageService.render(req, res, {
 						template: 'account',
 						context: templateData
@@ -87,7 +88,7 @@ module.exports = function(database, options) {
 			if ('defaultSite' in req.body) { updates.defaultSite = req.body.defaultSite || null; }
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					userService.updateUser(username, updates)
 						.then(function() {
 							var hasUpdatedUsername = ('username' in updates) && (updates.username !== userModel.username);
@@ -119,7 +120,7 @@ module.exports = function(database, options) {
 			var userModel = req.user;
 			var username = userModel.username;
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					unlinkUserAccounts(userModel, adapters)
 						.catch(function(error) {
 							// Ignore failure

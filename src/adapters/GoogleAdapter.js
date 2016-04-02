@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var util = require('util');
 var path = require('path');
 var url = require('url');
@@ -11,8 +12,6 @@ var mapSeries = require('promise-map-series');
 var escapeRegExp = require('escape-regexp');
 var slug = require('slug');
 var GoogleOAuth2Strategy = require('passport-google-oauth2').Strategy;
-
-var LoginService = require('../services/LoginService');
 
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
@@ -70,31 +69,24 @@ GoogleOAuth2Strategy.prototype.userProfile = function(token, callback) {
 	}
 };
 
-function GoogleLoginAdapter(database, options) {
+function GoogleLoginAdapter(options) {
 	options = options || {};
-	var isTemporary = options.temporary || null;
 	var clientId = options.clientId;
 	var clientSecret = options.clientSecret;
 	var authOptions = options.authOptions;
 	var loginCallbackUrl = options.loginCallbackUrl;
 
-	if (!clientId) { throw new Error('Missing Google app key'); }
-	if (!clientSecret) { throw new Error('Missing Google app secret'); }
-	if (!authOptions || !authOptions.scope) { throw new Error('Missing Google auth scope'); }
-	if (!loginCallbackUrl) { throw new Error('Missing login callback URL'); }
+	assert(clientId, 'Missing Google app key');
+	assert(clientSecret, 'Missing Google app secret');
+	assert(authOptions && authOptions.scope, 'Missing Google auth scope');
+	assert(loginCallbackUrl, 'Missing login callback URL');
 
-	LoginAdapter.call(this, database, {
-		temporary: isTemporary
-	});
+	LoginAdapter.call(this);
 
 	this.clientId = clientId;
 	this.clientSecret = clientSecret;
 	this.loginCallbackUrl = loginCallbackUrl;
 	this.authOptions = authOptions;
-
-	LoginAdapter.call(this, database, {
-		temporary: isTemporary
-	});
 }
 
 util.inherits(GoogleLoginAdapter, LoginAdapter);
@@ -104,27 +96,31 @@ GoogleLoginAdapter.prototype.clientKey = null;
 GoogleLoginAdapter.prototype.clientSecret = null;
 GoogleLoginAdapter.prototype.loginCallbackUrl = null;
 
-GoogleLoginAdapter.prototype.middleware = function(database, passport, callback) {
+GoogleLoginAdapter.prototype.middleware = function(passport, authCallback, loginCallback) {
+	assert(passport, 'Missing passport instance');
+	assert(authCallback, 'Missing auth callback');
+	assert(loginCallback, 'Missing login callback');
+
 	var clientId = this.clientId;
 	var clientSecret = this.clientSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
 	var authOptions = this.authOptions;
-
-	var loginService = new LoginService(database, this);
 	var adapterName = this.adapterName;
 
 	var app = express();
+
 
 	app.post('/', function(req, res, next) {
 		var needsReapproval = (req.query['reapprove'] === 'true');
 		var oauthOptions = (needsReapproval ? objectAssign({}, authOptions, {
 			prompt: 'consent'
 		}) : authOptions);
-		passport.authenticate('admin/google', oauthOptions)(req, res, next);
+		var passportMiddleware = passport.authenticate('admin/google', oauthOptions);
+		passportMiddleware(req, res, next);
 	});
 
 	app.get('/oauth2/callback', function(req, res, next) {
-		passport.authenticate('admin/google', function(error, user, info) {
+		var passportMiddleware = passport.authenticate('admin/google', function(error, user, info) {
 			if (!error && req.query['error']) {
 				if (req.query['error'] === 'access_denied') {
 					// TODO: Handle use case where user denies access
@@ -142,8 +138,9 @@ GoogleLoginAdapter.prototype.middleware = function(database, passport, callback)
 				error = new HttpError(401);
 				error.code = 'invalid_refresh_token';
 			}
-			callback(error, user, info, req, res, next);
-		})(req, res, next);
+			authCallback(error, user, info, req, res, next);
+		});
+		passportMiddleware(req, res, next);
 	});
 
 	passport.use('admin/google', new GoogleOAuth2Strategy({
@@ -166,13 +163,7 @@ GoogleLoginAdapter.prototype.middleware = function(database, passport, callback)
 				email: profile.email
 			};
 			var query = { 'uid': passportValues.uid };
-			loginService.login(query, passportValues, { request: req })
-				.then(function(userModel) {
-					callback(null, userModel);
-				})
-				.catch(function(error) {
-					callback(error);
-				});
+			loginCallback(req, passportValues, query, callback);
 		}
 	));
 
@@ -239,13 +230,6 @@ GoogleLoginAdapter.prototype.unlink = function(userAdapterConfig) {
 };
 
 
-function getTokenExpiryDate(duration) {
-	var currentTimestamp = Math.floor(new Date().getTime() / 1000);
-	var tokenExpiryTimestamp = currentTimestamp + duration;
-	var tokenExpiryDate = new Date(tokenExpiryTimestamp * 1000);
-	return tokenExpiryDate;
-}
-
 function GoogleStorageAdapter(database, cache, options) {
 	options = options || {};
 	var adapterLabel = options.adapterLabel || null;
@@ -254,13 +238,13 @@ function GoogleStorageAdapter(database, cache, options) {
 	var clientId = options.clientId;
 	var clientSecret = options.clientSecret;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!cache) { throw new Error('Missing key-value store'); }
-	if (!adapterLabel) { throw new Error('Missing adapter label'); }
-	if (!rootLabel) { throw new Error('Missing root label'); }
-	if (!defaultSitesPath) { throw new Error('Missing sites path'); }
-	if (!clientId) { throw new Error('Missing Google OAuth2 client id'); }
-	if (!clientSecret) { throw new Error('Missing Google OAuth2 client secret'); }
+	assert(database, 'Missing database');
+	assert(cache, 'Missing key-value store');
+	assert(adapterLabel, 'Missing adapter label');
+	assert(rootLabel, 'Missing root label');
+	assert(defaultSitesPath, 'Missing sites path');
+	assert(clientId, 'Missing Google OAuth2 client id');
+	assert(clientSecret, 'Missing Google OAuth2 client secret');
 
 	StorageAdapter.call(this);
 
@@ -553,9 +537,9 @@ function parseFileId(filePath) {
 }
 
 function GoogleClient(database, clientId, clientSecret) {
-	if (!database) { throw new Error('Missing database'); }
-	if (!clientId) { throw new Error('Missing client ID'); }
-	if (!clientSecret) { throw new Error('Missing client secret'); }
+	assert(database, 'Missing database');
+	assert(clientId, 'Missing client ID');
+	assert(clientSecret, 'Missing client secret');
 
 	this.database = database;
 	this.clientId = clientId;
@@ -967,7 +951,6 @@ GoogleClient.prototype.loadFileList = function(query) {
 };
 
 
-
 function getNestedFile(currentFolder, filePath) {
 	if (!filePath) { return currentFolder; }
 	var pathSegments = filePath.split('/');
@@ -1167,6 +1150,13 @@ function apiRequest(options) {
 			return (apiResponse && apiResponse.error && apiResponse.error.code) || null;
 		}
 	}
+}
+
+function getTokenExpiryDate(duration) {
+	var currentTimestamp = Math.floor(new Date().getTime() / 1000);
+	var tokenExpiryTimestamp = currentTimestamp + duration;
+	var tokenExpiryDate = new Date(tokenExpiryTimestamp * 1000);
+	return tokenExpiryDate;
 }
 
 function sanitizeUrl(inputUrl, cache, options) {

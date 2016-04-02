@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var express = require('express');
 var merge = require('lodash.merge');
 
@@ -29,17 +30,18 @@ module.exports = function(database, options) {
 	var sessionMiddleware = options.sessionMiddleware || null;
 	var analyticsConfig = options.analytics || null;
 
-	if (!host) { throw new Error('Missing host details'); }
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
-	if (!siteAuthOptions) { throw new Error('Missing site auth options'); }
-	if (!themesUrl) { throw new Error('Missing theme gallery URL'); }
-	if (!adapters) { throw new Error('Missing adapters'); }
-	if (!uploadAdapter) { throw new Error('Missing upload adapter'); }
-	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(database, 'Missing database');
+	assert(host, 'Missing host details');
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(themesPath, 'Missing themes path');
+	assert(siteTemplatePath, 'Missing site template path');
+	assert(siteAuthOptions, 'Missing site auth options');
+	assert(themesUrl, 'Missing theme gallery URL');
+	assert(adapters, 'Missing adapters');
+	assert(uploadAdapter, 'Missing upload adapter');
+	assert(sessionMiddleware, 'Missing session middleware');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	var siteTemplateFiles = readDirContentsSync(siteTemplatePath);
 
@@ -107,7 +109,7 @@ module.exports = function(database, options) {
 						themes: themeService.getThemes()
 					}
 				};
-				return resolve(
+				resolve(
 					adminPageService.render(req, res, {
 						template: 'sites',
 						context: templateData
@@ -153,7 +155,7 @@ module.exports = function(database, options) {
 						adapters: adaptersMetadata
 					}
 				};
-				return resolve(
+				resolve(
 					adminPageService.render(req, res, {
 						template: 'sites/create-site',
 						context: templateData
@@ -166,14 +168,23 @@ module.exports = function(database, options) {
 		}
 
 		function retrieveCreateSiteThemesRoute(req, res, next) {
-			var themes = themeService.getThemes();
-			var themeIds = Object.keys(themes);
-			var firstThemeId = themeIds[0];
-			res.redirect('/canvases/create-canvas/themes/' + firstThemeId);
+			new Promise(function(resolve, reject) {
+				var themes = themeService.getThemes();
+				var themeIds = Object.keys(themes);
+				if (themeIds.length === 0) { throw new HttpError(404); }
+				var firstThemeId = themeIds[0];
+				resolve(
+					res.redirect('/canvases/create-canvas/themes/' + firstThemeId)
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 		}
 
 		function retrieveCreateSiteThemeRoute(req, res, next) {
 			var themeId = req.params.theme;
+
 			new Promise(function(resolve, reject) {
 				var themes = themeService.getThemes();
 				var theme = themeService.getTheme(themeId);
@@ -187,7 +198,7 @@ module.exports = function(database, options) {
 						nextTheme: nextTheme
 					}
 				};
-				return resolve(
+				resolve(
 					adminPageService.render(req, res, {
 						template: 'sites/create-site/themes/theme',
 						context: templateData
@@ -222,14 +233,14 @@ module.exports = function(database, options) {
 			var cloneSourceName = req.body.site || null;
 
 			if (!themeId && !isClone) {
-				return next(new Error(400));
+				return next(new HttpError(400));
 			}
 			if (isClone && !cloneSourceName) {
 				return next(new HttpError(400));
 			}
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					retrieveSiteTheme(username, (isClone ? cloneSourceName : null), themeId, themeConfig)
 						.then(function(theme) {
 							var siteModel = {
@@ -305,7 +316,7 @@ module.exports = function(database, options) {
 				var includeTheme = false;
 				var includeContents = false;
 				var includeUsers = true;
-				return resolve(
+				resolve(
 					siteService.retrieveSite(username, siteName, {
 						theme: includeTheme,
 						contents: includeContents,
@@ -357,7 +368,7 @@ module.exports = function(database, options) {
 				var isDefaultSite = siteName === defaultSiteName;
 				var isUpdatedDefaultSite = ('home' in req.body ? req.body.home === 'true' : isDefaultSite);
 				var updatedSiteName = ('name' in updates ? updates.name : siteName);
-				return resolve(
+				resolve(
 					siteService.updateSite(username, siteName, updates)
 						.then(function() {
 							var updatedDefaultSiteName = (isUpdatedDefaultSite ? updatedSiteName : (isDefaultSite ? null : defaultSiteName));
@@ -378,10 +389,10 @@ module.exports = function(database, options) {
 			var userModel = req.user;
 			var username = userModel.username;
 			var siteName = req.params.site;
-			var cache = null;
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				var cache = null;
+				resolve(
 					siteService.updateSiteCache(username, siteName, cache)
 						.then(function() {
 							res.redirect(303, '/canvases/' + siteName);
@@ -399,7 +410,7 @@ module.exports = function(database, options) {
 			var siteName = req.params.site;
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					siteService.deleteSite(username, siteName)
 						.then(function(siteModel) {
 							res.redirect(303, '/canvases');
@@ -415,12 +426,12 @@ module.exports = function(database, options) {
 			var userModel = req.user;
 			var username = userModel.username;
 			var siteName = req.params.site;
-			var includeTheme = false;
-			var includeContents = false;
-			var includeUsers = true;
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				var includeTheme = false;
+				var includeContents = false;
+				var includeUsers = true;
+				resolve(
 					siteService.retrieveSite(username, siteName, {
 						theme: includeTheme,
 						contents: includeContents,
@@ -454,7 +465,7 @@ module.exports = function(database, options) {
 			};
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					siteService.createSiteUser(username, siteName, siteUserAuthDetails, siteAuthOptions)
 						.then(function(userModel) {
 							res.redirect(303, '/canvases/' + siteName + '/users');
@@ -477,7 +488,7 @@ module.exports = function(database, options) {
 			};
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					siteService.updateSiteUser(username, siteName, siteUsername, siteUserAuthDetails, siteAuthOptions)
 						.then(function(userModel) {
 							res.redirect(303, '/canvases/' + siteName + '/users');
@@ -494,8 +505,9 @@ module.exports = function(database, options) {
 			var username = userModel.username;
 			var siteName = req.params.site;
 			var siteUsername = req.params.username;
+
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					siteService.deleteSiteUser(username, siteName, siteUsername)
 						.then(function() {
 							res.redirect(303, '/canvases/' + siteName + '/users');
@@ -512,12 +524,12 @@ module.exports = function(database, options) {
 			var username = userModel.username;
 			var userAdapters = req.user.adapters;
 			var siteName = req.params.site;
-			var includeTheme = true;
-			var includeContents = false;
-			var includeUsers = false;
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				var includeTheme = true;
+				var includeContents = false;
+				var includeUsers = false;
+				resolve(
 					siteService.retrieveSite(username, siteName, {
 						theme: includeTheme,
 						contents: includeContents,

@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var fs = require('fs');
 var express = require('express');
 
@@ -18,11 +19,11 @@ module.exports = function(options) {
 	var sessionMiddleware = options.sessionMiddleware || null;
 	var analyticsConfig = options.analytics || null;
 
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!faqPath) { throw new Error('Missing FAQ data path'); }
-	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(faqPath, 'Missing FAQ data path');
+	assert(sessionMiddleware, 'Missing session middleware');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
@@ -59,9 +60,9 @@ module.exports = function(options) {
 		function retrieveFaqRoute(req, res, next) {
 			var username = req.user.username || DEFAULT_USERNAME;
 			var siteModels = res.locals.sites || [];
-			var siteName = (siteModels.length > 0 ? siteModels[Math.floor(Math.random() * siteModels.length)].name : DEFAULT_SITE_NAME);
 
 			new Promise(function(resolve, reject) {
+				var siteName = (siteModels.length > 0 ? getRandomArrayItem(siteModels).name : DEFAULT_SITE_NAME);
 				var faqs = replaceFaqPlaceholders(faqData, {
 					username: username,
 					sitename: siteName
@@ -90,6 +91,10 @@ module.exports = function(options) {
 					.replace(/\$\{username\}/g, username)
 					.replace(/\$\{sitename\}/g, sitename)
 				);
+			}
+
+			function getRandomArrayItem(items) {
+				return items[Math.floor(Math.random() * items.length)];
 			}
 		}
 	}

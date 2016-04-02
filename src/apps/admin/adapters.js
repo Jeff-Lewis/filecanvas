@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var express = require('express');
 
 var SiteService = require('../../services/SiteService');
@@ -9,8 +10,9 @@ module.exports = function(database, options) {
 	var host = options.host || null;
 	var adapters = options.adapters || null;
 
-	if (!host) { throw new Error('Missing host details'); }
-	if (!adapters) { throw new Error('Missing adapters'); }
+	assert(database, 'Missing database');
+	assert(host, 'Missing host details');
+	assert(adapters, 'Missing adapters');
 
 	var siteService = new SiteService(database, {
 		host: host,
@@ -35,7 +37,7 @@ module.exports = function(database, options) {
 			var filePath = req.params[0];
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					siteService.retrieveFileMetadata(username, adapter, filePath)
 						.then(function(metadata) {
 							res.json(metadata);
@@ -53,6 +55,5 @@ module.exports = function(database, options) {
 				next(error);
 			});
 		}
-
 	}
 };

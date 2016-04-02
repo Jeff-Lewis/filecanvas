@@ -2,8 +2,7 @@
 
 var HttpError = require('../errors/HttpError');
 
-module.exports = function(options) {
-	options = options || {};
+module.exports = function() {
 
 	return function(req, res, next) {
 		next(new HttpError(404));

@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var path = require('path');
 var objectAssign = require('object-assign');
 var isTextOrBinary = require('istextorbinary');
@@ -17,7 +18,7 @@ var AuthenticationService = require('../services/AuthenticationService');
 var constants = require('../constants');
 
 var SECONDS = 1000;
-var DROPBOX_CACHE_EXPIRY_DURATION = 5 * SECONDS;
+var API_CACHE_EXPIRY_DURATION = 5 * SECONDS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 
 function SiteService(database, options) {
@@ -25,9 +26,9 @@ function SiteService(database, options) {
 	var host = options.host;
 	var adapters = options.adapters;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!host) { throw new Error('Missing host details'); }
-	if (!adapters) { throw new Error('Missing adapters configuration'); }
+	assert(database, 'Missing database');
+	assert(host, 'Missing host details');
+	assert(adapters, 'Missing adapters configuration');
 
 	this.database = database;
 	this.host = host;
@@ -37,7 +38,12 @@ function SiteService(database, options) {
 SiteService.prototype.database = null;
 
 SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
-	if (!siteModel) { return Promise.reject(new Error('No site model specified')); }
+	try {
+		assert(siteModel, 'Missing site model');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var host = this.host;
 	var adapters = this.adapters;
@@ -94,14 +100,19 @@ SiteService.prototype.createSite = function(siteModel, siteTemplateFiles) {
 };
 
 SiteService.prototype.retrieveSite = function(username, siteName, options) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
 	var includeTheme = Boolean(options.theme);
 	var includeContents = Boolean(options.contents);
 	var includeUsers = Boolean(options.users);
-	var cacheDuration = (typeof options.cacheDuration === 'number' ? options.cacheDuration : DROPBOX_CACHE_EXPIRY_DURATION);
+	var cacheDuration = (typeof options.cacheDuration === 'number' ? options.cacheDuration : API_CACHE_EXPIRY_DURATION);
 	var database = this.database;
 	var adapters = this.adapters;
 	return retrieveSite(database, username, siteName, {
@@ -165,9 +176,14 @@ SiteService.prototype.retrieveSite = function(username, siteName, options) {
 };
 
 SiteService.prototype.updateSite = function(username, siteName, updates) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!updates) { return Promise.reject(new Error('No updates specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(updates, 'Missing site updates');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var requireFullModel = false;
 	return validateSiteModel(updates, requireFullModel)
@@ -197,8 +213,13 @@ SiteService.prototype.updateSite = function(username, siteName, updates) {
 };
 
 SiteService.prototype.deleteSite = function(username, siteName) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var userService = new UserService(database);
 	return checkWhetherSiteisUserDefaultSite(username, siteName)
@@ -228,8 +249,13 @@ SiteService.prototype.deleteSite = function(username, siteName) {
 };
 
 SiteService.prototype.retrieveSiteAuthenticationDetails = function(username, siteName, options) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	options = options || {};
 	var onlyPublishedSites = Boolean(options.published);
 	var database = this.database;
@@ -237,24 +263,39 @@ SiteService.prototype.retrieveSiteAuthenticationDetails = function(username, sit
 };
 
 SiteService.prototype.retrieveSiteCache = function(username, siteName) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return retrieveSiteCache(database, username, siteName);
 };
 
 SiteService.prototype.updateSiteCache = function(username, siteName, cache) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	cache = cache || null;
 	var database = this.database;
 	return updateSiteCache(database, username, siteName, cache);
 };
 
 SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, filePath) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
@@ -273,9 +314,14 @@ SiteService.prototype.retrieveSiteDownloadLink = function(username, siteName, fi
 };
 
 SiteService.prototype.retrieveSitePreviewLink = function(username, siteName, filePath) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
@@ -294,9 +340,14 @@ SiteService.prototype.retrieveSitePreviewLink = function(username, siteName, fil
 };
 
 SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, filePath) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var adapters = this.adapters;
 	return retrieveSiteRoot(database, username, siteName)
@@ -315,14 +366,18 @@ SiteService.prototype.retrieveSiteThumbnailLink = function(username, siteName, f
 };
 
 SiteService.prototype.retrieveSiteShortcutLink = function(username, siteName, filePath) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(filePath, 'Missing file path');
+		assert(['.webloc', '.url', '.desktop'].indexOf(path.extname(filePath)) !== -1, 'Invalid shortcut file');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var adapters = this.adapters;
 	var fileExtension = path.extname(filePath);
-	var isShortcutFile = (['.webloc', '.url', '.desktop'].indexOf(fileExtension) !== -1);
-	if (!isShortcutFile) { return Promise.reject(new Error('Invalid shortcut file: ' + filePath)); }
 	return retrieveSiteRoot(database, username, siteName)
 		.then(function(siteRoot) {
 			if (!siteRoot) { throw new HttpError(404); }
@@ -343,11 +398,17 @@ SiteService.prototype.retrieveSiteShortcutLink = function(username, siteName, fi
 };
 
 SiteService.prototype.createSiteUser = function(username, siteName, authDetails, siteAuthOptions) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!authDetails) { return Promise.reject(new Error('No auth details specified')); }
-	if (!authDetails.username) { return Promise.reject(new Error('No auth username specified')); }
-	if (!authDetails.password) { return Promise.reject(new Error('No auth password specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(authDetails, 'Missing auth details');
+		assert(authDetails.username, 'Missing auth username');
+		assert(authDetails.password, 'Missing auth password');
+		assert(siteAuthOptions, 'Missing site auth options');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return checkWhetherSiteUserAlreadyExists(database, username, siteName, authDetails.username)
 		.then(function(userAlreadyExists) {
@@ -359,29 +420,45 @@ SiteService.prototype.createSiteUser = function(username, siteName, authDetails,
 };
 
 SiteService.prototype.updateSiteUser = function(username, siteName, siteUsername, authDetails, siteAuthOptions) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!siteUsername) { return Promise.reject(new Error('No user specified')); }
-	if (!authDetails) { return Promise.reject(new Error('No auth details specified')); }
-	if (!authDetails.username) { return Promise.reject(new Error('No auth username specified')); }
-	if (!authDetails.password) { return Promise.reject(new Error('No auth password specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(siteUsername, 'Missing site username');
+		assert(authDetails, 'Missing auth details');
+		assert(authDetails.username, 'Missing auth username');
+		assert(authDetails.password, 'Missing auth password');
+		assert(siteAuthOptions, 'Missing site auth options');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return updateSiteUser(database, username, siteName, siteUsername, authDetails, siteAuthOptions);
 };
 
 
 SiteService.prototype.deleteSiteUser = function(username, siteName, siteUsername) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!siteName) { return Promise.reject(new Error('No site specified')); }
-	if (!siteUsername) { return Promise.reject(new Error('No user specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(siteName, 'Missing site name');
+		assert(siteUsername, 'Missing site username');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return deleteSiteUser(database, username, siteName, siteUsername);
 };
 
 SiteService.prototype.retrieveFileMetadata = function(username, adapterName, filePath) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!adapterName) { return Promise.reject(new Error('No adapter specified')); }
-	if (!filePath) { return Promise.reject(new Error('No file path specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(adapterName, 'Missing adapter name');
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var adapters = this.adapters;
 	var userService = new UserService(database);

@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var dns = require('dns');
 
 var HttpError = require('../errors/HttpError');
@@ -8,7 +9,8 @@ var getIsSameHost = require('../utils/getIsSameHost');
 module.exports = function(options) {
 	options = options || {};
 	var hostname = options.hostname;
-	if (!hostname) { throw new Error('Missing hostname'); }
+
+	assert(hostname, 'Missing hostname');
 
 	return function(req, res, next) {
 		var isCustomDomain = !getIsSameHost(req.host, hostname);

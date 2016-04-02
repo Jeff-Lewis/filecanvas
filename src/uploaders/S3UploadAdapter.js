@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var util = require('util');
 var path = require('path');
 var mime = require('mime');
@@ -14,9 +15,11 @@ function S3UploadAdapter(options) {
 	var secretKey = options.secretKey || null;
 	var pathPrefix = options.root || null;
 
-	if (!bucket) { throw new Error('Missing bucket name'); }
-	if (secretKey && !accessKey) { throw new Error('Missing access key'); }
-	if (accessKey && !secretKey) { throw new Error('Missing secret key'); }
+	assert(bucket, 'Missing bucket name');
+	if (accessKey || secretKey) {
+		assert(accessKey, 'Missing access key');
+		assert(secretKey, 'Missing secret key');
+	}
 
 	UploadAdapter.call(this);
 
@@ -34,6 +37,12 @@ S3UploadAdapter.prototype.secretKey = null;
 S3UploadAdapter.prototype.pathPrefix = null;
 
 S3UploadAdapter.prototype.generateRequest = function(filePath) {
+	try {
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var bucketName = this.bucket;
 	var accessKey = this.accessKey;
 	var secretKey = this.secretKey;
@@ -75,6 +84,12 @@ S3UploadAdapter.prototype.generateRequest = function(filePath) {
 };
 
 S3UploadAdapter.prototype.getDownloadUrl = function(filePath) {
+	try {
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var bucketName = this.bucket;
 	var pathPrefix = this.pathPrefix;
 	var fullPath = (pathPrefix ? path.join(pathPrefix, filePath) : filePath);
@@ -82,6 +97,12 @@ S3UploadAdapter.prototype.getDownloadUrl = function(filePath) {
 };
 
 S3UploadAdapter.prototype.readFile = function(filePath) {
+	try {
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var bucketName = this.bucket;
 	var pathPrefix = this.pathPrefix;
 	var fullPath = (pathPrefix ? path.join(pathPrefix, filePath) : filePath);

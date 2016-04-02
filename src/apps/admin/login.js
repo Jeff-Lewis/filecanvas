@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var objectAssign = require('object-assign');
 var express = require('express');
 
@@ -16,12 +17,12 @@ module.exports = function(database, options) {
 	var sessionMiddleware = options.sessionMiddleware || null;
 	var analyticsConfig = options.analytics || null;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!adapters) { throw new Error('Missing adapters'); }
-	if (!sessionMiddleware) { throw new Error('Missing admin session middleware'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(database, 'Missing database');
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(adapters, 'Missing adapters');
+	assert(sessionMiddleware, 'Missing admin session middleware');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	var userService = new UserService(database);
 	var adminPageService = new AdminPageService({
@@ -75,23 +76,26 @@ module.exports = function(database, options) {
 				return (!req.isAuthenticated() || !req.user.pending);
 			});
 		}
+
 		function redirectIfUserAlreadyRegistered(redirectPath) {
 			return createRedirect(redirectPath, function(req) {
 				return (req.isAuthenticated() && !req.user.pending);
 			});
 		}
 
-
 		function createRedirect(redirectPath, condition) {
 			redirectPath = redirectPath || '/';
 			return function(req, res, next) {
-				if (!condition || condition(req)) {
-					return res.redirect(req.query.redirect || redirectPath);
+				try {
+					if (!condition || condition(req)) {
+						return res.redirect(req.query.redirect || redirectPath);
+					}
+					next();
+				} catch (error) {
+					next(error);
 				}
-				next();
 			};
 		}
-
 
 		function retrieveLoginRoute(req, res, next) {
 			var isRegister = req.url === '/register';
@@ -114,7 +118,7 @@ module.exports = function(database, options) {
 						adapters: adaptersHash
 					}
 				};
-				return resolve(
+				resolve(
 					adminPageService.render(req, res, {
 						template: 'login',
 						context: templateData
@@ -139,7 +143,7 @@ module.exports = function(database, options) {
 						user: pendingUserModel
 					}
 				};
-				return resolve(
+				resolve(
 					adminPageService.render(req, res, {
 						template: 'register',
 						context: templateData
@@ -163,7 +167,7 @@ module.exports = function(database, options) {
 					email: req.body.email,
 					pending: (req.body.pending === 'true')
 				};
-				return resolve(
+				resolve(
 					userService.updateUser(username, updates)
 						.then(function() {
 							var updatedUserModel = objectAssign({}, userModel, updates);
@@ -184,7 +188,7 @@ module.exports = function(database, options) {
 			var username = userModel.username;
 
 			new Promise(function(resolve, reject) {
-				return resolve(
+				resolve(
 					unlinkUserAccounts(userModel, adapters)
 						.catch(function(error) {
 							// Ignore failure
@@ -220,24 +224,29 @@ module.exports = function(database, options) {
 
 		function retrieveLogoutRoute(req, res, next) {
 			var adapterName = req.session.adapter;
-			req.logout();
-			req.session.regenerate(function(error) {
-				if (error) { return next(error); }
-				if (!adapterName || (adapterName === 'local')) {
-					return res.redirect('/');
-				}
-				var templateData = {
-					content: {
-						adapter: adapterName
+
+			new Promise(function(resolve, reject) {
+				req.logout();
+				req.session.regenerate(function(error) {
+					if (error) { return reject(error); }
+					if (!adapterName || (adapterName === 'local')) {
+						return res.redirect('/');
 					}
-				};
-				adminPageService.render(req, res, {
-					template: 'logout',
-					context: templateData
-				})
-					.catch(function(error) {
-						next(error);
-					});
+					var templateData = {
+						content: {
+							adapter: adapterName
+						}
+					};
+					resolve(
+						adminPageService.render(req, res, {
+							template: 'logout',
+							context: templateData
+						})
+					);
+				});
+			})
+			.catch(function(error) {
+				next(error);
 			});
 		}
 	}

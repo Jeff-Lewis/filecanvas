@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var express = require('express');
 
 var handlebarsEngine = require('../../engines/handlebars');
@@ -13,10 +14,10 @@ module.exports = function(options) {
 	var sessionMiddleware = options.sessionMiddleware || null;
 	var analyticsConfig = options.analytics || null;
 
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(sessionMiddleware, 'Missing session middleware');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	var adminPageService = new AdminPageService({
 		templatesPath: templatesPath,
@@ -53,7 +54,7 @@ module.exports = function(options) {
 				var templateData = {
 					content: null
 				};
-				return resolve(
+				resolve(
 					adminPageService.render(req, res, {
 						template: 'support',
 						context: templateData

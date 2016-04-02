@@ -5,7 +5,7 @@ function LoginAdapter() {
 
 LoginAdapter.prototype.adapterName = null;
 
-LoginAdapter.prototype.middleware = function(database, passport, callback) {
+LoginAdapter.prototype.middleware = function(passport, authCallback, loginCallback) {
 	throw new Error('Not implemented');
 };
 

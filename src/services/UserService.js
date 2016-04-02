@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var escapeRegExp = require('escape-regexp');
 var dotObject = require('dot-object');
 
@@ -11,7 +12,7 @@ var DB_COLLECTION_USERS = constants.DB_COLLECTION_USERS;
 var DB_COLLECTION_SITES = constants.DB_COLLECTION_SITES;
 
 function UserService(database) {
-	if (!database) { throw new Error('Missing database'); }
+	assert(database, 'Missing database');
 
 	this.database = database;
 }
@@ -19,6 +20,12 @@ function UserService(database) {
 UserService.prototype.database = null;
 
 UserService.prototype.createUser = function(userModel) {
+	try {
+		assert(userModel, 'Missing user model');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var requireFullModel = !userModel.pending;
 	return validateUserModel(userModel, requireFullModel)
@@ -35,6 +42,7 @@ UserService.prototype.createUser = function(userModel) {
 
 UserService.prototype.generateUsername = function(username) {
 	if (!username) { return Promise.resolve(null); }
+
 	var database = this.database;
 	return checkWhetherUsernameExists(database, username)
 		.then(function(usernameExists) {
@@ -54,13 +62,24 @@ UserService.prototype.generateUsername = function(username) {
 };
 
 UserService.prototype.retrieveUser = function(username) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
+	try {
+		assert(username, 'Missing username');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return retrieveUser(database, { 'username': username });
 };
 
 UserService.prototype.retrieveAdapterUser = function(adapterName, query) {
-	if (!query) { return Promise.reject(new Error('No query specified')); }
+	try {
+		assert(adapterName, 'Missing query');
+		assert(query, 'Missing query');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var nestedQuery = {
 		adapters: {}
@@ -76,14 +95,24 @@ UserService.prototype.retrieveAdapterUser = function(adapterName, query) {
 };
 
 UserService.prototype.retrieveUserAdapters = function(username) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
+	try {
+		assert(username, 'Missing username');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return retrieveUserAdapters(database, username);
 };
 
 UserService.prototype.updateUser = function(username, updates) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
-	if (!updates) { return Promise.reject(new Error('No updates specified')); }
+	try {
+		assert(username, 'Missing username');
+		assert(updates, 'Missing updates');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	var requireFullModel = false;
 	return validateUserModel(updates, requireFullModel)
@@ -104,16 +133,27 @@ UserService.prototype.updateUser = function(username, updates) {
 		});
 };
 
-UserService.prototype.updateUserAdapterSettings = function(adapter, uid, adapterSettings) {
-	if (!adapter) { return Promise.reject(new Error('No adapter specified')); }
-	if (!uid) { return Promise.reject(new Error('No user ID specified')); }
-	if (!adapterSettings) { return Promise.reject(new Error('No adapter settings specified')); }
+UserService.prototype.updateUserAdapterSettings = function(adapterName, uid, adapterSettings) {
+	// TODO: Update user adapter settings based on adapter-specific query, not uid
+	try {
+		assert(adapterName, 'Missing adapter name');
+		assert(uid, 'Missing user id');
+		assert(adapterSettings, 'Missing user id');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
-	return updateUserAdapterSettings(database, adapter, uid, adapterSettings);
+	return updateUserAdapterSettings(database, adapterName, uid, adapterSettings);
 };
 
 UserService.prototype.deleteUser = function(username) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
+	try {
+		assert(username, 'Missing username');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return deleteUserSites(database, username)
 		.then(function(numRecords) {
@@ -122,20 +162,35 @@ UserService.prototype.deleteUser = function(username) {
 };
 
 UserService.prototype.retrieveUserDefaultSiteName = function(username) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
+	try {
+		assert(username, 'Missing username');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return retrieveUserDefaultSiteName(database, username);
 };
 
 UserService.prototype.updateUserDefaultSiteName = function(username, siteName) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
+	try {
+		assert(username, 'Missing username');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	siteName = siteName || null;
 	return updateUserDefaultSiteName(database, username, siteName);
 };
 
 UserService.prototype.retrieveUserSites = function(username) {
-	if (!username) { return Promise.reject(new Error('No username specified')); }
+	try {
+		assert(username, 'Missing username');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var database = this.database;
 	return retrieveUserSites(database, username);
 };
@@ -223,8 +278,8 @@ function updateUser(database, username, fields) {
 		});
 }
 
-function updateUserAdapterSettings(database, adapter, uid, adapterSettings) {
-	var adapterSettingsNamespace = 'adapters.' + adapter + '.';
+function updateUserAdapterSettings(database, adapterName, uid, adapterSettings) {
+	var adapterSettingsNamespace = 'adapters.' + adapterName + '.';
 	var filter = getNamespacedObject({ uid: uid }, adapterSettingsNamespace);
 	var fields = getNamespacedObject(adapterSettings, adapterSettingsNamespace);
 	var updates = { $set: fields };

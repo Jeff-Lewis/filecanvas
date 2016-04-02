@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var redis = require('redis');
 
 var RedisStore = require('../stores/RedisStore');
@@ -11,8 +12,11 @@ CacheService.prototype.store = null;
 CacheService.prototype.connectionAttempt = null;
 
 CacheService.prototype.connect = function(url) {
+	assert(url, 'Missing URL');
+
 	if (this.store) { return Promise.resolve(this.store); }
 	if (this.connectionAttempt) { return Promise.resolve(this.connectionAttempt); }
+
 	var self = this;
 	this.connectionAttempt =
 		new Promise(function(resolve, reject) {

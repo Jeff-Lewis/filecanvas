@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var path = require('path');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
@@ -42,23 +43,23 @@ module.exports = function(database, cache, options) {
 	var uploadAdapterConfig = options.uploadAdapter;
 	var analyticsConfig = options.analytics;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!cache) { throw new Error('Missing key-value store'); }
-	if (!host) { throw new Error('Missing host details'); }
-	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
-	if (!sessionStore) { throw new Error('Missing session store URL'); }
-	if (!sessionDuration) { throw new Error('Missing session duration'); }
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!adminUrl) { throw new Error('Missing admin URL'); }
-	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
-	if (!adminTemplatesUrl) { throw new Error('Missing admin templates URL'); }
-	if (!themesUrl) { throw new Error('Missing themes URL'); }
-	if (!themeAssetsUrl) { throw new Error('Missing theme assets URL'); }
-	if (!wwwUrl) { throw new Error('Missing www URL'); }
-	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(database, 'Missing database');
+	assert(cache, 'Missing key-value store');
+	assert(host, 'Missing host details');
+	assert(cookieSecret, 'Missing cookie secret');
+	assert(sessionStore, 'Missing session store URL');
+	assert(sessionDuration, 'Missing session duration');
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(themesPath, 'Missing themes path');
+	assert(adminUrl, 'Missing admin URL');
+	assert(adminAssetsUrl, 'Missing admin asset root URL');
+	assert(adminTemplatesUrl, 'Missing admin templates URL');
+	assert(themesUrl, 'Missing themes URL');
+	assert(themeAssetsUrl, 'Missing theme assets URL');
+	assert(wwwUrl, 'Missing www URL');
+	assert(uploadAdapterConfig, 'Missing upload adapter configuration');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
@@ -170,13 +171,18 @@ module.exports = function(database, cache, options) {
 
 
 		function retrieveThemesRoute(req, res, next) {
-			var themeIds = Object.keys(themeService.getThemes());
-			var firstThemeId = themeIds[0];
-			try {
-				res.redirect('/themes/' + firstThemeId);
-			} catch (error) {
+			new Promise(function(resolve, reject) {
+				var themes = themeService.getThemes();
+				var themeIds = Object.keys(themes);
+				if (themeIds.length === 0) { throw new HttpError(404); }
+				var firstThemeId = themeIds[0];
+				resolve(
+					res.redirect('/themes/' + firstThemeId)
+				);
+			})
+			.catch(function(error) {
 				next(error);
-			}
+			});
 		}
 
 		function retrieveThemeRoute(req, res, next) {
@@ -282,6 +288,7 @@ module.exports = function(database, cache, options) {
 			return function (req, res, next) {
 				var filename = (param ? req.params[param] : req.params[0]);
 				if (!filename) { return next(new HttpError(403)); }
+
 				var sessionId = req.sessionID;
 				req.params.filename = sessionId + '/' + filename;
 				next();
@@ -291,36 +298,65 @@ module.exports = function(database, cache, options) {
 		function retrieveUserFileDownloadRoute(req, res, next) {
 			var filename = req.params.filename;
 			if (!filename) { return next(new HttpError(403)); }
-			var downloadUrl = uploadAdapter.getDownloadUrl(filename);
-			res.redirect(downloadUrl);
+
+			new Promise(function(resolve, reject) {
+				var downloadUrl = uploadAdapter.getDownloadUrl(filename);
+				resolve(
+					res.redirect(downloadUrl)
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 		}
 
 		function retrieveUserFilePreviewRoute(req, res, next) {
 			var filename = req.params.filename;
 			if (!filename) { return next(new HttpError(403)); }
-			var previewUrl = uploadAdapter.getDownloadUrl(filename);
-			res.redirect(previewUrl);
+
+			new Promise(function(resolve, reject) {
+				var previewUrl = uploadAdapter.getDownloadUrl(filename);
+				resolve(
+					res.redirect(previewUrl)
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 		}
 
 		function retrieveUserFileThumbnailRoute(req, res, next) {
 			var filename = req.params.filename;
 			if (!filename) { return next(new HttpError(403)); }
-			var thumbnailUrl = uploadAdapter.getDownloadUrl(filename);
-			res.redirect(thumbnailUrl);
+
+			new Promise(function(resolve, reject) {
+				var thumbnailUrl = uploadAdapter.getDownloadUrl(filename);
+				resolve(
+					res.redirect(thumbnailUrl)
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 		}
 
 		function retrieveUserFileRedirectRoute(req, res, next) {
 			var filename = req.params.filename;
 			if (!filename) { return next(new HttpError(403)); }
-			var shortcutType = path.extname(filename).substr('.'.length);
-			uploadAdapter.readFile(filename)
-				.then(function(fileContents) {
-					var shortcutUrl = parseShortcutUrl(fileContents, { type: shortcutType });
-					res.redirect(shortcutUrl);
-				})
-				.catch(function(error) {
-					next(error);
-				});
+
+			new Promise(function(resolve, reject) {
+				var shortcutType = path.extname(filename).substr('.'.length);
+				resolve(
+					uploadAdapter.readFile(filename)
+						.then(function(fileContents) {
+							var shortcutUrl = parseShortcutUrl(fileContents, { type: shortcutType });
+							res.redirect(shortcutUrl);
+						})
+				);
+			})
+			.catch(function(error) {
+				next(error);
+			});
 		}
 	}
 };

@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var path = require('path');
 var uuid = require('uuid');
 var objectAssign = require('object-assign');
@@ -10,7 +11,7 @@ function FileUploadService(options) {
 	options = options || {};
 	var adapter = options.adapter;
 
-	if (!adapter) { throw new Error('Missing upload adapter'); }
+	assert(adapter, 'Missing upload adapter');
 
 	this.adapter = adapter;
 }
@@ -22,7 +23,12 @@ FileUploadService.prototype.generateUniqueFilename = function(filename) {
 };
 
 FileUploadService.prototype.generateRequest = function(filename) {
-	if (!filename) { return Promise.reject(new Error('Missing filename')); }
+	try {
+		assert(filename, 'Missing filename');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var adapter = this.adapter;
 	return adapter.generateRequest(filename);
 };

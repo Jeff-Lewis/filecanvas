@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var express = require('express');
 var RedisStore = require('connect-redis')(express.session);
 
@@ -9,9 +10,9 @@ module.exports = function(options) {
 	var redisUrl = options.store || null;
 	var sessionDuration = options.ttl || null;
 
-	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
-	if (!redisUrl) { throw new Error('Missing session store URL'); }
-	if (!sessionDuration) { throw new Error('Missing session duration'); }
+	assert(cookieSecret, 'Missing cookie secret');
+	assert(redisUrl, 'Missing session store URL');
+	assert(sessionDuration, 'Missing session duration');
 
 	var app = express();
 

@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var express = require('express');
 var Passport = require('passport').Passport;
 var LocalStrategy = require('passport-local').Strategy;
@@ -30,17 +31,17 @@ module.exports = function(database, cache, options) {
 	var adaptersConfig = options.adapters;
 	var analyticsConfig = options.analytics;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!cache) { throw new Error('Missing key-value store'); }
-	if (!host) { throw new Error('Missing host details'); }
-	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!themesUrl) { throw new Error('Missing themes root URL'); }
-	if (!themeAssetsUrl) { throw new Error('Missing theme assets root URL'); }
-	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
-	if (!isPreview && !cookieSecret) { throw new Error('Missing cookie secret'); }
-	if (!isPreview && !sessionStore) { throw new Error('Missing session store URL'); }
-	if (!isPreview && !sessionDuration) { throw new Error('Missing session duration'); }
+	assert(database, 'Missing database');
+	assert(cache, 'Missing key-value store');
+	assert(host, 'Missing host details');
+	assert(themesPath, 'Missing themes path');
+	assert(themesUrl, 'Missing themes root URL');
+	assert(themeAssetsUrl, 'Missing theme assets root URL');
+	assert(adaptersConfig, 'Missing adapters configuration');
+	assert(analyticsConfig, 'Missing analytics configuration');
+	assert(cookieSecret || isPreview, 'Missing cookie secret');
+	assert(sessionStore || isPreview, 'Missing session store URL');
+	assert(sessionDuration || isPreview, 'Missing session duration');
 
 	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
 
@@ -125,7 +126,7 @@ module.exports = function(database, cache, options) {
 						});
 
 						if (matchedUsers.length === 0) {
-							throw new Error('Username not found: "' + siteUsername + '"');
+							throw new Error('Username not found');
 						}
 
 						var siteUserModel = matchedUsers[0];
@@ -161,24 +162,27 @@ module.exports = function(database, cache, options) {
 									site: siteName,
 									model: null
 								};
-								return callback(null, passportUser);
+								return passportUser;
 							}
 
 							var validUsers = authenticationDetails.users;
 							var authenticationService = new AuthenticationService();
 							return authenticationService.authenticate(siteUsername, sitePassword, validUsers)
 								.then(function(siteUserModel) {
-									if (!siteUserModel) { return callback(null, false); }
+									if (!siteUserModel) { return false; }
 
 									var passportUser = {
 										user: username,
 										site: siteName,
 										model: siteUserModel
 									};
-									return callback(null, passportUser);
+									return passportUser;
 								});
 						})
 					);
+				})
+				.then(function() {
+					callback(null, passportUser);
 				})
 				.catch(function(error) {
 					return callback(error);
@@ -210,6 +214,7 @@ module.exports = function(database, cache, options) {
 
 			function createDefaultSiteRedirectRoute(pathSuffix) {
 				pathSuffix = pathSuffix || '';
+
 				return function(req, res, next) {
 					var username = req.params.user;
 
@@ -252,7 +257,11 @@ module.exports = function(database, cache, options) {
 				if (req.isAuthenticated()) {
 					var isLoggedIntoDifferentSite = (req.params.user !== req.user.user) || (req.params.site !== req.user.site);
 					if (!isLoggedIntoDifferentSite) {
-						return redirectToSitePage(req, res);
+						try {
+							return redirectToSitePage(req, res, next);
+						} catch(error) {
+							return next(error);
+						}
 					}
 				}
 
@@ -263,7 +272,7 @@ module.exports = function(database, cache, options) {
 						})
 						.then(function(authenticationDetails) {
 							var isPrivate = authenticationDetails.private;
-							if (!isPrivate) { return redirectToSitePage(req, res); }
+							if (!isPrivate) { return redirectToSitePage(req, res, next); }
 							next();
 						})
 					);
@@ -273,16 +282,16 @@ module.exports = function(database, cache, options) {
 				});
 
 
-				function redirectToSitePage(req, res) {
+				function redirectToSitePage(req, res, next) {
 					var requestPath = req.originalUrl.split('?')[0];
 					var redirectParam = req.params.redirect;
 					var redirectUrl = (redirectParam || requestPath.substr(0, requestPath.lastIndexOf('/login')) || '/');
-					return res.redirect(redirectUrl);
+					res.redirect(redirectUrl);
 				}
 			}
 
 			function processLoginRoute(req, res, next) {
-				passport.authenticate('site/local', function(error, user, info) {
+				var passportMiddleware = passport.authenticate('site/local', function(error, user, info) {
 					if (error) { return next(error); }
 					var loginWasSuccessful = Boolean(user);
 					var requestPath = req.originalUrl.split('?')[0];
@@ -303,15 +312,23 @@ module.exports = function(database, cache, options) {
 						var siteLoginUrl = requestPath;
 						res.redirect(siteLoginUrl + '?retry' + (redirectUrl ? '&redirect=' + encodeURIComponent(redirectUrl) : ''));
 					}
-				})(req, res, next);
+				});
+				passportMiddleware(req, res, next);
 			}
 
 			function processLogoutRoute(req, res, next) {
-				req.logout();
-				req.session.destroy();
-				var requestPath = req.originalUrl.split('?')[0];
-				var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
-				res.redirect(redirectUrl);
+				new Promise(function(resolve, reject) {
+					req.logout();
+					req.session.destroy();
+					var requestPath = req.originalUrl.split('?')[0];
+					var redirectUrl = requestPath.substr(0, requestPath.lastIndexOf('/logout')) || '/';
+					resolve(
+						res.redirect(redirectUrl)
+					);
+				})
+				.catch(function(error) {
+					next(error);
+				});
 			}
 
 			function processPreviewLoginRoute(req, res, next) {
@@ -633,6 +650,7 @@ module.exports = function(database, cache, options) {
 		function ensurePreviousUserLoggedOut(req) {
 			var isPreviousUserLoggedIn = req.isAuthenticated();
 			if (!isPreviousUserLoggedIn) { return Promise.resolve(); }
+
 			return new Promise(function(resolve, reject) {
 				req.logout();
 				var passportSession = req.session.passport;

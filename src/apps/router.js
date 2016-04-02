@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var path = require('path');
 var express = require('express');
 var merge = require('lodash.merge');
@@ -23,7 +24,7 @@ module.exports = function(database, cache, config) {
 	config = config || {};
 	var host = config.host;
 
-	if (!host || !host.hostname) { throw new Error('Missing host name'); }
+	assert(host && host.hostname, 'Missing host name');
 
 	var wwwUrl = config.www.url || getSubdomainUrl('www', { host: host });
 	var adminUrl = config.admin.url || getSubdomainUrl('my', { host: host });

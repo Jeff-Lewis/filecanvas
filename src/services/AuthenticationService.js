@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var crypto = require('crypto');
 var bcrypt = require('bcrypt');
 var Hashes = require('jshashes');
@@ -36,7 +37,7 @@ AuthenticationService.prototype.authenticate = function(username, password, vali
 			case STRATEGY_SHA256:
 				return validateSha256Password(password, validPasswordHash);
 			default:
-				throw new Error('Invalid password strategy: ' + strategy);
+				return Promise.reject(new Error('Invalid password strategy: ' + strategy));
 		}
 
 
@@ -63,7 +64,13 @@ AuthenticationService.prototype.authenticate = function(username, password, vali
 
 AuthenticationService.prototype.create = function(username, password, strategy, options) {
 	options = options || {};
-	if (!strategy) { return Promise.reject('No authentication strategy specified'); }
+
+	try {
+		assert(strategy, 'Missing authentication strategy');
+	} catch(error) {
+		return Promise.reject(error);
+	}
+
 	return generatePasswordHash(strategy, password, options)
 		.then(function(hash) {
 			return {
@@ -81,13 +88,19 @@ AuthenticationService.prototype.create = function(username, password, strategy, 
 			case STRATEGY_SHA256:
 				return generateSha256PasswordHash(password, options);
 			default:
-				throw new Error('Invalid strategy: ' + strategy);
+				return Promise.reject(new Error('Invalid strategy: ' + strategy));
 		}
 
 		function generateBcryptPasswordHash(password, options) {
 			options = options || {};
 			var strength = options.strength;
-			if (!strength) { return Promise.reject(new Error('No bcrypt strength specified')); }
+
+			try {
+				assert(strength, 'Missing bcrypt strength');
+				assert(typeof strength === 'number', 'Invalid bcrypt strength');
+			} catch(error) {
+				return Promise.reject(error);
+			}
 
 			return new Promise(function(resolve, reject) {
 				bcrypt.hash(password, strength, function(error, hash) {
@@ -100,7 +113,13 @@ AuthenticationService.prototype.create = function(username, password, strategy, 
 		function generateSha256PasswordHash(password, options) {
 			options = options || {};
 			var saltLength = options.saltLength;
-			if (!saltLength) { return Promise.reject(new Error('No SHA256 salt length specified')); }
+
+			try {
+				assert(saltLength, 'Missing salt length');
+				assert(typeof saltLength === 'number', 'Invalid salt length');
+			} catch(error) {
+				return Promise.reject(error);
+			}
 
 			return new Promise(function(resolve, reject) {
 				var salt = generateRandomHexString(saltLength);

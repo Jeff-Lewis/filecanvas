@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var mongodb = require('mongodb');
 var MongoClient = mongodb.MongoClient;
 
@@ -12,8 +13,11 @@ DatabaseService.prototype.database = null;
 DatabaseService.prototype.connectionAttempt = null;
 
 DatabaseService.prototype.connect = function(uri) {
+	assert(uri, 'Missing URI');
+
 	if (this.database) { return Promise.resolve(this.database); }
 	if (this.connectionAttempt) { return Promise.resolve(this.connectionAttempt); }
+
 	var self = this;
 	this.connectionAttempt =
 		new Promise(function(resolve, reject) {

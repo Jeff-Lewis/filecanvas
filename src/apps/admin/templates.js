@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var path = require('path');
 var express = require('express');
 
@@ -10,8 +11,8 @@ module.exports = function(options) {
 	var templatesPath = options.templatesPath || null;
 	var partialsPath = options.partialsPath || null;
 
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
 
 	var app = express();
 

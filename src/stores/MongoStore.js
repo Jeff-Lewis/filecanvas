@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var objectAssign = require('object-assign');
 
 function MongoStore(db) {
@@ -11,6 +12,8 @@ MongoStore.prototype.db = null;
 MongoStore.prototype.ERROR_CODE_DUPLICATE_KEY = 11000;
 
 MongoStore.prototype.collection = function(collectionName) {
+	assert(collectionName, 'Missing collection name');
+
 	return new MongoCollection(this.db, collectionName);
 };
 
@@ -21,6 +24,13 @@ function MongoCollection(db, collectionName) {
 
 MongoCollection.prototype.insertOne = function(document, options) {
 	options = options || {};
+
+	try {
+		assert(document, 'Missing document');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.insertOne(document, options,
@@ -39,6 +49,13 @@ MongoCollection.prototype.find = function(filter, fields, options) {
 		return fieldOptions;
 	}, {});
 	options = objectAssign({}, { fields: fieldOptions }, options);
+
+	try {
+		assert(filter, 'Missing filter');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.find(filter, options).toArray(
@@ -57,6 +74,13 @@ MongoCollection.prototype.findOne = function(query, fields, options) {
 		return fieldOptions;
 	}, {});
 	options = objectAssign({}, { fields: fieldOptions }, options);
+
+	try {
+		assert(query, 'Missing query');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.findOne(query, options,
@@ -71,7 +95,15 @@ MongoCollection.prototype.findOne = function(query, fields, options) {
 MongoCollection.prototype.updateOne = function(filter, updates, options) {
 	options = options || {};
 	updates = parseUpdates(updates);
+
+	try {
+		assert(filter, 'Missing filter');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	if (!updates) { return Promise.resolve(); }
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.updateOne(filter, updates, options,
@@ -87,7 +119,15 @@ MongoCollection.prototype.updateOne = function(filter, updates, options) {
 MongoCollection.prototype.updateMany = function(filter, updates, options) {
 	options = objectAssign(options || {}, { multi: true });
 	updates = parseUpdates(updates);
+
+	try {
+		assert(filter, 'Missing filter');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	if (!updates) { return Promise.resolve(); }
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.updateMany(filter, updates, options,
@@ -102,6 +142,13 @@ MongoCollection.prototype.updateMany = function(filter, updates, options) {
 
 MongoCollection.prototype.deleteOne = function(filter, options) {
 	options = options || {};
+
+	try {
+		assert(filter, 'Missing filter');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.deleteOne(filter, options,
@@ -116,6 +163,13 @@ MongoCollection.prototype.deleteOne = function(filter, options) {
 
 MongoCollection.prototype.deleteMany = function(filter, options) {
 	options = options || {};
+
+	try {
+		assert(filter, 'Missing filter');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.deleteMany(filter, options,
@@ -130,6 +184,13 @@ MongoCollection.prototype.deleteMany = function(filter, options) {
 
 MongoCollection.prototype.count = function(query, options) {
 	options = options || {};
+
+	try {
+		assert(query, 'Missing query');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var collection = this.collection;
 	return new Promise(function(resolve, reject) {
 		collection.count(query, options,
@@ -141,11 +202,14 @@ MongoCollection.prototype.count = function(query, options) {
 	});
 };
 
+module.exports = MongoStore;
+
+
 function parseUpdates(updates) {
 	updates = objectAssign({}, updates);
 	var updateOperators = ['$inc', '$mul', '$rename', '$setOnInsert', '$set', '$unset', '$min', '$max', '$currentDate'];
 	updateOperators.forEach(function(operator) {
-		if ((operator in updates) && (!operator || (Object.keys(updates[operator]).length === 0))) {
+		if ((operator in updates) && (!updates[operator] || (Object.keys(updates[operator]).length === 0))) {
 			delete updates[operator];
 		}
 	});
@@ -154,5 +218,3 @@ function parseUpdates(updates) {
 	}
 	return updates;
 }
-
-module.exports = MongoStore;

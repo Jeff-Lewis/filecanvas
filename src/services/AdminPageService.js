@@ -1,6 +1,6 @@
 'use strict';
 
-var path = require('path');
+var assert = require('assert');
 var objectAssign = require('object-assign');
 var merge = require('lodash.merge');
 
@@ -13,39 +13,31 @@ function AdminPageService(options) {
 	var sessionMiddleware = options.sessionMiddleware;
 	var analyticsConfig = options.analytics;
 
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!sessionMiddleware) { throw new Error('Missing session middleware'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(sessionMiddleware, 'Missing session middleware');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	this.templatesPath = templatesPath;
 	this.partials = resolvePartials(partialsPath);
+	this.sessionMiddleware = sessionMiddleware;
 	this.analyticsConfig = analyticsConfig;
-
-	this.loadSessionData = function(req, res) {
-		return new Promise(function(resolve, reject) {
-			sessionMiddleware(req, res, function(error) {
-				if (error) { return reject(error); }
-				resolve();
-			});
-		});
-	};
 }
 
-AdminPageService.prototype.template = null;
-
-AdminPageService.prototype.getTemplatePath = function(templateName) {
-	return path.resolve(this.templatesPath, templateName + '.hbs');
-};
+AdminPageService.prototype.templatesPath = null;
+AdminPageService.prototype.partials = null;
+AdminPageService.prototype.sessionMiddleware = null;
+AdminPageService.prototype.analyticsConfig = null;
 
 AdminPageService.prototype.render = function(req, res, options) {
 	options = options || {};
 	var pageTemplateName = options.template;
 	var context = options.context || null;
 	var templateOptions = merge({}, { partials: this.partials }, options.options);
+	var sessionMiddleware = this.sessionMiddleware;
 	var analyticsConfig = this.analyticsConfig;
 
-	return this.loadSessionData(req, res)
+	return loadSessionData(sessionMiddleware, req, res)
 		.then(function() {
 			var templateData = getTemplateData(req, res, context, templateOptions, analyticsConfig);
 			if (req.session && req.session.state) {
@@ -59,6 +51,15 @@ AdminPageService.prototype.render = function(req, res, options) {
 		});
 
 
+	function loadSessionData(sessionMiddlewa, req, res) {
+		return new Promise(function(resolve, reject) {
+			sessionMiddleware(req, res, function(error) {
+				if (error) { return reject(error); }
+				resolve();
+			});
+		});
+	}
+
 	function renderTemplate(templateName, context) {
 		return new Promise(function(resolve, reject) {
 			res.render(templateName, context, function(error, data) {
@@ -70,6 +71,7 @@ AdminPageService.prototype.render = function(req, res, options) {
 };
 
 module.exports = AdminPageService;
+
 
 function getTemplateData(req, res, context, templateOptions, analyticsConfig) {
 	templateOptions = templateOptions || null;

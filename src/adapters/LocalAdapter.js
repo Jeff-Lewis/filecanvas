@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
@@ -10,8 +11,6 @@ var mkdirp = require('mkdirp');
 var slug = require('slug');
 var urlJoin = require('url-join');
 
-var LoginService = require('../services/LoginService');
-
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
 
@@ -21,18 +20,15 @@ var loadFileMetadata = require('../utils/loadFileMetadata');
 
 var HttpError = require('../errors/HttpError');
 
-function LocalLoginAdapter(database, options) {
+function LocalLoginAdapter(options) {
 	options = options || {};
-	var isTemporary = options.temporary || null;
 	var authStrategy = options.strategy || null;
 	var authOptions = options.options || null;
 
-	if (!authStrategy) { throw new Error('Missing auth strategy'); }
-	if (!authOptions) { throw new Error('Missing auth options'); }
+	assert(authStrategy, 'Missing auth strategy');
+	assert(authOptions, 'Missing auth options');
 
-	LoginAdapter.call(this, database, {
-		temporary: isTemporary
-	});
+	LoginAdapter.call(this);
 
 	this.authStrategy = authStrategy;
 	this.authOptions = authOptions;
@@ -44,18 +40,21 @@ LocalLoginAdapter.prototype.adapterName = 'local';
 LocalLoginAdapter.prototype.authStrategy = null;
 LocalLoginAdapter.prototype.authOptions = null;
 
-LocalLoginAdapter.prototype.middleware = function(database, passport, callback) {
-	var loginService = new LoginService(database, this);
+LocalLoginAdapter.prototype.middleware = function(passport, authCallback, loginCallback) {
+	assert(passport, 'Missing passport instance');
+	assert(authCallback, 'Missing auth callback');
+	assert(loginCallback, 'Missing login callback');
 
 	var app = express();
 
 	app.post('/', function(req, res, next) {
-		passport.authenticate('admin/local', function(error, user, info) {
+		var passportMiddleware = passport.authenticate('admin/local', function(error, user, info) {
 			if (!error && !user) {
 				error = new HttpError(401);
 			}
-			callback(error, user, info, req, res, next);
-		})(req, res, next);
+			authCallback(error, user, info, req, res, next);
+		});
+		passportMiddleware(req, res, next);
 	});
 
 	passport.use('admin/local', new LocalStrategy({ passReqToCallback: true },
@@ -65,13 +64,7 @@ LocalLoginAdapter.prototype.middleware = function(database, passport, callback) 
 				password: password
 			};
 			var query = { 'username': username };
-			loginService.login(query, passportValues, { request: req })
-				.then(function(userModel) {
-					callback(null, userModel);
-				})
-				.catch(function(error) {
-					callback(error);
-				});
+			loginCallback(req, passportValues, query, callback);
 		})
 	);
 
@@ -142,14 +135,14 @@ function LocalStorageAdapter(database, options) {
 	var previewUrl = options.previewUrl || null;
 	var thumbnailUrl = options.thumbnailUrl || null;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!adapterLabel) { throw new Error('Missing adapter label'); }
-	if (!rootLabel) { throw new Error('Missing adapter name'); }
-	if (!defaultSitesPath) { throw new Error('Missing default sites path'); }
-	if (!sitesRoot) { throw new Error('Missing local sites root'); }
-	if (!downloadUrl) { throw new Error('Missing local download URL'); }
-	if (!previewUrl) { throw new Error('Missing local preview URL'); }
-	if (!thumbnailUrl) { throw new Error('Missing local thumbnail URL'); }
+	assert(database, 'Missing database');
+	assert(adapterLabel, 'Missing adapter label');
+	assert(rootLabel, 'Missing adapter name');
+	assert(defaultSitesPath, 'Missing default sites path');
+	assert(sitesRoot, 'Missing local sites root');
+	assert(downloadUrl, 'Missing local download URL');
+	assert(previewUrl, 'Missing local preview URL');
+	assert(thumbnailUrl, 'Missing local thumbnail URL');
 
 	StorageAdapter.call(this);
 

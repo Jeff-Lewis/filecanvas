@@ -80,19 +80,17 @@ ThemeService.prototype.getNextTheme = function(themeId) {
 };
 
 ThemeService.prototype.getThemeTemplate = function(theme, templateId) {
-	if (typeof theme === 'string') {
-		theme = this.getTheme(theme);
-	}
+	if (typeof theme === 'string') { theme = this.getTheme(theme); }
 	if (!(templateId in theme.templates)) {
 		throw new HttpError(404, 'Invalid template: ' + templateId);
 	}
+
 	return theme.templates[templateId];
 };
 
 ThemeService.prototype.renderThemeTemplate = function(theme, templateId, context) {
-	if (typeof theme === 'string') {
-		theme = this.getTheme(theme);
-	}
+	if (typeof theme === 'string') { theme = this.getTheme(theme); }
+
 	var self = this;
 	return new Promise(function(resolve, reject) {
 		var template = self.getThemeTemplate(theme, templateId);
@@ -107,9 +105,8 @@ ThemeService.prototype.renderThemeTemplate = function(theme, templateId, context
 };
 
 ThemeService.prototype.serializeThemeTemplate = function(theme, templateId) {
-	if (typeof theme === 'string') {
-		theme = this.getTheme(theme);
-	}
+	if (typeof theme === 'string') { theme = this.getTheme(theme); }
+
 	var self = this;
 	return new Promise(function(resolve, reject) {
 		var template = self.getThemeTemplate(theme, templateId);

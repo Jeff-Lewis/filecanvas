@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var express = require('express');
 
 var sitesApp = require('../sites');
@@ -13,18 +14,19 @@ module.exports = function(database, cache, options) {
 	var adaptersConfig = options.adaptersConfig || null;
 	var analyticsConfig = options.analytics || null;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!cache) { throw new Error('Missing key-value store'); }
-	if (!host) { throw new Error('Missing host details'); }
-	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!themesUrl) { throw new Error('Missing themes root URL'); }
-	if (!themeAssetsUrl) { throw new Error('Missing theme assets root URL'); }
-	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(database, 'Missing database');
+	assert(cache, 'Missing key-value store');
+	assert(host, 'Missing host details');
+	assert(themesPath, 'Missing themes path');
+	assert(themesUrl, 'Missing themes root URL');
+	assert(themeAssetsUrl, 'Missing theme assets root URL');
+	assert(adaptersConfig, 'Missing adapters configuration');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
 	var app = express();
 
 	app.use(addUsernamePathPrefix);
+
 	app.use(sitesApp(database, cache, {
 		preview: true,
 		host: host,

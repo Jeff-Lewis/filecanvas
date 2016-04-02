@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var Jimp = require('jimp');
@@ -12,6 +13,16 @@ ThumbnailService.prototype.saveThumbnail = function(source, options) {
 	var destination = options.destination;
 	var width = options.width;
 	var height = options.height;
+
+	try {
+		assert(source, 'Missing source path');
+		assert(destination, 'Missing destination path');
+		assert(width, 'Missing width');
+		assert(height, 'Missing height');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	return Jimp.read(source)
 		.then(function(image) {
 			return ensureDirectoryExists(path.dirname(destination))
@@ -32,6 +43,7 @@ ThumbnailService.prototype.saveThumbnail = function(source, options) {
 };
 
 module.exports = ThumbnailService;
+
 
 function ensureDirectoryExists(path) {
 	return new Promise(function(resolve, reject) {

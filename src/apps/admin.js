@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var objectAssign = require('object-assign');
 var express = require('express');
 var Passport = require('passport').Passport;
@@ -30,6 +31,7 @@ var appendQueryParams = require('../utils/appendQueryParams');
 var parseLocation = require('../utils/parseLocation');
 var getSubdomainUrl = require('../utils/getSubdomainUrl');
 
+var LoginService = require('../services/LoginService');
 var UserService = require('../services/UserService');
 
 module.exports = function(database, cache, options) {
@@ -52,27 +54,27 @@ module.exports = function(database, cache, options) {
 	var uploadAdapterConfig = options.uploadAdapter;
 	var analyticsConfig = options.analytics;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!cache) { throw new Error('Missing key-value store'); }
-	if (!host) { throw new Error('Missing host details'); }
-	if (!cookieSecret) { throw new Error('Missing cookie secret'); }
-	if (!sessionStore) { throw new Error('Missing session store URL'); }
-	if (!sessionDuration) { throw new Error('Missing session duration'); }
-	if (!templatesPath) { throw new Error('Missing templates path'); }
-	if (!partialsPath) { throw new Error('Missing partials path'); }
-	if (!themesPath) { throw new Error('Missing themes path'); }
-	if (!faqPath) { throw new Error('Missing FAQ path'); }
-	if (!siteTemplatePath) { throw new Error('Missing site template path'); }
-	if (!adminAssetsUrl) { throw new Error('Missing admin asset root URL'); }
-	if (!themesUrl) { throw new Error('Missing themes URL'); }
-	if (!themeAssetsUrl) { throw new Error('Missing theme assets URL'); }
-	if (!wwwUrl) { throw new Error('Missing www URL'); }
-	if (!adaptersConfig) { throw new Error('Missing adapters configuration'); }
-	if (!siteAuthOptions) { throw new Error('Missing site authentication options'); }
-	if (!uploadAdapterConfig) { throw new Error('Missing upload adapter configuration'); }
-	if (!analyticsConfig) { throw new Error('Missing analytics configuration'); }
+	assert(database, 'Missing database');
+	assert(cache, 'Missing key-value store');
+	assert(host, 'Missing host details');
+	assert(cookieSecret, 'Missing cookie secret');
+	assert(sessionStore, 'Missing session store URL');
+	assert(sessionDuration, 'Missing session duration');
+	assert(templatesPath, 'Missing templates path');
+	assert(partialsPath, 'Missing partials path');
+	assert(themesPath, 'Missing themes path');
+	assert(faqPath, 'Missing FAQ path');
+	assert(siteTemplatePath, 'Missing site template path');
+	assert(adminAssetsUrl, 'Missing admin asset root URL');
+	assert(themesUrl, 'Missing themes URL');
+	assert(themeAssetsUrl, 'Missing theme assets URL');
+	assert(wwwUrl, 'Missing www URL');
+	assert(adaptersConfig, 'Missing adapters configuration');
+	assert(siteAuthOptions, 'Missing site authentication options');
+	assert(uploadAdapterConfig, 'Missing upload adapter configuration');
+	assert(analyticsConfig, 'Missing analytics configuration');
 
-	var loginAdapters = loadLoginAdapters(adaptersConfig, database);
+	var loginAdapters = loadLoginAdapters(adaptersConfig);
 	var storageAdapters = loadStorageAdapters(adaptersConfig, database, cache);
 	var uploadAdapter = loadUploadAdapter(uploadAdapterConfig);
 
@@ -408,11 +410,11 @@ module.exports = function(database, cache, options) {
 					next();
 				});
 
-				var adapterMiddleware = adapter.middleware(database, passport, loginCallback);
+				var adapterMiddleware = adapter.middleware(passport, authCallback, loginCallback);
 				app.use(loginPrefix + '/' + adapterName, adapterMiddleware);
 
 
-				function loginCallback(error, user, info, req, res, next) {
+				function authCallback(error, user, info, req, res, next) {
 					if (error) { return next(error); }
 
 					loginPassportUser(user, info, req, function(error) {
@@ -434,6 +436,17 @@ module.exports = function(database, cache, options) {
 							});
 						});
 					}
+				}
+
+				function loginCallback(req, passportValues, query, next) {
+					var loginService = new LoginService(database, adapter);
+					loginService.login(query, passportValues, { request: req })
+						.then(function(userModel) {
+							next(null, userModel);
+						})
+						.catch(function(error) {
+							next(error);
+						});
 				}
 			});
 
@@ -493,6 +506,7 @@ module.exports = function(database, cache, options) {
 
 		function loadSessionData(req) {
 			var userModel = req.user || null;
+
 			return Promise.resolve(userModel ? retrieveSortedUserSites(userModel) : null)
 				.then(function(sortedSiteModels) {
 					var currentSubdomain = (req.subdomains ? req.subdomains.join('.') : null);

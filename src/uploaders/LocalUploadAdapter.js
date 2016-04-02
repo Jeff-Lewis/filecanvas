@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var util = require('util');
 var url = require('url');
 var https = require('https');
@@ -15,8 +16,8 @@ function LocalUploadAdapter(options) {
 	var uploadUrl = options.uploadUrl || null;
 	var downloadUrl = options.downloadUrl || null;
 
-	if (!uploadUrl) { throw new Error('Missing upload URL'); }
-	if (!downloadUrl) { throw new Error('Missing download URL'); }
+	assert(uploadUrl, 'Missing upload URL');
+	assert(downloadUrl, 'Missing download URL');
 
 	UploadAdapter.call(this);
 
@@ -27,6 +28,12 @@ function LocalUploadAdapter(options) {
 util.inherits(LocalUploadAdapter, UploadAdapter);
 
 LocalUploadAdapter.prototype.generateRequest = function(filePath) {
+	try {
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var uploadUrl = this.uploadUrl + filePath;
 
 	var self = this;
@@ -41,13 +48,26 @@ LocalUploadAdapter.prototype.generateRequest = function(filePath) {
 };
 
 LocalUploadAdapter.prototype.getDownloadUrl = function(filePath) {
+	try {
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var downloadUrl = this.downloadUrl;
 	return urlJoin(downloadUrl, filePath);
 };
 
 LocalUploadAdapter.prototype.readFile = function(filePath) {
+	try {
+		assert(filePath, 'Missing file path');
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	var downloadUrl = this.getDownloadUrl(filePath);
 	return loadPotentiallyInsecureUrlContents(downloadUrl);
+
 
 	function loadPotentiallyInsecureUrlContents(targetUrl) {
 		var protocol = url.parse(targetUrl).protocol;

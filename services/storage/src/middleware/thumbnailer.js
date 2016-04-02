@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
@@ -16,10 +17,10 @@ module.exports = function(root, options) {
 	var cachePath = options.cache || null;
 	var format = options.format || null;
 
-	if (!root) { throw new Error('Missing source path'); }
-	if (!width) { throw new Error('Missing thumbnail width'); }
-	if (!height) { throw new Error('Missing thumbnail height'); }
-	if (!cachePath) { throw new Error('Missing thumbnail cache path'); }
+	assert(root, 'Missing source path');
+	assert(width, 'Missing thumbnail width');
+	assert(height, 'Missing thumbnail height');
+	assert(cachePath, 'Missing thumbnail cache path');
 
 	var staticMiddleware = express.static(path.resolve(cachePath));
 	return function(req, res, next) {

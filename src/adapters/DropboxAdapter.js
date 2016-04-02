@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var util = require('util');
 var path = require('path');
 var express = require('express');
@@ -11,8 +12,6 @@ var request = require('request');
 var Dropbox = require('../../lib/dropbox/dist/dropbox');
 var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 
-var LoginService = require('../services/LoginService');
-
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
 
@@ -20,20 +19,17 @@ var FileModel = require('../models/FileModel');
 
 var HttpError = require('../errors/HttpError');
 
-function DropboxLoginAdapter(database, options) {
+function DropboxLoginAdapter(options) {
 	options = options || {};
-	var isTemporary = options.temporary;
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 	var loginCallbackUrl = options.loginCallbackUrl;
 
-	if (!appKey) { throw new Error('Missing Dropbox app key'); }
-	if (!appSecret) { throw new Error('Missing Dropbox app secret'); }
-	if (!loginCallbackUrl) { throw new Error('Missing login callback URL'); }
+	assert(appKey, 'Missing Dropbox app key');
+	assert(appSecret, 'Missing Dropbox app secret');
+	assert(loginCallbackUrl, 'Missing login callback URL');
 
-	LoginAdapter.call(this, database, {
-		temporary: isTemporary
-	});
+	LoginAdapter.call(this);
 
 	this.appKey = appKey;
 	this.appSecret = appSecret;
@@ -47,18 +43,20 @@ DropboxLoginAdapter.prototype.appKey = null;
 DropboxLoginAdapter.prototype.appSecret = null;
 DropboxLoginAdapter.prototype.loginCallbackUrl = null;
 
-DropboxLoginAdapter.prototype.middleware = function(database, passport, callback) {
+DropboxLoginAdapter.prototype.middleware = function(passport, authCallback, loginCallback) {
+	assert(passport, 'Missing passport instance');
+	assert(authCallback, 'Missing auth callback');
+	assert(loginCallback, 'Missing login callback');
+
 	var appKey = this.appKey;
 	var appSecret = this.appSecret;
 	var loginCallbackUrl = this.loginCallbackUrl;
-
-	var loginService = new LoginService(database, this);
 
 	var app = express();
 
 	app.post('/', passport.authenticate('admin/dropbox'));
 	app.get('/oauth2/callback', function(req, res, next) {
-		passport.authenticate('admin/dropbox', function(error, user, info) {
+		var passportMiddleware = passport.authenticate('admin/dropbox', function(error, user, info) {
 			if (!error && req.query['error']) {
 				if (req.query['error'] === 'access_denied') {
 					// TODO: Handle use case where user denies access
@@ -71,8 +69,9 @@ DropboxLoginAdapter.prototype.middleware = function(database, passport, callback
 				error = new HttpError(401, oauthErrorDetails['error_description']);
 				error.code = oauthErrorDetails['error'];
 			}
-			callback(error, user, info, req, res, next);
-		})(req, res, next);
+			authCallback(error, user, info, req, res, next);
+		});
+		passportMiddleware(req, res, next);
 	});
 
 	passport.use('admin/dropbox', new DropboxOAuth2Strategy({
@@ -91,13 +90,7 @@ DropboxLoginAdapter.prototype.middleware = function(database, passport, callback
 				email: profile.emails[0].value
 			};
 			var query = { 'uid': passportValues.uid };
-			loginService.login(query, passportValues, { request: req })
-				.then(function(userModel) {
-					callback(null, userModel);
-				})
-				.catch(function(error) {
-					callback(error);
-				});
+			loginCallback(req, passportValues, query, callback);
 		}
 	));
 
@@ -169,12 +162,12 @@ function DropboxStorageAdapter(database, options) {
 	var appKey = options.appKey;
 	var appSecret = options.appSecret;
 
-	if (!database) { throw new Error('Missing database'); }
-	if (!adapterLabel) { throw new Error('Missing adapter label'); }
-	if (!rootLabel) { throw new Error('Missing root label'); }
-	if (!defaultSitesPath) { throw new Error('Missing sites path'); }
-	if (!appKey) { throw new Error('Missing Dropbox app key'); }
-	if (!appSecret) { throw new Error('Missing Dropbox app appSecret'); }
+	assert(database, 'Missing database');
+	assert(adapterLabel, 'Missing adapter label');
+	assert(rootLabel, 'Missing root label');
+	assert(defaultSitesPath, 'Missing sites path');
+	assert(appKey, 'Missing Dropbox app key');
+	assert(appSecret, 'Missing Dropbox app appSecret');
 
 	StorageAdapter.call(this);
 
@@ -372,8 +365,12 @@ DropboxStorageAdapter.prototype.getUploadConfig = function(siteAdapterConfig, us
 
 
 function DropboxConnector(appKey, appSecret) {
-	if (!appKey) { return Promise.reject(new Error('No app key specified')); }
-	if (!appSecret) { return Promise.reject(new Error('No app secret specified')); }
+	try {
+		assert(appKey, 'No app key specified');
+		assert(appSecret, 'No app secret specified');
+	} catch (error) {
+		return Promise.reject(error);
+	}
 
 	this.appKey = appKey;
 	this.appSecret = appSecret;
@@ -439,6 +436,8 @@ function parseStatModel(statModel, options) {
 
 
 function DropboxClient(client) {
+	assert(client, 'No client specified');
+
 	this.client = client;
 }
 

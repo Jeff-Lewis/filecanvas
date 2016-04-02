@@ -1,5 +1,6 @@
 'use strict';
 
+var assert = require('assert');
 var objectAssign = require('object-assign');
 var isEqual = require('lodash.isequal');
 
@@ -19,16 +20,20 @@ LoginService.prototype.database = null;
 LoginService.prototype.login = function(query, passportValues, options) {
 	options = options || {};
 	var req = options.request;
-	var clientIp = getClientAddress(req);
 
-	if (!query) { return Promise.reject(new Error('Missing query')); }
-	if (!passportValues) { return Promise.reject(new Error('Missing passport values')); }
-	if (!req) { return Promise.reject(new Error('Missing request')); }
+	try {
+		assert(query, 'Missing query');
+		assert(passportValues, 'Missing passport values');
+		assert(req, 'Missing request');
+	} catch (error) {
+		return Promise.reject(error);
+	}
 
+	var database = this.database;
 	var loginAdapter = this.adapter;
 	var adapterName = loginAdapter.adapterName;
-	var database = this.database;
 
+	var clientIp = getClientAddress(req);
 	var userService = new UserService(database);
 
 	return userService.retrieveAdapterUser(adapterName, query)
