@@ -15,6 +15,8 @@ var DropboxOAuth2Strategy = require('passport-dropbox-oauth2').Strategy;
 var LoginAdapter = require('./LoginAdapter');
 var StorageAdapter = require('./StorageAdapter');
 
+var resolveChildPath = require('../utils/resolveChildPath');
+
 var FileModel = require('../models/FileModel');
 
 var HttpError = require('../errors/HttpError');
@@ -291,7 +293,7 @@ DropboxStorageAdapter.prototype.readFile = function(filePath, siteAdapterConfig,
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			var sitePath = siteAdapterConfig.path;
-			var fullPath = path.join(sitePath, filePath);
+			var fullPath = resolveChildPath(sitePath, filePath);
 			return dropboxClient.readFile(fullPath);
 		});
 };
@@ -305,7 +307,7 @@ DropboxStorageAdapter.prototype.retrieveDownloadLink = function(filePath, siteAd
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			var sitePath = siteAdapterConfig.path;
-			var fullPath = path.join(sitePath, filePath);
+			var fullPath = resolveChildPath(sitePath, filePath);
 			return dropboxClient.generateDownloadLink(fullPath);
 		});
 };
@@ -319,7 +321,7 @@ DropboxStorageAdapter.prototype.retrievePreviewLink = function(filePath, siteAda
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			var sitePath = siteAdapterConfig.path;
-			var fullPath = path.join(sitePath, filePath);
+			var fullPath = resolveChildPath(sitePath, filePath);
 			return dropboxClient.generatePreviewLink(fullPath);
 		});
 };
@@ -333,7 +335,7 @@ DropboxStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteA
 		.connect(uid, accessToken)
 		.then(function(dropboxClient) {
 			var sitePath = siteAdapterConfig.path;
-			var fullPath = path.join(sitePath, filePath);
+			var fullPath = resolveChildPath(sitePath, filePath);
 			return dropboxClient.generateThumbnailLink(fullPath);
 		});
 };

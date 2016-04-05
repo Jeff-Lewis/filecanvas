@@ -16,6 +16,7 @@ var StorageAdapter = require('./StorageAdapter');
 
 var AuthenticationService = require('../services/AuthenticationService');
 
+var resolveChildPath = require('../utils/resolveChildPath');
 var loadFileMetadata = require('../utils/loadFileMetadata');
 
 var HttpError = require('../errors/HttpError');
@@ -190,8 +191,8 @@ LocalStorageAdapter.prototype.initSiteFolder = function(siteFiles, siteAdapterCo
 
 
 	function checkWhetherFileExists(filePath) {
-		var fullPath = path.join(sitesRoot, filePath);
 		return new Promise(function(resolve, reject) {
+			var fullPath = resolveChildPath(sitesRoot, filePath);
 			fs.stat(fullPath, function(error, stat) {
 				if (error && (error.code === 'ENOENT')) {
 					return resolve(false);
@@ -206,8 +207,8 @@ LocalStorageAdapter.prototype.initSiteFolder = function(siteFiles, siteAdapterCo
 	function copySiteFiles(sitePath, dirContents) {
 		var files = getFileListing(dirContents);
 		return Promise.resolve(mapSeries(files, function(fileMetadata) {
-			var filePath = path.join(sitePath, fileMetadata.path);
-			var fullPath = path.join(sitesRoot, filePath);
+			var filePath = resolveChildPath(sitePath, fileMetadata.path);
+			var fullPath = resolveChildPath(sitesRoot, filePath);
 			var fileContents = fileMetadata.contents;
 			return writeFile(fullPath, fileContents);
 		}).then(function(results) {
@@ -249,11 +250,17 @@ LocalStorageAdapter.prototype.initSiteFolder = function(siteFiles, siteAdapterCo
 LocalStorageAdapter.prototype.loadSiteContents = function(siteAdapterConfig, userAdapterConfig) {
 	var sitesRoot = this.sitesRoot;
 	var siteFolderPath = siteAdapterConfig.path;
-	var fullPath = path.join(sitesRoot, siteFolderPath);
-	return loadFileMetadata(fullPath, {
-		root: fullPath,
-		contents: true
+	return new Promise(function(resolve, reject) {
+		resolve(
+			resolveChildPath(sitesRoot, siteFolderPath)
+		);
 	})
+		.then(function(fullPath) {
+			return loadFileMetadata(fullPath, {
+				root: fullPath,
+				contents: true
+			});
+		})
 		.then(function(rootFolder) {
 			return {
 				root: rootFolder,
@@ -265,8 +272,8 @@ LocalStorageAdapter.prototype.loadSiteContents = function(siteAdapterConfig, use
 LocalStorageAdapter.prototype.readFile = function(filePath, siteAdapterConfig, userAdapterConfig) {
 	var sitesRoot = this.sitesRoot;
 	var sitePath = siteAdapterConfig.path;
-	var fullPath = path.join(sitesRoot, sitePath, filePath);
 	return new Promise(function(resolve, reject) {
+		var fullPath = resolveChildPath(sitesRoot, sitePath, filePath);
 		fs.readFile(fullPath, { encoding: 'utf8' }, function(error, data) {
 			if (error) { return reject(error); }
 			resolve(data);
@@ -294,11 +301,17 @@ LocalStorageAdapter.prototype.retrieveThumbnailLink = function(filePath, siteAda
 
 LocalStorageAdapter.prototype.retrieveFileMetadata = function(filePath, userAdapterConfig) {
 	var sitesRoot = this.sitesRoot;
-	var fullPath = path.resolve(sitesRoot, filePath);
-	return loadFileMetadata(fullPath, {
-		root: sitesRoot,
-		contents: false
+	return new Promise(function(resolve, reject) {
+		resolve(
+			resolveChildPath(sitesRoot, filePath)
+		);
 	})
+		.then(function(fullPath) {
+			return loadFileMetadata(fullPath, {
+				root: sitesRoot,
+				contents: false
+			});
+		})
 		.catch(function(error) {
 			if (error.code === 'ENOENT') { return null; }
 			throw error;

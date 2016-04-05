@@ -50,7 +50,7 @@ module.exports = function(database, cache, config) {
 	var siteTemplatePath = config.templates.site;
 	var themesPath = config.themes.root;
 
-	var partialsPath = path.resolve(appTemplatesPath, '_partials');
+	var partialsPath = path.join(appTemplatesPath, '_partials');
 	var adminTemplatesPath = path.join(appTemplatesPath, 'admin');
 	var demoTemplatesPath = path.join(appTemplatesPath, 'demo');
 	var faqPath = path.join(appTemplatesPath, 'faq/faq.json');
