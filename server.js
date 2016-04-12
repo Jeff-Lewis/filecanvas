@@ -33,7 +33,9 @@ Promise.all([
 		return app;
 	})
 	.then(function(app) {
-		captureErrors({ external: true });
+		if (process.env.NODE_ENV !== 'production') {
+			captureErrors({ external: true });
+		}
 		return app;
 	})
 	.then(function(app) {
