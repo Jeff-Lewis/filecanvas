@@ -461,12 +461,16 @@ fieldset[disabled] .btn {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+
 .panel-pricing .panel-heading,
+.panel-pricing .panel-body,
 .panel-pricing .panel-footer {
 	text-align: center;
 }
+.panel-pricing .panel-body {
+	border-bottom: 1px solid #eee;
+}
 .panel-pricing .panel-body p.lead {
-	text-align: center;
 	font-weight: normal;
 	margin-top: 5px;
 	margin-bottom: 5px;
@@ -485,6 +489,11 @@ fieldset[disabled] .btn {
 }
 .panel-pricing-limits .list-group-item {
 	border-color: #eee;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+.panel-pricing-limits .list-group-item:first-child {
+	border-top: none;
 }
 .panel-pricing-features {
 	padding: 5px;
