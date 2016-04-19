@@ -2,7 +2,7 @@
   "name": "Filecanvas",
   "version": "0.0.1",
   "description": "Your files. Giftwrapped.",
-  "license": "Copyright (c) Tim Kendrick Ltd",
+  "license": "UNLICENSED",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
